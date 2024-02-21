@@ -1,9 +1,11 @@
 **Ranch Management System**
+
 The Ranch Management System is a comprehensive JavaFX and FXML-based application tailored to efficiently oversee and organize various aspects of a ranch. From managing diverse livestock to handling inventory, feed, breeding, and generating comprehensive reports, this system simplifies the complexities of ranch management.
 
 
 
 **Features**
+
 **1. Livestock Management**
 Multi-species Support: Easily manage different types of livestock including sheep, chicken, goats, cattle, fish, and more.
 Health Monitoring: Track and monitor the health status of each animal, facilitating timely interventions and treatments.
