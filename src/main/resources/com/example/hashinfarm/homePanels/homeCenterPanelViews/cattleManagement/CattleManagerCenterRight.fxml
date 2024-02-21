@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.layout.*?>
+
+
+<TabPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+    <Tab text="Cattle Details">
+        <fx:include source="centerRightViews/CattleDetails.fxml"/>
+    </Tab>
+    <Tab text="Reproduction And Breeding">
+
+        <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+            <Tab text="Reproduction Reports">
+                <fx:include source="centerRightViews/ReproductionReports.fxml"/>
+            </Tab>
+            <Tab text="Mating and Breeding Details">
+                <fx:include source="centerRightViews/MatingAndBreedingDetails.fxml"/>
+            </Tab>
+        </TabPane>
+    </Tab>
+
+    <Tab text="Productivity and Calving">
+        <fx:include source="centerRightViews/MilkProduction.fxml"/>
+    </Tab>
+
+    <Tab text="Detailed Health Records">
+        <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+            <Tab text="Medical History">
+                <fx:include source="centerRightViews/MedicalHistory.fxml"/>
+            </Tab>
+            <Tab text="Individual Vaccination Records">
+                <AnchorPane/>
+            </Tab>
+            <Tab text="Weight Tracking">
+                <AnchorPane/>
+            </Tab>
+        </TabPane>
+    </Tab>
+
+
+    <Tab text="Feeding And Nutrition">
+        <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+            <Tab text="Feed Consumption">
+                <fx:include source="centerRightViews/FeedConsumption.fxml"/>
+            </Tab>
+            <Tab text="Nutrition Tracking">
+                <AnchorPane/>
+            </Tab>
+            <Tab text="Grazing Behavior Analysis">
+                <AnchorPane/>
+            </Tab>
+        </TabPane>
+    </Tab>
+
+
+</TabPane>
+
+
+

@@ -1,0 +1,249 @@
+.round-button {
+    -fx-background-radius: 5em;
+    -fx-min-width: 50px;
+    -fx-min-height: 50px;
+}
+/* General Styling */
+.table-view {
+    -fx-background-color: #f2f2f2; /* Set a background color that complements your application's theme */
+    -fx-border-color: #ccc; /* Define a border color to provide a clear separation */
+}
+
+/* TableView Styling */
+.table-view .column-header-background {
+    -fx-background-color: #ddd; /* Style the background of column headers */
+}
+
+/* TableColumn Styling */
+.column-header {
+    -fx-background-color: #ddd; /* Style individual column headers for consistency */
+}
+
+.table-column {
+    /* Target the entire column for styling, if needed */
+}
+
+/* Header Text Styling */
+.label {
+    /* Style the header text for readability */
+}
+
+.table-column .label {
+    /* Refine styles for column headers */
+}
+
+/* Hover Effects */
+.table-row-cell:hover {
+    -fx-background-color: #e0e0e0; /* Add a hover effect to highlight rows on mouseover */
+}
+
+.table-cell:hover {
+    /* Apply a similar effect to individual cells */
+}
+
+/* Selected Row Styling */
+.table-row-cell:selected {
+    -fx-background-color: #a9d9f7; /* Style selected rows for clear visibility */
+}
+
+.table-cell:selected {
+    /* Customize styles for selected cells */
+}
+
+/* Odd and Even Row Styling */
+.table-row-cell:odd {
+    -fx-background-color: #f9f9f9; /* Apply a unique style to odd-numbered rows */
+}
+
+.table-row-cell:even {
+    /* Style even-numbered rows differently */
+}
+
+/* Padding and Spacing */
+.table-cell {
+    -fx-padding: 5; /* Adjust padding for cells to enhance readability */
+}
+
+.table-row-cell {
+    -fx-spacing: 5; /* Modify spacing between rows for better aesthetics */
+}
+
+/* Borders and Separators */
+.table-row-cell {
+    -fx-border-width: 0 0 1 0; /* Customize borders for a cleaner look */
+    -fx-border-color: #ccc;
+}
+
+.column-header, .table-cell {
+    -fx-border-width: 0 0 0 1; /* Add separators between columns */
+    -fx-border-color: #ccc;
+}
+
+/* Font and Text Styling */
+.table-view {
+    -fx-font-family: "Arial"; /* Set the global font for consistency */
+    -fx-font-size: 12; /* Set the global font size for consistency */
+}
+
+.table-row-cell .text {
+    /* Style text within cells */
+}
+
+/* Odd and Even Column Styling */
+.column-header:odd {
+    /* Apply styles to odd-numbered column headers */
+}
+
+.column-header:even {
+    /* Style even-numbered column headers uniquely */
+}
+
+/* Zebra Striping */
+.table-row-cell:odd {
+    /* Implement zebra striping for rows */
+}
+
+.table-row-cell:even {
+    /* Continue zebra striping for even rows */
+}
+
+/* Focus Indicator Styling */
+.table-row-cell:focused {
+    /* Customize the appearance of the focus indicator */
+}
+
+.table-cell:focused {
+    /* Style focused individual cells */
+}
+
+/* Pagination Styling */
+.pagination {
+    /* Style the pagination control if implemented */
+}
+
+.page-number {
+    /* Customize the appearance of individual page numbers */
+}
+
+/* Scrollbar Styling */
+.scroll-bar {
+    /* Style the vertical or horizontal scrollbar */
+}
+
+.increment-button, .decrement-button {
+    /* Refine styles for scrollbar buttons */
+}
+
+/* Tooltip Styling */
+.table-row-cell .tooltip {
+    /* Customize the appearance of tooltips */
+}
+
+.table-cell .tooltip {
+    /* Style tooltips for individual cells */
+}
+
+/* Animation Effects */
+.fade-transition {
+    /* Implement subtle fade effects for smooth transitions */
+}
+
+.scale-transition {
+    /* Add scaling effects for interactive elements */
+}
+
+/* Custom Icons or Graphics */
+.graphic {
+    /* Include custom icons or graphics within cells or headers */
+}
+
+.arrow {
+    /* Style arrow graphics for sorting indicators */
+}
+
+/* Header Sorting Indicators */
+.arrow {
+    /* Customize styles for sorting arrows in headers */
+}
+
+.sorted {
+    /* Style headers when a column is sorted */
+}
+
+/* Alternate Row Backgrounds */
+.table-row-cell:odd .table-cell {
+    /* Apply styles to odd-numbered cells in zebra-striped rows */
+}
+
+.table-row-cell:even .table-cell {
+    /* Style even-numbered cells in zebra-striped rows */
+}
+
+
+
+
+
+
+/* styles.css */
+
+.main-container {
+    -fx-background-color: #f0f0f0;
+    -fx-padding: 20;
+}
+
+.scroll-pane {
+    -fx-background-color: #ffffff;
+    -fx-border-color: #dcdcdc;
+    -fx-border-width: 1;
+}
+
+.image-container {
+    -fx-scale-x: 1.0;
+    -fx-scale-y: 1.0;
+    -fx-transition: transform 0.2s;
+}
+
+.image-container:hover > .image-box {
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.image-container:pressed > .image-box {
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+}
+
+.image-box {
+    -fx-spacing: 10;
+}
+
+.button-box {
+    -fx-spacing: 20;
+}
+
+.custom-button {
+    -fx-background-color: #3498db; /* Blue */
+    -fx-border: none;
+    -fx-text-fill: white;
+    -fx-padding: 10 20;
+    -fx-font-size: 14px;
+    -fx-cursor: HAND;
+    -fx-transition: transform 0.2s;
+}
+
+.custom-button:hover {
+    -fx-background-color: #2980b9; /* Darker Blue */
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.custom-button:pressed {
+    -fx-scale-x: 0.9;
+    -fx-scale-y: 0.9;
+}
+
+
+
+.table-cell {
+    -fx-wrap-text: true;
+}
