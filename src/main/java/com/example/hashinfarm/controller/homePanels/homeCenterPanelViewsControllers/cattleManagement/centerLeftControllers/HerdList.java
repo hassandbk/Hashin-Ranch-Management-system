@@ -3,19 +3,24 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 import com.example.hashinfarm.controller.dao.CattleDAO;
 import com.example.hashinfarm.controller.dao.HerdDAO;
 import com.example.hashinfarm.controller.utility.SelectedCowManager;
+import com.example.hashinfarm.controller.utility.SelectedHerdManager;
 import com.example.hashinfarm.model.Cattle;
 import com.example.hashinfarm.model.Herd;
+import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -86,15 +91,19 @@ public class HerdList {
         TableColumn<Herd, String> actionCol = new TableColumn<>("Action");
         actionCol.setCellValueFactory(new PropertyValueFactory<>("action"));
         actionCol.setCellFactory(getActionCellFactory());
-        double normalWidth = 100; // Example width for other columns
-        double solutionTypeWidth = normalWidth * 2; // Double the width
-        double actionWidth = normalWidth * 2; // Double the width
-        solutionTypeCol.setPrefWidth(solutionTypeWidth);
-        actionCol.setPrefWidth(actionWidth);
 
         TableColumn<Herd, String> animalsCol = new TableColumn<>("Animals");
         animalsCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>("Click to Expand"));
         animalsCol.setCellFactory(getAnimalsCellFactory());
+
+        double normalWidth = 100; // Example width for other columns
+        double solutionTypeWidth = normalWidth * 2; // Double the width
+        double actionWidth = normalWidth * 1.3;
+        double animalWidth = normalWidth * 1.3;
+        solutionTypeCol.setPrefWidth(solutionTypeWidth);
+        actionCol.setPrefWidth(actionWidth);
+        animalsCol.setPrefWidth(animalWidth);
+
 
         tableView.getColumns().addAll(idCol, nameCol, totalAnimalsCol, animalsCol, animalsClassCol, breedTypeCol,
                 ageClassCol, breedSystemCol, solutionTypeCol, feedBasisCol, locationCol, actionCol);
@@ -181,6 +190,7 @@ public class HerdList {
                 cattle.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
                         SelectedCowManager.getInstance().setSelectedCow(cattle);
+                        SelectedHerdManager.getInstance().setSelectedHerd(herd);
                     }
                 });
             }
@@ -188,13 +198,45 @@ public class HerdList {
     }
 
 
+
+
+
     private void openAnimalListView(Herd herd) {
         ListView<Cattle> animalListView = new ListView<>(herd.getAnimals());
         animalListView.setCellFactory(animalCellFactory);
+
+        // Set preferred width to 400
+        animalListView.setPrefWidth(400);
+
+        // Make the ListView scrollable
+        animalListView.setPrefHeight(Region.USE_COMPUTED_SIZE);
+
+        // Create a transparent overlay to prevent clicking elsewhere
+        StackPane overlay = new StackPane();
+        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
+
+        // Combine ListView and overlay in a VBox
+        VBox vBox = new VBox(animalListView);
+        vBox.setAlignment(Pos.CENTER);
+        vBox.getChildren().add(overlay);
+
+        // Create the stage
         Stage animalStage = new Stage();
         animalStage.initModality(Modality.APPLICATION_MODAL);
         animalStage.setTitle("Animals in " + herd.getName());
-        animalStage.setScene(new Scene(new VBox(animalListView), 200, 300));
+        animalStage.setScene(new Scene(vBox, 400, 300));
+
+        // Set the stage to not resizable
+        animalStage.setResizable(false);
+
+        // Set the stage to not maximizable
+        animalStage.maximizedProperty().addListener((obs, wasMaximized, isNowMaximized) -> {
+            if (isNowMaximized) {
+                Platform.runLater(() -> animalStage.setMaximized(false));
+            }
+        });
+
+        // Show the stage and wait for it to be closed
         animalStage.showAndWait();
     }
 
