@@ -1,6 +1,7 @@
 package com.example.hashinfarm.controller.dao;
 
 import com.example.hashinfarm.model.Herd;
+
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -29,10 +30,12 @@ public class HerdDAO {
                 int totalAnimals = resultSet.getInt("TotalAnimals");
                 String animalsClass = resultSet.getString("AnimalsClass");
                 String breedType = resultSet.getString("BreedType");
+                String ageClass = resultSet.getString("AgeClass"); // Fetch ageClass column
+                String breedSystem = resultSet.getString("BreedSystem"); // Fetch breedSystem column
                 String solutionType = resultSet.getString("SolutionType");
                 String feedBasis = resultSet.getString("FeedBasis");
                 String location = resultSet.getString("Location");
-                Herd herd = new Herd(herdID, name, totalAnimals, animalsClass, breedType, solutionType, feedBasis, location,"");
+                Herd herd = new Herd(herdID, name, totalAnimals, animalsClass, breedType, ageClass, breedSystem, solutionType,  feedBasis, location,"");
                 herds.add(herd);
             }
         } finally {

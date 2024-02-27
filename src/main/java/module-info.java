@@ -25,6 +25,7 @@ module com.example.hashinfarm {
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers to javafx.fxml;
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.matingAndBreedingControllers to javafx.fxml;
     opens com.example.hashinfarm.model to javafx.base;
+    opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers to javafx.fxml;
 
     exports com.example.hashinfarm;
     exports com.example.hashinfarm.controller;

@@ -161,5 +161,6 @@
             <Label prefHeight="18.0" prefWidth="248.0" text="Fish Management" GridPane.columnIndex="1"
                    GridPane.rowIndex="4"/>
         </GridPane>
+
     </VBox>
 </GridPane>

@@ -7,9 +7,24 @@
 
 
 <TabPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
-    <Tab text="Cattle Details">
-        <fx:include source="centerRightViews/CattleDetails.fxml"/>
+
+    <Tab text="Animal Details">
+
+        <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
+
+            <Tab text="Characteristics">
+                <fx:include source="centerRightViews/Characteristics.fxml"/>
+            </Tab>
+            <Tab text="Detailed Information">
+                <fx:include source="centerRightViews/DetailedInformation.fxml"/>
+            </Tab>
+
+
+        </TabPane>
     </Tab>
+
+
+
     <Tab text="Reproduction And Breeding">
 
         <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">

@@ -15,6 +15,7 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -40,6 +41,13 @@ public class HerdList {
         setupTableColumns();
         setupData();
         setupAnimalSelectionListener();
+
+        // Add a listener to update the name dynamically
+        SelectedCowManager.getInstance().selectedNameProperty().addListener((observable, oldValue, newValue) -> {
+            selectedAnimal.setText(newValue); // Update cattle name
+        });
+
+
     }
 
     private void setupTableColumns() {
@@ -58,6 +66,14 @@ public class HerdList {
         TableColumn<Herd, String> breedTypeCol = new TableColumn<>("Breed Type");
         breedTypeCol.setCellValueFactory(new PropertyValueFactory<>("breedType"));
 
+        TableColumn<Herd, String> ageClassCol = new TableColumn<>("Age Class");
+        ageClassCol.setCellValueFactory(new PropertyValueFactory<>("ageClass"));
+
+
+        TableColumn<Herd, String> breedSystemCol = new TableColumn<>("Breed System");
+        breedSystemCol.setCellValueFactory(new PropertyValueFactory<>("breedSystem"));
+
+
         TableColumn<Herd, String> solutionTypeCol = new TableColumn<>("Solution Type");
         solutionTypeCol.setCellValueFactory(new PropertyValueFactory<>("solutionType"));
 
@@ -69,10 +85,25 @@ public class HerdList {
 
         TableColumn<Herd, String> actionCol = new TableColumn<>("Action");
         actionCol.setCellValueFactory(new PropertyValueFactory<>("action"));
+        actionCol.setCellFactory(getActionCellFactory());
+        double normalWidth = 100; // Example width for other columns
+        double solutionTypeWidth = normalWidth * 2; // Double the width
+        double actionWidth = normalWidth * 2; // Double the width
+        solutionTypeCol.setPrefWidth(solutionTypeWidth);
+        actionCol.setPrefWidth(actionWidth);
 
         TableColumn<Herd, String> animalsCol = new TableColumn<>("Animals");
         animalsCol.setCellValueFactory(param -> new ReadOnlyObjectWrapper<>("Click to Expand"));
-        animalsCol.setCellFactory(param -> new TableCell<>() {
+        animalsCol.setCellFactory(getAnimalsCellFactory());
+
+        tableView.getColumns().addAll(idCol, nameCol, totalAnimalsCol, animalsCol, animalsClassCol, breedTypeCol,
+                ageClassCol, breedSystemCol, solutionTypeCol, feedBasisCol, locationCol, actionCol);
+        tableView.setItems(herds);
+    }
+
+
+    private Callback<TableColumn<Herd, String>, TableCell<Herd, String>> getAnimalsCellFactory() {
+        return param -> new TableCell<>() {
             @Override
             protected void updateItem(String item, boolean empty) {
                 super.updateItem(item, empty);
@@ -91,11 +122,43 @@ public class HerdList {
                     });
                 }
             }
-        });
+        };
+    }
 
-        tableView.getColumns().addAll(idCol, nameCol, totalAnimalsCol, animalsCol, animalsClassCol, breedTypeCol,
-                solutionTypeCol, feedBasisCol, locationCol, actionCol);
-        tableView.setItems(herds);
+    private Callback<TableColumn<Herd, String>, TableCell<Herd, String>> getActionCellFactory() {
+        return param -> new TableCell<>() {
+            private final Button viewButton = new Button("View");
+
+            private final Button deleteButton = new Button("Delete");
+
+
+            private final HBox buttonsBox = new HBox(viewButton,deleteButton);
+
+            {
+                viewButton.setOnAction(event -> {
+                    Herd herd = getTableView().getItems().get(getIndex());
+                    showViewStage(herd.getId());
+                });
+
+
+                deleteButton.setOnAction(event -> {
+                    Herd herd = getTableView().getItems().get(getIndex());
+                    showDeleteConfirmation(herd.getId());
+                });
+
+
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(buttonsBox);
+                }
+            }
+        };
     }
 
     private void setupData() {
@@ -112,17 +175,12 @@ public class HerdList {
             // Handle exception
         }
     }
-
-
-
     private void setupAnimalSelectionListener() {
         for (Herd herd : herds) {
             for (Cattle cattle : herd.getAnimals()) {
                 cattle.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
-                        SelectedCowManager.getInstance().setSelectedCowName(cattle.getName());
-                        SelectedCowManager.getInstance().setSelectedCowId(cattle.getId());
-                        selectedAnimal.setText(cattle.getName()); // Update label
+                        SelectedCowManager.getInstance().setSelectedCow(cattle);
                     }
                 });
             }
@@ -139,6 +197,35 @@ public class HerdList {
         animalStage.setScene(new Scene(new VBox(animalListView), 200, 300));
         animalStage.showAndWait();
     }
+
+    private void showViewStage(int herdId) {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerLeftViews/ViewSelectedHerd.fxml"));
+
+            Parent root = loader.load();
+            ViewSelectedHerdController controller = loader.getController();
+
+            // Retrieve the Herd object from the list
+            Herd selectedHerd = herds.stream().filter(herd -> herd.getId() == herdId).findFirst().orElse(null);
+            if (selectedHerd != null) {
+                controller.initData(selectedHerd);
+                Stage stage = new Stage();
+                stage.initModality(Modality.APPLICATION_MODAL);
+                stage.setTitle("View Herd");
+                stage.setScene(new Scene(root));
+                stage.showAndWait();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+
+    private void showDeleteConfirmation(int herdId) {
+        // Implement logic to show delete confirmation
+    }
+
 
     private final Callback<ListView<Cattle>, ListCell<Cattle>> animalCellFactory = new Callback<>() {
         @Override
@@ -166,7 +253,6 @@ public class HerdList {
             };
         }
     };
-
     private void unselectCattleInOtherHerds(Cattle selectedCattle) {
         herds.forEach(herd -> {
             if (herd != null) {
