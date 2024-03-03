@@ -1,7 +1,6 @@
 package com.example.hashinfarm.controller.utility;
 
 import javafx.scene.control.SplitPane;
-import javafx.scene.control.SplitPane.Divider;
 
 public class SplitPaneDividerEnforcer {
 
@@ -24,5 +23,4 @@ public class SplitPaneDividerEnforcer {
             });
         });
     }
-
 }

@@ -40,140 +40,57 @@ public class CharacteristicsController {
     private final Map<Button, String> buttonHandlersMap = new HashMap<>();
 
     public void initialize() {
-        // Initialize button handlers with respective fx:id using a loop
         initializeButtonHandlers(
-                modifyCow,viewImage, viewGallery,
+                modifyCow, viewImage, viewGallery,
                 addBreed, downloadImage
         );
 
+        addSelectedCowListeners();
+        addSelectedHerdListeners();
 
-        // Add listeners to update UI elements based on changes to selected cow properties
-        SelectedCowManager.getInstance().selectedNameProperty().addListener((observable, oldValue, newValue) -> {
-            cattleNameLabel.setText(newValue); // Update cattle name text field
-        });
-
-        SelectedCowManager.getInstance().selectedCowIdProperty().addListener((observable, oldValue, newValue) -> {
-            cattleIdLabel.setText(String.valueOf(newValue)); // Update cattle ID label
-        });
-        SelectedCowManager.getInstance().selectedDateOfBirthProperty().addListener((observable, oldValue, newValue) -> {
-             dobDatePicker.setValue(newValue.toLocalDate());
-        });
-
-        SelectedCowManager.getInstance().selectedAgeProperty().addListener((observable, oldValue, newValue) -> {
-           agelabel.setText(String.valueOf(newValue));
-        });
-
-        SelectedCowManager.getInstance().selectedBreedIdProperty().addListener((observable, oldValue, newValue) -> {
-            breedIDLabel.setText(String.valueOf(newValue));
-        });
-
-        SelectedCowManager.getInstance().selectedBreedNameProperty().addListener((observable, oldValue, newValue) -> {
-           cattleBreedLabel.setText(newValue);
-        });
-
-        SelectedCowManager.getInstance().selectedDamNameProperty().addListener((observable, oldValue, newValue) -> {
-           damNameLabel.setText(newValue);
-        });
-
-        SelectedCowManager.getInstance().selectedSireNameProperty().addListener((observable, oldValue, newValue) -> {
-           sireNameLabel.setText(newValue);
-        });
-
-
-
-
-
-// Add more listeners for other properties if needed
-        SelectedCowManager.getInstance().selectedSireIdProperty().addListener((observable, oldValue, newValue) -> {
-            sireIDLabel.setText(String.valueOf(newValue));
-        });
-
-        SelectedCowManager.getInstance().selectedDamIdProperty().addListener((observable, oldValue, newValue) -> {
-            damIDLabel.setText(String.valueOf(newValue));
-        });
-        SelectedCowManager.getInstance().selectedSireHerdNameProperty().addListener((observable, oldValue, newValue) -> {
-            sireHerdNameLabel.setText(newValue);
-        });
-
-        SelectedCowManager.getInstance().selectedDamHerdNameProperty().addListener((observable, oldValue, newValue) -> {
-            damHerdNameLabel.setText(newValue);
-        });
-
-
-
-
-        SelectedCowManager.getInstance().selectedSireBreedNameProperty().addListener((observable, oldValue, newValue) -> {
-            sireBreedNameLabel.setText(newValue);
-        });
-
-        SelectedCowManager.getInstance().selectedDamBreedNameProperty().addListener((observable, oldValue, newValue) -> {
-            damBreedNameLabel.setText(newValue);
-        });
-
-
-
-
-
-
-        SelectedHerdManager.getInstance().selectedHerdNameProperty().addListener((observable, oldValue, newValue) -> {
-            cattleHerdLabel.setText(newValue);
-        });
-
-        SelectedHerdManager.getInstance().selectedHerdNameProperty().addListener((observable, oldValue, newValue) -> {
-            cattleHerdLabel.setText(newValue);
-        });
-
-        SelectedHerdManager.getInstance().selectedHerdAnimalClassProperty().addListener((observable, oldValue, newValue) -> {
-            // Update label for animal class
-            animalClassLabel.setText(newValue);
-        });
-
-        SelectedHerdManager.getInstance().selectedHerdBreedTypeProperty().addListener((observable, oldValue, newValue) -> {
-            // Update label for breed type
-            breedTypeLabel.setText(newValue);
-        });
-
-        SelectedHerdManager.getInstance().selectedHerdAgeClassProperty().addListener((observable, oldValue, newValue) -> {
-            // Update label for age class
-            ageClassLabel.setText(newValue);
-        });
-
-        SelectedHerdManager.getInstance().selectedHerdBreedSystemProperty().addListener((observable, oldValue, newValue) -> {
-            // Update label for breed system
-            breedSystemLabel.setText(newValue);
-        });
-
-        SelectedHerdManager.getInstance().selectedHerdSolutionTypeProperty().addListener((observable, oldValue, newValue) -> {
-            // Update label for animal type
-            herdSolutionTypeLabel.setText(newValue);
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-        // Initialize the CattleDetailsModel
         cattleDetailsModel = new CattleDetailsModel();
         cattleDetailsModel.populateImages(imageContainer);
 
-        // Initialize the file validation controller
         fileValidationController = new FileValidationController();
-
-        // Other initialization code...
         downloadImageHandler = new DownloadImageHandler();
     }
+
+
+
+    private void addSelectedCowListeners() {
+        SelectedCowManager cowManager = SelectedCowManager.getInstance();
+
+        cowManager.selectedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleNameLabel, newValue));
+        cowManager.selectedCowIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleIdLabel, String.valueOf(newValue)));
+        cowManager.selectedDateOfBirthProperty().addListener((observable, oldValue, newValue) -> dobDatePicker.setValue(newValue.toLocalDate()));
+        cowManager.selectedAgeProperty().addListener((observable, oldValue, newValue) -> updateLabel(agelabel, String.valueOf(newValue)));
+        cowManager.selectedBreedIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(breedIDLabel, String.valueOf(newValue)));
+        cowManager.selectedBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleBreedLabel, newValue));
+        cowManager.selectedDamNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damNameLabel, newValue));
+        cowManager.selectedSireNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireNameLabel, newValue));
+        cowManager.selectedSireIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireIDLabel, String.valueOf(newValue)));
+        cowManager.selectedDamIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(damIDLabel, String.valueOf(newValue)));
+        cowManager.selectedSireHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireHerdNameLabel, newValue));
+        cowManager.selectedDamHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damHerdNameLabel, newValue));
+        cowManager.selectedSireBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireBreedNameLabel, newValue));
+        cowManager.selectedDamBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damBreedNameLabel, newValue));
+    }
+
+    private void addSelectedHerdListeners() {
+        SelectedHerdManager herdManager = SelectedHerdManager.getInstance();
+
+        herdManager.selectedHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleHerdLabel, newValue));
+        herdManager.selectedHerdAnimalClassProperty().addListener((observable, oldValue, newValue) -> updateLabel(animalClassLabel, newValue));
+        herdManager.selectedHerdBreedTypeProperty().addListener((observable, oldValue, newValue) -> updateLabel(breedTypeLabel, newValue));
+        herdManager.selectedHerdAgeClassProperty().addListener((observable, oldValue, newValue) -> updateLabel(ageClassLabel, newValue));
+        herdManager.selectedHerdBreedSystemProperty().addListener((observable, oldValue, newValue) -> updateLabel(breedSystemLabel, newValue));
+        herdManager.selectedHerdSolutionTypeProperty().addListener((observable, oldValue, newValue) -> updateLabel(herdSolutionTypeLabel, newValue));
+    }
+
+    private void updateLabel(Label label, String text) {
+        label.setText(text);
+    }
+
 
     private void initializeButtonHandlers(Button... buttons) {
         for (Button button : buttons) {

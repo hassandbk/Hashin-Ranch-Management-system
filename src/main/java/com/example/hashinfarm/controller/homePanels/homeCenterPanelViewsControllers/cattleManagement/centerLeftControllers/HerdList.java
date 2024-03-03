@@ -2,10 +2,10 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 
 import com.example.hashinfarm.controller.dao.CattleDAO;
 import com.example.hashinfarm.controller.dao.HerdDAO;
-import com.example.hashinfarm.controller.utility.SelectedCowManager;
-import com.example.hashinfarm.controller.utility.SelectedHerdManager;
 import com.example.hashinfarm.model.Cattle;
 import com.example.hashinfarm.model.Herd;
+import com.example.hashinfarm.controller.utility.SelectedCowManager;
+import com.example.hashinfarm.controller.utility.SelectedHerdManager;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
@@ -13,13 +13,17 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-
 import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.layout.*;
+
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.Region;
+import javafx.scene.layout.StackPane;
+import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -32,7 +36,7 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 
-import static org.controlsfx.control.textfield.TextFields.*;
+import static org.controlsfx.control.textfield.TextFields.bindAutoCompletion;
 
 public class HerdList {
 
@@ -40,9 +44,10 @@ public class HerdList {
     private TextField searchField;
     @FXML
     private CheckBox ascendingOrderCheckBox;
-    @SuppressWarnings("rawtypes")
+
     @FXML
-    private ComboBox bulkActionsComboBox,sortingComboBox;
+    private ComboBox<String> bulkActionsComboBox, sortingComboBox; // Assuming columnNames is a list of Strings
+
     @FXML
     private TableView<Herd> tableView;
     @FXML
@@ -53,17 +58,19 @@ public class HerdList {
     private final ObservableList<Herd> filteredHerds = FXCollections.observableArrayList();
 
     private Timer timer;
-    private List<String> columnNames = Arrays.asList("Herd ID", "Herd Name", "Total Animals", "Animals Class", "Breed Type", "Age Class", "Breed System", "Solution Type", "Feed Basis", "Location");
+    private final List<String> columnNames = Arrays.asList("Herd ID", "Herd Name", "Total Animals", "Animals Class", "Breed Type", "Age Class", "Breed System", "Solution Type", "Feed Basis", "Location");
 
     @FXML
     private void initialize() {
         setupTableColumns();
         setupData();
         setupAnimalSelectionListener();
+        setupSearchField();
+        setupSortingComboBox();
+    }
 
-        // Add listener to searchField
+    private void setupSearchField() {
         searchField.textProperty().addListener((observable, oldValue, newValue) -> {
-            // Delay filtering using debouncing
             if (timer != null) {
                 timer.cancel();
             }
@@ -71,89 +78,36 @@ public class HerdList {
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    Platform.runLater(() -> {
-                        filterTable(newValue);
-                    });
+                    Platform.runLater(() -> filterTable(newValue));
                 }
-            }, 500); // Adjust the delay as needed
+            }, 500);
         });
-
-        // Add a listener to update the name dynamically
-        SelectedCowManager.getInstance().selectedNameProperty().addListener((observable, oldValue, newValue) -> {
-            selectedAnimal.setText(newValue); // Update cattle name
-        });
-
         try {
-            // Retrieve unique values from the 'Name' column in the 'herd' table
             List<String> uniqueNames = HerdDAO.getUniqueNamesFromHerd();
-
-            // Convert list to array
             String[] possibleSuggestions = uniqueNames.toArray(new String[0]);
-
-            // Bind auto-completion to the search field with dynamic suggestions
             bindAutoCompletion(searchField, possibleSuggestions);
         } catch (SQLException e) {
             e.printStackTrace();
-            // Handle exception
         }
+    }
 
+    private void setupSortingComboBox() {
         sortingComboBox.setItems(FXCollections.observableArrayList(columnNames));
-
-        // Add event handlers for sorting
-        sortingComboBox.setOnAction(event -> {
-            String selectedColumn = (String) sortingComboBox.getSelectionModel().getSelectedItem();
-            boolean ascending = ascendingOrderCheckBox.isSelected();
-            sortTable(selectedColumn, ascending);
-        });
-
-        ascendingOrderCheckBox.setOnAction(event -> {
-            String selectedColumn = (String) sortingComboBox.getSelectionModel().getSelectedItem();
-            boolean ascending = ascendingOrderCheckBox.isSelected();
-            sortTable(selectedColumn, ascending);
-        });
-
-
+        sortingComboBox.setOnAction(event -> sortTable());
+        ascendingOrderCheckBox.setOnAction(event -> sortTable());
     }
 
-
-    // Function to filter the table
-    private void filterTable(String searchText) {
-        filteredHerds.clear();
-        if (searchText.isEmpty()) {
-            filteredHerds.addAll(herds);
-            return;
+    private void sortTable() {
+        String selectedColumn = sortingComboBox.getSelectionModel().getSelectedItem();
+        boolean ascending = ascendingOrderCheckBox.isSelected();
+        TableColumn<Herd, ?> column = tableView.getColumns().stream()
+                .filter(col -> col.getText().equals(selectedColumn))
+                .findFirst().orElse(null);
+        if (column != null) {
+            column.setSortType(ascending ? TableColumn.SortType.ASCENDING : TableColumn.SortType.DESCENDING);
+            tableView.getSortOrder().clear();
+            tableView.getSortOrder().add(column);
         }
-        // Filter based on search criteria
-        filteredHerds.addAll(herds.stream()
-                .filter(herd -> herdMatchesSearchCriteria(herd, searchText))
-                .toList());
-        tableView.setItems(filteredHerds);
-    }
-
-    // Function to check if a herd matches the search criteria
-    private boolean herdMatchesSearchCriteria(Herd herd, String searchText) {
-        String[] searchTokens = searchText.toLowerCase().split("\\s+"); // Split search text by spaces
-
-        for (String token : searchTokens) {
-            boolean tokenMatch = false;
-
-            // Check if the token matches any column in the herd object
-            tokenMatch = herd.getName().toLowerCase().contains(token);
-            tokenMatch = tokenMatch || String.valueOf(herd.getId()).contains(token);
-            tokenMatch = tokenMatch || herd.getAnimalClass().toLowerCase().contains(token);
-            tokenMatch = tokenMatch || herd.getBreedType().toLowerCase().contains(token);
-            tokenMatch = tokenMatch || herd.getAgeClass().toLowerCase().contains(token);
-            tokenMatch = tokenMatch || herd.getBreedSystem().toLowerCase().contains(token);
-            tokenMatch = tokenMatch || herd.getSolutionType().toLowerCase().contains(token);
-            tokenMatch = tokenMatch || herd.getFeedBasis().toLowerCase().contains(token);
-            tokenMatch = tokenMatch || herd.getLocation().toLowerCase().contains(token);
-
-            if (!tokenMatch) {
-                return false;
-            }
-        }
-
-        return true;
     }
 
     private void setupTableColumns() {
@@ -169,8 +123,7 @@ public class HerdList {
         addColumn("Location", "location");
         addActionColumn(); // Specify width for Action column
         addAnimalsColumn(); // Specify width for Animals column
-
-        tableView.setItems(herds);
+        tableView.setItems(filteredHerds);
     }
 
     private <T> void addColumn(String title, String propertyName) {
@@ -200,8 +153,6 @@ public class HerdList {
         tableView.getColumns().add(column);
     }
 
-
-
     private Callback<TableColumn<Herd, String>, TableCell<Herd, String>> getAnimalsCellFactory() {
         return param -> new TableCell<>() {
             @Override
@@ -228,25 +179,14 @@ public class HerdList {
     private Callback<TableColumn<Herd, String>, TableCell<Herd, String>> getActionCellFactory() {
         return param -> new TableCell<>() {
             private final Button viewButton = new Button("View");
-            private final Button editButton = new Button("Edit"); // Add new button for editing
+            private final Button editButton = new Button("Edit");
             private final Button deleteButton = new Button("Delete");
             private final HBox buttonsBox = new HBox(viewButton, editButton, deleteButton);
 
             {
-                viewButton.setOnAction(event -> {
-                    Herd herd = getTableView().getItems().get(getIndex());
-                    showViewStage(herd.getId());
-                });
-
-                editButton.setOnAction(event -> {
-                    Herd herd = getTableView().getItems().get(getIndex());
-                    showEditStage(herd.getId());
-                });
-
-                deleteButton.setOnAction(event -> {
-                    Herd herd = getTableView().getItems().get(getIndex());
-                    showDeleteConfirmation(herd.getId());
-                });
+                viewButton.setOnAction(event -> showViewStage(param.getTableView().getItems().get(getIndex()).getId()));
+                editButton.setOnAction(event -> showEditStage(param.getTableView().getItems().get(getIndex()).getId()));
+                deleteButton.setOnAction(event -> showDeleteConfirmation(param.getTableView().getItems().get(getIndex()).getId()));
             }
 
             @Override
@@ -270,11 +210,12 @@ public class HerdList {
                 herd.setAnimals(cattleObservableList);
             }
             herds.addAll(herdsFromDB);
+            filteredHerds.addAll(herdsFromDB);
         } catch (SQLException e) {
             e.printStackTrace();
-            // Handle exception
         }
     }
+
     private void setupAnimalSelectionListener() {
         for (Herd herd : herds) {
             for (Cattle cattle : herd.getAnimals()) {
@@ -288,9 +229,33 @@ public class HerdList {
         }
     }
 
+    private void filterTable(String searchText) {
+        filteredHerds.clear();
+        if (searchText.isEmpty()) {
+            filteredHerds.addAll(herds);
+            return;
+        }
+        filteredHerds.addAll(herds.filtered(herd -> herdMatchesSearchCriteria(herd, searchText)));
+    }
 
-
-
+    private boolean herdMatchesSearchCriteria(Herd herd, String searchText) {
+        String[] searchTokens = searchText.toLowerCase().split("\\s+");
+        for (String token : searchTokens) {
+            boolean tokenMatch = herd.getName().toLowerCase().contains(token)
+                    || String.valueOf(herd.getId()).contains(token)
+                    || herd.getAnimalClass().toLowerCase().contains(token)
+                    || herd.getBreedType().toLowerCase().contains(token)
+                    || herd.getAgeClass().toLowerCase().contains(token)
+                    || herd.getBreedSystem().toLowerCase().contains(token)
+                    || herd.getSolutionType().toLowerCase().contains(token)
+                    || herd.getFeedBasis().toLowerCase().contains(token)
+                    || herd.getLocation().toLowerCase().contains(token);
+            if (!tokenMatch) {
+                return false;
+            }
+        }
+        return true;
+    }
 
 
     private void openAnimalListView(Herd herd) {
@@ -458,7 +423,7 @@ public class HerdList {
             // Handle exception
         }
     }
-    public void refreshHerdTable(ActionEvent actionEvent) {
+    public void refreshHerdTable() {
         herds.clear(); // Clear the existing data
         try {
             List<Herd> herdsFromDB = HerdDAO.getAllHerds();
@@ -483,20 +448,6 @@ public class HerdList {
         alert.showAndWait();
     }
 
-    private void sortTable(String columnName, boolean ascending) {
-        // Clear existing sorting order
-        tableView.getSortOrder().clear();
 
-        // Find the TableColumn associated with the selected column name
-        TableColumn<Herd, ?> column = tableView.getColumns().stream()
-                .filter(col -> col.getText().equals(columnName))
-                .findFirst().orElse(null);
-
-        if (column != null) {
-            // Set the sorting order
-            column.setSortType(ascending ? TableColumn.SortType.ASCENDING : TableColumn.SortType.DESCENDING);
-            tableView.getSortOrder().add(column);
-        }
-    }
 
 }
