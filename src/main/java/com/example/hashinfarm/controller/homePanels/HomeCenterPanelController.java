@@ -22,6 +22,10 @@ public class HomeCenterPanelController {
     private final Map<String, String> viewMap = new HashMap<>();
     private LoadingStage loadingStage;
 
+    // Counter to keep track of loaded views
+    private int loadedViewCount = 0;
+    private int expectedViewCount = 0;
+
     @FXML
     private void initialize() {
         initializeViewMap();
@@ -51,9 +55,16 @@ public class HomeCenterPanelController {
             if (fxmlFileName != null) {
                 // Show loading stage
                 showLoadingStage();
-
+                // Increment the expected view count
+                expectedViewCount++;
                 CompletableFuture.runAsync(() -> loadNewView(fxmlFileName))
-                        .thenRun(this::closeLoadingStageWithDelay); // Close loading stage after 2 seconds
+                        .thenRun(() -> {
+                            // Update loaded view count and check if all views are loaded
+                            loadedViewCount++;
+                            if (loadedViewCount == expectedViewCount) {
+                                closeLoadingStage();
+                            }
+                        });
             }
         }
     }
@@ -68,8 +79,9 @@ public class HomeCenterPanelController {
         Platform.runLater(() -> handler.handle(mainGridPane));
     }
 
-    private void closeLoadingStageWithDelay() {
-        CompletableFuture.delayedExecutor(2000, TimeUnit.MILLISECONDS)
+    private void closeLoadingStage() {
+        CompletableFuture.delayedExecutor(5000, TimeUnit.MILLISECONDS)
                 .execute(() -> Platform.runLater(() -> loadingStage.close()));
+
     }
 }
