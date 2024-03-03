@@ -13,11 +13,12 @@ module com.example.hashinfarm {
     requires com.almasb.fxgl.all;
     requires imgscalr.lib;
     requires java.sql;
-
+    requires annotations;
+    requires mysql.connector.j;
 
 
     opens com.example.hashinfarm to javafx.fxml;
-    opens com.example.hashinfarm.controller to javafx.fxml; // Add this line to open the controller package
+    opens com.example.hashinfarm.controller to javafx.fxml;
     opens com.example.hashinfarm.controller.homePanels to javafx.fxml;
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers to javafx.fxml;
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.cattleDetailMoreControllers to javafx.fxml;

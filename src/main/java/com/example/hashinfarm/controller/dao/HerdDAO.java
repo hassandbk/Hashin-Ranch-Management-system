@@ -10,19 +10,46 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HerdDAO {
-    private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
+    // Method to add a new herd to the database
+    public static void addHerd(Herd herd) throws SQLException {
+        String query = "INSERT INTO herd (Name, TotalAnimals, AnimalsClass, BreedType, AgeClass, BreedSystem, SolutionType, FeedBasis, Location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        executeUpdate(query, herd);
+    }
 
+    // Method to retrieve all herds from the database
     public static List<Herd> getAllHerds() throws SQLException {
-        List<Herd> herds = new ArrayList<>();
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+        String query = "SELECT * FROM herd";
+        return executeQuery(query);
+    }
 
-        try {
-            connection = dbConnection.getConnection();
-            String query = "SELECT * FROM herd";
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+    // Method to retrieve unique names from herds in the database
+    public static List<String> getUniqueNamesFromHerd() throws SQLException {
+        String query = "SELECT DISTINCT Name FROM herd";
+        List<String> uniqueNames = new ArrayList<>();
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                String name = resultSet.getString("Name");
+                uniqueNames.add(name);
+            }
+        }
+        return uniqueNames;
+    }
+
+    // Method to update an existing herd in the database
+    public static void updateHerd(Herd herd) throws SQLException {
+        String query = "UPDATE herd SET Name=?, TotalAnimals=?, AnimalsClass=?, BreedType=?, AgeClass=?, BreedSystem=?, SolutionType=?, FeedBasis=?, Location=? WHERE HerdID=?";
+        executeUpdate(query, herd);
+    }
+
+    // Common method to execute SQL query and return result
+    private static List<Herd> executeQuery(String query) throws SQLException {
+        List<Herd> herds = new ArrayList<>();
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
                 int herdID = resultSet.getInt("HerdID");
@@ -30,24 +57,35 @@ public class HerdDAO {
                 int totalAnimals = resultSet.getInt("TotalAnimals");
                 String animalsClass = resultSet.getString("AnimalsClass");
                 String breedType = resultSet.getString("BreedType");
-                String ageClass = resultSet.getString("AgeClass"); // Fetch ageClass column
-                String breedSystem = resultSet.getString("BreedSystem"); // Fetch breedSystem column
+                String ageClass = resultSet.getString("AgeClass");
+                String breedSystem = resultSet.getString("BreedSystem");
                 String solutionType = resultSet.getString("SolutionType");
                 String feedBasis = resultSet.getString("FeedBasis");
                 String location = resultSet.getString("Location");
-                Herd herd = new Herd(herdID, name, totalAnimals, animalsClass, breedType, ageClass, breedSystem, solutionType,  feedBasis, location,"");
+                Herd herd = new Herd(herdID, name, totalAnimals, animalsClass, breedType, ageClass, breedSystem, solutionType, feedBasis, location, "");
                 herds.add(herd);
             }
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            // Connection will be closed automatically by the DatabaseConnection class
         }
-
         return herds;
+    }
+
+    // Common method to execute SQL update
+    private static void executeUpdate(String query, Herd herd) throws SQLException {
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, herd.getName());
+            preparedStatement.setInt(2, herd.getTotalAnimals());
+            preparedStatement.setString(3, herd.getAnimalClass());
+            preparedStatement.setString(4, herd.getBreedType());
+            preparedStatement.setString(5, herd.getAgeClass());
+            preparedStatement.setString(6, herd.getBreedSystem());
+            preparedStatement.setString(7, herd.getSolutionType());
+            preparedStatement.setString(8, herd.getFeedBasis());
+            preparedStatement.setString(9, herd.getLocation());
+            if (query.contains("UPDATE")) {
+                preparedStatement.setInt(10, herd.getId());
+            }
+            preparedStatement.executeUpdate();
+        }
     }
 }

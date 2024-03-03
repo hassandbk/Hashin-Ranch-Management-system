@@ -21,7 +21,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" prefHeight="796.0" prefWidth="888.0" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.MedicalHistory">
+<ScrollPane fitToWidth="true" prefHeight="796.0" prefWidth="888.0" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.MedicalHistory">
     <VBox prefHeight="619.0" prefWidth="711.0">
         <!-- Header or other elements can be added here -->
 

@@ -6,7 +6,8 @@
 <?import javafx.scene.layout.*?>
 
 
-<TabPane xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<TabPane xmlns="http://javafx.com/javafx"
+         xmlns:fx="http://javafx.com/fxml">
 
     <Tab text="Animal Details">
 

@@ -24,7 +24,8 @@
 <?import javafx.scene.text.Font?>
 <?import jfxtras.scene.control.CalendarTimeTextField?>
 
-<ScrollPane fitToWidth="true" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.ProductivityAndCalving">
+<ScrollPane fitToWidth="true" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.ProductivityAndCalving">
 <VBox spacing="10.0">
 
     <VBox spacing="10" />

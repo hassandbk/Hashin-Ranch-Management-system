@@ -10,9 +10,10 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.VBox?>
 
-<HBox xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<HBox  xmlns="http://javafx.com/javafx"
+       xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewHerd">
 
-    <VBox fx:id="addHerdVBox" alignment="CENTER" minWidth="-Infinity" spacing="10" HBox.hgrow="ALWAYS">
+    <VBox  alignment="CENTER" minWidth="-Infinity" spacing="10" HBox.hgrow="ALWAYS">
 
         <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Add New Herd" />
 
@@ -99,7 +100,8 @@
             </ComboBox>
         </HBox>
 
-        <Button text="Add Herd" />
+        <Button  text="Add Herd" onAction="#handleAddHerd"/>
+
         <padding>
             <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
         </padding>

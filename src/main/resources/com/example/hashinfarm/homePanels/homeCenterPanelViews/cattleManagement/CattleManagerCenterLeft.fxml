@@ -20,7 +20,8 @@
 
 <!-- Left Section -->
 
-<VBox prefHeight="695.0" prefWidth="1442.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="695.0" prefWidth="1442.0" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml">
     <TabPane tabClosingPolicy="UNAVAILABLE">
 
         <!-- TAB 1 HERD LIST -->

@@ -9,7 +9,8 @@
 <?import javafx.scene.text.*?>
 
 
-    <VBox xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.HomeController">
+    <VBox xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.HomeController">
 
         <MenuBar prefHeight="25.0" prefWidth="926.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
 

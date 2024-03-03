@@ -17,7 +17,8 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="677.0" prefWidth="760.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1">
+<VBox prefHeight="677.0" prefWidth="760.0" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml">
     <VBox prefHeight="676.0" prefWidth="760.0" spacing="10.0" style="-fx-padding: 10;">
         <!-- Basic Information -->
         <GridPane prefHeight="229.0" prefWidth="739.0">

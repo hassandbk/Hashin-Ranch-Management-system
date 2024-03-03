@@ -5,7 +5,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="CENTER" minWidth="-Infinity" prefHeight="489.0" prefWidth="765.0" spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.ViewSelectedHerdController">
+<VBox alignment="CENTER" minWidth="-Infinity" prefHeight="489.0" prefWidth="765.0" spacing="10"  xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.ViewSelectedHerdController">
     <GridPane minHeight="-Infinity" minWidth="-Infinity" prefHeight="210.0" prefWidth="386.0">
         <columnConstraints>
             <ColumnConstraints hgrow="NEVER" minWidth="10.0" />

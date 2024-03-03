@@ -23,7 +23,8 @@
 <?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="1095.0" prefWidth="1035.0" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.DetailedInformationController">
+<VBox prefHeight="1095.0" prefWidth="1035.0" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.DetailedInformationController">
     <GridPane alignment="CENTER" hgap="10.0" vgap="5.0" VBox.vgrow="NEVER">
 
 

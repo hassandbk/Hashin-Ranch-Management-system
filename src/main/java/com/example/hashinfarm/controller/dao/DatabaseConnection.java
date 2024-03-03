@@ -5,31 +5,22 @@ import java.sql.DriverManager;
 import java.sql.SQLException;
 
 public class DatabaseConnection {
-    // JDBC URL, username, and password of MySQL server
     private static final String JDBC_URL = "jdbc:mysql://localhost:3306/HashinFarm";
     private static final String USERNAME = "root";
-    private static final String PASSWORD = "";
+    private static final String PASSWORD = ""; // Consider externalizing this
 
-    // Singleton instance
-    private static DatabaseConnection instance;
+    private static volatile DatabaseConnection instance; // volatile for thread safety
+    private Connection connection;
 
-    // Database connection
-    private static Connection connection;
-
-    // Private constructor to prevent instantiation from outside
     private DatabaseConnection() {
         try {
-            // Register JDBC driver
             Class.forName("com.mysql.cj.jdbc.Driver");
-            // Open a connection
-            connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
-        } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
-            // Handle exceptions appropriately
+        } catch (ClassNotFoundException e) {
+            // Log the exception or handle appropriately
+            throw new IllegalStateException("MySQL JDBC driver not found", e);
         }
     }
 
-    // Method to get singleton instance
     public static DatabaseConnection getInstance() {
         if (instance == null) {
             synchronized (DatabaseConnection.class) {
@@ -41,20 +32,17 @@ public class DatabaseConnection {
         return instance;
     }
 
-    // Method to get database connection
-    public static Connection getConnection() {
+    public Connection getConnection() {
+        try {
+            if (connection == null || connection.isClosed()) {
+                connection = DriverManager.getConnection(JDBC_URL, USERNAME, PASSWORD);
+            }
+        } catch (SQLException e) {
+            // Log the exception or handle appropriately
+            throw new IllegalStateException("Failed to establish database connection", e);
+        }
         return connection;
     }
 
-    // Method to close database connection
-    public void closeConnection() {
-        if (connection != null) {
-            try {
-                connection.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-                // Handle exceptions appropriately
-            }
-        }
-    }
+
 }
