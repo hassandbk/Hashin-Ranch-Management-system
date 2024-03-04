@@ -111,4 +111,22 @@ public class CattleDAO {
         preparedStatement.setInt(13, cattle.getDamsHerd());
         preparedStatement.setInt(14, cattle.getSiresHerd());
     }
+    public static void deleteCattleByHerdId(int herdId) throws SQLException {
+        String query = "DELETE FROM cattle WHERE HerdID=?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, herdId);
+            preparedStatement.executeUpdate();
+        }
+    }
+    public static void deleteCattleById(int cattleId) throws SQLException {
+        String query = "DELETE FROM cattle WHERE CattleID=?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
 }

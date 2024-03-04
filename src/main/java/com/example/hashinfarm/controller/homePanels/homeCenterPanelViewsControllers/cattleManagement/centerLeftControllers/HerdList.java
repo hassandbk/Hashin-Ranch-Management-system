@@ -30,10 +30,7 @@ import javafx.util.Callback;
 
 import java.io.IOException;
 import java.sql.SQLException;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Timer;
-import java.util.TimerTask;
+import java.util.*;
 
 
 import static org.controlsfx.control.textfield.TextFields.bindAutoCompletion;
@@ -223,6 +220,8 @@ public class HerdList {
                     if (newValue) {
                         SelectedCowManager.getInstance().setSelectedCow(cattle);
                         SelectedHerdManager.getInstance().setSelectedHerd(herd);
+                        // Update the selectedAnimal label with the name of the selected cattle
+                        selectedAnimal.setText(cattle.getName());
                     }
                 });
             }
@@ -345,7 +344,38 @@ public class HerdList {
 
 
     private void showDeleteConfirmation(int herdId) {
-        // Implement logic to show delete confirmation
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Delete Confirmation");
+        alert.setHeaderText("Are you sure you want to delete this herd?");
+        alert.setContentText("This action cannot be undone.");
+
+        ButtonType deleteButton = new ButtonType("Delete", ButtonBar.ButtonData.OK_DONE);
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(deleteButton, cancelButton);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent() && result.get() == deleteButton) {
+            deleteHerd(herdId);
+        }
+    }
+
+    private void deleteHerd(int herdId) {
+        try {
+            // Delete the herd from the database using DAO
+            HerdDAO.deleteHerd(herdId);
+
+            // Remove the herd from the list and refresh the table
+            Herd herdToRemove = herds.stream().filter(herd -> herd.getId() == herdId).findFirst().orElse(null);
+            if (herdToRemove != null) {
+                herds.remove(herdToRemove);
+                filteredHerds.remove(herdToRemove);
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Herd deleted successfully.");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete herd: " + e.getMessage());
+        }
     }
 
 

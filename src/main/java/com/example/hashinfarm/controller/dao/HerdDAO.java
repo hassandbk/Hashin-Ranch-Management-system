@@ -88,4 +88,19 @@ public class HerdDAO {
             preparedStatement.executeUpdate();
         }
     }
+
+    public static void deleteHerd(int herdId) throws SQLException {
+        // First, delete cattle records associated with the herd
+        CattleDAO.deleteCattleByHerdId(herdId);
+
+        // Now, delete the herd itself
+        String query = "DELETE FROM herd WHERE HerdID=?";
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, herdId);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+
 }

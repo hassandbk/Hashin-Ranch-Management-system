@@ -4,179 +4,79 @@
     -fx-min-height: 50px;
 }
 /* General Styling */
-.table-view {
-    -fx-background-color: #f2f2f2; /* Set a background color that complements your application's theme */
-    -fx-border-color: #ccc; /* Define a border color to provide a clear separation */
+.table-view{
+    -fx-background-color: transparent;
 }
 
-/* TableView Styling */
-.table-view .column-header-background {
-    -fx-background-color: #ddd; /* Style the background of column headers */
+.table-view:focused{
+    -fx-background-color: transparent;
 }
 
-/* TableColumn Styling */
-.column-header {
-    -fx-background-color: #ddd; /* Style individual column headers for consistency */
+.table-view .column-header-background{
+    -fx-background-color: #a7d1e8;
+    -fx-border-color: #005797;
+    -fx-border-width: 0px 0px 1px 0px ;
+    -fx-border-style: solid;
+}
+.table-view:row-selection .column-header-background .filler{
+    -fx-background-color:#FFFFFF;
+}
+.table-view:row-selection .column-header-background .show-hide-columns-button{
+    -fx-background-color:#e0e0e0;
 }
 
-.table-column {
-    /* Target the entire column for styling, if needed */
+.table-view .column-header-background .label{
+    -fx-background-color: transparent;
+    -fx-text-fill: #005797;
+    -fx-font-weight:bold;
+    -fx-font-size:13px;
 }
 
-/* Header Text Styling */
-.label {
-    /* Style the header text for readability */
+.table-view .column-header {
+    -fx-background-color: transparent;
+    -fx-pref-height:50px;
+}
+.table-view  .table-column{
+    -fx-padding: 6 0 0 6;
+    -fx-border-width: 0px 0px 0px 0px ;
 }
 
-.table-column .label {
-    /* Refine styles for column headers */
+.table-view > .virtual-flow > .scroll-bar:vertical,
+.table-view > .virtual-flow > .scroll-bar:vertical > .track,
+.table-view > .virtual-flow > .scroll-bar:vertical > .track-background,
+.table-view > .virtual-flow > .scroll-bar:horizontal,
+.table-view > .virtual-flow > .scroll-bar:horizontal > .track,
+.table-view > .virtual-flow > .scroll-bar:horizontal > .track-background {
+    -fx-background-color: transparent;
 }
 
-/* Hover Effects */
-.table-row-cell:hover {
-    -fx-background-color: #e0e0e0; /* Add a hover effect to highlight rows on mouseover */
+.table-view > .virtual-flow > .scroll-bar > .increment-button,
+.table-view > .virtual-flow > .scroll-bar > .decrement-button {
+    -fx-opacity: 0;
 }
 
-.table-cell:hover {
-    /* Apply a similar effect to individual cells */
+.table-view .table-row-cell{
+    -fx-background-color:#FFF;
+    -fx-font-size:12px;
+    -fx-pref-height:30px;
+    -fx-border-width: 0px 0px 1px 0px ;
+    -fx-border-color:#e0e0e0;
 }
 
-/* Selected Row Styling */
-.table-row-cell:selected {
-    -fx-background-color: #a9d9f7; /* Style selected rows for clear visibility */
+.table-view .table-row-cell:hover {
+    -fx-background-color:#e0e0e0;
 }
 
-.table-cell:selected {
-    /* Customize styles for selected cells */
+.table-view .table-row-cell:selected{
+    -fx-background-color: #65a3c9;
 }
-
-/* Odd and Even Row Styling */
-.table-row-cell:odd {
-    -fx-background-color: #f9f9f9; /* Apply a unique style to odd-numbered rows */
+.table-view:row-selection .virtual-flow .scroll-bar:vertical .thumb{
+    -fx-background-color:#e0e0e0;
+    -fx-border-color:#262626;
 }
-
-.table-row-cell:even {
-    /* Style even-numbered rows differently */
-}
-
-/* Padding and Spacing */
-.table-cell {
-    -fx-padding: 5; /* Adjust padding for cells to enhance readability */
-}
-
-.table-row-cell {
-    -fx-spacing: 5; /* Modify spacing between rows for better aesthetics */
-}
-
-/* Borders and Separators */
-.table-row-cell {
-    -fx-border-width: 0 0 1 0; /* Customize borders for a cleaner look */
-    -fx-border-color: #ccc;
-}
-
-.column-header, .table-cell {
-    -fx-border-width: 0 0 0 1; /* Add separators between columns */
-    -fx-border-color: #ccc;
-}
-
-/* Font and Text Styling */
-.table-view {
-    -fx-font-family: "Arial"; /* Set the global font for consistency */
-    -fx-font-size: 12; /* Set the global font size for consistency */
-}
-
-.table-row-cell .text {
-    /* Style text within cells */
-}
-
-/* Odd and Even Column Styling */
-.column-header:odd {
-    /* Apply styles to odd-numbered column headers */
-}
-
-.column-header:even {
-    /* Style even-numbered column headers uniquely */
-}
-
-/* Zebra Striping */
-.table-row-cell:odd {
-    /* Implement zebra striping for rows */
-}
-
-.table-row-cell:even {
-    /* Continue zebra striping for even rows */
-}
-
-/* Focus Indicator Styling */
-.table-row-cell:focused {
-    /* Customize the appearance of the focus indicator */
-}
-
-.table-cell:focused {
-    /* Style focused individual cells */
-}
-
-/* Pagination Styling */
-.pagination {
-    /* Style the pagination control if implemented */
-}
-
-.page-number {
-    /* Customize the appearance of individual page numbers */
-}
-
-/* Scrollbar Styling */
-.scroll-bar {
-    /* Style the vertical or horizontal scrollbar */
-}
-
-.increment-button, .decrement-button {
-    /* Refine styles for scrollbar buttons */
-}
-
-/* Tooltip Styling */
-.table-row-cell .tooltip {
-    /* Customize the appearance of tooltips */
-}
-
-.table-cell .tooltip {
-    /* Style tooltips for individual cells */
-}
-
-/* Animation Effects */
-.fade-transition {
-    /* Implement subtle fade effects for smooth transitions */
-}
-
-.scale-transition {
-    /* Add scaling effects for interactive elements */
-}
-
-/* Custom Icons or Graphics */
-.graphic {
-    /* Include custom icons or graphics within cells or headers */
-}
-
-.arrow {
-    /* Style arrow graphics for sorting indicators */
-}
-
-/* Header Sorting Indicators */
-.arrow {
-    /* Customize styles for sorting arrows in headers */
-}
-
-.sorted {
-    /* Style headers when a column is sorted */
-}
-
-/* Alternate Row Backgrounds */
-.table-row-cell:odd .table-cell {
-    /* Apply styles to odd-numbered cells in zebra-striped rows */
-}
-
-.table-row-cell:even .table-cell {
-    /* Style even-numbered cells in zebra-striped rows */
+.table-view .table-row-cell:empty{
+    -fx-background-color:#FFFFFF;
+    -fx-border-color:#FFFFFF;
 }
 
 
@@ -246,4 +146,47 @@
 
 .table-cell {
     -fx-wrap-text: true;
+}
+
+
+.list-view{
+    -fx-background-color: transparent;
+}
+
+.list-view:focused{
+    -fx-background-color: transparent;
+}
+
+.list-view > .virtual-flow > .scroll-bar:vertical,
+.list-view > .virtual-flow > .scroll-bar:vertical > .track,
+.list-view > .virtual-flow > .scroll-bar:vertical > .track-background,
+.list-view > .virtual-flow > .scroll-bar:horizontal,
+.list-view > .virtual-flow > .scroll-bar:horizontal > .track,
+.list-view > .virtual-flow > .scroll-bar:horizontal > .track-background {
+    -fx-background-color: transparent;
+}
+
+.list-view > .virtual-flow > .scroll-bar > .increment-button,
+.list-view > .virtual-flow > .scroll-bar > .decrement-button {
+    -fx-opacity: 0;
+}
+.list-view .list-cell{
+    -fx-background-color:#FFF;
+    -fx-font-size:14px;
+    -fx-pref-height:50px;
+    -fx-border-width: 0px 0px 1px 0px ;
+    -fx-border-color:#e0e0e0;
+}
+
+.list-view .list-cell:hover {
+    -fx-background-color:#e0e0e0;
+}
+
+.list-view .list-cell:selected{
+    -fx-background-color: #65a3c9;
+}
+
+.list-view .list-cell:empty{
+    -fx-background-color:#FFFFFF;
+    -fx-border-color:#FFFFFF;
 }

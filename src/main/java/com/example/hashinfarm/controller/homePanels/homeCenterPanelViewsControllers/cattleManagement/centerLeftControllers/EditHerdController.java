@@ -137,7 +137,38 @@ public class EditHerdController {
     }
 
     public void handleDeleteCattleFromHerd() {
+        // Get the selected cattle from the table
+        Cattle selectedCattle = cattleTableView.getSelectionModel().getSelectedItem();
+        if (selectedCattle == null) {
+            showAlert(Alert.AlertType.WARNING, "Warning", "Please select a cattle to delete.");
+            return;
+        }
+
+        // Show confirmation dialog
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirmation");
+        confirmationAlert.setHeaderText(null);
+        confirmationAlert.setContentText("Are you sure you want to delete the selected cattle?");
+
+        confirmationAlert.showAndWait().ifPresent(response -> {
+            if (response == ButtonType.OK) {
+                try {
+                    // Delete the selected cattle from the database
+                    CattleDAO.deleteCattleById(selectedCattle.getCattleId());
+
+                    // Remove the selected cattle from the table view
+                    cattleTableView.getItems().remove(selectedCattle);
+
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle deleted successfully.");
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete cattle.");
+                }
+            }
+        });
     }
+
+
 
     public void handleRefreshCattleFromHerd() {
         try {

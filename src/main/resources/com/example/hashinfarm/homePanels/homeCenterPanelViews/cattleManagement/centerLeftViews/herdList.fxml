@@ -4,7 +4,8 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<VBox alignment="TOP_CENTER" spacing="10" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.HerdList">
+<VBox alignment="TOP_CENTER" spacing="10" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" stylesheets="@../../../../../../../css/styles.css"  fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.HerdList">
 <!-- Search Box -->
 <HBox alignment="CENTER_LEFT" prefHeight="38.0" prefWidth="1442.0" spacing="5">
     <Label text="Search:" />
