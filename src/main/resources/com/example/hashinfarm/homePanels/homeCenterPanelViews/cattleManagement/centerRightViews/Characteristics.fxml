@@ -7,8 +7,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.CharacteristicsController">
+<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.CharacteristicsController">
     <VBox prefHeight="829.0" prefWidth="1178.0">
 
         <HBox alignment="CENTER" prefWidth="200.0">
@@ -353,19 +352,24 @@
                 <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="1">
                     <Label alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="BODY CONDITION" HBox.hgrow="ALWAYS" />
                 </HBox>
-                <VBox alignment="CENTER" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+                <VBox alignment="CENTER" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="3">
                     <Label text="Body Condition Score" wrapText="true" />
                     <Label alignment="CENTER" minWidth="-Infinity" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="BCS:" wrapText="true" VBox.vgrow="ALWAYS" />
                     <VBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity">
-                        <Slider minHeight="-Infinity" minWidth="-Infinity">
+                        <Slider fx:id="BCSSlider" disable="true" minHeight="-Infinity" minWidth="-Infinity">
                             <tooltip>
                                 <Tooltip text="Adjust the Body Condition Score of the cattle" />
                             </tooltip>
                         </Slider>
                     </VBox>
+               <TextField fx:id="BCSTextField" alignment="CENTER" editable="false" minWidth="-Infinity" promptText="Bcs Value">
+                  <VBox.margin>
+                     <Insets top="20.0" />
+                  </VBox.margin>
+               </TextField>
                 </VBox>
                 <HBox alignment="CENTER" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                    <Button fx:id="modifyCow" mnemonicParsing="false" onAction="#handleButtonAction" prefHeight="35.0" prefWidth="35.0" styleClass="round-button">
+                    <Button fx:id="modifyCattle" mnemonicParsing="false" onAction="#handleButtonAction" prefHeight="35.0" prefWidth="35.0" styleClass="round-button">
                         <graphic>
                             <ImageView fitHeight="60.0" fitWidth="60.0" pickOnBounds="true" preserveRatio="true">
                                 <Image url="@../../../../../../../icons/ModifyCow.png" />

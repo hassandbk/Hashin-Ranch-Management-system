@@ -126,7 +126,10 @@ public class EditHerdController {
             Parent root = loader.load();
             AddNewCattleController addCattleController = loader.getController();
             addCattleController.initData(selectedHerd.getId(), this);
+
+            // Set the title for the stage
             Stage stage = new Stage();
+            stage.setTitle("Add Cattle to Herd");
             stage.setScene(new Scene(root));
             stage.initModality(Modality.APPLICATION_MODAL);
             stage.showAndWait();
@@ -135,6 +138,7 @@ public class EditHerdController {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to load Add Cattle form");
         }
     }
+
 
     public void handleDeleteCattleFromHerd() {
         // Get the selected cattle from the table

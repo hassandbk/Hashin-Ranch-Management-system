@@ -19,7 +19,7 @@ public class ActionHandlerFactory {
             case "saveDewormingChanges" -> new SaveDewormingChangesHandler();
             case "viewMoreAdditionalInfo" -> new ViewMoreAdditionalInfoHandler();
             case "saveAdditionalInfo" -> new SaveAdditionalInfoHandler();
-            case "modifyCow" -> new ModifyCowHandler();
+            case "modifyCattle" -> new ModifyCattleHandler();
             case "viewImage" -> new ViewImageHandler();
             case "viewGallery" -> new ViewGalleryHandler();
             case "addBreed" -> new AddBreedHandler();

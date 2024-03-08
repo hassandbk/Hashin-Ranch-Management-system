@@ -1,11 +1,7 @@
 package com.example.hashinfarm.controller.dao;
 
 import com.example.hashinfarm.model.Cattle;
-
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +52,23 @@ public class CattleDAO {
         return cattleList;
     }
 
+    public static String getTagIdByCattleId(int cattleId) throws SQLException {
+        String tagId = null;
+        String query = "SELECT TagID FROM cattle WHERE CattleID=?";
+        try (
+                Connection connection = dbConnection.getConnection();
+                PreparedStatement preparedStatement = connection.prepareStatement(query)
+        ) {
+            preparedStatement.setInt(1, cattleId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    tagId = resultSet.getString("TagID");
+                }
+            }
+        }
+        return tagId;
+    }
+
     public static void addCattle(Cattle cattle) throws SQLException {
         String query = "INSERT INTO cattle (TagID, HerdID, ColorMarkings, Name, Gender, DateOfBirth, Age, WeightID, BCS, BreedID, SireID, DamID, DamsHerd, SiresHerd) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -65,8 +78,103 @@ public class CattleDAO {
         ) {
             setCattlePreparedStatementValues(preparedStatement, cattle);
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            handleSQLException(e);
         }
     }
+
+    public static void addCattleWithTransaction(Cattle cattle) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = dbConnection.getConnection();
+            connection.setAutoCommit(false); // Start transaction
+            String query = "INSERT INTO cattle (TagID, HerdID, ColorMarkings, Name, Gender, DateOfBirth, Age, WeightID, BCS, BreedID, SireID, DamID, DamsHerd, SiresHerd) " +
+                    "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+            preparedStatement = connection.prepareStatement(query);
+            setCattlePreparedStatementValues(preparedStatement, cattle);
+            preparedStatement.executeUpdate();
+            connection.commit(); // Commit transaction
+        } catch (SQLException e) {
+            handleSQLException(e);
+            rollbackTransaction(connection); // Rollback transaction in case of exception
+        } finally {
+            closeResources(connection, preparedStatement);
+        }
+    }
+
+    private static void setCattlePreparedStatementValues(PreparedStatement preparedStatement, Cattle cattle) throws SQLException {
+        preparedStatement.setString(1, cattle.getTagId());
+        preparedStatement.setInt(2, cattle.getHerdId());
+        preparedStatement.setString(3, cattle.getColorMarkings());
+        preparedStatement.setString(4, cattle.getName());
+        preparedStatement.setString(5, cattle.getGender());
+        preparedStatement.setDate(6, Date.valueOf(String.valueOf(cattle.getDateOfBirth())));
+        preparedStatement.setInt(7, cattle.getAge());
+        preparedStatement.setInt(8, cattle.getWeightId());
+        preparedStatement.setString(9, cattle.getBcs());
+        preparedStatement.setInt(10, cattle.getBreedId());
+        preparedStatement.setInt(11, cattle.getSireId());
+        preparedStatement.setInt(12, cattle.getDamId());
+        preparedStatement.setInt(13, cattle.getDamsHerd());
+        preparedStatement.setInt(14, cattle.getSiresHerd());
+    }
+
+    public static void deleteCattleByHerdId(int herdId) throws SQLException {
+        String query = "DELETE FROM cattle WHERE HerdID=?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, herdId);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public static void deleteCattleById(int cattleId) throws SQLException {
+        String query = "DELETE FROM cattle WHERE CattleID=?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    public static void updateCattle(Cattle cattle) {
+        String query = "UPDATE cattle " +
+                "SET TagID=?, ColorMarkings=?, Name=?, Gender=?, DateOfBirth=?, Age=?, WeightID=?, BCS=?, BreedID=?, SireID=?, DamID=?, DamsHerd=?, SiresHerd=? " +
+                "WHERE CattleID=?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, cattle.getTagId());
+            preparedStatement.setString(2, cattle.getColorMarkings());
+            preparedStatement.setString(3, cattle.getName());
+            preparedStatement.setString(4, cattle.getGender());
+            preparedStatement.setDate(5, cattle.getDateOfBirth());
+            preparedStatement.setInt(6, cattle.getAge());
+            preparedStatement.setInt(7, cattle.getWeightId());
+            preparedStatement.setString(8, cattle.getBcs());
+            preparedStatement.setInt(9, cattle.getBreedId());
+            preparedStatement.setInt(10, cattle.getSireId());
+            preparedStatement.setInt(11, cattle.getDamId());
+            preparedStatement.setInt(12, cattle.getDamsHerd());
+            preparedStatement.setInt(13, cattle.getSiresHerd());
+            preparedStatement.setInt(14, cattle.getCattleId());
+
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("Failed to update cattle with ID: " + cattle.getCattleId());
+            }
+        } catch (SQLException e) {
+            // Log the SQL query and parameters
+            System.err.println("SQL Query: " + query);
+            System.err.println("Parameters: " + cattle);
+            // Print the stack trace for debugging
+            e.printStackTrace();
+            // Or handle the exception in a more sophisticated way, e.g., by throwing a custom exception or logging to a file
+        }
+    }
+
+
+
 
     private static Cattle mapResultSetToCattle(ResultSet resultSet) throws SQLException {
         return new Cattle(
@@ -95,38 +203,31 @@ public class CattleDAO {
         );
     }
 
-    private static void setCattlePreparedStatementValues(PreparedStatement preparedStatement, Cattle cattle) throws SQLException {
-        preparedStatement.setString(1, cattle.getTagId());
-        preparedStatement.setInt(2, cattle.getHerdId());
-        preparedStatement.setString(3, cattle.getColorMarkings());
-        preparedStatement.setString(4, cattle.getName());
-        preparedStatement.setString(5, cattle.getGender());
-        preparedStatement.setDate(6, cattle.getDateOfBirth());
-        preparedStatement.setInt(7, cattle.getAge());
-        preparedStatement.setInt(8, cattle.getWeightId());
-        preparedStatement.setString(9, cattle.getBcs());
-        preparedStatement.setInt(10, cattle.getBreedId());
-        preparedStatement.setInt(11, cattle.getSireId());
-        preparedStatement.setInt(12, cattle.getDamId());
-        preparedStatement.setInt(13, cattle.getDamsHerd());
-        preparedStatement.setInt(14, cattle.getSiresHerd());
+    private static void handleSQLException(SQLException e) {
+        System.err.println("SQLException occurred: " + e.getMessage());
+        // Additional error handling logic can be added as per requirements
     }
-    public static void deleteCattleByHerdId(int herdId) throws SQLException {
-        String query = "DELETE FROM cattle WHERE HerdID=?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, herdId);
-            preparedStatement.executeUpdate();
-        }
-    }
-    public static void deleteCattleById(int cattleId) throws SQLException {
-        String query = "DELETE FROM cattle WHERE CattleID=?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, cattleId);
-            preparedStatement.executeUpdate();
+
+    private static void rollbackTransaction(Connection connection) {
+        if (connection != null) {
+            try {
+                connection.rollback(); // Rollback transaction if an error occurs
+            } catch (SQLException e) {
+                System.err.println("Failed to rollback transaction: " + e.getMessage());
+            }
         }
     }
 
-
+    private static void closeResources(Connection connection, PreparedStatement preparedStatement) {
+        try {
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        } catch (SQLException e) {
+            System.err.println("Failed to close resources: " + e.getMessage());
+        }
+    }
 }

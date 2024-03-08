@@ -1,6 +1,5 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers;
 
-import com.example.hashinfarm.controller.utility.SelectedCowManager;
 import com.example.hashinfarm.model.Cattle;
 import com.example.hashinfarm.model.Herd;
 import javafx.beans.property.SimpleIntegerProperty;

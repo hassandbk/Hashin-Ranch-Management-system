@@ -3,16 +3,18 @@ package com.example.hashinfarm.controller.utility;
 import com.example.hashinfarm.model.Cattle;
 import javafx.beans.property.*;
 
-public class SelectedCowManager {
-    private static SelectedCowManager instance;
+import java.time.LocalDate;
 
-    private final IntegerProperty selectedCowId = new SimpleIntegerProperty();
+public class SelectedCattleManager {
+    private static SelectedCattleManager instance;
+
+    private final IntegerProperty selectedCattleID = new SimpleIntegerProperty();
     private final StringProperty selectedTagId = new SimpleStringProperty();
     private final IntegerProperty selectedHerdId = new SimpleIntegerProperty();
     private final StringProperty selectedColorMarkings = new SimpleStringProperty();
     private final StringProperty selectedName = new SimpleStringProperty();
     private final StringProperty selectedGender = new SimpleStringProperty();
-    private final ObjectProperty<java.sql.Date> selectedDateOfBirth = new SimpleObjectProperty<>();
+    private final ObjectProperty<LocalDate> selectedDateOfBirth = new SimpleObjectProperty<>();
     private final IntegerProperty selectedAge = new SimpleIntegerProperty();
     private final IntegerProperty selectedWeightId = new SimpleIntegerProperty();
     private final StringProperty selectedBcs = new SimpleStringProperty();
@@ -33,13 +35,13 @@ public class SelectedCowManager {
 
 
 
-    private SelectedCowManager() {
+    private SelectedCattleManager() {
         // Private constructor to prevent instantiation
     }
 
-    public static SelectedCowManager getInstance() {
+    public static SelectedCattleManager getInstance() {
         if (instance == null) {
-            instance = new SelectedCowManager();
+            instance = new SelectedCattleManager();
         }
         return instance;
     }
@@ -47,16 +49,16 @@ public class SelectedCowManager {
 
 
 
-    public int getSelectedCowId() {
-        return selectedCowId.get();
+    public int getSelectedCattleID() {
+        return selectedCattleID.get();
     }
 
-    public IntegerProperty selectedCowIdProperty() {
-        return selectedCowId;
+    public IntegerProperty selectedCattleIDProperty() {
+        return selectedCattleID;
     }
 
-    public void setSelectedCowId(int selectedCowId) {
-        this.selectedCowId.set(selectedCowId);
+    public void setSelectedCattleID(int selectedCattleID) {
+        this.selectedCattleID.set(selectedCattleID);
     }
 
 
@@ -115,6 +117,7 @@ public class SelectedCowManager {
 
 
 
+
     public String getSelectedName() {
         return selectedName.get();
     }
@@ -150,16 +153,18 @@ public class SelectedCowManager {
 
 
 
-    public java.sql.Date getSelectedDateOfBirth() {
+    // Modify getter and setter for selectedDateOfBirth
+    public LocalDate getSelectedDateOfBirth() {
         return selectedDateOfBirth.get();
     }
 
-    public ObjectProperty<java.sql.Date> selectedDateOfBirthProperty() {
-        return selectedDateOfBirth;
+    public void setSelectedDateOfBirth(LocalDate selectedDateOfBirth) {
+        this.selectedDateOfBirth.set(selectedDateOfBirth);
     }
 
-    public void setSelectedDateOfBirth(java.sql.Date selectedDateOfBirth) {
-        this.selectedDateOfBirth.set(selectedDateOfBirth);
+    // Change return type of selectedDateOfBirthProperty to ObservableValue<LocalDate>
+    public ObjectProperty<LocalDate> selectedDateOfBirthProperty() {
+        return selectedDateOfBirth;
     }
 
 
@@ -414,14 +419,14 @@ public class SelectedCowManager {
 
 
     // Update method to set all properties at once
-    public void setSelectedCow(Cattle cattle) {
-        selectedCowId.set(cattle.getCattleId());
+    public void setSelectedCattle(Cattle cattle) {
+        selectedCattleID.set(cattle.getCattleId());
         selectedTagId.set(cattle.getTagId());
         selectedHerdId.set(cattle.getHerdId());
         selectedColorMarkings.set(cattle.getColorMarkings());
         selectedName.set(cattle.getName());
         selectedGender.set(cattle.getGender());
-        selectedDateOfBirth.set(cattle.getDateOfBirth());
+        selectedDateOfBirth.set(cattle.getDateOfBirth().toLocalDate());
         selectedAge.set(cattle.getAge());
         selectedWeightId.set(cattle.getWeightId());
         selectedBcs.set(cattle.getBcs());
@@ -438,4 +443,33 @@ public class SelectedCowManager {
         selectedSireBreedName.set(cattle.getSireBreedName());
         selectedDamBreedName.set(cattle.getDamBreedName());
     }
+
+    public Cattle getSelectedCattle() {
+        return new Cattle(
+                selectedCattleID.get(),
+                selectedTagId.get(),
+                selectedHerdId.get(),
+                selectedColorMarkings.get(),
+                selectedName.get(),
+                selectedGender.get(),
+                selectedDateOfBirth.get(),
+                selectedAge.get(),
+                selectedWeightId.get(),
+                selectedBcs.get(),
+                selectedBreedId.get(),
+                selectedBreedName.get(),
+                selectedSireId.get(),
+                selectedSireName.get(),
+                selectedDamId.get(),
+                selectedDamName.get(),
+                selectedDamsHerd.get(),
+                selectedSiresHerd.get(),
+                selectedDamHerdName.get(),
+                selectedSireHerdName.get(),
+                selectedSireBreedName.get(),
+                selectedDamBreedName.get()
+        );
+    }
+
+
 }

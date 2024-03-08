@@ -137,6 +137,15 @@ public class AddNewCattleController {
                 }
             }
         });
+
+        // Enable double-click selection
+        listView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                dialog.setResult(listView.getSelectionModel().getSelectedItem());
+                dialog.close();
+            }
+        });
+
         dialog.getDialogPane().setContent(listView);
         dialog.setResultConverter(dialogButton -> {
             if (dialogButton == selectButtonType) {
@@ -147,6 +156,7 @@ public class AddNewCattleController {
         Optional<T> result = dialog.showAndWait();
         return result.orElse(null);
     }
+
 
     private void showCattleSelectionDialog(Button buttonClicked, List<Cattle> cattleList) {
         Cattle selectedCattle = showSelectionDialog("Select Cattle", "Select a cattle from the list below", cattleList, Cattle::getTagId);

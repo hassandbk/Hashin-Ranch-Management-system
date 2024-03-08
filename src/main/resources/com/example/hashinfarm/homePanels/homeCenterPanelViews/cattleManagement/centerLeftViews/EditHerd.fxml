@@ -170,7 +170,7 @@
                    <Button alignment="CENTER" mnemonicParsing="false" onAction="#handleRefreshCattleFromHerd" prefHeight="35.0" prefWidth="35.0" styleClass="round-button" GridPane.columnIndex="3">
                        <graphic>
                            <ImageView fitHeight="60.0" fitWidth="50.0" pickOnBounds="true" preserveRatio="true">
-                               <Image url="@../../../../../../../icons/deleteCattle.png" />
+                               <Image url="@../../../../../../../icons/refreshCattle.png" />
                            </ImageView>
                        </graphic>
                        <tooltip>

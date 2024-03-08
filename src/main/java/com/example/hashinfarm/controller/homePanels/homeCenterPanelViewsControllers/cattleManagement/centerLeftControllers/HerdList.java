@@ -4,7 +4,7 @@ import com.example.hashinfarm.controller.dao.CattleDAO;
 import com.example.hashinfarm.controller.dao.HerdDAO;
 import com.example.hashinfarm.model.Cattle;
 import com.example.hashinfarm.model.Herd;
-import com.example.hashinfarm.controller.utility.SelectedCowManager;
+import com.example.hashinfarm.controller.utility.SelectedCattleManager;
 import com.example.hashinfarm.controller.utility.SelectedHerdManager;
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
@@ -13,17 +13,15 @@ import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
-import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
-import javafx.scene.layout.StackPane;
-import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
@@ -218,7 +216,7 @@ public class HerdList {
             for (Cattle cattle : herd.getAnimals()) {
                 cattle.selectedProperty().addListener((observable, oldValue, newValue) -> {
                     if (newValue) {
-                        SelectedCowManager.getInstance().setSelectedCow(cattle);
+                        SelectedCattleManager.getInstance().setSelectedCattle(cattle);
                         SelectedHerdManager.getInstance().setSelectedHerd(herd);
                         // Update the selectedAnimal label with the name of the selected cattle
                         selectedAnimal.setText(cattle.getName());
@@ -267,34 +265,40 @@ public class HerdList {
         // Make the ListView scrollable
         animalListView.setPrefHeight(Region.USE_COMPUTED_SIZE);
 
-        // Create a transparent overlay to prevent clicking elsewhere
-        StackPane overlay = new StackPane();
-        overlay.setStyle("-fx-background-color: rgba(0, 0, 0, 0.5);");
-
-        // Combine ListView and overlay in a VBox
-        VBox vBox = new VBox(animalListView);
-        vBox.setAlignment(Pos.CENTER);
-        vBox.getChildren().add(overlay);
-
         // Create the stage
         Stage animalStage = new Stage();
         animalStage.initModality(Modality.APPLICATION_MODAL);
         animalStage.setTitle("Animals in " + herd.getName());
-        animalStage.setScene(new Scene(vBox, 400, 300));
+        animalStage.setScene(new Scene(animalListView, 400, 300));
 
-        // Set the stage to not resizable
-        animalStage.setResizable(false);
-
-        // Set the stage to not maximizable
-        animalStage.maximizedProperty().addListener((obs, wasMaximized, isNowMaximized) -> {
-            if (isNowMaximized) {
-                Platform.runLater(() -> animalStage.setMaximized(false));
+        // Enable double-click selection, checking, and auto-close
+        animalListView.setOnMouseClicked(event -> {
+            if (event.getClickCount() == 2) {
+                Cattle selectedCattle = animalListView.getSelectionModel().getSelectedItem();
+                if (selectedCattle != null) {
+                    // Check the item
+                    selectedCattle.setSelected(true);
+                    // Select the item
+                    SelectedCattleManager.getInstance().setSelectedCattle(selectedCattle);
+                    SelectedHerdManager.getInstance().setSelectedHerd(herd);
+                    // Close the ListView
+                    animalStage.close();
+                }
             }
         });
 
-        // Show the stage and wait for it to be closed
-        animalStage.showAndWait();
+        // Close the ListView when Escape key is pressed
+        animalListView.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ESCAPE) {
+                animalStage.close();
+            }
+        });
+
+        // Show the stage
+        animalStage.show();
     }
+
+
 
     private void showViewStage(int herdId) {
         try {

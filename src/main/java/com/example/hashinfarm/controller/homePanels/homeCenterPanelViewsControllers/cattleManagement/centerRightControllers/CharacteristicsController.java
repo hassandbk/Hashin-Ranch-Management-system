@@ -3,7 +3,7 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 import com.example.hashinfarm.controller.handlers.ActionHandlerFactory;
 import com.example.hashinfarm.controller.handlers.imagesHandlers.DownloadImageHandler;
 import com.example.hashinfarm.controller.utility.FileValidationController;
-import com.example.hashinfarm.controller.utility.SelectedCowManager;
+import com.example.hashinfarm.controller.utility.SelectedCattleManager;
 import com.example.hashinfarm.controller.utility.SelectedHerdManager;
 import com.example.hashinfarm.model.CattleDetailsModel;
 import javafx.event.ActionEvent;
@@ -18,6 +18,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class CharacteristicsController {
+    @FXML
+    private Slider BCSSlider;
+    @FXML
+    private TextField BCSTextField;
     @FXML private Label ageClassLabel, herdSolutionTypeLabel, breedTypeLabel, breedSystemLabel, animalClassLabel, sireIDLabel,
                         sireHerdNameLabel, sireBreedNameLabel, damIDLabel, damHerdNameLabel, damBreedNameLabel, cattleHerdLabel,
                          cattleNameLabel, cattleIdLabel, agelabel, breedIDLabel, cattleBreedLabel, damNameLabel, sireNameLabel;
@@ -29,7 +33,7 @@ public class CharacteristicsController {
     private HBox imageContainer;
 
     @FXML
-    private Button modifyCow,viewImage, viewGallery, uploadImage,
+    private Button modifyCattle,viewImage, viewGallery, uploadImage,
             addBreed, downloadImage;
 
     private CattleDetailsModel cattleDetailsModel;
@@ -41,7 +45,7 @@ public class CharacteristicsController {
 
     public void initialize() {
         initializeButtonHandlers(
-                modifyCow, viewImage, viewGallery,
+                modifyCattle, viewImage, viewGallery,
                 addBreed, downloadImage
         );
 
@@ -53,27 +57,72 @@ public class CharacteristicsController {
 
         fileValidationController = new FileValidationController();
         downloadImageHandler = new DownloadImageHandler();
+        initBCSSlider();
+        initBCSSliderListener();
     }
 
+    private void initBCSSlider() {
+        BCSSlider.setMajorTickUnit(1);
+        BCSSlider.setMinorTickCount(0);
+        BCSSlider.setShowTickLabels(true);
+        BCSSlider.setShowTickMarks(true);
+        BCSSlider.setSnapToTicks(true);
+        BCSSlider.setMin(1);
+        BCSSlider.setMax(9);
+    }
 
+    private void initBCSSliderListener() {
+        BCSTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+            Integer bcsValue = BCS_VALUES.get(newValue);
+            if (bcsValue != null) {
+                BCSSlider.setValue(bcsValue);
+            }
+        });
+
+        BCSSlider.valueProperty().addListener((observable, oldValue, newValue) -> {
+            String bcsLabel = getBCSLabel(newValue.intValue());
+            BCSTextField.setText(bcsLabel);
+        });
+    }
+
+    private String getBCSLabel(int value) {
+        for (Map.Entry<String, Integer> entry : BCS_VALUES.entrySet()) {
+            if (entry.getValue() == value) {
+                return entry.getKey();
+            }
+        }
+        return "";
+    }
+    private static final Map<String, Integer> BCS_VALUES = Map.of(
+            "Emaciated", 1,
+            "Very thin", 2,
+            "Thin", 3,
+            "Borderline", 4,
+            "Moderate", 5,
+            "Good", 6,
+            "Very good", 7,
+            "Fat", 8,
+            "Very fat", 9
+    );
 
     private void addSelectedCowListeners() {
-        SelectedCowManager cowManager = SelectedCowManager.getInstance();
+        SelectedCattleManager cattleManager = SelectedCattleManager.getInstance();
 
-        cowManager.selectedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleNameLabel, newValue));
-        cowManager.selectedCowIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleIdLabel, String.valueOf(newValue)));
-        cowManager.selectedDateOfBirthProperty().addListener((observable, oldValue, newValue) -> dobDatePicker.setValue(newValue.toLocalDate()));
-        cowManager.selectedAgeProperty().addListener((observable, oldValue, newValue) -> updateLabel(agelabel, String.valueOf(newValue)));
-        cowManager.selectedBreedIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(breedIDLabel, String.valueOf(newValue)));
-        cowManager.selectedBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleBreedLabel, newValue));
-        cowManager.selectedDamNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damNameLabel, newValue));
-        cowManager.selectedSireNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireNameLabel, newValue));
-        cowManager.selectedSireIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireIDLabel, String.valueOf(newValue)));
-        cowManager.selectedDamIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(damIDLabel, String.valueOf(newValue)));
-        cowManager.selectedSireHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireHerdNameLabel, newValue));
-        cowManager.selectedDamHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damHerdNameLabel, newValue));
-        cowManager.selectedSireBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireBreedNameLabel, newValue));
-        cowManager.selectedDamBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damBreedNameLabel, newValue));
+        cattleManager.selectedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleNameLabel, newValue));
+        cattleManager.selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleIdLabel, String.valueOf(newValue)));
+        cattleManager.selectedDateOfBirthProperty().addListener((observable, oldValue, newValue) -> dobDatePicker.setValue(newValue));
+        cattleManager.selectedAgeProperty().addListener((observable, oldValue, newValue) -> updateLabel(agelabel, String.valueOf(newValue)));
+        cattleManager.selectedBreedIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(breedIDLabel, String.valueOf(newValue)));
+        cattleManager.selectedBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(cattleBreedLabel, newValue));
+        cattleManager.selectedDamNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damNameLabel, newValue));
+        cattleManager.selectedSireNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireNameLabel, newValue));
+        cattleManager.selectedSireIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireIDLabel, String.valueOf(newValue)));
+        cattleManager.selectedDamIdProperty().addListener((observable, oldValue, newValue) -> updateLabel(damIDLabel, String.valueOf(newValue)));
+        cattleManager.selectedSireHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireHerdNameLabel, newValue));
+        cattleManager.selectedDamHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damHerdNameLabel, newValue));
+        cattleManager.selectedSireBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireBreedNameLabel, newValue));
+        cattleManager.selectedDamBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damBreedNameLabel, newValue));
+        cattleManager.selectedBcsProperty().addListener((observable, oldValue, newValue) ->BCSTextField.setText(newValue));
     }
 
     private void addSelectedHerdListeners() {

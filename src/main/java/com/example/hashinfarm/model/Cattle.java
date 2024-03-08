@@ -3,6 +3,7 @@ package com.example.hashinfarm.model;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class Cattle {
     private int cattleId;
@@ -34,7 +35,9 @@ public class Cattle {
     private String sireBreedName;
 
     private String damBreedName;
-
+    public Cattle(int cattleId, String tagId, int herdID, String colorMarkings, String name, String gender, LocalDate localDate, int age, int weightId, String bcs, int breedId, String breedName, int sireId, String sireName, int damId, String damName, int damsHerd, int siresHerd, String damHerdName, String sireHerdName, String sireBreedName, String damBreedName) {
+        // Default constructor implementation
+    }
     public Cattle(int cattleId, String tagId, int herdID, String colorMarkings, String name, String gender,
                   java.sql.Date dateOfBirth, int age, int weightId, String bcs, int breedId, String breedName,
                   int sireId, String sireName, int damId, String damName, int damsHerd, int siresHerd,
@@ -128,7 +131,7 @@ public class Cattle {
 
 
     public Date getDateOfBirth() {
-        return dateOfBirth;
+        return Date.valueOf(dateOfBirth.toLocalDate());
     }
 
     public void setDateOfBirth(Date dateOfBirth) {

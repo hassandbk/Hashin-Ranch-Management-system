@@ -1,7 +1,7 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
 import com.example.hashinfarm.controller.handlers.ActionHandlerFactory;
-import com.example.hashinfarm.controller.utility.SelectedCowManager;
+import com.example.hashinfarm.controller.utility.SelectedCattleManager;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Button;
@@ -38,12 +38,12 @@ public class DetailedInformationController {
 
 
         // Add a listener to update the name dynamically
-        SelectedCowManager.getInstance().selectedNameProperty().addListener((observable, oldValue, newValue) -> {
+        SelectedCattleManager.getInstance().selectedNameProperty().addListener((observable, oldValue, newValue) -> {
             cattleNameTextField.setText(newValue); // Update cattle name
         });
 
         // Add a listener to update the cattle ID dynamically
-        SelectedCowManager.getInstance().selectedCowIdProperty().addListener((observable, oldValue, newValue) -> {
+        SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
             cattleIdLabel.setText(String.valueOf(newValue)); // Update cattle ID label
         });
 
