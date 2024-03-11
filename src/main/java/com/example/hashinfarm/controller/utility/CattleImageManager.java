@@ -21,6 +21,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.jetbrains.annotations.NotNull;
 
+import javax.swing.*;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
@@ -189,11 +190,13 @@ public class CattleImageManager {
         return scrollPane;
     }
 
+
+
     public void saveImagesToZip(int cattleId) {
         // Retrieve images based on cattle ID
         List<CattleImage> cattleImages = cattleImageDAO.getCattleImagesByCattleId(cattleId);
         if (cattleImages.isEmpty()) {
-            System.out.println("No images found for cattle ID: " + cattleId);
+            JOptionPane.showMessageDialog(null, "No images found for cattle ID: " + cattleId, "Error", JOptionPane.ERROR_MESSAGE);
             return;
         }
 
@@ -212,10 +215,13 @@ public class CattleImageManager {
                 Files.copy(imageFile.toPath(), zipOutputStream);
                 zipOutputStream.closeEntry();
             }
+            JOptionPane.showMessageDialog(null, "Images saved successfully to: " + zipFile.getAbsolutePath(), "Success", JOptionPane.INFORMATION_MESSAGE);
         } catch (IOException e) {
+            JOptionPane.showMessageDialog(null, "Failed to save images: " + e.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
             e.printStackTrace();
         }
     }
+
 
 
 
