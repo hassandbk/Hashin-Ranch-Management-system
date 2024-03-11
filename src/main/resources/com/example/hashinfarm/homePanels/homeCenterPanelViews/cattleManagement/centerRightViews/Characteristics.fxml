@@ -1,13 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.CharacteristicsController">
+<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.CharacteristicsController">
     <VBox prefHeight="829.0" prefWidth="1178.0">
 
         <HBox alignment="CENTER" prefWidth="200.0">
@@ -501,11 +514,11 @@
 
 
 
-            <VBox prefHeight="239.0" prefWidth="983.0">
+            <VBox alignment="CENTER" prefHeight="239.0" prefWidth="983.0">
                 <AnchorPane nodeOrientation="LEFT_TO_RIGHT" prefWidth="983.0" styleClass="image-container">
-                    <HBox fx:id="imageContainer" alignment="CENTER" spacing="5.0" styleClass="image-container" />
+                    <HBox fx:id="imageContainer" alignment="CENTER" spacing="5.0" styleClass="image-container" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
                     <cursor>
-                        <Cursor fx:constant="WAIT" />
+                        <Cursor fx:constant="HAND" />
                     </cursor>
                 </AnchorPane>
 
@@ -524,14 +537,8 @@
                             </ImageView>
                         </graphic>
                     </Button>
-                    <Button fx:id="viewImage" mnemonicParsing="false" onAction="#handleButtonAction">
-                        <graphic>
-                            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
-                                <Image url="@../../../../../../../icons/buttons/viewImage.png" />
-                            </ImageView>
-                        </graphic>
-                    </Button>
-                    <Button fx:id="viewGallery" mnemonicParsing="false" onAction="#handleButtonAction">
+
+                    <Button fx:id="viewCurrentImage" mnemonicParsing="false" onAction="#handleViewCurrentImage">
                         <graphic>
                             <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                 <Image url="@../../../../../../../icons/buttons/viewGallery.png" />

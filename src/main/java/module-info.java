@@ -31,7 +31,7 @@ module com.example.hashinfarm {
     exports com.example.hashinfarm;
     exports com.example.hashinfarm.controller;
     exports com.example.hashinfarm.controller.utility;
-    opens com.example.hashinfarm.controller.utility to javafx.fxml;
+    opens com.example.hashinfarm.controller.utility to javafx.base, javafx.fxml;
 
 
 }

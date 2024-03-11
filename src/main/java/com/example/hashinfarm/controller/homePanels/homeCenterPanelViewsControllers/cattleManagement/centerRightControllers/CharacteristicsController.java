@@ -1,21 +1,36 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
+import com.example.hashinfarm.controller.dao.CattleImageDAO;
 import com.example.hashinfarm.controller.handlers.ActionHandlerFactory;
 import com.example.hashinfarm.controller.handlers.imagesHandlers.DownloadImageHandler;
 import com.example.hashinfarm.controller.utility.FileValidationController;
 import com.example.hashinfarm.controller.utility.SelectedCattleManager;
 import com.example.hashinfarm.controller.utility.SelectedHerdManager;
-import com.example.hashinfarm.model.CattleDetailsModel;
+import com.example.hashinfarm.controller.utility.CattleImageManager;
+
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
+import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
+
+import java.util.concurrent.CompletableFuture;
 
 public class CharacteristicsController {
     @FXML
@@ -32,11 +47,12 @@ public class CharacteristicsController {
     @FXML
     private HBox imageContainer;
 
+    private CattleImageManager cattleImageManager;
+
     @FXML
-    private Button modifyCattle,viewImage, viewGallery, uploadImage,
+    private Button modifyCattle, viewCurrentImage, uploadImage,
             addBreed, downloadImage;
 
-    private CattleDetailsModel cattleDetailsModel;
     private DownloadImageHandler downloadImageHandler;
     private FileValidationController fileValidationController;
 
@@ -45,20 +61,36 @@ public class CharacteristicsController {
 
     public void initialize() {
         initializeButtonHandlers(
-                modifyCattle, viewImage, viewGallery,
+                modifyCattle,
                 addBreed, downloadImage
         );
 
         addSelectedCowListeners();
         addSelectedHerdListeners();
 
-        cattleDetailsModel = new CattleDetailsModel();
-        cattleDetailsModel.populateImages(imageContainer);
 
         fileValidationController = new FileValidationController();
         downloadImageHandler = new DownloadImageHandler();
         initBCSSlider();
         initBCSSliderListener();
+
+
+        cattleImageManager = new CattleImageManager();
+        // Add listener to trigger fetchAndPopulateCarousel() when selectedCattleIDProperty changes
+        SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue.intValue() != 0) {
+                fetchAndPopulateCarousel();
+            }
+        });
+
+    }
+    private void fetchAndPopulateCarousel() {
+        int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
+        if (selectedCattleId != 0) {
+            cattleImageManager.fetchAndPopulateCarousel(selectedCattleId, imageContainer);
+        } else {
+            System.out.println("Invalid selected cattle ID");
+        }
     }
 
     private void initBCSSlider() {
@@ -149,15 +181,6 @@ public class CharacteristicsController {
         }
     }
 
-    @FXML
-    private void previousImage(ActionEvent event) {
-        cattleDetailsModel.previousImage();
-    }
-
-    @FXML
-    private void nextImage(ActionEvent event) {
-        cattleDetailsModel.nextImage();
-    }
 
     // Button action method
     @FXML
@@ -182,7 +205,26 @@ public class CharacteristicsController {
 
     @FXML
     private void handleImageDownload(ActionEvent event) {
-        // Call the handler method from DownloadImageHandler
-        downloadImageHandler.handleImageDownload((Stage) downloadImage.getScene().getWindow(), cattleDetailsModel.getCurrentIndex());
+
     }
+
+    @FXML
+    private void handleViewCurrentImage(ActionEvent actionEvent) {
+        cattleImageManager.displayCurrentImage();
+    }
+
+    @FXML
+    private void previousImage(ActionEvent event) {
+        // Navigate to the previous image
+        cattleImageManager.previousImage();
+    }
+
+    @FXML
+    private void nextImage(ActionEvent event) {
+        // Navigate to the next image
+        cattleImageManager.nextImage();
+    }
+
+
+
 }
