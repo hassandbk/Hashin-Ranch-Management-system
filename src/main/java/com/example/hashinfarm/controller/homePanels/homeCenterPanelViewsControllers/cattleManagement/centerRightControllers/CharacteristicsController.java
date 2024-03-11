@@ -1,36 +1,19 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
-import com.example.hashinfarm.controller.dao.CattleImageDAO;
 import com.example.hashinfarm.controller.handlers.ActionHandlerFactory;
-import com.example.hashinfarm.controller.handlers.imagesHandlers.DownloadImageHandler;
-import com.example.hashinfarm.controller.utility.FileValidationController;
-import com.example.hashinfarm.controller.utility.SelectedCattleManager;
-import com.example.hashinfarm.controller.utility.SelectedHerdManager;
-import com.example.hashinfarm.controller.utility.CattleImageManager;
+import com.example.hashinfarm.controller.utility.*;
 
-import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.image.Image;
-import javafx.scene.image.ImageView;
-import javafx.scene.input.ScrollEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.StackPane;
 import javafx.stage.FileChooser;
-import javafx.stage.Modality;
-import javafx.stage.Screen;
 import javafx.stage.Stage;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
-import java.sql.SQLException;
 import java.util.HashMap;
 import java.util.Map;
 
-import java.util.concurrent.CompletableFuture;
 
 public class CharacteristicsController {
     @FXML
@@ -51,9 +34,8 @@ public class CharacteristicsController {
 
     @FXML
     private Button modifyCattle, viewCurrentImage, uploadImage,
-            addBreed, downloadImage;
+            addBreed;
 
-    private DownloadImageHandler downloadImageHandler;
     private FileValidationController fileValidationController;
 
     // Map to associate buttons with their respective handlers
@@ -62,7 +44,7 @@ public class CharacteristicsController {
     public void initialize() {
         initializeButtonHandlers(
                 modifyCattle,
-                addBreed, downloadImage
+                addBreed
         );
 
         addSelectedCowListeners();
@@ -70,7 +52,6 @@ public class CharacteristicsController {
 
 
         fileValidationController = new FileValidationController();
-        downloadImageHandler = new DownloadImageHandler();
         initBCSSlider();
         initBCSSliderListener();
 
@@ -205,8 +186,11 @@ public class CharacteristicsController {
 
     @FXML
     private void handleImageDownload(ActionEvent event) {
-
+        int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
+        cattleImageManager.saveImagesToZip(selectedCattleId);
     }
+
+
 
     @FXML
     private void handleViewCurrentImage(ActionEvent actionEvent) {

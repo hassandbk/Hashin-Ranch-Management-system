@@ -19,10 +19,19 @@ import javafx.stage.Modality;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 import javafx.util.Duration;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.io.File;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipOutputStream;
 
 public class CattleImageManager {
     private final CattleImageDAO cattleImageDAO;
@@ -148,21 +157,7 @@ public class CattleImageManager {
         stage.setMinWidth(300);
         stage.setMinHeight(200);
 
-        // Create and configure the image view
-        ImageView imageView = new ImageView(image);
-        imageView.setPreserveRatio(true);
-        imageView.setSmooth(true);
-
-        // Make the image zoomable and scrollable
-        ScrollPane scrollPane = new ScrollPane(imageView);
-        scrollPane.setFitToWidth(true);
-        scrollPane.setFitToHeight(true);
-        scrollPane.setOnScroll(event -> {
-            double zoomFactor = event.getDeltaY() < 0 ? 1 / 1.05 : 1.05;
-            imageView.setScaleX(imageView.getScaleX() * zoomFactor);
-            imageView.setScaleY(imageView.getScaleY() * zoomFactor);
-            event.consume();
-        });
+        ScrollPane scrollPane = getScrollPane(image);
 
         // Close the stage and resume carousel transition when the window is closed
         stage.setOnCloseRequest(event -> {
@@ -173,6 +168,53 @@ public class CattleImageManager {
         // Set the stage dimensions and scene
         stage.setScene(new Scene(scrollPane, stageWidth, stageHeight));
         stage.show();
+    }
+
+    @NotNull
+    private static ScrollPane getScrollPane(Image image) {
+        ImageView imageView = new ImageView(image);
+        imageView.setPreserveRatio(true);
+        imageView.setSmooth(true);
+
+        // Make the image zoom and scrollable
+        ScrollPane scrollPane = new ScrollPane(imageView);
+        scrollPane.setFitToWidth(true);
+        scrollPane.setFitToHeight(true);
+        scrollPane.setOnScroll(event -> {
+            double zoomFactor = event.getDeltaY() < 0 ? 1 / 1.05 : 1.05;
+            imageView.setScaleX(imageView.getScaleX() * zoomFactor);
+            imageView.setScaleY(imageView.getScaleY() * zoomFactor);
+            event.consume();
+        });
+        return scrollPane;
+    }
+
+    public void saveImagesToZip(int cattleId) {
+        // Retrieve images based on cattle ID
+        List<CattleImage> cattleImages = cattleImageDAO.getCattleImagesByCattleId(cattleId);
+        if (cattleImages.isEmpty()) {
+            System.out.println("No images found for cattle ID: " + cattleId);
+            return;
+        }
+
+        // Create zip file in Downloads directory
+        Path downloadsDirectory = Paths.get(System.getProperty("user.home"), "Downloads");
+        File zipFile = new File(downloadsDirectory.toString(), "CattleImages_" + cattleId + ".zip");
+
+        try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile))) {
+            for (CattleImage cattleImage : cattleImages) {
+                String imagePath = "/images/" + cattleImage.getImagePath();
+                File imageFile = new File(Objects.requireNonNull(getClass().getResource(imagePath)).getFile());
+
+                ZipEntry zipEntry = new ZipEntry(imageFile.getName());
+                zipOutputStream.putNextEntry(zipEntry);
+
+                Files.copy(imageFile.toPath(), zipOutputStream);
+                zipOutputStream.closeEntry();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
 
