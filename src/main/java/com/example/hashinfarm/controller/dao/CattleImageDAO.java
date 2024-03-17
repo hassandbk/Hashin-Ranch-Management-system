@@ -107,4 +107,21 @@ public class CattleImageDAO {
         cattleImage.setCreatedAt(resultSet.getTimestamp("created_at"));
         return cattleImage;
     }
+    // Read operation - Retrieve the timestamp of the latest update for cattle images
+    public long getLatestImageUpdateTimestamp(int cattleId) {
+        String query = "SELECT MAX(created_at) AS latest_update FROM cattleimages WHERE cattle_id = ?";
+        try (Connection connection = databaseConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getTimestamp("latest_update").getTime();
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
 }

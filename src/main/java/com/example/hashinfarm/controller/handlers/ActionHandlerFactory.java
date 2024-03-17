@@ -3,7 +3,7 @@ package com.example.hashinfarm.controller.handlers;
 
 import com.example.hashinfarm.controller.handlers.addItems.*;
 import com.example.hashinfarm.controller.handlers.cattleDetailsMoreHandlers.*;
-import com.example.hashinfarm.controller.handlers.imagesHandlers.*;
+
 import com.example.hashinfarm.controller.interfaces.*;
 
 public class ActionHandlerFactory {
@@ -20,8 +20,6 @@ public class ActionHandlerFactory {
             case "viewMoreAdditionalInfo" -> new ViewMoreAdditionalInfoHandler();
             case "saveAdditionalInfo" -> new SaveAdditionalInfoHandler();
             case "modifyCattle" -> new ModifyCattleHandler();
-            case "viewImage" -> new ViewImageHandler();
-            case "viewGallery" -> new ViewGalleryHandler();
             case "addBreed" -> new AddBreedHandler();
 
             // Add more cases for other buttons

@@ -1,70 +1,64 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
 import com.example.hashinfarm.controller.handlers.ActionHandlerFactory;
+import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController;
 import com.example.hashinfarm.controller.utility.*;
-
+import com.example.hashinfarm.controller.dao.CattleImageDAO;
+import com.example.hashinfarm.model.CattleImage;
+import javafx.application.Platform;
 import javafx.event.ActionEvent;
-import javafx.fxml.FXML;
+import javafx.fxml.*;
+import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.layout.AnchorPane;
 import javafx.scene.layout.HBox;
 import javafx.stage.FileChooser;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 
-import java.nio.file.Path;
+import java.io.*;
+import java.nio.file.*;
+import java.sql.Timestamp;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
 public class CharacteristicsController {
-    @FXML
-    private Slider BCSSlider;
-    @FXML
-    private TextField BCSTextField;
+
+
+    @FXML private Slider BCSSlider;
+    @FXML private TextField BCSTextField;
     @FXML private Label ageClassLabel, herdSolutionTypeLabel, breedTypeLabel, breedSystemLabel, animalClassLabel, sireIDLabel,
-                        sireHerdNameLabel, sireBreedNameLabel, damIDLabel, damHerdNameLabel, damBreedNameLabel, cattleHerdLabel,
-                         cattleNameLabel, cattleIdLabel, agelabel, breedIDLabel, cattleBreedLabel, damNameLabel, sireNameLabel;
+            sireHerdNameLabel, sireBreedNameLabel, damIDLabel, damHerdNameLabel, damBreedNameLabel, cattleHerdLabel,
+            cattleNameLabel, cattleIdLabel, agelabel, breedIDLabel, cattleBreedLabel, damNameLabel, sireNameLabel;
+    @FXML private DatePicker dobDatePicker;
+    @FXML private HBox imageContainer;
+    @FXML private Button modifyCattle, viewCurrentImage, uploadImage, addBreed,viewImageTable;
 
-    @FXML
-    private DatePicker dobDatePicker;
-
-    @FXML
-    private HBox imageContainer;
-
-    private CattleImageManager cattleImageManager;
-
-    @FXML
-    private Button modifyCattle, viewCurrentImage, uploadImage,
-            addBreed;
-
+    private final CattleImageManager cattleImageManager;
     private FileValidationController fileValidationController;
-
-    // Map to associate buttons with their respective handlers
     private final Map<Button, String> buttonHandlersMap = new HashMap<>();
 
-    public void initialize() {
-        initializeButtonHandlers(
-                modifyCattle,
-                addBreed
-        );
+    public CharacteristicsController() {
+        cattleImageManager = new CattleImageManager();
 
+    }
+
+    public void initialize() {
+        initializeButtonHandlers(modifyCattle, addBreed);
         addSelectedCowListeners();
         addSelectedHerdListeners();
-
-
         fileValidationController = new FileValidationController();
         initBCSSlider();
         initBCSSliderListener();
-
-
-        cattleImageManager = new CattleImageManager();
-        // Add listener to trigger fetchAndPopulateCarousel() when selectedCattleIDProperty changes
         SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null && newValue.intValue() != 0) {
                 fetchAndPopulateCarousel();
             }
         });
-
     }
+
     private void fetchAndPopulateCarousel() {
         int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
         if (selectedCattleId != 0) {
@@ -106,6 +100,7 @@ public class CharacteristicsController {
         }
         return "";
     }
+
     private static final Map<String, Integer> BCS_VALUES = Map.of(
             "Emaciated", 1,
             "Very thin", 2,
@@ -135,7 +130,7 @@ public class CharacteristicsController {
         cattleManager.selectedDamHerdNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damHerdNameLabel, newValue));
         cattleManager.selectedSireBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(sireBreedNameLabel, newValue));
         cattleManager.selectedDamBreedNameProperty().addListener((observable, oldValue, newValue) -> updateLabel(damBreedNameLabel, newValue));
-        cattleManager.selectedBcsProperty().addListener((observable, oldValue, newValue) ->BCSTextField.setText(newValue));
+        cattleManager.selectedBcsProperty().addListener((observable, oldValue, newValue) -> BCSTextField.setText(newValue));
     }
 
     private void addSelectedHerdListeners() {
@@ -153,7 +148,6 @@ public class CharacteristicsController {
         label.setText(text);
     }
 
-
     private void initializeButtonHandlers(Button... buttons) {
         for (Button button : buttons) {
             String buttonId = button.getId();
@@ -162,8 +156,6 @@ public class CharacteristicsController {
         }
     }
 
-
-    // Button action method
     @FXML
     private void handleButtonAction(ActionEvent event) {
         Button button = (Button) event.getSource();
@@ -172,25 +164,10 @@ public class CharacteristicsController {
     }
 
     @FXML
-    private void handleImageUpload(ActionEvent event) {
-        // Handle image upload button action
-        FileChooser fileChooser = new FileChooser();
-        fileChooser.setTitle("Upload Image");
-        Stage stage = (Stage) uploadImage.getScene().getWindow();
-        Path selectedImagePath = fileChooser.showOpenDialog(stage).toPath();
-
-        // Pass the selected image path for validation and processing
-        fileValidationController.validateImageFile(selectedImagePath);
-        // Additional logic can be added here if needed
-    }
-
-    @FXML
     private void handleImageDownload(ActionEvent event) {
         int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
         cattleImageManager.saveImagesToZip(selectedCattleId);
     }
-
-
 
     @FXML
     private void handleViewCurrentImage(ActionEvent actionEvent) {
@@ -199,16 +176,101 @@ public class CharacteristicsController {
 
     @FXML
     private void previousImage(ActionEvent event) {
-        // Navigate to the previous image
-        cattleImageManager.previousImage();
+        cattleImageManager.previousImage(imageContainer);
     }
 
     @FXML
     private void nextImage(ActionEvent event) {
-        // Navigate to the next image
-        cattleImageManager.nextImage();
+        cattleImageManager.nextImage(imageContainer);
     }
 
+    @FXML
+    private void handleImageUpload(ActionEvent event) {
+        File selectedFile = chooseImageFile();
+        if (selectedFile != null) {
+            try {
+                uploadAndInsertImage(selectedFile);
+            } catch (IOException | FileValidationController.InvalidImageFormatException | FileValidationController.ImageSizeException e) {
+                handleUploadImageError();
+            }
+        }
+    }
+
+    private File chooseImageFile() {
+        FileChooser fileChooser = new FileChooser();
+        fileChooser.setTitle("Upload Image");
+        Stage stage = (Stage) uploadImage.getScene().getWindow();
+        return fileChooser.showOpenDialog(stage);
+    }
+
+    private void uploadAndInsertImage(File selectedFile) throws IOException, FileValidationController.InvalidImageFormatException, FileValidationController.ImageSizeException {
+        Path selectedImagePath = selectedFile.toPath();
+        fileValidationController.validateImageFile(selectedImagePath);
+        String filename = generateUniqueFilename(selectedFile.getName());
+        Path destination = Paths.get("src/main/resources/images/", filename);
+        Files.copy(selectedImagePath, destination);
+        int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
+        CattleImage cattleImage = new CattleImage();
+        cattleImage.setCattleId(selectedCattleId);
+        cattleImage.setImagePath(filename);
+        cattleImage.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+        boolean inserted = new CattleImageDAO().insertCattleImage(cattleImage);
+        if (inserted) {
+            showAlert(Alert.AlertType.INFORMATION, "Success", "The image has been successfully uploaded. The carousel will be updated the next time you start.");
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to insert the image record into the database. Please try again later.");
+        }
+
+    }
+
+    private void handleUploadImageError() {
+        showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while uploading the image.");
+    }
+
+    private String generateUniqueFilename(String filename) {
+        String timestamp = String.valueOf(System.currentTimeMillis());
+        return timestamp + "_" + filename;
+    }
+
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Alert alert = new Alert(type);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(content);
+        alert.showAndWait();
+    }
+
+
+    @FXML
+    private void handleImagesTable(ActionEvent actionEvent) {
+        int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
+
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerRightViews/cattleDetailMoreButtons/viewCattleImages.fxml"));
+                AnchorPane root = loader.load();
+                ImageViewTableController controller = loader.getController();
+                controller.initialize(selectedCattleId);
+                return root;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }).thenAcceptAsync(root -> {
+            if (root != null) {
+                Platform.runLater(() -> {
+                    Scene scene = new Scene(root);
+                    Stage stage = new Stage();
+                    stage.setTitle("Cattle Images");
+                    stage.setScene(scene);
+                    stage.initModality(Modality.APPLICATION_MODAL);
+                    stage.setResizable(false);
+                    stage.setMaximized(false);
+                    stage.showAndWait();
+                });
+            }
+        });
+    }
 
 
 }

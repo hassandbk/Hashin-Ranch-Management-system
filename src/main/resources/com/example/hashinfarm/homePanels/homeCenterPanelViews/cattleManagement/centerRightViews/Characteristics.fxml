@@ -530,7 +530,7 @@
                             </ImageView>
                         </graphic>
                     </Button>
-                    <Button fx:id="downloadImage" mnemonicParsing="false" onAction="#handleImageDownload">
+                    <Button mnemonicParsing="false" onAction="#handleImageDownload">
                         <graphic>
                             <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                 <Image url="@../../../../../../../icons/buttons/downloadImage.png" />
@@ -542,6 +542,13 @@
                         <graphic>
                             <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                 <Image url="@../../../../../../../icons/buttons/viewGallery.png" />
+                            </ImageView>
+                        </graphic>
+                    </Button>
+                    <Button fx:id="viewImageTable" mnemonicParsing="false" onAction="#handleImagesTable">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
+                                <Image url="@../../../../../../../icons/buttons/viewImagesTable.png" />
                             </ImageView>
                         </graphic>
                     </Button>
