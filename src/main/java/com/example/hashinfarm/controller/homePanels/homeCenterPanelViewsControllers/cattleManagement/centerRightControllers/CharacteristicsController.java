@@ -164,28 +164,28 @@ public class CharacteristicsController {
     }
 
     @FXML
-    private void handleImageDownload(ActionEvent event) {
+    private void handleImageDownload() {
         int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
         cattleImageManager.saveImagesToZip(selectedCattleId);
     }
 
     @FXML
-    private void handleViewCurrentImage(ActionEvent actionEvent) {
+    private void handleViewCurrentImage() {
         cattleImageManager.displayCurrentImage();
     }
 
     @FXML
-    private void previousImage(ActionEvent event) {
+    private void previousImage() {
         cattleImageManager.previousImage(imageContainer);
     }
 
     @FXML
-    private void nextImage(ActionEvent event) {
+    private void nextImage() {
         cattleImageManager.nextImage(imageContainer);
     }
 
     @FXML
-    private void handleImageUpload(ActionEvent event) {
+    private void handleImageUpload() {
         File selectedFile = chooseImageFile();
         if (selectedFile != null) {
             try {
@@ -195,7 +195,25 @@ public class CharacteristicsController {
             }
         }
     }
-
+    @FXML
+    private void handleImagesTable() {
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerRightViews/cattleDetailMoreButtons/viewCattleImages.fxml"));
+                AnchorPane root = loader.load();
+                ImageViewTableController controller = loader.getController();
+                controller.initialize(SelectedCattleManager.getInstance().getSelectedCattleID());
+                return root;
+            } catch (IOException e) {
+                e.printStackTrace();
+                return null;
+            }
+        }).thenAcceptAsync(root -> {
+            if (root != null) {
+                Platform.runLater(() -> showImagesTableStage(root));
+            }
+        });
+    }
     private File chooseImageFile() {
         FileChooser fileChooser = new FileChooser();
         fileChooser.setTitle("Upload Image");
@@ -209,18 +227,23 @@ public class CharacteristicsController {
         String filename = generateUniqueFilename(selectedFile.getName());
         Path destination = Paths.get("src/main/resources/images/", filename);
         Files.copy(selectedImagePath, destination);
-        int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
-        CattleImage cattleImage = new CattleImage();
-        cattleImage.setCattleId(selectedCattleId);
-        cattleImage.setImagePath(filename);
-        cattleImage.setCreatedAt(new Timestamp(System.currentTimeMillis()));
-        boolean inserted = new CattleImageDAO().insertCattleImage(cattleImage);
-        if (inserted) {
-            showAlert(Alert.AlertType.INFORMATION, "Success", "The image has been successfully uploaded. The carousel will be updated the next time you start.");
-        } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to insert the image record into the database. Please try again later.");
-        }
 
+        if (Files.exists(destination)) {
+            int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
+            CattleImage cattleImage = new CattleImage();
+            cattleImage.setCattleId(selectedCattleId);
+            cattleImage.setImagePath(filename);
+            cattleImage.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+
+            boolean imageInserted = new CattleImageDAO().insertCattleImage(cattleImage);
+            if (imageInserted) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "The image has been successfully uploaded and inserted. The carousel will be updated upon restarting.");
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to insert the image record into the database. Please try again later.");
+            }
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to copy the image file. Please try again later.");
+        }
     }
 
     private void handleUploadImageError() {
@@ -232,45 +255,26 @@ public class CharacteristicsController {
         return timestamp + "_" + filename;
     }
 
-    private void showAlert(Alert.AlertType type, String title, String content) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+
+
+    private void showImagesTableStage(AnchorPane root) {
+        Scene scene = new Scene(root);
+        Stage stage = new Stage();
+        stage.setTitle("Cattle Images");
+        stage.setScene(scene);
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.setResizable(false);
+        stage.setMaximized(false);
+        stage.showAndWait();
     }
 
-
-    @FXML
-    private void handleImagesTable(ActionEvent actionEvent) {
-        int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
-
-        CompletableFuture.supplyAsync(() -> {
-            try {
-                FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerRightViews/cattleDetailMoreButtons/viewCattleImages.fxml"));
-                AnchorPane root = loader.load();
-                ImageViewTableController controller = loader.getController();
-                controller.initialize(selectedCattleId);
-                return root;
-            } catch (IOException e) {
-                e.printStackTrace();
-                return null;
-            }
-        }).thenAcceptAsync(root -> {
-            if (root != null) {
-                Platform.runLater(() -> {
-                    Scene scene = new Scene(root);
-                    Stage stage = new Stage();
-                    stage.setTitle("Cattle Images");
-                    stage.setScene(scene);
-                    stage.initModality(Modality.APPLICATION_MODAL);
-                    stage.setResizable(false);
-                    stage.setMaximized(false);
-                    stage.showAndWait();
-                });
-            }
+    private void showAlert(Alert.AlertType type, String title, String content) {
+        Platform.runLater(() -> {
+            Alert alert = new Alert(type);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(content);
+            alert.showAndWait();
         });
     }
-
-
 }
