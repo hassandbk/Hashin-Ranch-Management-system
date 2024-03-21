@@ -4,6 +4,7 @@ import com.example.hashinfarm.controller.dao.CattleImageDAO;
 import com.example.hashinfarm.model.CattleImage;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -16,10 +17,15 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Duration;
 
-import java.io.*;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
@@ -30,11 +36,16 @@ public class CattleImageManager {
     private List<CattleImage> cattleImages;
     private Timeline timeline;
     private final CattleImageDAO cattleImageDAO = new CattleImageDAO();
+    Map<Integer, Double> scaleMap = Map.of(2, 1.5, 0, 0.6, 4, 0.6);
+
+
+    // Default scale value
+    double defaultScale = 0.9;
 
     public void fetchAndPopulateCarousel(int cattleId, HBox container) {
         container.getChildren().clear();
         cattleImages = cattleImageDAO.getCattleImagesByCattleId(cattleId);
-        if (cattleImages.isEmpty()) {
+        if (cattleImages == null || cattleImages.isEmpty()) {
             showAlert("No Images Found", "No images found for the specified cattle.");
             return;
         }
@@ -49,23 +60,55 @@ public class CattleImageManager {
     }
 
     private void updateImageContainer(HBox container) {
+            if (cattleImages == null || cattleImages.isEmpty()) {
+            showAlert("No Images", "No images found for the specified cattle.");
+            return;
+        }
+        // Retrieve selected cattle ID
         int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
-        List<CattleImage> updatedImages = cattleImageDAO.getCattleImagesByCattleId(selectedCattleId);
-
-        if (updatedImages.size() != cattleImages.size() || !updatedImages.equals(cattleImages)) {
+        List<CattleImage> updatedImages = null;
+        try {
+            updatedImages = cattleImageDAO.getCattleImagesByCattleId(selectedCattleId);
+        } catch (Exception e) {
+            e.printStackTrace();
+            showAlert("Error", "Failed to retrieve images for selected cattle.");
+            return;
+        }
+        // Compare image lists and update if necessary
+        if (updatedImages == null || updatedImages.size() != cattleImages.size()) {
+            fetchAndPopulateCarousel(selectedCattleId, container);
+            return;
+        }
+        // Check for changes in image paths
+        boolean imagesChanged = false;
+        for (int i = 0; i < updatedImages.size(); i++) {
+            if (!Objects.equals(updatedImages.get(i).getImagePath(), cattleImages.get(i).getImagePath())) {
+                imagesChanged = true;
+                break;
+            }
+        }
+        // Update carousel or populate with existing images
+        if (imagesChanged) {
             fetchAndPopulateCarousel(selectedCattleId, container);
         } else {
+            // Update index and populate with existing images
             currentIndex = (currentIndex + 1) % cattleImages.size();
             populateImageViews(container);
         }
     }
 
+
+
+
+
     private void populateImageViews(HBox container) {
         container.getChildren().clear();
+        if (cattleImages == null || cattleImages.isEmpty()) {
+            return;
+        }
         int numImages = cattleImages.size();
-        if (numImages == 0) return;
         for (int i = 0; i < Math.min(numImages, 5); i++) {
-            double scale = (i == 2) ? 1.5 : ((i == 0 || i == 4) ? 0.6 : 0.9);
+            double scale = scaleMap.getOrDefault(i, 0.9);
             int index = (currentIndex + i) % numImages;
             String imagePath = "C:/Users/123/source/HashinFarm/src/main/resources/images/" + cattleImages.get(index).getImagePath();
             Image image = new Image(new File(imagePath).toURI().toString());
@@ -76,6 +119,10 @@ public class CattleImageManager {
         }
     }
 
+
+
+
+
     public void pauseCarousel() {
         timeline.pause();
     }
@@ -85,12 +132,15 @@ public class CattleImageManager {
     }
 
     private void showAlert(String title, String content) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(content);
-        alert.showAndWait();
+        Platform.runLater(() -> {
+            Alert alert = new Alert(Alert.AlertType.INFORMATION);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(content);
+            alert.showAndWait();
+        });
     }
+
 
     public void displayCurrentImage() {
         pauseCarousel();
@@ -157,7 +207,7 @@ public class CattleImageManager {
     public void saveImagesToZip(int cattleId) {
         cattleImages = cattleImageDAO.getCattleImagesByCattleId(cattleId);
         if (cattleImages.isEmpty()) {
-            showAlert("No Image", "No images found for cattle ID: " + cattleId);
+            showAlert("No Image","No images found for cattle ID: " + cattleId);
             return;
         }
 
@@ -179,13 +229,12 @@ public class CattleImageManager {
                     zipOutputStream.closeEntry();
                 }
             }
-            showAlert("SUCCESS", "Images saved successfully to: " + zipFile.getAbsolutePath());
+            showAlert("SUCCESS","Images saved successfully to: " + zipFile.getAbsolutePath());
         } catch (IOException e) {
-            showAlert("ERROR", "Failed to save images: " + e.getMessage());
+            showAlert("ERROR","Failed to save images: " + e.getMessage());
             e.printStackTrace();
         }
     }
-
     public void previousImage(HBox container) {
         currentIndex = (currentIndex - 1 + cattleImages.size()) % cattleImages.size();
         populateImageViews(container);
@@ -195,4 +244,5 @@ public class CattleImageManager {
         currentIndex = (currentIndex + 1) % cattleImages.size();
         populateImageViews(container);
     }
+
 }
