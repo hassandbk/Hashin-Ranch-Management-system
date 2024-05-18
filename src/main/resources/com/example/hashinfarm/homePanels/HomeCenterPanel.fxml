@@ -1,0 +1,166 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
+
+<GridPane fx:id="mainGridPane" BorderPane.alignment="CENTER" xmlns="http://javafx.com/javafx"
+          xmlns:fx="http://javafx.com/fxml"
+          fx:controller="com.example.hashinfarm.controller.homePanels.HomeCenterPanelController">
+    <columnConstraints>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+    </columnConstraints>
+    <rowConstraints>
+        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+    </rowConstraints>
+
+    <VBox prefHeight="200.0" prefWidth="100.0">
+        <GridPane prefHeight="491.0" prefWidth="346.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="166.60003662109375" minWidth="10.0"
+                                   prefWidth="105.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="241.0" minWidth="10.0" prefWidth="241.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <Button fx:id="handleOverviewButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/overview.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handleIncomeExpensesButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="1">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/income.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handleScheduleJournalsButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="2">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/schedule.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handleOwnerClientButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="3">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/contacts.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handleFeedsLogisticsButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="4">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/feeds.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Label prefHeight="38.0" prefWidth="240.0" text="Overview" GridPane.columnIndex="1"/>
+            <Label prefHeight="18.0" prefWidth="241.0" text="Incomes and Expenses" GridPane.columnIndex="1"
+                   GridPane.rowIndex="1"/>
+            <Label prefHeight="18.0" prefWidth="242.0" text="Schedules/Journals" GridPane.columnIndex="1"
+                   GridPane.rowIndex="2"/>
+            <Label prefHeight="18.0" prefWidth="242.0" text="Owners and Clients" GridPane.columnIndex="1"
+                   GridPane.rowIndex="3"/>
+            <Label prefHeight="18.0" prefWidth="248.0" text="Feeds and logistics" GridPane.columnIndex="1"
+                   GridPane.rowIndex="4"/>
+        </GridPane>
+    </VBox>
+    <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="1">
+        <GridPane prefHeight="491.0" prefWidth="346.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="166.60003662109375" minWidth="10.0"
+                                   prefWidth="105.0"/>
+                <ColumnConstraints hgrow="SOMETIMES" maxWidth="241.0" minWidth="10.0" prefWidth="241.0"/>
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            </rowConstraints>
+            <Button fx:id="handleCattleButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/cattle.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handleSheepButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="1">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/sheep.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handleGoatsButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="2">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <image>
+                            <Image url="@../../../../icons/goats.png"/>
+                        </image>
+
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handlePoultryButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="3">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/chicken.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Button fx:id="handleFishButtonClick" onAction="#handleButtonClick" minHeight="50.0"
+                    mnemonicParsing="false" prefHeight="50.0" prefWidth="57.0" styleClass="round-button"
+                    stylesheets="@../../../../css/styles.css" GridPane.rowIndex="4">
+                <graphic>
+                    <ImageView fitHeight="72.0" fitWidth="66.0">
+                        <Image url="@../../../../icons/fish.png"/>
+                    </ImageView>
+                </graphic>
+            </Button>
+            <Label prefHeight="38.0" prefWidth="240.0" text="Cattle Management" GridPane.columnIndex="1"/>
+            <Label prefHeight="18.0" prefWidth="241.0" text="Sheep Management" GridPane.columnIndex="1"
+                   GridPane.rowIndex="1"/>
+            <Label prefHeight="18.0" prefWidth="242.0" text="Goats Management" GridPane.columnIndex="1"
+                   GridPane.rowIndex="2"/>
+            <Label prefHeight="18.0" prefWidth="242.0" text="Poultry Management" GridPane.columnIndex="1"
+                   GridPane.rowIndex="3"/>
+            <Label prefHeight="18.0" prefWidth="248.0" text="Fish Management" GridPane.columnIndex="1"
+                   GridPane.rowIndex="4"/>
+        </GridPane>
+
+    </VBox>
+</GridPane>

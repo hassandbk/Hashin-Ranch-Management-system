@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.HBox?>
+
+<?import javafx.scene.control.cell.PropertyValueFactory?>
+<AnchorPane prefHeight="422.0" prefWidth="600.0"  xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml" >
+    <!-- Other UI elements can be added here -->
+
+    <HBox AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="1.0" AnchorPane.topAnchor="11.0">
+
+        <!-- ScrollPane containing TableView -->
+        <TableView fx:id="allBreedsTableView" HBox.hgrow="ALWAYS">
+
+
+            <columnResizePolicy>
+                <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+            </columnResizePolicy>
+
+            <!-- Add more columns as needed -->
+
+        </TableView>
+
+    </HBox>
+
+</AnchorPane>

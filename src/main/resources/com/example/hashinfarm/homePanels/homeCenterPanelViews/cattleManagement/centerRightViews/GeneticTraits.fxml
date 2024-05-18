@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Text?>
+
+<AnchorPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.matingAndBreedingControllers.GeneticTraits">
+    <BorderPane layoutX="-353.0" layoutY="-165.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+        <!-- Left side of the BorderPane for Accordion -->
+        <left>
+            <!-- Set fx:id for Accordion -->
+            <ScrollPane fx:id="accordionScrollPane">
+                <!-- Set fx:id for Accordion -->
+                <Accordion fx:id="traitsAccordion">
+                    <panes>
+
+                        <!-- Coat Color and Pattern TitledPane -->
+                        <TitledPane fx:id="coatColorPane" text="Coat Color and Pattern">
+                            <VBox fx:id="coatColorVBox" spacing="5.0">
+                                <!-- checkboxes for this Coat Color and Pattern -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Horned or Polled TitledPane -->
+                        <TitledPane fx:id="hornedOrPolledPane" text="Horned or Polled (Hornless)">
+                            <GridPane>
+                                <!-- Horned Traits -->
+                                <VBox fx:id="hornedTraitsVBox" spacing="5.0" GridPane.columnIndex="0">
+                                    <Text style="-fx-font-weight: bold;" text="Horned Traits" />
+                                    <!-- checkboxes for horned traits -->
+                                </VBox>
+                                <!-- Polled Traits -->
+                                <VBox fx:id="polledTraitsVBox" spacing="5.0" GridPane.columnIndex="1">
+                                    <Text style="-fx-font-weight: bold;" text="Polled Traits" />
+                                    <!-- checkboxes for polled traits -->
+                                </VBox>
+                                <columnConstraints>
+                                    <ColumnConstraints />
+                                    <ColumnConstraints />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints />
+                                </rowConstraints>
+                            </GridPane>
+                        </TitledPane>
+
+                        <!-- Milk Production TitledPane -->
+                        <TitledPane fx:id="milkProductionPane" text="Milk Production">
+                            <VBox fx:id="milkProductionVBox" spacing="5.0">
+                                <!-- checkboxes for Milk Production -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Muscle Structure TitledPane -->
+                        <TitledPane fx:id="muscleStructurePane" text="Muscle Structure">
+                            <VBox fx:id="muscleStructureVBox" spacing="5.0">
+                                <!-- checkboxes for Muscle Structure -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Adaptability to Climate TitledPane -->
+                        <TitledPane fx:id="adaptabilityToClimatePane" text="Adaptability to Climate">
+                            <VBox fx:id="adaptabilityToClimateVBox" spacing="5.0">
+                                <!-- checkboxes for Adaptability to Climate -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Reproductive Performance TitledPane -->
+                        <TitledPane fx:id="reproductivePerformancePane" text="Reproductive Performance">
+                            <VBox fx:id="reproductivePerformanceVBox" spacing="5.0">
+                                <!-- checkboxes for Reproductive Performance -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Disease Resistance TitledPane -->
+                        <TitledPane fx:id="diseaseResistancePane" text="Disease Resistance">
+                            <VBox fx:id="diseaseResistanceVBox" spacing="5.0">
+                                <!-- checkboxes for Disease Resistance -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Feed Efficiency TitledPane -->
+                        <TitledPane fx:id="feedEfficiencyPane" text="Feed Efficiency">
+                            <VBox fx:id="feedEfficiencyVBox" spacing="5.0">
+                                <!-- checkboxes for Feed Efficiency -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Disposition and Temperament TitledPane -->
+                        <TitledPane fx:id="dispositionAndTemperamentPane" text="Disposition and Temperament">
+                            <VBox fx:id="dispositionAndTemperamentVBox" spacing="5.0">
+                                <!-- checkboxes for Disposition and Temperament -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Growth Rate TitledPane -->
+                        <TitledPane fx:id="growthRatePane" text="Growth Rate">
+                            <VBox fx:id="growthRateVBox" spacing="5.0">
+                                <!-- checkboxes for Growth Rate TitledPane -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Calf Vigor TitledPane -->
+                        <TitledPane fx:id="calfVigorPane" text="Calf Vigor">
+                            <VBox fx:id="calfVigorVBox" spacing="5.0">
+                                <!-- checkboxes for Calf Vigor -->
+                            </VBox>
+                        </TitledPane>
+
+                        <!-- Grass-Fed Adaptability TitledPane -->
+                        <TitledPane fx:id="grassFedAdaptabilityPane" text="Grass-Fed Adaptability">
+                            <VBox fx:id="grassFedAdaptabilityVBox" spacing="5.0">
+                                <!-- checkboxes for Grass-Fed Adaptability -->
+                            </VBox>
+                        </TitledPane>
+                    </panes>
+                </Accordion>
+
+
+            </ScrollPane>
+        </left>
+
+        <center>
+            <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="500.0" prefWidth="500.0">
+                <!-- Set fx:id for ListView -->
+                <ListView fx:id="traitsListView" BorderPane.alignment="CENTER" />
+            </ScrollPane>
+
+
+        </center>
+
+    </BorderPane>
+</AnchorPane>

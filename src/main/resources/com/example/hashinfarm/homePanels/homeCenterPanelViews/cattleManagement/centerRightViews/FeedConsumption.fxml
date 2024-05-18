@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="677.0" prefWidth="760.0" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml">
+    <VBox prefHeight="676.0" prefWidth="760.0" spacing="10.0" style="-fx-padding: 10;">
+        <!-- Basic Information -->
+        <GridPane prefHeight="229.0" prefWidth="739.0">
+            <Label style="-fx-font-size: 18; -fx-text-fill: #336699;" text="Cattle ID:" GridPane.columnIndex="0">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <Label prefHeight="26.0" prefWidth="150.0" style="-fx-font-size: 18;" text="YourCattleID" textFill="#FF5733" GridPane.columnIndex="1">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <Label style="-fx-font-size: 14;" text="Cattle Name:" GridPane.rowIndex="1">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <Label style="-fx-font-size: 14;" text="Feed Type:" wrapText="true" GridPane.columnIndex="2">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <ComboBox prefWidth="150.0" promptText="Select Feed Type" GridPane.columnIndex="3">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Hay" />
+                        <String fx:value="Silage" />
+                        <String fx:value="Grains" />
+                        <String fx:value="Concentrates" />
+                        <String fx:value="Pasture" />
+                    </FXCollections>
+                </items>
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </ComboBox>
+            <Label style="-fx-font-size: 14;" text="Feed Amount (per serving):" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <HBox spacing="5.0" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                <TextField prefHeight="26.0" prefWidth="134.0" promptText="Enter Amount">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </HBox.margin>
+            </TextField>
+                <Label prefHeight="18.0" prefWidth="24.0" text="kg">
+               <HBox.margin>
+                  <Insets bottom="10.0" right="10.0" top="10.0" />
+               </HBox.margin>
+            </Label>
+            </HBox>
+            <Label style="-fx-font-size: 14;" text="Frequency of Feeding:" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <ComboBox prefHeight="26.0" prefWidth="153.0" promptText="Select Frequency" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Once a day" />
+                        <String fx:value="Twice a day" />
+                        <String fx:value="Three times a day" />
+                        <String fx:value="Ad libitum" />
+                    </FXCollections>
+                </items>
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </ComboBox>
+            <Label style="-fx-font-size: 14;" text="Total Daily Feed Consumption:" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <HBox spacing="5.0" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                <TextField prefHeight="26.0" prefWidth="125.0" promptText="Enter Total Consumption">
+               <HBox.margin>
+                  <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+               </HBox.margin></TextField>
+                <Label prefHeight="18.0" prefWidth="24.0" text="kg">
+               <HBox.margin>
+                  <Insets bottom="10.0" right="10.0" top="10.0" />
+               </HBox.margin></Label>
+            </HBox>
+            <Label style="-fx-font-size: 14;" text="Last Feed Date:" wrapText="true" GridPane.rowIndex="2">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <DatePicker GridPane.columnIndex="1" GridPane.rowIndex="2">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </DatePicker>
+            <Label prefHeight="26.0" prefWidth="186.0" style="-fx-font-size: 14;" text="Nutrient Composition (%):" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <Label style="-fx-font-size: 14;" text="Feed Quality:" GridPane.rowIndex="3">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </Label>
+            <ComboBox prefWidth="150.0" promptText="Select Feed Quality" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Excellent" />
+                        <String fx:value="Good" />
+                        <String fx:value="Fair" />
+                        <String fx:value="Poor" />
+                    </FXCollections>
+                </items>
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </ComboBox>
+         <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="3">
+            <children>
+                  <TextField prefHeight="26.0" prefWidth="128.0" promptText="Enter Nutrient Composition">
+                  <HBox.margin>
+                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  </HBox.margin>
+                  </TextField>
+            </children>
+         </HBox>
+         <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+            <children>
+                  <TextField promptText="Enter Cattle Name">
+                  <HBox.margin>
+                     <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                  </HBox.margin>
+                  </TextField>
+            </children>
+         </HBox>
+         <columnConstraints>
+
+                 <ColumnConstraints percentWidth="25" />
+                 <ColumnConstraints percentWidth="25" />
+                 <ColumnConstraints percentWidth="25" />
+                 <ColumnConstraints percentWidth="25" />
+
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
+        </GridPane>
+
+        <!-- Nutritional Analysis -->
+        <GridPane>
+            <Label style="-fx-font-size: 14;" text="Dietary Recommendations:" GridPane.rowIndex="2">
+                <GridPane.margin>
+                    <Insets bottom="5.0" />
+                </GridPane.margin>
+            </Label>
+            <TextArea prefHeight="182.0" prefWidth="573.0" promptText="Enter Dietary Recommendations" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS">
+                <GridPane.margin>
+                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                </GridPane.margin>
+            </TextArea>
+         <columnConstraints>
+            <ColumnConstraints maxWidth="190.60001220703126" minWidth="160.9999755859375" prefWidth="179.4" />
+            <ColumnConstraints hgrow="ALWAYS" minWidth="548.1999877929687" />
+         </columnConstraints>
+         <rowConstraints>
+            <RowConstraints />
+            <RowConstraints />
+            <RowConstraints />
+         </rowConstraints>
+
+        </GridPane>
+        <!-- Add this section for TableView -->
+        <ScrollPane fitToHeight="true" fitToWidth="true" hbarPolicy="ALWAYS" vbarPolicy="ALWAYS" VBox.vgrow="ALWAYS">
+            <content>
+                <TableView GridPane.columnIndex="1" GridPane.rowIndex="3">
+                    <columns>
+                        <TableColumn prefWidth="127.20000606775284" text="Date" />
+                        <TableColumn prefWidth="148.00003051757812" text="Feed Type" />
+                        <TableColumn prefWidth="82.39996337890625" text="Amount (kg)" />
+                        <TableColumn prefWidth="162.4000244140625" text="Frequency" />
+                        <TableColumn prefWidth="176.79998779296875" resizable="false" text="Total Daily Consumption (kg)" />
+                    </columns>
+               <columnResizePolicy>
+                  <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
+               </columnResizePolicy>
+                </TableView>
+            </content>
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </VBox.margin>
+        </ScrollPane>
+
+    </VBox>
+</VBox>

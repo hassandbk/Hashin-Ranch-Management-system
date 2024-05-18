@@ -1,0 +1,345 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.ColorPicker?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+   <?import javafx.scene.layout.VBox?>
+
+<VBox prefHeight="1098.0" prefWidth="935.0" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml">
+    <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="1098.0" prefWidth="1058.0">
+
+        <!-- Cattle Details Section -->
+        <VBox alignment="TOP_CENTER" prefHeight="1089.0" prefWidth="1053.0" spacing="10">
+
+            <GridPane hgap="10" prefHeight="102.0" prefWidth="600.0">
+                <!-- Row 1 -->
+                <Label style="-fx-font-size: 16; -fx-text-fill: #FF5733;" text="Cattle ID:">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+                <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.rowIndex="6">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                    <ComboBox prefHeight="26.0" prefWidth="165.0" promptText="Select Outcome">
+                        <items>
+                            <FXCollections fx:factory="observableArrayList">
+                                <String fx:value="Successful" />
+                                <String fx:value="Unsuccessful" />
+                            </FXCollections>
+                        </items>
+                    </ComboBox>
+                </HBox>
+
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Cattle Name:" GridPane.columnIndex="2">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Dam ID:" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Gestation Period (Days):" GridPane.columnIndex="2" GridPane.rowIndex="4">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Breeding Outcome:" GridPane.columnIndex="2" GridPane.rowIndex="6">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+                <Label prefHeight="46.0" prefWidth="150.0" style="-fx-font-size: 16;" text="YourCattleID" textFill="#101010" GridPane.columnIndex="1">
+                    <padding>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </padding>
+                </Label>
+                <TextField promptText="Enter Sire ID" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </TextField>
+                <DatePicker promptText="Select Date" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </DatePicker>
+                <ComboBox prefHeight="26.0" prefWidth="196.0" promptText="Select Status" GridPane.columnIndex="1" GridPane.rowIndex="6">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Healthy" />
+                            <String fx:value="Subfertile" />
+                            <String fx:value="Infertile" />
+                        </FXCollections>
+                    </items>
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </ComboBox>
+
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Sire ID:" GridPane.rowIndex="2">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+
+
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Breeding Date:" GridPane.rowIndex="4">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Reproductive Health Status:" GridPane.rowIndex="6">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+                <TextField prefHeight="26.0" prefWidth="201.0" promptText="Enter Gestation Period" GridPane.columnIndex="3" GridPane.rowIndex="4">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </TextField>
+                <TextField prefHeight="26.0" prefWidth="302.0" promptText="Enter Dam ID" GridPane.columnIndex="3" GridPane.rowIndex="2">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </TextField>
+                <TextField prefHeight="26.0" prefWidth="198.0" promptText="Enter Cattle Name" GridPane.columnIndex="3">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </TextField>
+                <!-- Row 9 -->
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Calving Date:" GridPane.rowIndex="8">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+                <DatePicker promptText="Select Calving Date" GridPane.columnIndex="1" GridPane.rowIndex="8">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </DatePicker>
+
+                <!-- Row 10 -->
+                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Breeding Method:" GridPane.columnIndex="2" GridPane.rowIndex="8">
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </Label>
+                <ComboBox promptText="Select Breeding Method" GridPane.columnIndex="3" GridPane.rowIndex="8">
+                    <items>
+                        <FXCollections fx:factory="observableArrayList">
+                            <String fx:value="Natural Mating" />
+                            <String fx:value="Artificial Insemination" />
+                            <String fx:value="Embryo Transfer" />
+                        </FXCollections>
+                    </items>
+                    <GridPane.margin>
+                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                    </GridPane.margin>
+                </ComboBox>
+
+            </GridPane>
+            <Accordion>
+                <panes>
+                    <TitledPane animated="false" text="Offspring Information">
+                        <GridPane hgap="10">
+
+                            <!-- Row 1 - Offspring ID -->
+                            <Label style="-fx-font-size: 16; -fx-text-fill: #4CAF50;" text="Offspring ID:" GridPane.rowIndex="13">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <Label prefHeight="46.0" prefWidth="150.0" style="-fx-font-size: 16;" text="YourOffspringID" textFill="#101010" GridPane.columnIndex="1" GridPane.rowIndex="13">
+                                <padding>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </padding>
+                            </Label>
+
+                            <!-- Row 2 - Offspring Gender -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Offspring Gender:" GridPane.rowIndex="14">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <ComboBox prefHeight="26.0" prefWidth="174.0" promptText="Select Gender" GridPane.columnIndex="1" GridPane.rowIndex="14">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Male" />
+                                        <String fx:value="Female" />
+                                    </FXCollections>
+                                </items>
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </ComboBox>
+
+                            <!-- Row 3 - Birth Weight -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Birth Weight (kg):" GridPane.columnIndex="2" GridPane.rowIndex="13">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <TextField promptText="Enter Birth Weight" GridPane.columnIndex="3" GridPane.rowIndex="13">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </TextField>
+
+                            <!-- Row 4 - Offspring Color/Markings -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Offspring Color/Markings:" GridPane.columnIndex="2" GridPane.rowIndex="14">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <ColorPicker prefHeight="26.0" prefWidth="158.0" promptText="Select Color" GridPane.columnIndex="3" GridPane.rowIndex="14">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </ColorPicker>
+
+                        </GridPane>
+
+                    </TitledPane>
+                    <TitledPane animated="false" text="Performance and Recommendations">
+                        <GridPane hgap="10">
+
+
+                            <!-- Row 16 - Breeding Success Rate -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Breeding Success Rate (%):" wrapText="true" GridPane.rowIndex="15">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <TextField prefHeight="38.0" prefWidth="191.0" promptText="Enter Success Rate" GridPane.columnIndex="1" GridPane.rowIndex="15">
+
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </TextField>
+
+                            <!-- Row 17 - Breeding Interval -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Breeding Interval (Months):" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="15">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <TextField promptText="Enter Breeding Interval" GridPane.columnIndex="3" GridPane.rowIndex="15">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </TextField>
+
+                            <!-- Row 18 - Breeding Location -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Breeding Location:" wrapText="true" GridPane.rowIndex="16">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <TextField prefHeight="50.0" prefWidth="258.0" promptText="Enter Breeding Location" GridPane.columnIndex="1" GridPane.rowIndex="16">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </TextField>
+
+                            <!-- Row 19 - Previous Calving History -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Previous Calving History:" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="17">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+
+                            <!-- Row 20 - Fertility Treatments Applied -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Fertility Treatments Applied:" wrapText="true" GridPane.columnIndex="2" GridPane.rowIndex="16">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <CheckBox GridPane.columnIndex="3" GridPane.rowIndex="16">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </CheckBox>
+
+                            <!-- Row 21 - Breeding Recommendations Status -->
+                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Breeding Recommendations Status:" wrapText="true" GridPane.rowIndex="17">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </Label>
+                            <TextArea promptText="Enter Recommendations" GridPane.columnIndex="1" GridPane.rowIndex="17">
+                                <GridPane.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </GridPane.margin>
+                            </TextArea>
+                            <ScrollPane GridPane.columnIndex="3" GridPane.rowIndex="17">
+                                <ListView prefWidth="350.0">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <HBox spacing="10.0">
+                                                <ImageView fitHeight="30.0" fitWidth="30.0" preserveRatio="true">
+                                                    <!-- Define your image here, for example: -->
+                                                    <Image url="@../../../../../../../icons/sheep.png" />
+                                                </ImageView>
+                                                <VBox>
+                                                    <Label text="Recommendation 1" />
+                                                    <Label text="Description 1" />
+                                                </VBox>
+                                            </HBox>
+                                            <HBox spacing="10.0">
+                                                <ImageView fitHeight="30.0" fitWidth="30.0" preserveRatio="true">
+                                                    <!-- Define your image here, for example: -->
+                                                    <Image url="@../../../../../../../icons/sheep.png" />
+                                                </ImageView>
+                                                <VBox>
+                                                    <Label text="Recommendation 2" />
+                                                    <Label text="Description 2" />
+                                                </VBox>
+                                            </HBox>
+                                            <!-- Add more items as needed -->
+                                        </FXCollections>
+                                    </items>
+                                </ListView>
+                            </ScrollPane>
+
+                        </GridPane>
+
+                    </TitledPane>
+
+                </panes>
+            </Accordion>
+
+            <padding>
+                <Insets left="10.0" right="10.0" top="10.0" />
+            </padding>
+
+        </VBox>
+
+    </ScrollPane>
+</VBox>

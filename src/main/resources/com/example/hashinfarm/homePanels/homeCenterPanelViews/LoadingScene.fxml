@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.ProgressBar?>
+<?import javafx.scene.layout.StackPane?>
+
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.control.Label?>
+<StackPane xmlns="http://javafx.com/javafx"
+           xmlns:fx="http://javafx.com/fxml"
+           prefWidth="200" prefHeight="200">
+<VBox>
+    <!-- Progress bar for loading animation -->
+    <ProgressBar fx:id="loadingProgressBar" prefWidth="200" prefHeight="20"/>
+    <Label>LOADING.............................</Label>
+</VBox>
+
+
+</StackPane>

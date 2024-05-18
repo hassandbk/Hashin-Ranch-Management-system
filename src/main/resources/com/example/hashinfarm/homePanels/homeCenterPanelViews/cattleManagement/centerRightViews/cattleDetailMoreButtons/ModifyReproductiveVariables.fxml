@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<AnchorPane maxHeight="1.7976931348623157E308" maxWidth="1.7976931348623157E308" minHeight="-Infinity" minWidth="-Infinity" prefHeight="200.0" prefWidth="250.0" stylesheets="@../../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.ModifyReproductiveVariablesController">
+
+    <VBox alignment="CENTER" layoutX="26.0" layoutY="17.0" spacing="10.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+        <Label text="Modify Reproductive Variables" />
+        <DatePicker fx:id="breedingDatePicker" editable="false" promptText="Select Breeding Date" />
+        <DatePicker fx:id="calvingDatePicker" editable="false" promptText="Select Calving Date" />
+        <TextField fx:id="calvingIntervalField" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" promptText="Enter Calving Interval" />
+        <HBox alignment="CENTER" spacing="10.0">
+            <Button mnemonicParsing="false" onAction="#handleSave" text="Save" />
+            <Button mnemonicParsing="false" onAction="#handleCancel" text="Cancel" />
+        </HBox>
+    </VBox>
+</AnchorPane>

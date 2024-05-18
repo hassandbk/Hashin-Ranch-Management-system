@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.layout.VBox?>
+<BorderPane prefHeight="758.0" prefWidth="1452.0" xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.CattleController">
+    <top>
+        <fx:include source="cattleManagement/CattleManagerTop.fxml" />
+    </top>
+    <center>
+        <SplitPane fx:id="splitPane" dividerPositions="0.5" prefHeight="659.0" prefWidth="1430.0">
+            <!-- Left section -->
+            <VBox fx:id="leftPanePlaceholder" />
+            <!-- Right section -->
+            <VBox fx:id="rightPanePlaceholder" />
+        </SplitPane>
+    </center>
+    <bottom>
+        <AnchorPane>
+            <Button fx:id="leftArrowButton" layoutX="720.0" text="←" />
+            <Button fx:id="rightArrowButton" layoutX="750.0" text="→" />
+        </AnchorPane>
+    </bottom>
+</BorderPane>

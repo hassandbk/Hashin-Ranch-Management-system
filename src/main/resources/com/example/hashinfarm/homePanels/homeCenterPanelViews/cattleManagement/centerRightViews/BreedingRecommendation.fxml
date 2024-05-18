@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.ListView?>
+<?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.BorderPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.layout.VBox?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
+
+<VBox prefHeight="761.0" prefWidth="935.0" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx"
+      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.matingAndBreedingControllers.BreedingRecommendation">
+    <ScrollPane fitToWidth="true" prefHeight="626.0" prefWidth="935.0" VBox.vgrow="ALWAYS">
+
+        <!-- Mating and Breeding Details Section -->
+        <VBox alignment="TOP_CENTER" prefHeight="742.0" prefWidth="930.0" spacing="10">
+
+
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="759.0" prefWidth="910.0" VBox.vgrow="ALWAYS">
+                <VBox alignment="TOP_CENTER" prefHeight="762.0" prefWidth="910.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                    <Label alignment="CENTER" contentDisplay="CENTER" text="BREEDING GOALS" textAlignment="CENTER" textFill="#1c46ae" VBox.vgrow="ALWAYS">
+                        <font>
+                            <Font name="System Bold" size="19.0" />
+                        </font>
+                    </Label>
+                    <HBox maxHeight="-Infinity" maxWidth="-Infinity" prefHeight="307.0" prefWidth="910.0" VBox.vgrow="ALWAYS">
+                        <GridPane hgap="10.0" vgap="10.0" HBox.hgrow="ALWAYS">
+                            <columnConstraints>
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints vgrow="ALWAYS" />
+                                <RowConstraints vgrow="SOMETIMES" />
+                            </rowConstraints>
+                            <CheckBox mnemonicParsing="false" fx:id="milkProductionPaneCkB" text="Optimize Production Traits" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="reproductivePerformancePaneCkB" text="Enhance Reproductive Performance" wrapText="true" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="diseaseResistancePaneCkB" text="Prioritize Health and Disease Resistance" wrapText="true" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="muscleStructurePaneCkB" text="Improve Muscular Structure" wrapText="true" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="feedEfficiencyPaneCkB" text="Increase Feed Efficiency" wrapText="true" GridPane.columnIndex="5" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="dispositionAndTemperamentPaneCkB" text="Favorable Temperament and Handling" wrapText="true" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="adaptabilityToClimatePaneCkB" text="Adaptability to Climate and Environment" wrapText="true" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="growthRatePaneCkB" text="Optimize Growth Rates" wrapText="true" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false"  fx:id="grassFedAdaptabilityPaneCkB" text="Improve Grass-Fed Adaptability" wrapText="true" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="hornedOrPolledPaneCkB" text="Polled Traits and Horn Characteristics" wrapText="true" GridPane.columnIndex="5" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+                            <CheckBox mnemonicParsing="false" fx:id="coatColorPaneCkB" text="Coat Color and Pattern" wrapText="true" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS">
+                                <cursor>
+                                    <Cursor fx:constant="HAND" />
+                                </cursor>
+                            </CheckBox>
+                            <CheckBox mnemonicParsing="false"  fx:id="calfVigorPaneCkB" text="Calf Vigor Expected" wrapText="true" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
+                        <cursor>
+                           <Cursor fx:constant="HAND" />
+                        </cursor></CheckBox>
+
+                            <HBox.margin>
+                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                            </HBox.margin>
+                            <cursor>
+                                <Cursor fx:constant="DEFAULT" />
+                            </cursor>
+                        </GridPane>
+                    </HBox>
+                    <Label alignment="CENTER" contentDisplay="CENTER" layoutX="384.0" layoutY="10.0" text="SELECT TRAITS" textAlignment="CENTER" textFill="#1dad57" VBox.vgrow="ALWAYS">
+                        <font>
+                            <Font name="System Bold" size="19.0" />
+                        </font>
+                    </Label>
+                    <BorderPane layoutX="-353.0" layoutY="-165.0" prefHeight="400.0" prefWidth="600.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+
+                        <!-- Left side of the BorderPane for Accordion -->
+                        <left>
+                            <!-- Set fx:id for Accordion -->
+                            <ScrollPane fx:id="accordionScrollPane">
+                                <!-- Set fx:id for Accordion -->
+                                <Accordion fx:id="traitsAccordion">
+                                    <panes>
+                                        <!-- Dynamic TitledPanes will be added here -->
+                                    </panes>
+                                </Accordion>
+                            </ScrollPane>
+                        </left>
+
+                        <center>
+                            <!-- Set fx:id for ListView -->
+                            <ListView fx:id="traitsListView" prefHeight="200.0" prefWidth="466.0" BorderPane.alignment="CENTER" />
+
+                        </center>
+
+
+                    </BorderPane>
+                    <Label alignment="CENTER" contentDisplay="CENTER" layoutX="398.0" layoutY="110.0" text="RECOMMENDED BULL LIST" textAlignment="CENTER" textFill="#a11dab">
+                        <font>
+                            <Font name="System Bold" size="19.0" />
+                        </font>
+                    </Label>
+                    <ListView VBox.vgrow="ALWAYS" />
+
+                </VBox>
+            </AnchorPane>
+
+
+
+            <padding>
+                <Insets left="10.0" right="10.0" top="10.0" />
+            </padding>
+
+        </VBox>
+
+    </ScrollPane>
+</VBox>

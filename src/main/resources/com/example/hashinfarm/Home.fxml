@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?import javafx.scene.layout.*?>
+
+<BorderPane xmlns="http://javafx.com/javafx"
+            xmlns:fx="http://javafx.com/fxml"
+            prefHeight="715.0" prefWidth="925.0">
+
+    <top>
+        <fx:include source="MenuBar.fxml" />
+    </top>
+
+    <left>
+        <fx:include source="homePanels/HomeLeftPanel.fxml" />
+    </left>
+
+    <bottom>
+        <fx:include source="homePanels/HomeBottomPanel.fxml" />
+    </bottom>
+
+    <center>
+        <fx:include source="homePanels/HomeCenterPanel.fxml" />
+    </center>
+
+</BorderPane>

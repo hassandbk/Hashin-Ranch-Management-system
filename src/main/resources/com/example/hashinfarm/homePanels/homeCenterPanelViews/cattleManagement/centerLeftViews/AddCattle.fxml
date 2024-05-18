@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import java.lang.String?>
+<VBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER" spacing="10"
+      xmlns="http://javafx.com/javafx" stylesheets="@../../../../../../../css/styles.css"
+      fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewCattleController">
+
+    <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Add Cattle To Herd"/>
+
+    <HBox alignment="CENTER" spacing="5">
+
+        <Label text="Tag ID:"/>
+        <TextField fx:id="tagIDTextField" promptText="Tag ID"/>
+        <Label text="Name:"/>
+        <TextField fx:id="nameTextField" maxWidth="-Infinity" minWidth="-Infinity" promptText="Enter Name"/>
+        <Label text="Sex:"/>
+        <ComboBox fx:id="genderComboBox" minWidth="-Infinity" prefWidth="120.0" promptText="select Gender">
+            <items>
+                <FXCollections fx:factory="observableArrayList">
+                    <String fx:value="Bull"/>
+                    <String fx:value="Steer"/>
+                    <String fx:value="Heifer"/>
+                    <String fx:value="Cow"/>
+                </FXCollections>
+            </items>
+        </ComboBox>
+        <VBox.margin>
+            <Insets left="10.0" right="10.0"/>
+        </VBox.margin>
+    </HBox>
+    <Separator prefWidth="200.0"/>
+    <GridPane minHeight="-Infinity" minWidth="-Infinity" VBox.vgrow="NEVER">
+        <columnConstraints>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="-Infinity"/>
+            <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0"/>
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+            <RowConstraints/>
+            <RowConstraints/>
+        </rowConstraints>
+        <VBox.margin>
+            <Insets left="10.0" right="10.0"/>
+        </VBox.margin>
+        <Label text="Color Markings:"/>
+        <TextField fx:id="colorMakingTextField" GridPane.columnIndex="1"/>
+        <Label text="Date of Birth:" GridPane.rowIndex="1"/>
+        <DatePicker fx:id="dateOfBirthDatePicker" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="120.0"
+                    GridPane.columnIndex="1" GridPane.rowIndex="1"/>
+        <Label text="Dam:" GridPane.columnIndex="3" GridPane.rowIndex="1"/>
+        <Label text="Age:" GridPane.rowIndex="2"/>
+        <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="2" GridPane.halignment="CENTER"
+                   GridPane.rowSpan="5" GridPane.valignment="CENTER"/>
+        <Label fx:id="ageLabel" minWidth="-Infinity" prefWidth="120.0" text="Label" wrapText="true"
+               GridPane.columnIndex="1" GridPane.rowIndex="2"/>
+        <Label text="Sire:" GridPane.columnIndex="3" GridPane.rowIndex="2"/>
+        <Label text="Cattle's breed:" GridPane.columnIndex="3"/>
+        <Button fx:id="cattleBreedButton" onAction="#selectCattleBreed" text="Select Cattle's Breed"
+                GridPane.columnIndex="4"/>
+        <Label text="Weight:" GridPane.rowIndex="3"/>
+        <TextField fx:id="weightTextField" promptText="Enter Live Weight" GridPane.columnIndex="1"
+                   GridPane.rowIndex="3"/>
+        <Button fx:id="damTagButton" mnemonicParsing="false" onAction="#handleCattleTagID" text="Select Dam's Tag"
+                GridPane.columnIndex="4" GridPane.rowIndex="1"/>
+        <Button fx:id="sireTagButton" mnemonicParsing="false" onAction="#handleCattleTagID" text="Select Sire's Tag"
+                GridPane.columnIndex="4" GridPane.rowIndex="2"/>
+        <Label fx:id="damNameLabel" text="Name" GridPane.columnIndex="5" GridPane.rowIndex="1"/>
+        <Label fx:id="sireNameLabel" text="Name" GridPane.columnIndex="5" GridPane.rowIndex="2"/>
+
+    </GridPane>
+    <Label text="BCS:"/>
+
+    <HBox alignment="CENTER" spacing="5">
+        <Slider fx:id="BCSSlider" prefHeight="14.0" prefWidth="322.0"/>
+    </HBox>
+    <Label fx:id="BCSSliderLabel" text="Bcs Text"/>
+
+    <Button onAction="#addCattleToDatabase" text="Add Cattle"/>
+    <padding>
+        <Insets bottom="20.0" left="10.0" right="10.0" top="20.0"/>
+    </padding>
+
+</VBox>

@@ -1,0 +1,1906 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import de.jensd.fx.glyphs.fontawesome.*?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.Font?>
+<VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea"
+      fx:controller="com.example.hashinfarm.controller.HomeController">
+
+    <MenuBar prefHeight="25.0" prefWidth="926.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
+             AnchorPane.topAnchor="0.0">
+
+        <cursor>
+            <Cursor fx:constant="HAND"/>
+        </cursor>
+        <!-- File Menu -->
+        <Menu mnemonicParsing="false" text="File">
+            <MenuItem fx:id="handleNewRanch" accelerator="Ctrl+N" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="New Ranch">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/ranch.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleOpenRanch" accelerator="Ctrl+O" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Open Ranch">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/ranch2.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleSave" accelerator="Ctrl+S" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Save">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/save.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleSaveAs" mnemonicParsing="false" onAction="#handleMenuAction" text="Save As...">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/saveAs.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="handleImportData" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Import Data...">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/import.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleExportData" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Export Data...">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/export.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="handlePrint" accelerator="Ctrl+P" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Print">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/print.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="handleExit" accelerator="Alt+F4" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Exit">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/exit.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+        </Menu>
+
+        <!-- Edit Menu -->
+        <Menu mnemonicParsing="false" text="Edit">
+            <MenuItem fx:id="handleUndo" accelerator="Ctrl+Z" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Undo">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/undo.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleRedo" accelerator="Ctrl+Y" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Redo">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/redo.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+
+
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="handleSelectAll" accelerator="Ctrl+A" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Select All">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/selectAll.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <SeparatorMenuItem/>
+
+            <MenuItem fx:id="handleCut" accelerator="Ctrl+X" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Cut">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/cut.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleCopy" accelerator="Ctrl+C" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Copy">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/copy.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handlePaste" accelerator="Ctrl+V" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Paste">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/paste.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="handleDelete" accelerator="Del" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Delete">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/delete.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+
+        </Menu>
+
+        <!-- View Menu -->
+        <Menu mnemonicParsing="false" text="View">
+            <MenuItem fx:id="handleDashboard" accelerator="Ctrl+D" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Dashboard">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/dashboard.png"/>
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+
+
+            <Menu mnemonicParsing="false" text="Overview">
+
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/overview.png"/>
+                    </ImageView>
+                </graphic>
+                <MenuItem fx:id="handleWeather" mnemonicParsing="false" onAction="#handleMenuAction" text="Weather">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/weather.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleCalendar" mnemonicParsing="false" onAction="#handleMenuAction" text="Calendar">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/calender.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <SeparatorMenuItem/>
+                <MenuItem fx:id="handleTasks" mnemonicParsing="false" onAction="#handleMenuAction" text="Tasks">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/tasks.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleNotifications" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Notifications">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/notification.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleAlerts" mnemonicParsing="false" onAction="#handleMenuAction" text="Alerts">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/alert.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </Menu>
+
+            <SeparatorMenuItem/>
+            <!-- Cattle Management -->
+            <Menu accelerator="Ctrl+H" mnemonicParsing="false" text="Herds">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/cattle.png"/>
+                    </ImageView>
+                </graphic>
+                <MenuItem fx:id="handleHerdList" mnemonicParsing="false" onAction="#handleMenuAction" text="Herd List">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/herdList.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleHealthStatus" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Health and Status">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/healthStatus.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleGrazingPatterns" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Grazing Patterns">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/grazingPattern.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleVaccinationRecordsView" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Vaccination Records">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/vaccinationRecord.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleBreedingHistory" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Breeding History">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/breedingHistory.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleReproductionReports" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Reproduction Reports">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/reproductionReports.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleFeedConsumption" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Feed Consumption">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/feedConsumption.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleWeightTracking" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Weight Tracking">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/weightTracking.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <!-- Add more Herds sub-items as needed -->
+            </Menu>
+
+
+            <!-- Goat Management -->
+            <Menu accelerator="Ctrl+G" mnemonicParsing="false" text="Goat Management">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/goats.png"/>
+                    </ImageView>
+                </graphic>
+                <MenuItem fx:id="handleHealthCheckup" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Health Checkup">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/healthStatus.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleFeedingSchedule" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Feeding Schedule">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/feedConsumption.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleGrazingRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Grazing Records">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/grazingPattern.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleVaccinationHistoryGoat" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Vaccination History">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/vaccinationRecord.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleProductivityMetrics" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Productivity Metrics">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/ProductivityMetrics.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleShelterMaintenance" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Shelter Maintenance">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/ShelterMaintenance.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleBehavioralObservations" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Behavioral Observations">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/BehavioralObservations.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </Menu>
+
+            <!-- Sheep Management -->
+            <Menu accelerator="Ctrl+G" mnemonicParsing="false" text="Sheet Management">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/sheep.png"/>
+                    </ImageView>
+                </graphic>
+                <MenuItem fx:id="handleHealthCheckupSheep" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Health Checkup">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/healthStatus.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <MenuItem fx:id="handleFeedingScheduleSheep" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Feeding Schedule">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/feedConsumption.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <MenuItem fx:id="handleGrazingRecordsSheep" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Grazing Records">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/grazingPattern.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleVaccinationHistorySheep" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Vaccination History">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/vaccinationRecord.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleProductivityMetricsSheep" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Productivity Metrics">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/ProductivityMetrics.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleShelterMaintenanceSheep" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Shelter Maintenance">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/ShelterMaintenance.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleBehavioralObservationsSheep" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Behavioral Observations">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/BehavioralObservations.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </Menu>
+
+
+            <!-- Chicken Management -->
+            <Menu accelerator="Ctrl+C" mnemonicParsing="false" text="Chicken Management">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/chicken.png"/>
+                    </ImageView>
+                </graphic>
+
+                <!-- Section 1: Overview -->
+                <Menu mnemonicParsing="false" text="Overview">
+                    <MenuItem fx:id="handleFlockOverview" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Flock Overview">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/FlockOverview.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleBreedSummary" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Breed Summary">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/BreedSummary.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleAgeDistribution" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Age Distribution">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/AgeDistribution.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleGrowthTrends" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Growth Trends">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/GrowthTrends.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Section 2: Inventory Management -->
+                <Menu mnemonicParsing="false" text="Inventory Management">
+                    <MenuItem fx:id="handleAddChicken" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Add Chicken">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/AddChicken.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleEditChicken" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Edit Chicken">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/EditChicken.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleRemoveChicken" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Remove Chicken">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/RemoveChicken.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleBatchImport" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Batch Import">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/BatchImport.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Section 3: Health and Wellness -->
+                <Menu mnemonicParsing="false" text="Health and Wellness">
+
+                    <MenuItem fx:id="handleVaccinationHistory" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Vaccination History">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/VaccinationHistory.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleMedicationLog" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Medication Log">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/MedicationLog.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <MenuItem fx:id="handleDiagnosisRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Diagnosis Records">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/DiagnosisRecords.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleTreatmentPlans" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Treatment Plans">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/TreatmentPlans.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Section 3: Health and Wellness -->
+                <Menu mnemonicParsing="false" text="Production and Egg Management">
+                    <MenuItem fx:id="handleDailyEggCount" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Daily Egg Count">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/DailyEggCount.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleEggSizeDistribution" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Egg Size Distribution">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/EggSizeDistribution.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleNestingLogs" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Nesting Logs">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/NestingLogs.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleBroodingDetails" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Brooding Details">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/BroodingDetails.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Section 5: Feeding and Nutrition -->
+                <Menu mnemonicParsing="false" text="Feeding and Nutrition">
+
+                    <MenuItem fx:id="handleDailyFeedPlan" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Daily Feed Plan">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/DailyFeedPlan.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleSpecialDiets" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Special Diets">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/SpecialDiets.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleFeedComposition" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Feed Composition">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/FeedComposition.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleNutritionalAnalysis" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Nutritional Analysis">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/NutritionalAnalysis.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Section 6: Housing and Environment -->
+                <Menu mnemonicParsing="false" text="Housing and Environment">
+                    <MenuItem fx:id="handleCoopDetails" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Coop Details">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/CoopDetails.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleCapacityPlanning" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Capacity Planning">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/CapacityPlanning.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <MenuItem fx:id="handleTemperatureRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Temperature Records">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/TemperatureRecords.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleHumidityLogs" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Humidity Logs">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/HumidityLogs.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+
+                <!-- Section 7: Mortality and Disposal -->
+                <Menu mnemonicParsing="false" text="Mortality and Disposal">
+                    <MenuItem fx:id="handleCauseOfDeath" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Cause of Death">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/CauseOfDeath.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleNecropsyReports" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Necropsy Reports">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/NecropsyReports.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <MenuItem fx:id="handleBurialRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Burial Records">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/BurialRecords.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+                <!-- Section 8: Reproduction and Breeding -->
+                <Menu mnemonicParsing="false" text="Reproduction and Breeding">
+                    <MenuItem fx:id="handleBreedingBatches" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Breeding Batches">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/BreedingBatches.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleIncubationRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Incubation Records">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/IncubationRecords.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleHatchingHealth" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Hatching Health">
+                        <graphic>
+                            <ImageView fitHeight="30.0" fitWidth="30.0">
+                                <Image url="@../../../icons/HatchingHealth.png"/>
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+            </Menu>
+
+
+            <!-- Aquaculture Management -->
+            <Menu accelerator="Ctrl+A" mnemonicParsing="false" text="Aquaculture Management">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="30.0">
+                        <Image url="@../../../icons/fish.png"/>
+                    </ImageView>
+                </graphic>
+                <MenuItem fx:id="handlePondConditions" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Pond Conditions">
+                    <graphic>
+                        <ImageView>
+                            <!-- Image url for Pond Conditions -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleFishStock" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Fish Stock">
+                    <graphic>
+                        <ImageView>
+                            <!-- Image url for Fish Stock -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleFeedingLogs" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Feeding Logs">
+                    <graphic>
+                        <ImageView>
+                            <!-- Image url for Feeding Logs -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleHarvestRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Harvest Records">
+                    <graphic>
+                        <ImageView>
+                            <!-- Image url for Harvest Records -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleWaterQualityMonitoring" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Water Quality Monitoring">
+                    <graphic>
+                        <ImageView>
+                            <!-- Image url for Water Quality Monitoring -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleAerationSystemStatus" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Aeration System Status">
+                    <graphic>
+                        <ImageView>
+                            <!-- Image url for Aeration System Status -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem fx:id="handleDiseaseSurveillance" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Disease Surveillance">
+                    <graphic>
+                        <ImageView>
+                            <!-- Image url for Disease Surveillance -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+            </Menu>
+            <!-- Add more View menu items as needed -->
+        </Menu>
+
+        <!-- Reports Menu -->
+        <Menu mnemonicParsing="false" text="Reports">
+            <!-- Custom Reports -->
+            <Menu mnemonicParsing="false" text="Custom Reports">
+                <!-- Animal Reports -->
+                <Menu mnemonicParsing="false" text="Animal Reports">
+                    <MenuItem fx:id="handleHerdHealthSummary" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Herd Health Summary">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Herd Health Summary icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleFlockReproductionAnalysis" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Flock Reproduction Analysis">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Flock Reproduction Analysis icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleChickenCoopEggProductionTrends" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Chicken Coop Egg Production Trends">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Chicken Coop Egg Production Trends icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleGoatMilkProductionBreakdown" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Goat Milk Production Breakdown">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Goat Milk Production Breakdown icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleFishPondHarvestRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Fish Pond Harvest Records">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Fish Pond Harvest Records icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <!-- Add more Animal Reports sub-items as needed -->
+                </Menu>
+
+                <!-- Financial Analysis -->
+                <Menu mnemonicParsing="false" text="Financial Analysis">
+                    <MenuItem fx:id="handleIncomeExpenditureOverview" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Income and Expenditure Overview">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Income and Expenditure Overview icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleCostOfFeedAndNutrition" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Cost of Feed and Nutrition">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Cost of Feed and Nutrition icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleVeterinaryExpensesAnalysis" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Veterinary Expenses">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Veterinary Expenses icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleRevenueFromAnimalSales" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Revenue from Animal Sales">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Revenue from Animal Sales icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <!-- Add more Financial Analysis sub-items as needed -->
+                </Menu>
+
+                <!-- Operational Efficiency -->
+                <Menu mnemonicParsing="false" text="Operational Efficiency">
+                    <MenuItem fx:id="handleLaborProductivityReports" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Labor Productivity Reports">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Labor Productivity Reports icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleGrazingPatternsAndLandUtilization" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Grazing Patterns and Land Utilization">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Grazing Patterns and Land Utilization icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleEquipmentUtilizationSummary" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Equipment Utilization Summary">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Equipment Utilization Summary icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <!-- Add more Operational Efficiency sub-items as needed -->
+                </Menu>
+
+                <!-- Environmental Impact -->
+                <Menu mnemonicParsing="false" text="Environmental Impact">
+                    <MenuItem fx:id="handleWaterUsageAndConservation" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Water Usage and Conservation">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Water Usage and Conservation icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <MenuItem fx:id="handleWasteManagementStatistics" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Waste Management Statistics">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Waste Management Statistics icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                    <!-- Add more Environmental Impact sub-items as needed -->
+                </Menu>
+
+                <!-- Add more Custom Reports sub-items as needed -->
+            </Menu>
+
+
+            <!-- Financial Reports -->
+            <Menu mnemonicParsing="false" text="Financial Reports">
+                <!-- Income Statements -->
+                <Menu mnemonicParsing="false" text="Income Statements">
+                    <!-- Herd Sales -->
+                    <MenuItem fx:id="handleHerdSales" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Herd Sales">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Herd Sales icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Flock Sales -->
+                    <MenuItem fx:id="handleFlockSales" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Flock Sales">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Flock Sales icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Egg Sales -->
+                    <MenuItem fx:id="handleEggSales" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Egg Sales">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Egg Sales icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Milk Sales -->
+                    <MenuItem fx:id="handleMilkSales" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Milk Sales">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Milk Sales icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Fish Sales -->
+                    <MenuItem fx:id="handleFishSales" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Fish Sales">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Fish Sales icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+                </Menu>
+
+
+                <!-- Expense Reports -->
+                <Menu mnemonicParsing="false" text="Expense Reports">
+                    <!-- Feed and Nutrition Costs -->
+                    <MenuItem fx:id="handleFeedAndNutritionCosts" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Feed and Nutrition Costs">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Feed and Nutrition Costs icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Veterinary Expenses -->
+                    <MenuItem fx:id="handleVeterinaryExpenses" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Veterinary Expenses">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Veterinary Expenses icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Infrastructure Maintenance -->
+                    <MenuItem fx:id="handleInfrastructureMaintenance" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Infrastructure Maintenance">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Infrastructure Maintenance icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Expense Reports sub-items as needed -->
+                </Menu>
+
+                <!-- Profitability Analysis -->
+                <Menu mnemonicParsing="false" text="Profitability Analysis">
+                    <!-- Return on Investment (ROI) by Animal Type -->
+                    <MenuItem fx:id="handleROIAbyAnimalType" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Return on Investment (ROI) by Animal Type">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for ROI by Animal Type icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Profit Margins by Product -->
+                    <MenuItem fx:id="handleProfitMarginsByProduct" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Profit Margins by Product">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Profit Margins by Product icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Profitability Analysis sub-items as needed -->
+                </Menu>
+
+                <!-- Budget Comparison -->
+                <Menu mnemonicParsing="false" text="Budget Comparison">
+                    <!-- Budget vs. Actual Expenses -->
+                    <MenuItem fx:id="handleBudgetVsActualExpenses" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Budget vs. Actual Expenses">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Budget vs. Actual Expenses icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Revenue Forecasting -->
+                    <MenuItem fx:id="handleRevenueForecasting" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Revenue Forecasting">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Revenue Forecasting icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Budget Comparison sub-items as needed -->
+                </Menu>
+
+                <!-- Tax Documents -->
+                <MenuItem mnemonicParsing="false" text="Tax Documents">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Tax Documents icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Generate Tax-Ready Financial Statements -->
+                <MenuItem fx:id="handleGenerateTaxReadyStatements" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Generate Tax-Ready Financial Statements">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Generate Tax-Ready Financial Statements icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Add more Financial Reports sub-items as needed -->
+            </Menu>
+
+
+            <!-- Production Reports -->
+            <Menu mnemonicParsing="false" text="Production Reports">
+                <!-- Animal Productivity -->
+                <Menu mnemonicParsing="false" text="Animal Productivity">
+                    <!-- Herd Reproduction Summary -->
+                    <MenuItem fx:id="handleHerdReproductionSummary" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Herd Reproduction Summary">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Herd Reproduction Summary icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Flock Breeding Analysis -->
+                    <MenuItem fx:id="handleFlockBreedingAnalysis" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Flock Breeding Analysis">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Flock Breeding Analysis icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Chicken Egg Production Metrics -->
+                    <MenuItem fx:id="handleChickenEggProductionMetrics" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Chicken Egg Production Metrics">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Chicken Egg Production Metrics icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Goat Milk Production Metrics -->
+                    <MenuItem fx:id="handleGoatMilkProductionMetrics" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Goat Milk Production Metrics">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Goat Milk Production Metrics icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Fish Growth and Harvest Metrics -->
+                    <MenuItem fx:id="handleFishGrowthAndHarvestMetrics" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Fish Growth and Harvest Metrics">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Fish Growth and Harvest Metrics icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Animal Productivity sub-items as needed -->
+                </Menu>
+
+                <!-- Product Yield -->
+                <Menu mnemonicParsing="false" text="Product Yield">
+                    <!-- Wool Production Analysis -->
+                    <MenuItem fx:id="handleWoolProductionAnalysis" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Wool Production Analysis">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Wool Production Analysis icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Meat Yield per Animal -->
+                    <MenuItem fx:id="handleMeatYieldPerAnimal" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Meat Yield per Animal">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Meat Yield per Animal icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Egg Yield per Chicken -->
+                    <MenuItem fx:id="handleEggYieldPerChicken" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Egg Yield per Chicken">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Egg Yield per Chicken icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Product Yield sub-items as needed -->
+                </Menu>
+
+                <!-- Quality Control -->
+                <Menu mnemonicParsing="false" text="Quality Control">
+                    <!-- Health Inspection Records -->
+                    <MenuItem fx:id="handleHealthInspectionRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Health Inspection Records">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Health Inspection Records icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Disease Incidence Reports -->
+                    <MenuItem fx:id="handleDiseaseIncidenceReports" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Disease Incidence Reports">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Disease Incidence Reports icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Egg and Milk Quality Metrics -->
+                    <MenuItem fx:id="handleEggMilkQualityMetrics" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Egg and Milk Quality Metrics">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Egg and Milk Quality Metrics icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Quality Control sub-items as needed -->
+                </Menu>
+
+                <!-- Supply Chain Analysis -->
+                <Menu mnemonicParsing="false" text="Supply Chain Analysis">
+                    <!-- Tracking Product Distribution -->
+                    <MenuItem fx:id="handleTrackingProductDistribution" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Tracking Product Distribution">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Tracking Product Distribution icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Supplier Performance Reports -->
+                    <MenuItem fx:id="handleSupplierPerformanceReports" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Supplier Performance Reports">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Supplier Performance Reports icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Supply Chain Analysis sub-items as needed -->
+                </Menu>
+
+                <!-- Add more Production Reports sub-items as needed -->
+            </Menu>
+
+
+            <!-- Health Reports -->
+            <Menu mnemonicParsing="false" text="Health Reports">
+                <!-- Animal Health Records -->
+                <Menu mnemonicParsing="false" text="Animal Health Records">
+                    <!-- Herd Health History -->
+                    <MenuItem fx:id="handleHerdHealthHistory" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Herd Health History">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Herd Health History icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Flock Health Records -->
+                    <MenuItem fx:id="handleFlockHealthRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Flock Health Records">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Flock Health Records icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Chicken Coop Health Logs -->
+                    <MenuItem fx:id="handleChickenCoopHealthLogs" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Chicken Coop Health Logs">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Chicken Coop Health Logs icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Goat Health Metrics -->
+                    <MenuItem fx:id="handleGoatHealthMetrics" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Goat Health Metrics">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Goat Health Metrics icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Animal Health Records sub-items as needed -->
+                </Menu>
+
+                <!-- Preventive Care -->
+                <Menu mnemonicParsing="false" text="Preventive Care">
+                    <!-- Vaccination Records -->
+                    <MenuItem fx:id="handleVaccinationRecords" mnemonicParsing="false" onAction="#handleMenuAction"
+                              text="Vaccination Records">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Vaccination Records icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Medication Administration Logs -->
+                    <MenuItem fx:id="handleMedicationAdministrationLogs" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Medication Administration Logs">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Medication Administration Logs icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Preventive Care sub-items as needed -->
+                </Menu>
+
+                <!-- Emergency Response -->
+                <Menu mnemonicParsing="false" text="Emergency Response">
+                    <!-- Emergency Veterinarian Contact Information -->
+                    <MenuItem fx:id="handleEmergencyVeterinarianContact" mnemonicParsing="false"
+                              onAction="#handleMenuAction" text="Emergency Veterinarian Contact Information">
+                        <graphic>
+                            <ImageView>
+                                <!-- Add image URL for Emergency Veterinarian Contact Information icon -->
+                            </ImageView>
+                        </graphic>
+                    </MenuItem>
+
+                    <!-- Add more Emergency Response sub-items as needed -->
+                </Menu>
+
+                <!-- Add more Health Reports sub-items as needed -->
+            </Menu>
+
+
+            <!-- Add more Reports menu items as needed -->
+        </Menu>
+
+        <!-- Manage Menu -->
+        <Menu mnemonicParsing="false" text="Manage">
+            <!-- Manage Herds -->
+            <Menu accelerator="Alt+M, H" mnemonicParsing="false" text="Manage Herds">
+                <!-- Add New Herd -->
+                <MenuItem fx:id="handleAddNewHerd" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Add New Herd">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Add New Herd icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Edit Herd Details -->
+                <MenuItem fx:id="handleEditHerdDetails" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Edit Herd Details">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Edit Herd Details icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Transfer Animals -->
+                <MenuItem fx:id="handleTransferAnimals" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Transfer Animals">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Transfer Animals icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Health Monitoring -->
+                <MenuItem fx:id="handleHealthMonitoring" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Health Monitoring">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Health Monitoring icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Record Births -->
+                <MenuItem fx:id="handleRecordBirths" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Record Births">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Record Births icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Track Animal Movements -->
+                <MenuItem fx:id="handleTrackAnimalMovements" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Track Animal Movements">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Track Animal Movements icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Genetic Profiles -->
+                <MenuItem fx:id="handleGeneticProfiles" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Genetic Profiles">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Genetic Profiles icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Add more Manage Herds sub-items as needed -->
+            </Menu>
+
+            <!-- Manage Flocks -->
+            <Menu accelerator="Alt+M, F" mnemonicParsing="false" text="Manage Flocks">
+                <!-- Create New Flock -->
+                <MenuItem fx:id="handleCreateNewFlock" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Create New Flock">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Create New Flock icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Update Flock Information -->
+                <MenuItem fx:id="handleUpdateFlockInformation" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Update Flock Information">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Update Flock Information icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Transfer Birds -->
+                <MenuItem fx:id="handleTransferBirds" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Transfer Birds">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Transfer Birds icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Breeding Management -->
+                <MenuItem fx:id="handleBreedingManagement" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Breeding Management">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Breeding Management icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Record Hatching -->
+                <MenuItem fx:id="handleRecordHatching" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Record Hatching">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Record Hatching icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Monitor Bird Movements -->
+                <MenuItem fx:id="handleMonitorBirdMovements" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Monitor Bird Movements">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Monitor Bird Movements icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Feather Quality Tracking -->
+                <MenuItem fx:id="handleFeatherQualityTracking" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Feather Quality Tracking">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Feather Quality Tracking icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Add more Manage Flocks sub-items as needed -->
+            </Menu>
+
+            <!-- Manage Chicken Coops -->
+            <Menu accelerator="Alt+M, C" mnemonicParsing="false" text="Manage Chicken Coops">
+                <!-- Build New Coop -->
+                <MenuItem fx:id="handleBuildNewCoop" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Build New Coop">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Build New Coop icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Modify Coop Layout -->
+                <MenuItem fx:id="handleModifyCoopLayout" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Modify Coop Layout">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Modify Coop Layout icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Chick Inventory -->
+                <MenuItem fx:id="handleChickInventory" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Chick Inventory">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Chick Inventory icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Egg Collection Logs -->
+                <MenuItem fx:id="handleEggCollectionLogs" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Egg Collection Logs">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Egg Collection Logs icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Coop Maintenance -->
+                <MenuItem fx:id="handleCoopMaintenance" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Coop Maintenance">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Coop Maintenance icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Pest Control -->
+                <MenuItem fx:id="handlePestControl" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Pest Control">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Pest Control icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Add more Manage Chicken Coops sub-items as needed -->
+            </Menu>
+
+            <!-- Manage Goat Pens -->
+            <Menu accelerator="Alt+M, G" mnemonicParsing="false" text="Manage Goat Pens">
+                <!-- Construct New Pen -->
+                <MenuItem fx:id="handleConstructNewPen" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Construct New Pen">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Construct New Pen icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Adjust Pen Structure -->
+                <MenuItem fx:id="handleAdjustPenStructure" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Adjust Pen Structure">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Adjust Pen Structure icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Kid Management -->
+                <MenuItem fx:id="handleKidManagement" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Kid Management">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Kid Management icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+
+                <!-- Grazing Patterns -->
+                <MenuItem fx:id="handleGrazingPatternsGoats" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Grazing Patterns">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Grazing Patterns icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Disease Prevention -->
+                <MenuItem fx:id="handleDiseasePrevention" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Disease Prevention">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Disease Prevention icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Add more Manage Goat Pens sub-items as needed -->
+            </Menu>
+
+            <!-- Manage Fish Ponds -->
+            <Menu accelerator="Alt+M, P" mnemonicParsing="false" text="Manage Fish Ponds">
+                <!-- Establish New Pond -->
+                <MenuItem fx:id="handleEstablishNewPond" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Establish New Pond">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Establish New Pond icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Adjust Pond Conditions -->
+                <MenuItem fx:id="handleAdjustPondConditions" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Adjust Pond Conditions">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Adjust Pond Conditions icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Stock Fish -->
+                <MenuItem fx:id="handleStockFish" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Stock Fish">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Stock Fish icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Record Harvest -->
+                <MenuItem fx:id="handleRecordHarvest" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Record Harvest">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Record Harvest icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Water Quality Control -->
+                <MenuItem fx:id="handleWaterQualityControl" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Water Quality Control">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Water Quality Control icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Fishing Logs -->
+                <MenuItem fx:id="handleFishingLogs" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Fishing Logs">
+                    <graphic>
+                        <ImageView>
+                            <!-- Add image URL for Fishing Logs icon -->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+
+                <!-- Add more Manage Fish Ponds sub-items as needed -->
+            </Menu>
+
+            <!-- Add more Manage sub-menus as needed -->
+        </Menu>
+
+
+        <!-- Settings Menu -->
+        <Menu mnemonicParsing="false" text="Settings">
+            <Menu accelerator="Alt+S, G" mnemonicParsing="false" text="General Settings">
+                <MenuItem fx:id="handleLanguagePreferences" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Language Preferences">
+                    <graphic>
+                        <ImageView>
+                            <!--                                                <Image url="icons/language_preferences_icon.png" />-->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <!-- Add more General Settings sub-items as needed -->
+            </Menu>
+            <Menu accelerator="Alt+S, U" mnemonicParsing="false" text="User Preferences">
+                <MenuItem fx:id="handleUserProfiles" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="User Profiles">
+                    <graphic>
+                        <ImageView>
+                            <!--                                                <Image url="icons/user_profiles_icon.png" />-->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <!-- Add more User Preferences sub-items as needed -->
+            </Menu>
+            <Menu accelerator="Alt+S, B" mnemonicParsing="false" text="Backup and Restore">
+                <MenuItem fx:id="handleBackupData" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Backup Data">
+                    <graphic>
+                        <ImageView>
+                            <!--                                                <Image url="icons/backup_data_icon.png" />-->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <!-- Add more Backup and Restore sub-items as needed -->
+            </Menu>
+            <Menu accelerator="Alt+S, A" mnemonicParsing="false" text="About">
+                <MenuItem fx:id="handleSoftwareInformation" mnemonicParsing="false" onAction="#handleMenuAction"
+                          text="Software Information">
+                    <graphic>
+                        <ImageView>
+                            <!--                                                <Image url="icons/software_information_icon.png" />-->
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <!-- Add more About sub-items as needed -->
+            </Menu>
+            <!-- Add more Settings menu items as needed -->
+        </Menu>
+
+        <!-- Help Menu -->
+        <Menu mnemonicParsing="false" text="Help">
+            <MenuItem fx:id="handleUserManual" accelerator="F1" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="User Manual">
+                <graphic>
+                    <ImageView>
+                        <!--                                            <Image url="icons/user_manual_icon.png" />-->
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleFAQs" mnemonicParsing="false" onAction="#handleMenuAction" text="FAQs">
+                <graphic>
+                    <ImageView>
+                        <!--                                            <Image url="icons/faqs_icon.png" />-->
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <MenuItem fx:id="handleContactSupport" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Contact Support">
+                <graphic>
+                    <ImageView>
+                        <!--                                            <Image url="icons/contact_support_icon.png" />-->
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+            <SeparatorMenuItem/>
+            <MenuItem fx:id="handleCheckForUpdate" mnemonicParsing="false" onAction="#handleMenuAction"
+                      text="Check for Update">
+                <graphic>
+                    <ImageView>
+                        <!--                                            <Image url="icons/check_for_update_icon.png" />-->
+                    </ImageView>
+                </graphic>
+            </MenuItem>
+        </Menu>
+
+    </MenuBar>
+
+    <ToolBar prefHeight="12.0" prefWidth="926.0">
+
+
+        <Button mnemonicParsing="false" onAction="#handleMenuAction" text="Home">
+            <graphic>
+                <FontAwesomeIconView fill="BLACK" glyphName="SAVE" size="14"/>
+            </graphic>
+
+        </Button>
+        <!-- Separator -->
+        <Separator/>
+        <Button fx:id="handleUndoOnToolBar" mnemonicParsing="false" onAction="#handleMenuAction">
+            <graphic>
+                <FontAwesomeIconView fill="BLACK" glyphName="UNDO" size="14"/>
+            </graphic>
+            <text>Undo</text>
+        </Button>
+        <Button fx:id="handleRedoOnToolBar" mnemonicParsing="false" onAction="#handleMenuAction">
+            <graphic>
+                <FontAwesomeIconView fill="BLACK" glyphName="REPEAT" size="14"/>
+            </graphic>
+            <text>Redo</text>
+        </Button>
+        <!-- Separator -->
+        <Separator/>
+        <!-- Select Module Button with Home Icon -->
+        <MenuButton mnemonicParsing="false" prefHeight="12.0" prefWidth="148.0" style="-fx-font-size: 10; ">
+            <graphic>
+                <VBox alignment="CENTER" prefHeight="12.0" prefWidth="129.0">
+                    <FontAwesomeIconView fill="BLACK" glyphName="HOME" size="12"/>
+                    <Label text="Select Module"/>
+                </VBox>
+            </graphic>
+            <items>
+                <MenuItem text="Home">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Cattle Herd">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Sheep Flock">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Goat Herd">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Fish Batch">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Owners and Contacts">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Cattle Breed">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Sheep Breed">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Goat Breed">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Income/Expenses">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <MenuItem text="Schedule/Journal">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="30.0">
+                            <Image url="@../../../icons/chicken.png"/>
+                        </ImageView>
+                    </graphic>
+                </MenuItem>
+                <!-- Add more items as needed -->
+            </items>
+        </MenuButton>
+
+
+        <!-- Separator -->
+        <Separator/>
+
+        <!-- Year Navigation -->
+        <HBox alignment="CENTER_RIGHT">
+            <Button id="decrement" fx:id="backButton" onAction="#adjustYear">
+                <graphic>
+                    <FontAwesomeIconView fill="BLACK" glyphName="CARET_LEFT" size="18"/>
+                </graphic>
+            </Button>
+            <Label fx:id="yearLabel" style="-fx-background-color: white;">
+                <cursor>
+                    <Cursor fx:constant="NONE"/>
+                </cursor>
+                <padding>
+                    <Insets left="20.0" right="20.0"/>
+                </padding>
+                <font>
+                    <Font name="Bernard MT Condensed" size="18.0"/>
+                </font>
+            </Label>
+            <Button id="increment" fx:id="forwardButton" onAction="#adjustYear">
+                <graphic>
+                    <FontAwesomeIconView fill="BLACK" glyphName="CARET_RIGHT" size="18"/>
+                </graphic>
+            </Button>
+        </HBox>
+    </ToolBar>
+
+</VBox>

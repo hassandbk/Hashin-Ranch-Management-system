@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.String?>
+<?import javafx.collections.FXCollections?>
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.HBox?>
+<?import javafx.scene.layout.VBox?>
+
+<HBox  xmlns="http://javafx.com/javafx"
+       xmlns:fx="http://javafx.com/fxml" stylesheets="@../../../../../../../css/styles.css"  fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewHerd">
+
+    <VBox  alignment="CENTER" minWidth="-Infinity" spacing="10" HBox.hgrow="ALWAYS">
+
+        <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Add New Herd" />
+
+        <HBox alignment="CENTER" minWidth="-Infinity" spacing="5" VBox.vgrow="ALWAYS">
+            <Label text="Herd Name:" />
+            <TextField fx:id="herdNameTextField" maxWidth="-Infinity" minWidth="-Infinity" promptText="Enter Herd name" />
+
+            <HBox alignment="CENTER" minWidth="-Infinity" spacing="5">
+                <Label text="Location:" />
+                <TextField fx:id="locationTextField" promptText="Enter Herd Location" />
+            </HBox>
+        </HBox>
+
+        <HBox alignment="CENTER" spacing="5" VBox.vgrow="ALWAYS">
+            <Label text="Animal Class:" />
+            <ComboBox fx:id="animalClassComboBox" maxWidth="-Infinity" minWidth="-Infinity" promptText="Select Animal Class">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Grow/finish" />
+                        <String fx:value="Lactating" />
+                        <String fx:value="Dry" />
+                        <String fx:value="Replacement" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+            <Label text="Breed Type:" />
+            <ComboBox fx:id="breedTypeComboBox" maxWidth="-Infinity" minWidth="-Infinity" promptText="Select Breed Type">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Dual-purpose" />
+                        <String fx:value="Bos Taurus" />
+                        <String fx:value="Bos Indicus" />
+                        <String fx:value="Dairy" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+            <Label text="Breed System:" />
+            <ComboBox fx:id="breedSystemComboBox" maxWidth="-Infinity" minWidth="-Infinity" promptText="Select Breed System">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Straightbred" />
+                        <String fx:value="2-way-x" />
+                        <String fx:value="3-way-x" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+        </HBox>
+
+        <HBox alignment="CENTER" spacing="5" VBox.vgrow="ALWAYS">
+            <Label text="Solution Type:" />
+            <ComboBox fx:id="solutionTypeComboBox" maxWidth="-Infinity" minWidth="-Infinity" promptText="Select Solution Type">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Equivalent Livestock System (ELS)" />
+                        <String fx:value="Multiple Livestock System (MLS)" />
+                    </FXCollections>
+                </items>
+
+            </ComboBox>
+            <Label text="Age Class:" />
+            <ComboBox fx:id="ageClassComboBox" maxWidth="-Infinity" minWidth="-Infinity" promptText="Select Age Class">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Calves" />
+                        <String fx:value="Yearlings" />
+                    </FXCollections>
+                </items>
+
+            </ComboBox>
+        </HBox>
+
+        <HBox alignment="CENTER" spacing="5" VBox.vgrow="ALWAYS">
+            <Label text="Feed Basis:">
+            </Label>
+            <ComboBox fx:id="feedBasisComboBox" promptText="Select Feed Basis">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Dry Matter (DM)" />
+                        <String fx:value="AS-Fed (AF)" />
+
+                    </FXCollections>
+                </items>
+
+            </ComboBox>
+        </HBox>
+
+        <Button  text="Add Herd" onAction="#handleAddHerd"/>
+
+        <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        </padding>
+
+    </VBox>
+
+</HBox>
