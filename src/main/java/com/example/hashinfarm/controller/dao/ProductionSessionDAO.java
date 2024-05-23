@@ -28,12 +28,13 @@ public class ProductionSessionDAO {
             while (resultSet.next()) {
                 int sessionID = resultSet.getInt("SessionID");
                 int lactationPeriodID = resultSet.getInt("LactationPeriodID");
+                int productionDateID = resultSet.getInt("ProductionDateID");
                 Timestamp startTime = resultSet.getTimestamp("StartTime");
                 Timestamp endTime = resultSet.getTimestamp("EndTime");
                 int duration = resultSet.getInt("Duration");
-                int qualityScore = resultSet.getInt("QualityScore");
+                String qualityScore = resultSet.getString("QualityScore");
 
-                ProductionSession productionSession = new ProductionSession(sessionID, lactationPeriodID, startTime, endTime, duration, qualityScore);
+                ProductionSession productionSession = new ProductionSession(sessionID, lactationPeriodID, productionDateID, startTime, endTime, duration, qualityScore);
                 productionSessions.add(productionSession);
             }
         } finally {
@@ -54,13 +55,14 @@ public class ProductionSessionDAO {
 
         try {
             connection = dbConnection.getConnection();
-            String query = "INSERT INTO productionsession (LactationPeriodID, StartTime, EndTime, Duration, QualityScore) VALUES (?, ?, ?, ?, ?)";
+            String query = "INSERT INTO productionsession (LactationPeriodID, ProductionDateID, StartTime, EndTime, Duration, QualityScore) VALUES (?, ?, ?, ?, ?, ?)";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, productionSession.getLactationPeriodID());
-            preparedStatement.setTimestamp(2, productionSession.getStartTime());
-            preparedStatement.setTimestamp(3, productionSession.getEndTime());
-            preparedStatement.setInt(4, productionSession.getDuration());
-            preparedStatement.setInt(5, productionSession.getQualityScore());
+            preparedStatement.setInt(2, productionSession.getProductionDateID());
+            preparedStatement.setTimestamp(3, productionSession.getStartTime());
+            preparedStatement.setTimestamp(4, productionSession.getEndTime());
+            preparedStatement.setInt(5, productionSession.getDuration());
+            preparedStatement.setString(6, productionSession.getQualityScore());
 
             preparedStatement.executeUpdate();
         } finally {
@@ -77,14 +79,15 @@ public class ProductionSessionDAO {
 
         try {
             connection = dbConnection.getConnection();
-            String query = "UPDATE productionsession SET LactationPeriodID=?, StartTime=?, EndTime=?, Duration=?, QualityScore=? WHERE SessionID=?";
+            String query = "UPDATE productionsession SET LactationPeriodID=?, ProductionDateID=?, StartTime=?, EndTime=?, Duration=?, QualityScore=? WHERE SessionID=?";
             preparedStatement = connection.prepareStatement(query);
             preparedStatement.setInt(1, productionSession.getLactationPeriodID());
-            preparedStatement.setTimestamp(2, productionSession.getStartTime());
-            preparedStatement.setTimestamp(3, productionSession.getEndTime());
-            preparedStatement.setInt(4, productionSession.getDuration());
-            preparedStatement.setInt(5, productionSession.getQualityScore());
-            preparedStatement.setInt(6, productionSession.getSessionID());
+            preparedStatement.setInt(2, productionSession.getProductionDateID());
+            preparedStatement.setTimestamp(3, productionSession.getStartTime());
+            preparedStatement.setTimestamp(4, productionSession.getEndTime());
+            preparedStatement.setInt(5, productionSession.getDuration());
+            preparedStatement.setString(6, productionSession.getQualityScore());
+            preparedStatement.setInt(7, productionSession.getSessionID());
 
             preparedStatement.executeUpdate();
         } finally {
@@ -113,6 +116,4 @@ public class ProductionSessionDAO {
             // Connection will be closed automatically by the DatabaseConnection class
         }
     }
-
-    // Add other CRUD methods as needed
 }

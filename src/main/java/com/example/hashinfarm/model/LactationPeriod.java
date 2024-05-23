@@ -1,16 +1,17 @@
 package com.example.hashinfarm.model;
 
-import java.sql.Timestamp;
+
+import java.time.LocalDate;
 
 public class LactationPeriod {
     private int lactationPeriodID;
     private int cattleID;
-    private Timestamp startDate;
-    private Timestamp endDate;
+    private LocalDate startDate;
+    private LocalDate endDate;
     private int milkYield;
     private double relativeMilkYield;
 
-    public LactationPeriod(int lactationPeriodID, int cattleID, Timestamp startDate, Timestamp endDate, int milkYield, double relativeMilkYield) {
+    public LactationPeriod(int lactationPeriodID, int cattleID,LocalDate  startDate, LocalDate endDate, int milkYield, double relativeMilkYield) {
         this.lactationPeriodID = lactationPeriodID;
         this.cattleID = cattleID;
         this.startDate = startDate;
@@ -36,19 +37,19 @@ public class LactationPeriod {
         this.cattleID = cattleID;
     }
 
-    public Timestamp getStartDate() {
+    public LocalDate getStartDate() {
         return startDate;
     }
 
-    public void setStartDate(Timestamp startDate) {
+    public void setStartDate(LocalDate startDate) {
         this.startDate = startDate;
     }
 
-    public Timestamp getEndDate() {
+    public LocalDate getEndDate() {
         return endDate;
     }
 
-    public void setEndDate(Timestamp endDate) {
+    public void setEndDate(LocalDate endDate) {
         this.endDate = endDate;
     }
 

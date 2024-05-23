@@ -2,18 +2,20 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 
 import com.example.hashinfarm.controller.dao.CattleDAO;
 import com.example.hashinfarm.controller.dao.HerdDAO;
+import com.example.hashinfarm.controller.dao.LactationPeriodDAO;
 import com.example.hashinfarm.controller.dao.ReproductiveVariablesDAO;
 import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewCattleController;
 import com.example.hashinfarm.controller.records.StageDetails;
 import com.example.hashinfarm.controller.records.SubStageDetails;
-import com.example.hashinfarm.controller.utility.AppLogger;
-import com.example.hashinfarm.controller.utility.CustomTreeCell;
-import com.example.hashinfarm.controller.utility.DateUtil;
-import com.example.hashinfarm.controller.utility.SelectedCattleManager;
+import com.example.hashinfarm.controller.utility.*;
 import com.example.hashinfarm.model.Cattle;
 import com.example.hashinfarm.model.Herd;
+import com.example.hashinfarm.model.LactationPeriod;
 import com.example.hashinfarm.model.ReproductiveVariables;
 import javafx.application.Platform;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.geometry.Insets;
@@ -21,6 +23,7 @@ import javafx.geometry.Pos;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -29,6 +32,7 @@ import javafx.scene.layout.Priority;
 import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import javafx.util.Callback;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -55,7 +59,16 @@ public class ProductivityAndCalving {
     private final Map<String, StageDetails> stageDetailsMap = new HashMap<>();
     public Spinner<Double> spinnerMorning, spinnerAfternoon, spinnerEvening;
 
-
+    @FXML
+    private TableView<LactationPeriodWithSelection> lactationTableView;
+    @FXML
+    private TableColumn<LactationPeriodWithSelection, Boolean> selectionColumn;
+    @FXML
+    private TableColumn<LactationPeriodWithSelection, LocalDate> startDateColumn;
+    @FXML
+    private TableColumn<LactationPeriodWithSelection, LocalDate> endDateColumn;
+    @FXML
+    private TableColumn<LactationPeriodWithSelection, Void> actionColumn;
     private boolean saveButtonPressed = true;
     @FXML
     private Button saveButton, updateButton, saveUpdateLactation, saveUpdateProduction;
@@ -93,6 +106,7 @@ public class ProductivityAndCalving {
     private ToggleGroup pregnancyStatus, toggleGroup;
     @FXML
     private DatePicker lactationStartDatePicker,
+            lactationEndDatePicker,
             currentDatePicker,
             selectStartDate,
             selectEndDate,
@@ -109,7 +123,6 @@ public class ProductivityAndCalving {
     private ReproductiveVariables selectedReproductiveVariable = null;
     private AddNewCattleController addNewCattleController;
     private Stage selectionStage;
-
     public void initialize() {
 
         initializeCattleDAO();
@@ -129,6 +142,14 @@ public class ProductivityAndCalving {
         initializeStageDetailsMap();
         updateLactationStartDatePicker();
         initializeSpinners();
+
+        initializeTableColumns();
+        initializeTableViewSelectionListener();
+        SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
+            selectedCattleId = newValue != null ? newValue.intValue() : 0;
+            loadLactationPeriodsForSelectedCattle();
+        });
+        loadLactationPeriodsForSelectedCattle();
     }
 
     private void initializeCattleDAO() {
@@ -1652,8 +1673,138 @@ public class ProductivityAndCalving {
         spinnerAfternoon.setValueFactory(afternoonValueFactory);
         spinnerEvening.setValueFactory(eveningValueFactory);
     }
+    private void initializeTableColumns() {
+        selectionColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
+        selectionColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectionColumn));
+
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("dd-MM-yyyy");
+
+        startDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
+                cellData.getValue().getLactationPeriod().getStartDate()));
+        startDateColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                setText(empty ? "" : item.format(dateFormatter));
+            }
+        });
+
+        endDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
+                cellData.getValue().getLactationPeriod().getEndDate() != null
+                        ? cellData.getValue().getLactationPeriod().getEndDate()
+                        : null));
+        endDateColumn.setCellFactory(new MissingEndDateCellFactory(dateFormatter));
+
+        actionColumn.setCellFactory(createActionCellFactory());
+    }
 
 
+    private Callback<TableColumn<LactationPeriodWithSelection, Void>, TableCell<LactationPeriodWithSelection, Void>> createActionCellFactory() {
+        return param -> new TableCell<>() {
+            private final Button removeButton = new Button("Remove");
+            private final Button modifyButton = new Button("Modify");
+
+            {
+                removeButton.setOnAction(event -> {
+                    LactationPeriodWithSelection data = getTableView().getItems().get(getIndex());
+                    try {
+                        LactationPeriodDAO.deleteLactationPeriod(data.getLactationPeriod().getLactationPeriodID());
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                    getTableView().getItems().remove(data);
+                });
+
+                modifyButton.setOnAction(event -> {
+                    LactationPeriodWithSelection data = getTableView().getItems().get(getIndex());
+                    // Implement modification logic here
+                });
+
+                HBox pane = new HBox(removeButton, modifyButton);
+                pane.setSpacing(10);
+                setGraphic(pane);
+            }
+
+            @Override
+            protected void updateItem(Void item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setGraphic(null);
+                } else {
+                    setGraphic(getGraphic());
+                }
+            }
+        };
+    }
+
+    private void loadLactationPeriodsForSelectedCattle() {
+        if (selectedCattleId == 0) {
+            lactationTableView.getItems().clear();
+            return;
+        }
+
+        try {
+            List<LactationPeriod> lactationPeriods = LactationPeriodDAO.getLactationPeriodsByCattleId(selectedCattleId);
+
+            // Sort lactation periods by start date (most recent first)
+            lactationPeriods.sort(Comparator.comparing(LactationPeriod::getStartDate).reversed());
+
+            LocalDate currentDate = LocalDate.now();
+            LactationPeriod ongoingLactationPeriod = null;
+
+            for (LactationPeriod period : lactationPeriods) {
+                // Identify ongoing lactation period within the past year
+                if (period.getEndDate() == null && ongoingLactationPeriod == null) {
+                    long daysSinceStart = ChronoUnit.DAYS.between(period.getStartDate(), currentDate);
+                    if (daysSinceStart <= 365) {
+                        ongoingLactationPeriod = period;
+                    }
+                }
+            }
+
+            // Populate table with lactation periods
+            ObservableList<LactationPeriodWithSelection> observableList = FXCollections.observableArrayList(
+                    lactationPeriods.stream()
+                            .map(LactationPeriodWithSelection::new)
+                            .collect(Collectors.toList())
+            );
+            lactationTableView.setItems(observableList);
+
+            // If lactation periods exist, select the first (most recent) one
+            if (!lactationPeriods.isEmpty()) {
+                lactationTableView.getSelectionModel().select(0);
+                LactationPeriodWithSelection selectedPeriod = lactationTableView.getSelectionModel().getSelectedItem();
+                populateLactationFields(selectedPeriod);
+            } else {
+                // Clear lactation information fields if no periods exist
+                populateLactationFields(null);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle database error
+        }
+    }
+
+    private void populateLactationFields(LactationPeriodWithSelection selectedPeriod) {
+        if (selectedPeriod != null) {
+            LactationPeriod period = selectedPeriod.getLactationPeriod();
+            lactationStartDatePicker.setValue(period.getStartDate());
+            lactationEndDatePicker.setValue(period.getEndDate() != null ? period.getEndDate() : null);
+            milkYieldLabel.setText(String.valueOf(period.getMilkYield()));
+            relativeMilkYieldLabel.setText(String.valueOf(period.getRelativeMilkYield()));
+        } else {
+            lactationStartDatePicker.setValue(null);
+            lactationEndDatePicker.setValue(null);
+            milkYieldLabel.setText("");
+            relativeMilkYieldLabel.setText("");
+        }
+    }
+
+
+    private void initializeTableViewSelectionListener() {
+        lactationTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> populateLactationFields(newValue));
+    }
     public void handleSaveOrUpdateLactation() {
     }
 
