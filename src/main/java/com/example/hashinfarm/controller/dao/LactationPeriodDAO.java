@@ -69,4 +69,30 @@ public class LactationPeriodDAO {
             }
         }
     }
+
+    public static void updateLactationPeriodEndDate(int lactationPeriodID, LocalDate newEndDate) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+
+        try {
+            connection = dbConnection.getConnection();
+            String query = "UPDATE lactationperiod SET EndDate = ? WHERE LactationPeriodID = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setDate(1, newEndDate != null ? Date.valueOf(newEndDate) : null);
+            preparedStatement.setInt(2, lactationPeriodID);
+            preparedStatement.executeUpdate();
+        } finally {
+            // Close resources in reverse order of their creation to avoid any resource leak
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+    }
+
+
 }
+
+

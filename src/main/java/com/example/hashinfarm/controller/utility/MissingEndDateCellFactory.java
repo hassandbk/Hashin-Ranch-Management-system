@@ -1,12 +1,14 @@
 package com.example.hashinfarm.controller.utility;
-
-import javafx.animation.FadeTransition;
+import javafx.animation.Animation;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.Tooltip;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.util.Callback;
 import javafx.util.Duration;
 
@@ -29,18 +31,21 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
 
             private final HBox content = new HBox();
             private final ImageView imageView = new ImageView(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/exclamation_mark.png"))));
-            private final FadeTransition fadeTransition = new FadeTransition(Duration.millis(1000), imageView);
+            private final Timeline blinkTimeline;
 
             {
                 imageView.setFitWidth(16); // Adjust image size as needed
                 imageView.setFitHeight(16);
                 content.getChildren().addAll(imageView);
+                // Set HBox properties to fill the cell horizontally
+                content.setMaxWidth(Double.MAX_VALUE);
+                HBox.setHgrow(content, Priority.ALWAYS);
 
-                // Set up fade transition
-                fadeTransition.setFromValue(1.0);
-                fadeTransition.setToValue(0.0);
-                fadeTransition.setCycleCount(FadeTransition.INDEFINITE);
-                fadeTransition.setAutoReverse(true);
+                blinkTimeline = new Timeline(
+                        new KeyFrame(Duration.seconds(0.5), event -> imageView.setVisible(true)),
+                        new KeyFrame(Duration.seconds(1), event -> imageView.setVisible(false))
+                );
+                blinkTimeline.setCycleCount(Animation.INDEFINITE);
             }
 
             @Override
@@ -50,6 +55,7 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                 if (empty) {
                     setGraphic(null);
                     setTooltip(null);
+                    blinkTimeline.stop(); // Stop blinking when cell is empty
                 } else {
                     LactationPeriodWithSelection lactationPeriodWithSelection = getTableView().getItems().get(getIndex());
                     LocalDate startDate = lactationPeriodWithSelection.getLactationPeriod().getStartDate();
@@ -63,27 +69,22 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                     if (endDate == null && daysSinceStart > 365) {
                         setText("Missing End Date");
                         setTooltip(new Tooltip("This lactation period is missing an end date. Please update."));
-                        if (!content.getChildren().contains(imageView)) {
-                            content.getChildren().add(imageView);
-                            fadeTransition.play(); // Start the animation
-                        }
+                        blinkTimeline.play();
                         setGraphic(content);
+                        // Set cell style for missing end date
+                        setStyle("-fx-background-color: red; -fx-text-fill: white;");
                     } else if (endDate == null && daysSinceStart > 305) {
-                        setText("End Date Nearing");
+                        setText("Threshold Nearing");
                         setTooltip(new Tooltip("This lactation period is nearing the one-year mark. Please provide the end date at the earliest possible date."));
-                        if (!content.getChildren().contains(imageView)) {
-                            content.getChildren().add(imageView);
-                            fadeTransition.play(); // Start the animation
-                        }
+                        blinkTimeline.play();
                         setGraphic(content);
+                        // Set cell style for end date nearing
+                        setStyle("-fx-background-color: lightyellow; -fx-text-fill: green; -fx-font-weight: bold;");
                     } else {
                         setText(endDate != null ? endDate.format(dateFormatter) : null);
                         setGraphic(null);
                         setTooltip(null);
-                        if (content.getChildren().contains(imageView)) {
-                            content.getChildren().remove(imageView);
-                            fadeTransition.stop(); // Stop the animation
-                        }
+                        blinkTimeline.stop(); // Stop blinking when cell is not empty
                     }
                 }
             }
