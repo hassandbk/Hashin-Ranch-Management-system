@@ -143,13 +143,13 @@ public class ProductivityAndCalving {
         updateLactationStartDatePicker();
         initializeSpinners();
 
-        initializeTableColumns();
-        initializeTableViewSelectionListener();
         SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
             selectedCattleId = newValue != null ? newValue.intValue() : 0;
+            initializeTableColumns();
+            initializeTableViewSelectionListener();
             loadLactationPeriodsForSelectedCattle();
         });
-        loadLactationPeriodsForSelectedCattle();
+
     }
 
     private void initializeCattleDAO() {
@@ -1693,18 +1693,21 @@ public class ProductivityAndCalving {
                 cellData.getValue().getLactationPeriod().getEndDate() != null
                         ? cellData.getValue().getLactationPeriod().getEndDate()
                         : null));
+
         endDateColumn.setCellFactory(new MissingEndDateCellFactory(dateFormatter));
 
         actionColumn.setCellFactory(createActionCellFactory());
     }
 
-
     private Callback<TableColumn<LactationPeriodWithSelection, Void>, TableCell<LactationPeriodWithSelection, Void>> createActionCellFactory() {
         return param -> new TableCell<>() {
             private final Button removeButton = new Button("Remove");
             private final Button modifyButton = new Button("Modify");
+            private final HBox pane = new HBox(removeButton, modifyButton);
 
             {
+                pane.setSpacing(10);
+
                 removeButton.setOnAction(event -> {
                     LactationPeriodWithSelection data = getTableView().getItems().get(getIndex());
                     try {
@@ -1719,19 +1722,16 @@ public class ProductivityAndCalving {
                     LactationPeriodWithSelection data = getTableView().getItems().get(getIndex());
                     // Implement modification logic here
                 });
-
-                HBox pane = new HBox(removeButton, modifyButton);
-                pane.setSpacing(10);
-                setGraphic(pane);
             }
 
             @Override
             protected void updateItem(Void item, boolean empty) {
                 super.updateItem(item, empty);
+
                 if (empty) {
                     setGraphic(null);
                 } else {
-                    setGraphic(getGraphic());
+                    setGraphic(pane);
                 }
             }
         };
@@ -1744,6 +1744,9 @@ public class ProductivityAndCalving {
         }
 
         try {
+            // Clear the current table items
+            lactationTableView.getItems().clear();
+
             List<LactationPeriod> lactationPeriods = LactationPeriodDAO.getLactationPeriodsByCattleId(selectedCattleId);
 
             // Sort lactation periods by start date (most recent first)
@@ -1761,6 +1764,8 @@ public class ProductivityAndCalving {
                     }
                 }
             }
+
+
 
             // Populate table with lactation periods
             ObservableList<LactationPeriodWithSelection> observableList = FXCollections.observableArrayList(
@@ -1785,6 +1790,7 @@ public class ProductivityAndCalving {
             // Handle database error
         }
     }
+
 
     private void populateLactationFields(LactationPeriodWithSelection selectedPeriod) {
         if (selectedPeriod != null) {

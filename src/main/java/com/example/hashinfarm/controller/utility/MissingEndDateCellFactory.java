@@ -68,6 +68,14 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                             fadeTransition.play(); // Start the animation
                         }
                         setGraphic(content);
+                    } else if (endDate == null && daysSinceStart > 305) {
+                        setText("End Date Nearing");
+                        setTooltip(new Tooltip("This lactation period is nearing the one-year mark. Please provide the end date at the earliest possible date."));
+                        if (!content.getChildren().contains(imageView)) {
+                            content.getChildren().add(imageView);
+                            fadeTransition.play(); // Start the animation
+                        }
+                        setGraphic(content);
                     } else {
                         setText(endDate != null ? endDate.format(dateFormatter) : null);
                         setGraphic(null);
