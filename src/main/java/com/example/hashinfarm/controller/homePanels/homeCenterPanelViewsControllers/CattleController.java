@@ -60,9 +60,7 @@ public class CattleController {
                 rightPanePlaceholder);
 
         // Add shutdown hook to gracefully shutdown executorService
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            shutdownExecutorService();
-        }));
+        Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownExecutorService));
     }
 
     private void loadFXMLAsync(String fxmlPath, VBox placeholder) {

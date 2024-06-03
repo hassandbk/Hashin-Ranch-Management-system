@@ -5,6 +5,7 @@ import javafx.beans.property.SimpleBooleanProperty;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.time.Period;
 
 public class Cattle {
     private int cattleId;
@@ -13,8 +14,7 @@ public class Cattle {
     private String colorMarkings;
     private String name;
     private String gender;
-    private Date dateOfBirth;
-    private int age;
+    private LocalDate dateOfBirth;
     private int weightId;
     private String bcs;
     private int breedId;
@@ -22,31 +22,22 @@ public class Cattle {
     private int damId;
     private int damsHerd;
     private int siresHerd;
-    private BooleanProperty selected;
+    private final BooleanProperty selected;
     private String breedName;
-
     private String sireName;
-
     private String damName;
-
     private String sireHerdName;
-
     private String damHerdName;
-
     private String sireBreedName;
-
     private String damBreedName;
 
     public Cattle() {
         // Default constructor
-    }
-
-    public Cattle(int cattleId, String tagId, int herdID, String colorMarkings, String name, String gender, LocalDate localDate, int age, int weightId, String bcs, int breedId, String breedName, int sireId, String sireName, int damId, String damName, int damsHerd, int siresHerd, String damHerdName, String sireHerdName, String sireBreedName, String damBreedName) {
-        // Default constructor implementation
+        this.selected = new SimpleBooleanProperty(false);
     }
 
     public Cattle(int cattleId, String tagId, int herdID, String colorMarkings, String name, String gender,
-                  Date dateOfBirth, int age, int weightId, String bcs, int breedId, String breedName,
+                  LocalDate dateOfBirth, int weightId, String bcs, int breedId, String breedName,
                   int sireId, String sireName, int damId, String damName, int damsHerd, int siresHerd,
                   String damHerdName, String sireHerdName, String sireBreedName, String damBreedName) {
         this.cattleId = cattleId;
@@ -56,7 +47,6 @@ public class Cattle {
         this.name = name;
         this.gender = gender;
         this.dateOfBirth = dateOfBirth;
-        this.age = age;
         this.weightId = weightId;
         this.bcs = bcs;
         this.breedId = breedId;
@@ -83,7 +73,6 @@ public class Cattle {
         this.cattleId = cattleId;
     }
 
-
     public String getTagId() {
         return tagId;
     }
@@ -91,7 +80,6 @@ public class Cattle {
     public void setTagId(String tagId) {
         this.tagId = tagId;
     }
-
 
     public int getHerdId() {
         return herdId;
@@ -101,7 +89,6 @@ public class Cattle {
         this.herdId = herdId;
     }
 
-
     public String getColorMarkings() {
         return colorMarkings;
     }
@@ -109,7 +96,6 @@ public class Cattle {
     public void setColorMarkings(String colorMarkings) {
         this.colorMarkings = colorMarkings;
     }
-
 
     public String getName() {
         return name;
@@ -119,7 +105,6 @@ public class Cattle {
         this.name = name;
     }
 
-
     public String getGender() {
         return gender;
     }
@@ -128,24 +113,20 @@ public class Cattle {
         this.gender = gender;
     }
 
-
-    public Date getDateOfBirth() {
-        return Date.valueOf(dateOfBirth.toLocalDate());
-    }
-
-    public void setDateOfBirth(Date dateOfBirth) {
-        this.dateOfBirth = dateOfBirth;
+    public LocalDate getDateOfBirth() {
+        return dateOfBirth;
     }
 
 
+
+    // Method to calculate age dynamically
     public int getAge() {
-        return age;
+        if (dateOfBirth == null) {
+            return 0;
+        }
+        LocalDate birthDate = dateOfBirth;
+        return Period.between(birthDate, LocalDate.now()).getYears();
     }
-
-    public void setAge(int age) {
-        this.age = age;
-    }
-
 
     public int getWeightId() {
         return weightId;
@@ -155,7 +136,6 @@ public class Cattle {
         this.weightId = weightId;
     }
 
-
     public String getBcs() {
         return bcs;
     }
@@ -163,7 +143,6 @@ public class Cattle {
     public void setBcs(String bcs) {
         this.bcs = bcs;
     }
-
 
     public int getBreedId() {
         return breedId;
@@ -173,7 +152,6 @@ public class Cattle {
         this.breedId = breedId;
     }
 
-
     public int getSireId() {
         return sireId;
     }
@@ -181,7 +159,6 @@ public class Cattle {
     public void setSireId(int sireId) {
         this.sireId = sireId;
     }
-
 
     public int getDamId() {
         return damId;
@@ -191,7 +168,6 @@ public class Cattle {
         this.damId = damId;
     }
 
-
     public int getDamsHerd() {
         return damsHerd;
     }
@@ -199,7 +175,6 @@ public class Cattle {
     public void setDamsHerd(int damsHerd) {
         this.damsHerd = damsHerd;
     }
-
 
     public int getSiresHerd() {
         return siresHerd;
@@ -209,7 +184,6 @@ public class Cattle {
         this.siresHerd = siresHerd;
     }
 
-
     public String getBreedName() {
         return breedName;
     }
@@ -217,7 +191,6 @@ public class Cattle {
     public void setBreedName(String breedName) {
         this.breedName = breedName;
     }
-
 
     public String getSireName() {
         return sireName;
@@ -227,7 +200,6 @@ public class Cattle {
         this.sireName = sireName;
     }
 
-
     public String getDamName() {
         return damName;
     }
@@ -235,7 +207,6 @@ public class Cattle {
     public void setDamName(String damName) {
         this.damName = damName;
     }
-
 
     public String getSireHerdName() {
         return sireHerdName;
@@ -245,7 +216,6 @@ public class Cattle {
         this.sireHerdName = sireHerdName;
     }
 
-
     public String getDamHerdName() {
         return damHerdName;
     }
@@ -253,7 +223,6 @@ public class Cattle {
     public void setDamHerdName(String damHerdName) {
         this.damHerdName = damHerdName;
     }
-
 
     public String getSireBreedName() {
         return sireBreedName;
@@ -263,15 +232,13 @@ public class Cattle {
         this.sireBreedName = sireBreedName;
     }
 
-
     public String getDamBreedName() {
         return damBreedName;
     }
 
-    public void setDamBreedName(String damHerdName) {
+    public void setDamBreedName(String damBreedName) {
         this.damBreedName = damBreedName;
     }
-
 
     public boolean isSelected() {
         return selected.get();

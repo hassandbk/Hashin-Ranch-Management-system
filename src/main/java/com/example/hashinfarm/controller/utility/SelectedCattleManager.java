@@ -4,6 +4,7 @@ import com.example.hashinfarm.model.Cattle;
 import javafx.beans.property.*;
 
 import java.time.LocalDate;
+import java.time.Period;
 
 public class SelectedCattleManager {
     private static SelectedCattleManager instance;
@@ -15,7 +16,6 @@ public class SelectedCattleManager {
     private final StringProperty selectedName = new SimpleStringProperty();
     private final StringProperty selectedGender = new SimpleStringProperty();
     private final ObjectProperty<LocalDate> selectedDateOfBirth = new SimpleObjectProperty<>();
-    private final IntegerProperty selectedAge = new SimpleIntegerProperty();
     private final IntegerProperty selectedWeightId = new SimpleIntegerProperty();
     private final StringProperty selectedBcs = new SimpleStringProperty();
     private final IntegerProperty selectedBreedId = new SimpleIntegerProperty();
@@ -28,15 +28,15 @@ public class SelectedCattleManager {
     private final IntegerProperty selectedSiresHerd = new SimpleIntegerProperty();
     private final StringProperty selectedSireHerdName = new SimpleStringProperty();
     private final StringProperty selectedDamHerdName = new SimpleStringProperty();
-
     private final StringProperty selectedSireBreedName = new SimpleStringProperty();
     private final StringProperty selectedDamBreedName = new SimpleStringProperty();
 
-
-
+    // New property for age
+    private final IntegerProperty selectedAge = new SimpleIntegerProperty();
 
     private SelectedCattleManager() {
-        // Private constructor to prevent instantiation
+        // Bind selectedAge to the selectedDateOfBirth property
+        selectedDateOfBirth.addListener((observable, oldValue, newValue) -> updateAge(newValue));
     }
 
     public static SelectedCattleManager getInstance() {
@@ -46,8 +46,14 @@ public class SelectedCattleManager {
         return instance;
     }
 
-
-
+    // Update the age based on the date of birth
+    private void updateAge(LocalDate dateOfBirth) {
+        if (dateOfBirth != null) {
+            selectedAge.set(Period.between(dateOfBirth, LocalDate.now()).getYears());
+        } else {
+            selectedAge.set(0);
+        }
+    }
 
     public int getSelectedCattleID() {
         return selectedCattleID.get();
@@ -61,11 +67,6 @@ public class SelectedCattleManager {
         this.selectedCattleID.set(selectedCattleID);
     }
 
-
-
-
-
-
     public String getSelectedTagId() {
         return selectedTagId.get();
     }
@@ -77,10 +78,6 @@ public class SelectedCattleManager {
     public void setSelectedTagId(String selectedTagId) {
         this.selectedTagId.set(selectedTagId);
     }
-
-
-
-
 
     public int getSelectedHerdId() {
         return selectedHerdId.get();
@@ -94,11 +91,6 @@ public class SelectedCattleManager {
         this.selectedHerdId.set(selectedHerdId);
     }
 
-
-
-
-
-
     public String getSelectedColorMarkings() {
         return selectedColorMarkings.get();
     }
@@ -110,13 +102,6 @@ public class SelectedCattleManager {
     public void setSelectedColorMarkings(String selectedColorMarkings) {
         this.selectedColorMarkings.set(selectedColorMarkings);
     }
-
-
-
-
-
-
-
 
     public String getSelectedName() {
         return selectedName.get();
@@ -130,12 +115,6 @@ public class SelectedCattleManager {
         this.selectedName.set(selectedName);
     }
 
-
-
-
-
-
-
     public String getSelectedGender() {
         return selectedGender.get();
     }
@@ -148,12 +127,6 @@ public class SelectedCattleManager {
         this.selectedGender.set(selectedGender);
     }
 
-
-
-
-
-
-    // Modify getter and setter for selectedDateOfBirth
     public LocalDate getSelectedDateOfBirth() {
         return selectedDateOfBirth.get();
     }
@@ -162,33 +135,22 @@ public class SelectedCattleManager {
         this.selectedDateOfBirth.set(selectedDateOfBirth);
     }
 
-    // Change return type of selectedDateOfBirthProperty to ObservableValue<LocalDate>
     public ObjectProperty<LocalDate> selectedDateOfBirthProperty() {
         return selectedDateOfBirth;
     }
 
-
-
-
-
-
-    public int getSelectedAge() {
-        return selectedAge.get();
+    public int getComputedAge() {
+        LocalDate dateOfBirth = selectedDateOfBirth.get();
+        if (dateOfBirth != null) {
+            return Period.between(dateOfBirth, LocalDate.now()).getYears();
+        }
+        return 0;
     }
 
+    // New method for age property
     public IntegerProperty selectedAgeProperty() {
         return selectedAge;
     }
-
-    public void setSelectedAge(int selectedAge) {
-        this.selectedAge.set(selectedAge);
-    }
-
-
-
-
-
-
 
     public int getSelectedWeightId() {
         return selectedWeightId.get();
@@ -202,11 +164,6 @@ public class SelectedCattleManager {
         this.selectedWeightId.set(selectedWeightId);
     }
 
-
-
-
-
-
     public String getSelectedBcs() {
         return selectedBcs.get();
     }
@@ -218,11 +175,6 @@ public class SelectedCattleManager {
     public void setSelectedBcs(String selectedBcs) {
         this.selectedBcs.set(selectedBcs);
     }
-
-
-
-
-
 
     public int getSelectedBreedId() {
         return selectedBreedId.get();
@@ -236,9 +188,6 @@ public class SelectedCattleManager {
         this.selectedBreedId.set(selectedBreedId);
     }
 
-
-
-
     public String getSelectedBreedName() {
         return selectedBreedName.get();
     }
@@ -250,11 +199,6 @@ public class SelectedCattleManager {
     public void setSelectedBreedName(String selectedBreedName) {
         this.selectedBreedName.set(selectedBreedName);
     }
-
-
-
-
-
 
     public int getSelectedSireId() {
         return selectedSireId.get();
@@ -268,11 +212,6 @@ public class SelectedCattleManager {
         this.selectedSireId.set(selectedSireId);
     }
 
-
-
-
-
-
     public String getSelectedSireName() {
         return selectedSireName.get();
     }
@@ -284,11 +223,6 @@ public class SelectedCattleManager {
     public void setSelectedSireName(String selectedSireName) {
         this.selectedSireName.set(selectedSireName);
     }
-
-
-
-
-
 
     public int getSelectedDamId() {
         return selectedDamId.get();
@@ -302,12 +236,6 @@ public class SelectedCattleManager {
         this.selectedDamId.set(selectedDamId);
     }
 
-
-
-
-
-
-
     public String getSelectedDamName() {
         return selectedDamName.get();
     }
@@ -319,10 +247,6 @@ public class SelectedCattleManager {
     public void setSelectedDamName(String selectedDamName) {
         this.selectedDamName.set(selectedDamName);
     }
-
-
-
-
 
     public int getSelectedDamsHerd() {
         return selectedDamsHerd.get();
@@ -336,13 +260,6 @@ public class SelectedCattleManager {
         this.selectedDamsHerd.set(selectedDamsHerd);
     }
 
-
-
-
-
-
-
-
     public int getSelectedSiresHerd() {
         return selectedSiresHerd.get();
     }
@@ -354,8 +271,6 @@ public class SelectedCattleManager {
     public void setSelectedSiresHerd(int selectedSiresHerd) {
         this.selectedSiresHerd.set(selectedSiresHerd);
     }
-
-
 
     public String getSelectedSireHerdName() {
         return selectedSireHerdName.get();
@@ -369,8 +284,6 @@ public class SelectedCattleManager {
         this.selectedSireHerdName.set(selectedSireHerdName);
     }
 
-
-
     public String getSelectedDamHerdName() {
         return selectedDamHerdName.get();
     }
@@ -382,11 +295,6 @@ public class SelectedCattleManager {
     public void setSelectedDamHerdName(String selectedDamHerdName) {
         this.selectedDamHerdName.set(selectedDamHerdName);
     }
-
-
-
-
-
 
     public String getSelectedSireBreedName() {
         return selectedSireBreedName.get();
@@ -400,9 +308,6 @@ public class SelectedCattleManager {
         this.selectedSireBreedName.set(selectedSireBreedName);
     }
 
-
-
-
     public String getSelectedDamBreedName() {
         return selectedDamBreedName.get();
     }
@@ -415,9 +320,6 @@ public class SelectedCattleManager {
         this.selectedDamBreedName.set(selectedDamBreedName);
     }
 
-
-
-
     // Update method to set all properties at once
     public void setSelectedCattle(Cattle cattle) {
         selectedCattleID.set(cattle.getCattleId());
@@ -426,8 +328,7 @@ public class SelectedCattleManager {
         selectedColorMarkings.set(cattle.getColorMarkings());
         selectedName.set(cattle.getName());
         selectedGender.set(cattle.getGender());
-        selectedDateOfBirth.set(cattle.getDateOfBirth().toLocalDate());
-        selectedAge.set(cattle.getAge());
+        selectedDateOfBirth.set(cattle.getDateOfBirth());
         selectedWeightId.set(cattle.getWeightId());
         selectedBcs.set(cattle.getBcs());
         selectedBreedId.set(cattle.getBreedId());
@@ -442,6 +343,9 @@ public class SelectedCattleManager {
         selectedDamHerdName.set(cattle.getDamHerdName());
         selectedSireBreedName.set(cattle.getSireBreedName());
         selectedDamBreedName.set(cattle.getDamBreedName());
+
+        // Update age based on the new date of birth
+        updateAge(cattle.getDateOfBirth());
     }
 
     public Cattle getSelectedCattle() {
@@ -453,7 +357,6 @@ public class SelectedCattleManager {
                 selectedName.get(),
                 selectedGender.get(),
                 selectedDateOfBirth.get(),
-                selectedAge.get(),
                 selectedWeightId.get(),
                 selectedBcs.get(),
                 selectedBreedId.get(),
@@ -470,6 +373,4 @@ public class SelectedCattleManager {
                 selectedDamBreedName.get()
         );
     }
-
-
 }

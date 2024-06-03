@@ -12,32 +12,32 @@ public class CattleDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
     public static List<Cattle> getCattleForHerd(int herdId) throws SQLException {
-        String query =
-                "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, dam_breed.BreedName AS DamBreedName "
-                        + "FROM cattle c "
-                        + "LEFT JOIN breed ON c.BreedID = breed.BreedID "
-                        + "LEFT JOIN cattle sire ON c.SireID = sire.CattleID "
-                        + "LEFT JOIN cattle dam ON c.DamID = dam.CattleID "
-                        + "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID "
-                        + "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID "
-                        + "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID "
-                        + "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID "
-                        + "WHERE c.HerdID = ?";
+        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
+                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
+                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
+                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
+                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
+                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
+                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
+                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
+                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
+                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
+                "WHERE c.HerdID = ?";
         return getCattleByQuery(query, herdId);
     }
 
     public static List<Cattle> getCattleForGender(String gender) throws SQLException {
-        String query =
-                "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, dam_breed.BreedName AS DamBreedName "
-                        + "FROM cattle c "
-                        + "LEFT JOIN breed ON c.BreedID = breed.BreedID "
-                        + "LEFT JOIN cattle sire ON c.SireID = sire.CattleID "
-                        + "LEFT JOIN cattle dam ON c.DamID = dam.CattleID "
-                        + "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID "
-                        + "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID "
-                        + "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID "
-                        + "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID "
-                        + "WHERE c.Gender = ?";
+        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
+                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
+                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
+                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
+                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
+                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
+                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
+                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
+                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
+                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
+                "WHERE c.Gender = ?";
         return getCattleByQuery(query, gender);
     }
 
@@ -71,9 +71,8 @@ public class CattleDAO {
     }
 
     public static int addCattle(Cattle cattle) throws SQLException {
-        String query =
-                "INSERT INTO cattle (TagID, HerdID, ColorMarkings, Name, Gender, DateOfBirth, Age, WeightID, BCS, BreedID, SireID, DamID, DamsHerd, SiresHerd) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        String query = "INSERT INTO cattle (TagID, HerdID, ColorMarkings, Name, Gender, DateOfBirth, WeightID, BCS, BreedID, SireID, DamID, DamsHerd, SiresHerd) " +
+                "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
             setCattlePreparedStatementValues(preparedStatement, cattle);
@@ -86,28 +85,26 @@ public class CattleDAO {
             }
         } catch (SQLException e) {
             handleSQLException(e);
+            e.printStackTrace();
             throw e; // Re-throw the exception for higher-level handling
         }
         return -1; // Return -1 if insertion failed
     }
 
-
-    private static void setCattlePreparedStatementValues(
-            PreparedStatement preparedStatement, Cattle cattle) throws SQLException {
+    private static void setCattlePreparedStatementValues(PreparedStatement preparedStatement, Cattle cattle) throws SQLException {
         preparedStatement.setString(1, cattle.getTagId());
         preparedStatement.setInt(2, cattle.getHerdId());
         preparedStatement.setString(3, cattle.getColorMarkings());
         preparedStatement.setString(4, cattle.getName());
         preparedStatement.setString(5, cattle.getGender());
-        preparedStatement.setDate(6, Date.valueOf(String.valueOf(cattle.getDateOfBirth())));
-        preparedStatement.setInt(7, cattle.getAge());
-        preparedStatement.setInt(8, cattle.getWeightId());
-        preparedStatement.setString(9, cattle.getBcs());
-        preparedStatement.setInt(10, cattle.getBreedId());
-        preparedStatement.setInt(11, cattle.getSireId());
-        preparedStatement.setInt(12, cattle.getDamId());
-        preparedStatement.setInt(13, cattle.getDamsHerd());
-        preparedStatement.setInt(14, cattle.getSiresHerd());
+        preparedStatement.setDate(6, Date.valueOf(cattle.getDateOfBirth()));
+        preparedStatement.setInt(7, cattle.getWeightId());
+        preparedStatement.setString(8, cattle.getBcs());
+        preparedStatement.setInt(9, cattle.getBreedId());
+        preparedStatement.setInt(10, cattle.getSireId());
+        preparedStatement.setInt(11, cattle.getDamId());
+        preparedStatement.setInt(12, cattle.getDamsHerd());
+        preparedStatement.setInt(13, cattle.getSiresHerd());
     }
 
     public static void deleteCattleByHerdId(int herdId) throws SQLException {
@@ -129,26 +126,22 @@ public class CattleDAO {
     }
 
     public static void updateCattle(Cattle cattle) {
-        String query =
-                "UPDATE cattle "
-                        + "SET TagID=?, ColorMarkings=?, Name=?, Gender=?, DateOfBirth=?, Age=?, WeightID=?, BCS=?, BreedID=?, SireID=?, DamID=?, DamsHerd=?, SiresHerd=? "
-                        + "WHERE CattleID=?";
+        String query = "UPDATE cattle SET TagID=?, ColorMarkings=?, Name=?, Gender=?, DateOfBirth=?, WeightID=?, BCS=?, BreedID=?, SireID=?, DamID=?, DamsHerd=?, SiresHerd=? WHERE CattleID=?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setString(1, cattle.getTagId());
             preparedStatement.setString(2, cattle.getColorMarkings());
             preparedStatement.setString(3, cattle.getName());
             preparedStatement.setString(4, cattle.getGender());
-            preparedStatement.setDate(5, cattle.getDateOfBirth());
-            preparedStatement.setInt(6, cattle.getAge());
-            preparedStatement.setInt(7, cattle.getWeightId());
-            preparedStatement.setString(8, cattle.getBcs());
-            preparedStatement.setInt(9, cattle.getBreedId());
-            preparedStatement.setInt(10, cattle.getSireId());
-            preparedStatement.setInt(11, cattle.getDamId());
-            preparedStatement.setInt(12, cattle.getDamsHerd());
-            preparedStatement.setInt(13, cattle.getSiresHerd());
-            preparedStatement.setInt(14, cattle.getCattleId());
+            preparedStatement.setDate(5, Date.valueOf(cattle.getDateOfBirth()));
+            preparedStatement.setInt(6, cattle.getWeightId());
+            preparedStatement.setString(7, cattle.getBcs());
+            preparedStatement.setInt(8, cattle.getBreedId());
+            preparedStatement.setInt(9, cattle.getSireId());
+            preparedStatement.setInt(10, cattle.getDamId());
+            preparedStatement.setInt(11, cattle.getDamsHerd());
+            preparedStatement.setInt(12, cattle.getSiresHerd());
+            preparedStatement.setInt(13, cattle.getCattleId());
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
@@ -157,12 +150,8 @@ public class CattleDAO {
         } catch (SQLException e) {
             // Use AppLogger for error handling with a specific message
             AppLogger.error("Error updating cattle: " + cattle.getCattleId(), e);
+            e.printStackTrace();
         }
-//        catch (SQLException e) {
-//            // Print error message and stack trace to console
-//            e.printStackTrace();
-//            System.err.println("Error updating cattle: " + cattle.getCattleId() + ": " + e.getMessage());
-//        }
     }
 
     private static Cattle mapResultSetToCattle(ResultSet resultSet) throws SQLException {
@@ -173,8 +162,7 @@ public class CattleDAO {
                 resultSet.getString("ColorMarkings"),
                 resultSet.getString("Name"),
                 resultSet.getString("Gender"),
-                resultSet.getDate("DateOfBirth"),
-                resultSet.getInt("Age"),
+                resultSet.getDate("DateOfBirth").toLocalDate(),
                 resultSet.getInt("WeightID"),
                 resultSet.getString("BCS"),
                 resultSet.getInt("BreedID"),
@@ -192,17 +180,17 @@ public class CattleDAO {
     }
 
     public static Cattle getCattleByID(int cattleID) throws SQLException {
-        String query =
-                "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, dam_breed.BreedName AS DamBreedName "
-                        + "FROM cattle c "
-                        + "LEFT JOIN breed ON c.BreedID = breed.BreedID "
-                        + "LEFT JOIN cattle sire ON c.SireID = sire.CattleID "
-                        + "LEFT JOIN cattle dam ON c.DamID = dam.CattleID "
-                        + "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID "
-                        + "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID "
-                        + "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID "
-                        + "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID "
-                        + "WHERE c.CattleID = ?";
+        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
+                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
+                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
+                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
+                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
+                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
+                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
+                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
+                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
+                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
+                "WHERE c.CattleID = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, cattleID);
@@ -218,20 +206,21 @@ public class CattleDAO {
     private static void handleSQLException(SQLException e) {
         System.err.println("SQLException occurred: " + e.getMessage());
         // Additional error handling logic can be added as per requirements
+        e.printStackTrace();
     }
 
     public static Cattle findCattleByBirthdateAndDamId(LocalDate calvingDate, int damId) throws SQLException {
-        String query =
-                "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, dam_breed.BreedName AS DamBreedName "
-                        + "FROM cattle c "
-                        + "LEFT JOIN breed ON c.BreedID = breed.BreedID "
-                        + "LEFT JOIN cattle sire ON c.SireID = sire.CattleID "
-                        + "LEFT JOIN cattle dam ON c.DamID = dam.CattleID "
-                        + "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID "
-                        + "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID "
-                        + "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID "
-                        + "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID "
-                        + "WHERE c.DamID = ? AND c.DateOfBirth = ?";
+        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
+                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
+                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
+                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
+                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
+                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
+                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
+                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
+                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
+                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
+                "WHERE c.DamID = ? AND c.DateOfBirth = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, damId);
@@ -250,7 +239,7 @@ public class CattleDAO {
     public static boolean updateCattleDateOfBirth(int cattleID, LocalDate calvingDate) {
         try {
             Connection connection = dbConnection.getConnection();
-            PreparedStatement statement = connection.prepareStatement("UPDATE Cattle SET dateOfBirth = ? WHERE damID = ?");
+            PreparedStatement statement = connection.prepareStatement("UPDATE Cattle SET dateOfBirth = ? WHERE CattleID = ?");
             statement.setDate(1, Date.valueOf(calvingDate));
             statement.setInt(2, cattleID);
             int rowsAffected = statement.executeUpdate();
@@ -258,6 +247,7 @@ public class CattleDAO {
         } catch (SQLException e) {
             // Handle any potential SQL exceptions here
             AppLogger.error("Failed to update cattle's date of birth: " + e.getMessage());
+            e.printStackTrace();
             return false;
         }
     }
@@ -269,11 +259,12 @@ public class CattleDAO {
         try {
             cattle = CattleDAO.getCattleByID(cattleID);
             if (cattle != null && cattle.getDateOfBirth() != null) {
-                return cattle.getDateOfBirth().toLocalDate();
+                return cattle.getDateOfBirth();
             }
         } catch (SQLException e) {
             // Use AppLogger for error handling with a specific message
             AppLogger.error("Error fetching date of birth for cattle: " + cattleID, e);
+            e.printStackTrace();
         }
         return null;
     }

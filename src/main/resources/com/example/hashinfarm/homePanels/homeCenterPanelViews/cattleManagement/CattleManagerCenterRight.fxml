@@ -6,8 +6,9 @@
 <?import javafx.scene.layout.*?>
 
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml">
-    <TabPane >
+      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.CattleController">
+
+    <TabPane fx:id="mainTabPane">
 
         <Tab text="Animal Details">
 
@@ -38,7 +39,7 @@
             </TabPane>
         </Tab>
 
-        <Tab text="Productivity and Calving">
+        <Tab text="Productivity and Calving" fx:id="productivityAndCalvingTab">
             <fx:include source="centerRightViews/MilkProduction.fxml"/>
         </Tab>
 

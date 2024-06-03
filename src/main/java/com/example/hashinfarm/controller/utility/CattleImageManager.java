@@ -105,10 +105,9 @@ public class CattleImageManager {
     for (int i = 0; i < Math.min(numImages, 5); i++) {
       double scale = scaleMap.getOrDefault(i, 0.9);
       int index = (currentIndex + i) % numImages;
-      String imagePath =
-          "C:/Users/123/source/HashinFarm/src/main/resources/images/"
-              + cattleImages.get(index).getImagePath();
-      Image image = new Image(new File(imagePath).toURI().toString());
+      String imagePath = "/images/" + cattleImages.get(index).getImagePath();
+      Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
+
       ImageView imageView = new ImageView(image);
       imageView.setFitWidth(200 * scale);
       imageView.setFitHeight(180 * scale);
@@ -185,6 +184,10 @@ public class CattleImageManager {
   }
 
   private void zoom(ImageView imageView, boolean zoomIn, Point2D pivotOnImageView) {
+    zoomingImages(imageView, zoomIn, pivotOnImageView);
+  }
+
+  public static void zoomingImages(ImageView imageView, boolean zoomIn, Point2D pivotOnImageView) {
     double scaleFactor = zoomIn ? 1.1 : 0.9;
     double oldScale = imageView.getScaleX();
     double newScale = oldScale * scaleFactor;

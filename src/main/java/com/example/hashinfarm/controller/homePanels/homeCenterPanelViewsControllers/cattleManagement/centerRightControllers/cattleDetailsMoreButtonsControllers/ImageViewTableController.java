@@ -2,6 +2,7 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 
 import com.example.hashinfarm.controller.dao.CattleImageDAO;
 import com.example.hashinfarm.controller.utility.AppLogger;
+import com.example.hashinfarm.controller.utility.CattleImageManager;
 import com.example.hashinfarm.model.CattleImage;
 import java.io.File;
 import java.sql.Timestamp;
@@ -169,19 +170,7 @@ public class ImageViewTableController {
     }
 
     private void zoom(ImageView imageView, boolean zoomIn, Point2D pivotOnImageView) {
-        double scaleFactor = zoomIn ? 1.1 : 0.9;
-        double oldScale = imageView.getScaleX();
-        double newScale = oldScale * scaleFactor;
-
-        imageView.setScaleX(newScale);
-        imageView.setScaleY(newScale);
-
-        // Translate image to keep the cursor position in the same position
-        double deltaX = (pivotOnImageView.getX() - imageView.getBoundsInParent().getWidth() / 2) * (1 - scaleFactor);
-        double deltaY = (pivotOnImageView.getY() - imageView.getBoundsInParent().getHeight() / 2) * (1 - scaleFactor);
-
-        imageView.setTranslateX(imageView.getTranslateX() + deltaX);
-        imageView.setTranslateY(imageView.getTranslateY() + deltaY);
+        CattleImageManager.zoomingImages(imageView, zoomIn, pivotOnImageView);
     }
 
 

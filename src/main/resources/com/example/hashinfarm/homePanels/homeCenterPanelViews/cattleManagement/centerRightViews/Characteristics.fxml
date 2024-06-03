@@ -3,7 +3,6 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
-<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -85,38 +84,45 @@
                     </HBox>
 
                 </HBox>
-                <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="46.0" prefWidth="489.0" spacing="10" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
-                    <VBox alignment="CENTER_LEFT">
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Date of Birth:" />
-                        <Label text="(DOB)" />
-                    </VBox>
-                    <DatePicker fx:id="dobDatePicker" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" promptText="Select Date" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets />
-                        </HBox.margin>
-                        <tooltip>
-                            <Tooltip text="Select the date of birth of the cattle." />
-                        </tooltip>
-                        <cursor>
-                            <Cursor fx:constant="HAND" />
-                        </cursor>
-                    </DatePicker>
-                    <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-                        <VBox alignment="TOP_CENTER" HBox.hgrow="ALWAYS">
-                            <Label alignment="CENTER" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age" textAlignment="CENTER" />
-                            <Label fx:id="agelabel" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="label" textFill="#59b928">
-                                <font>
-                                    <Font name="Bernard MT Condensed" size="24.0" />
-                                </font>
-                            </Label>
-                        </VBox>
-                    </HBox>
-                    <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10">
-                        <VBox alignment="CENTER">
-                            <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age Class:" />
-                            <Label fx:id="ageClassLabel" text="Label" />
-                        </VBox>
-                    </HBox>
+                <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="20.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+               <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
+                  <children>
+                          <VBox alignment="CENTER_LEFT">
+                              <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Date of Birth:" />
+                              <Label text="(DOB)" />
+                          </VBox>
+                          <Label fx:id="dateOfBirthLabel" minHeight="-Infinity" minWidth="-Infinity" text="N/A" wrapText="true" HBox.hgrow="ALWAYS">
+                              <HBox.margin>
+                                  <Insets />
+                              </HBox.margin>
+      
+                          </Label>
+                  </children>
+               </HBox>
+               <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                  <children>
+                          <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
+                              <VBox alignment="TOP_CENTER" minWidth="-Infinity" HBox.hgrow="ALWAYS">
+                                  <Label alignment="CENTER" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age" textAlignment="CENTER" />
+                                  <Label fx:id="ageLabel" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="label" textFill="#59b928" wrapText="true">
+                                      <font>
+                                          <Font name="Bernard MT Condensed" size="24.0" />
+                                      </font>
+                                  </Label>
+                              </VBox>
+                          </HBox>
+                  </children>
+               </HBox>
+               <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                  <children>
+                          <HBox alignment="CENTER_LEFT" minWidth="-Infinity" spacing="10">
+                              <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                                  <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age Class:" />
+                                  <Label fx:id="ageClassLabel" text="Label" />
+                              </VBox>
+                          </HBox>
+                  </children>
+               </HBox>
                 </HBox>
                 <VBox alignment="CENTER" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                     <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
@@ -538,14 +544,14 @@
                         </graphic>
                     </Button>
 
-                    <Button fx:id="viewCurrentImage" mnemonicParsing="false" onAction="#handleViewCurrentImage">
+                    <Button mnemonicParsing="false" onAction="#handleViewCurrentImage">
                         <graphic>
                             <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                 <Image url="@../../../../../../../icons/buttons/viewGallery.png" />
                             </ImageView>
                         </graphic>
                     </Button>
-                    <Button fx:id="viewImageTable" mnemonicParsing="false" onAction="#handleImagesTable">
+                    <Button mnemonicParsing="false" onAction="#handleImagesTable">
                         <graphic>
                             <ImageView fitHeight="30.0" fitWidth="30.0" pickOnBounds="true" preserveRatio="true">
                                 <Image url="@../../../../../../../icons/buttons/viewImagesTable.png" />

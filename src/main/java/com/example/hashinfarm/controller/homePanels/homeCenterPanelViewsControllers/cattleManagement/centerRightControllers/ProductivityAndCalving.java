@@ -1571,47 +1571,6 @@ private void initializeLactationPeriods(){
     });
 }
 
-    private void initializeVolumeLabels() {
-        volumeLabels.put("Colostrum Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Transition Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Peak Milk Harvesting", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Mid-Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Late Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Dry Period", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-    }
-
-    private void initializeStageDaysRangeMap() {
-        stageDaysRangeMap.put("Colostrum Stage", new Integer[]{0, 5});
-        stageDaysRangeMap.put("Transition Stage", new Integer[]{6, 15});
-        stageDaysRangeMap.put("Peak Milk Harvesting", new Integer[]{16, 60});
-        stageDaysRangeMap.put("Mid-Lactation", new Integer[]{61, 150});
-        stageDaysRangeMap.put("Late Lactation", new Integer[]{151, 305});
-        stageDaysRangeMap.put("Dry Period", new Integer[]{306, -1});
-    }
-
-
-
-
-    private void updateVolumeLabels(String stage) {
-
-        Label[] volumeLabelsArray = volumeLabels.get(stage);
-
-        if (volumeLabelsArray != null) {
-            String volumeLabelText = getVolumeLabelText(stage);
-
-                volumeLabelsArray[0].setText(volumeLabelText + " : (Morning)");
-                volumeLabelsArray[1].setText(volumeLabelText + " : (Afternoon)");
-                volumeLabelsArray[2].setText(volumeLabelText + " : (Evening)");
-
-
-
-        } else{
-            volumeLabel1.setText("Unknown Stage: (Morning)");
-            volumeLabel2.setText("Unknown Stage: (Afternoon)");
-            volumeLabel3.setText("Unknown Stage: (Evening)");
-        }
-    }
-
     private void updateStagePeriodLabel(String stage) {
         Integer[] stageRange = stageDaysRangeMap.get(stage);
         if (stageRange != null) {
@@ -1647,22 +1606,7 @@ private void initializeLactationPeriods(){
         };
     }
 
-    public void initializeSpinners() {
-        // Create individual DoubleSpinnerValueFactory for each spinner
-        SpinnerValueFactory<Double> morningValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 40.0, 0.01);
-        SpinnerValueFactory<Double> afternoonValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 40.0, 0.01);
-        SpinnerValueFactory<Double> eveningValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 40.0, 0.01);
 
-        // Set initial values for each spinner
-        morningValueFactory.setValue(0.0);
-        afternoonValueFactory.setValue(12.0);
-        eveningValueFactory.setValue(20.0);
-
-        // Set the value factory for each spinner
-        spinnerMorning.setValueFactory(morningValueFactory);
-        spinnerAfternoon.setValueFactory(afternoonValueFactory);
-        spinnerEvening.setValueFactory(eveningValueFactory);
-    }
     private void initializeTableColumns() {
         selectionColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
         selectionColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectionColumn));
@@ -2073,6 +2017,47 @@ private void initializeLactationPeriods(){
     }
 
 
+
+    private void initializeVolumeLabels() {
+        volumeLabels.put("Colostrum Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Transition Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Peak Milk Harvesting", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Mid-Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Late Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Dry Period", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+    }
+
+    private void initializeStageDaysRangeMap() {
+        stageDaysRangeMap.put("Colostrum Stage", new Integer[]{0, 5});
+        stageDaysRangeMap.put("Transition Stage", new Integer[]{6, 15});
+        stageDaysRangeMap.put("Peak Milk Harvesting", new Integer[]{16, 60});
+        stageDaysRangeMap.put("Mid-Lactation", new Integer[]{61, 150});
+        stageDaysRangeMap.put("Late Lactation", new Integer[]{151, 305});
+        stageDaysRangeMap.put("Dry Period", new Integer[]{306, -1});
+    }
+
+
+
+
+    private void updateVolumeLabels(String stage) {
+
+        Label[] volumeLabelsArray = volumeLabels.get(stage);
+
+        if (volumeLabelsArray != null) {
+            String volumeLabelText = getVolumeLabelText(stage);
+
+            volumeLabelsArray[0].setText(volumeLabelText + " : (Morning)");
+            volumeLabelsArray[1].setText(volumeLabelText + " : (Afternoon)");
+            volumeLabelsArray[2].setText(volumeLabelText + " : (Evening)");
+
+
+
+        } else{
+            volumeLabel1.setText("Unknown Stage: (Morning)");
+            volumeLabel2.setText("Unknown Stage: (Afternoon)");
+            volumeLabel3.setText("Unknown Stage: (Evening)");
+        }
+    }
     public void initializeProductionStages() {
         // Initially, enable all fields
         setFieldsDisabled(true);
@@ -2097,7 +2082,22 @@ private void initializeLactationPeriods(){
         saveUpdateProduction.setDisable(disabled); // Disable the button
     }
 
+    public void initializeSpinners() {
+        // Create individual DoubleSpinnerValueFactory for each spinner
+        SpinnerValueFactory<Double> morningValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 40.0, 0.01);
+        SpinnerValueFactory<Double> afternoonValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 40.0, 0.01);
+        SpinnerValueFactory<Double> eveningValueFactory = new SpinnerValueFactory.DoubleSpinnerValueFactory(0.0, 40.0, 0.01);
 
+        // Set initial values for each spinner
+        morningValueFactory.setValue(0.0);
+        afternoonValueFactory.setValue(12.0);
+        eveningValueFactory.setValue(20.0);
+
+        // Set the value factory for each spinner
+        spinnerMorning.setValueFactory(morningValueFactory);
+        spinnerAfternoon.setValueFactory(afternoonValueFactory);
+        spinnerEvening.setValueFactory(eveningValueFactory);
+    }
 
     public void handleSaveOrUpdateProduction() {
     }

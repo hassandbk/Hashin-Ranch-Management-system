@@ -26,32 +26,32 @@ public class EditHerdController {
   @FXML private TextField herdNameTextField, locationTextField;
   @FXML
   private ComboBox<String> animalClassComboBox,
-      breedTypeComboBox,
-      breedSystemComboBox,
-      solutionTypeComboBox,
-      ageClassComboBox,
-      feedBasisComboBox;
+          breedTypeComboBox,
+          breedSystemComboBox,
+          solutionTypeComboBox,
+          ageClassComboBox,
+          feedBasisComboBox;
 
   @FXML private TableView<Cattle> cattleTableView;
 
   @FXML
   private TableColumn<Cattle, Integer> cattleIdColumn,
-      cattleAgeColumn,
-      cattleWeightIdColumn,
-      cattleBreedIdColumn;
+          cattleAgeColumn,
+          cattleWeightIdColumn,
+          cattleBreedIdColumn;
   @FXML
   private TableColumn<Cattle, String> cattleTagIdColumn,
-      cattleColorMarkingsColumn,
-      cattleNameColumn,
-      cattleGenderColumn,
-      cattleBcsColumn;
+          cattleColorMarkingsColumn,
+          cattleNameColumn,
+          cattleGenderColumn,
+          cattleBcsColumn;
 
   @FXML private TableColumn<Cattle, Date> cattleDateOfBirthColumn;
   private Herd selectedHerd;
 
   private <T> void setCattleColumn(TableColumn<Cattle, T> column, Function<Cattle, T> mapper) {
     column.setCellValueFactory(
-        cellData -> new SimpleObjectProperty<>(mapper.apply(cellData.getValue())));
+            cellData -> new SimpleObjectProperty<>(mapper.apply(cellData.getValue())));
   }
 
   public void initData(Herd herd) {
@@ -76,7 +76,7 @@ public class EditHerdController {
 
   private void populateCattleTable() {
     ObservableList<Cattle> cattleList =
-        FXCollections.observableArrayList(selectedHerd.getAnimals());
+            FXCollections.observableArrayList(selectedHerd.getAnimals());
     cattleTableView.setItems(cattleList);
     setCattleTableColumns();
   }
@@ -87,11 +87,14 @@ public class EditHerdController {
     setCattleColumn(cattleColorMarkingsColumn, Cattle::getColorMarkings);
     setCattleColumn(cattleNameColumn, Cattle::getName);
     setCattleColumn(cattleGenderColumn, Cattle::getGender);
-    setCattleColumn(cattleDateOfBirthColumn, Cattle::getDateOfBirth);
     setCattleColumn(cattleAgeColumn, Cattle::getAge);
     setCattleColumn(cattleWeightIdColumn, Cattle::getWeightId);
     setCattleColumn(cattleBcsColumn, Cattle::getBcs);
     setCattleColumn(cattleBreedIdColumn, Cattle::getBreedId);
+
+    // Handle the LocalDate to java.sql.Date conversion for the Date of Birth column
+    cattleDateOfBirthColumn.setCellValueFactory(
+            cellData -> new SimpleObjectProperty<>(Date.valueOf(cellData.getValue().getDateOfBirth())));
   }
 
   public void handleEditHerd() {
@@ -128,10 +131,10 @@ public class EditHerdController {
   public void handleAddCattleToHerd() {
     try {
       FXMLLoader loader =
-          new FXMLLoader(
-              getClass()
-                  .getResource(
-                      "/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerLeftViews/addCattle.fxml"));
+              new FXMLLoader(
+                      getClass()
+                              .getResource(
+                                      "/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerLeftViews/addCattle.fxml"));
       Parent root = loader.load();
       AddNewCattleController addCattleController = loader.getController();
       addCattleController.initData(selectedHerd.getId(), this);
@@ -147,7 +150,7 @@ public class EditHerdController {
       AppLogger.error("Error loading Add Cattle form", e);
       // Update error message in showAlert
       showAlert(
-          Alert.AlertType.ERROR, "Error", "Failed to load Add Cattle form. See logs for details.");
+              Alert.AlertType.ERROR, "Error", "Failed to load Add Cattle form. See logs for details.");
     }
   }
 
@@ -166,29 +169,29 @@ public class EditHerdController {
     confirmationAlert.setContentText("Are you sure you want to delete the selected cattle?");
 
     confirmationAlert
-        .showAndWait()
-        .ifPresent(
-            response -> {
-              if (response == ButtonType.OK) {
-                try {
-                  // Delete the selected cattle from the database
-                  CattleDAO.deleteCattleById(selectedCattle.getCattleId());
+            .showAndWait()
+            .ifPresent(
+                    response -> {
+                      if (response == ButtonType.OK) {
+                        try {
+                          // Delete the selected cattle from the database
+                          CattleDAO.deleteCattleById(selectedCattle.getCattleId());
 
-                  // Remove the selected cattle from the table view
-                  cattleTableView.getItems().remove(selectedCattle);
+                          // Remove the selected cattle from the table view
+                          cattleTableView.getItems().remove(selectedCattle);
 
-                  showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle deleted successfully.");
-                } catch (SQLException e) {
-                  // Use AppLogger for error handling
-                  AppLogger.error("Error deleting cattle", e);
-                  // Update error message in showAlert
-                  showAlert(
-                      Alert.AlertType.ERROR,
-                      "Error",
-                      "Failed to delete cattle. See logs for details.");
-                }
-              }
-            });
+                          showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle deleted successfully.");
+                        } catch (SQLException e) {
+                          // Use AppLogger for error handling
+                          AppLogger.error("Error deleting cattle", e);
+                          // Update error message in showAlert
+                          showAlert(
+                                  Alert.AlertType.ERROR,
+                                  "Error",
+                                  "Failed to delete cattle. See logs for details.");
+                        }
+                      }
+                    });
   }
 
   public void handleRefreshCattleFromHerd() {
@@ -202,7 +205,7 @@ public class EditHerdController {
       AppLogger.error("Error refreshing cattle list", e);
       // Update error message in showAlert
       showAlert(
-          Alert.AlertType.ERROR, "Error", "Failed to refresh cattle list. See logs for details.");
+              Alert.AlertType.ERROR, "Error", "Failed to refresh cattle list. See logs for details.");
     }
   }
 

@@ -10,7 +10,7 @@ import java.util.List;
 public class ReproductiveVariablesDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
-    // Insert a new reproductive variable record
+
     // Insert a new reproductive variable record
     public boolean addReproductiveVariable(ReproductiveVariables reproductiveVariables) {
         String query = "INSERT INTO reproductivevariables (CattleID, BreedingDate, GestationPeriod, CalvingDate, CalvingInterval) VALUES (?, ?, ?, ?, ?)";

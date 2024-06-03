@@ -4,13 +4,14 @@ import com.example.hashinfarm.controller.dao.BreedDAO;
 import com.example.hashinfarm.controller.dao.CattleDAO;
 import com.example.hashinfarm.controller.interfaces.CattleAdditionCallback;
 import com.example.hashinfarm.controller.utility.AppLogger;
+import com.example.hashinfarm.controller.utility.CattleUtils;
 import com.example.hashinfarm.model.Breed;
 import com.example.hashinfarm.model.Cattle;
+import com.example.hashinfarm.controller.records.CattleUIInfo;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Callback;
 
-import java.sql.Date;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.Period;
@@ -49,12 +50,10 @@ public class AddNewCattleController {
     private Cattle selectedDam;
     private Cattle selectedSire;
     private int herdId;
-    private int age;
     private EditHerdController editHerdController;
     private Cattle newCattle;
     private boolean isInitDataWithSelectedCattle;
     private CattleAdditionCallback cattleAdditionCallback;
-
     public void setCattleAdditionCallback(CattleAdditionCallback callback) {
         this.cattleAdditionCallback = callback;
     }
@@ -80,6 +79,8 @@ public class AddNewCattleController {
         damTagButton.setDisable(true);
         isInitDataWithSelectedCattle = true;
     }
+
+
 
     public void initialize() {
         initListeners();
@@ -135,7 +136,6 @@ public class AddNewCattleController {
             LocalDate currentDate = LocalDate.now();
             Period period = Period.between(dateOfBirth, currentDate);
             int totalMonths = period.getYears() * 12 + period.getMonths();
-            age = totalMonths;
             ageLabel.setText(totalMonths + " months");
         } else {
             ageLabel.setText("");
@@ -162,78 +162,34 @@ public class AddNewCattleController {
                 return;
             }
 
+            // Call the showSelectionDialog method from CattleUtils
             showCattleSelectionDialog(buttonClicked, cattleList);
         } catch (SQLException e) {
             handleException(e);
         }
     }
 
-    private <T> T showSelectionDialog(
-            String title, String headerText, List<T> items, Function<T, String> displayMapper) {
-        Dialog<T> dialog = new Dialog<>();
-        dialog.setTitle(title);
-        dialog.setHeaderText(headerText);
-        ButtonType selectButtonType = new ButtonType("Select", ButtonBar.ButtonData.OK_DONE);
-        dialog.getDialogPane().getButtonTypes().addAll(selectButtonType, ButtonType.CANCEL);
-        ListView<T> listView = new ListView<>();
-        listView.getItems().addAll(items);
-        listView.setCellFactory(
-                param ->
-                        new ListCell<>() {
-                            @Override
-                            protected void updateItem(T item, boolean empty) {
-                                super.updateItem(item, empty);
-                                if (empty || item == null || displayMapper.apply(item) == null) {
-                                    setText(null);
-                                } else {
-                                    setText(displayMapper.apply(item));
-                                }
-                            }
-                        });
-
-        // Enable double-click selection
-        listView.setOnMouseClicked(
-                event -> {
-                    if (event.getClickCount() == 2) {
-                        dialog.setResult(listView.getSelectionModel().getSelectedItem());
-                        dialog.close();
-                    }
-                });
-
-        dialog.getDialogPane().setContent(listView);
-        dialog.setResultConverter(
-                dialogButton -> {
-                    if (dialogButton == selectButtonType) {
-                        return listView.getSelectionModel().getSelectedItem();
-                    }
-                    return null;
-                });
-        Optional<T> result = dialog.showAndWait();
-        return result.orElse(null);
+    private <T> T showSelectionDialog(List<T> items, Function<T, String> displayMapper) {
+        return CattleUtils.showSelectionDialog("Select Breed", "Select a breed from the list below", items, displayMapper);
     }
 
     private void showCattleSelectionDialog(Button buttonClicked, List<Cattle> cattleList) {
-        Cattle selectedCattle =
-                showSelectionDialog(
-                        "Select Cattle", "Select a cattle from the list below", cattleList, Cattle::getTagId);
-        if (selectedCattle != null) {
-            if (buttonClicked == damTagButton) {
-                selectedDam = selectedCattle;
-                damTagButton.setText(selectedDam.getTagId());
-                damNameLabel.setText(selectedDam.getName());
-            } else if (buttonClicked == sireTagButton) {
-                selectedSire = selectedCattle;
-                sireTagButton.setText(selectedSire.getTagId());
-                sireNameLabel.setText(selectedSire.getName());
-            }
-        }
+        CattleUtils.handleCattleTagID(
+                buttonClicked,
+                cattleList,
+                damTagButton,
+                sireTagButton,
+                damNameLabel,
+                sireNameLabel
+        );
     }
+
 
     private Breed selectBreed() {
         try {
             List<Breed> breeds = BreedDAO.getAllBreeds();
             return showSelectionDialog(
-                    "Select Breed", "Select a breed from the list below", breeds, Breed::getBreedName);
+                    breeds, Breed::getBreedName);
         } catch (SQLException e) {
             handleException(e);
             return null;
@@ -284,82 +240,14 @@ public class AddNewCattleController {
     }
 
     private void gatherCattleInformationFromUI() {
-        String tagId = tagIDTextField.getText();
-        String name = nameTextField.getText();
-        String gender = genderComboBox.getValue();
-        String colorMarkings = colorMakingTextField.getText();
-        LocalDate dateOfBirth = dateOfBirthDatePicker.getValue();
-        int weightId = Integer.parseInt(weightTextField.getText());
-        String bcs = BCSSliderLabel.getText();
+        CattleUIInfo uiInfo = CattleUtils.gatherCommonUIInfo(tagIDTextField, nameTextField, genderComboBox, colorMakingTextField, dateOfBirthDatePicker, weightTextField, BCSSliderLabel);
         int breedId = selectedCattleBreed != null ? selectedCattleBreed.getBreedId() : 0;
         int sireId = selectedSire != null ? selectedSire.getCattleId() : 0;
         int damId = selectedDam != null ? selectedDam.getCattleId() : 0;
         int damsHerd = selectedDam != null ? selectedDam.getHerdId() : 0;
         int siresHerd = selectedSire != null ? selectedSire.getHerdId() : 0;
 
-        age = calculateAgeInMonths(dateOfBirth);
-
-        newCattle =
-                createNewCattle(
-                        tagId,
-                        name,
-                        gender,
-                        colorMarkings,
-                        dateOfBirth,
-                        weightId,
-                        bcs,
-                        breedId,
-                        sireId,
-                        damId,
-                        damsHerd,
-                        siresHerd);
-    }
-
-    private int calculateAgeInMonths(LocalDate dateOfBirth) {
-        if (dateOfBirth != null) {
-            LocalDate currentDate = LocalDate.now();
-            Period period = Period.between(dateOfBirth, currentDate);
-            return period.getYears() * 12 + period.getMonths();
-        }
-        return 0;
-    }
-
-    private Cattle createNewCattle(
-            String tagId,
-            String name,
-            String gender,
-            String colorMarkings,
-            LocalDate dateOfBirth,
-            int weightId,
-            String bcs,
-            int breedId,
-            int sireId,
-            int damId,
-            int damsHerd,
-            int siresHerd) {
-        return new Cattle(
-                0,
-                tagId,
-                herdId,
-                colorMarkings,
-                name,
-                gender,
-                Date.valueOf(dateOfBirth),
-                age,
-                weightId,
-                bcs,
-                breedId,
-                selectedCattleBreed != null ? selectedCattleBreed.getBreedName() : "",
-                sireId,
-                selectedSire != null ? selectedSire.getName() : "",
-                damId,
-                selectedDam != null ? selectedDam.getName() : "",
-                damsHerd,
-                siresHerd,
-                selectedDam != null ? selectedDam.getDamHerdName() : "",
-                selectedSire != null ? selectedSire.getSireHerdName() : "",
-                selectedSire != null ? selectedSire.getSireBreedName() : "",
-                selectedDam != null ? selectedDam.getDamBreedName() : "");
+        newCattle = CattleUtils.createCattle(uiInfo.tagId(), herdId, uiInfo.name(), uiInfo.gender(), uiInfo.colorMarkings(), uiInfo.dateOfBirth(), uiInfo.weightId(), uiInfo.bcs(), breedId, sireId, damId, damsHerd, siresHerd, 0);
     }
 
 
@@ -402,5 +290,6 @@ public class AddNewCattleController {
         // Check if the Optional contains a value before calling get()
         return result.filter(buttonType -> buttonType == ButtonType.OK).isPresent();
     }
+
 
 }

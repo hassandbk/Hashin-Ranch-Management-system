@@ -13,10 +13,11 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 
 import java.sql.Date;
+import java.time.LocalDate;
 
 public class ViewSelectedHerdController {
     @FXML
-    private Label damHerdName, damName, sireName, sireHerdName,damID,sireID, herdIdLabel, nameLabel,
+    private Label damHerdName, damName, sireName, sireHerdName, damID, sireID, herdIdLabel, nameLabel,
             totalAnimalsLabel, animalsClassLabel, breedTypeLabel, ageClassLabel,
             breedSystemLabel, solutionTypeLabel, feedBasisLabel, locationLabel;
 
@@ -33,7 +34,6 @@ public class ViewSelectedHerdController {
 
     @FXML
     private TableColumn<Cattle, Date> cattleDateOfBirthColumn;
-
 
     public void initData(Herd herd) {
         herdIdLabel.setText(String.valueOf(herd.getId()));
@@ -56,7 +56,13 @@ public class ViewSelectedHerdController {
         cattleColorMarkingsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getColorMarkings()));
         cattleNameColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getName()));
         cattleGenderColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getGender()));
-        cattleDateOfBirthColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getDateOfBirth()));
+
+        // Convert LocalDate to java.sql.Date
+        cattleDateOfBirthColumn.setCellValueFactory(cellData -> {
+            LocalDate localDate = cellData.getValue().getDateOfBirth();
+            return new SimpleObjectProperty<>(Date.valueOf(localDate));
+        });
+
         cattleAgeColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getAge()).asObject());
         cattleWeightIdColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getWeightId()).asObject());
         cattleBcsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getBcs()));
@@ -75,7 +81,4 @@ public class ViewSelectedHerdController {
             }
         });
     }
-
-
-
 }
