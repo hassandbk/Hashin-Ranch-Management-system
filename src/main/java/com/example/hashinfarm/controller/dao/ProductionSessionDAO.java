@@ -7,6 +7,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,105 +17,106 @@ public class ProductionSessionDAO {
 
     public static List<ProductionSession> getAllProductionSessions() throws SQLException {
         List<ProductionSession> productionSessions = new ArrayList<>();
-        Connection connection;
-        PreparedStatement preparedStatement = null;
-        ResultSet resultSet = null;
+        String query = "SELECT * FROM productionsession";
 
-        try {
-            connection = dbConnection.getConnection();
-            String query = "SELECT * FROM productionsession";
-            preparedStatement = connection.prepareStatement(query);
-            resultSet = preparedStatement.executeQuery();
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                int sessionID = resultSet.getInt("SessionID");
-                int lactationPeriodID = resultSet.getInt("LactationPeriodID");
-                int productionDateID = resultSet.getInt("ProductionDateID");
-                Timestamp startTime = resultSet.getTimestamp("StartTime");
-                Timestamp endTime = resultSet.getTimestamp("EndTime");
-                int duration = resultSet.getInt("Duration");
-                String qualityScore = resultSet.getString("QualityScore");
-
-                ProductionSession productionSession = new ProductionSession(sessionID, lactationPeriodID, productionDateID, startTime, endTime, duration, qualityScore);
-                productionSessions.add(productionSession);
+                productionSessions.add(extractProductionSessionFromResultSet(resultSet));
             }
-        } finally {
-            if (resultSet != null) {
-                resultSet.close();
-            }
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            // Connection will be closed automatically by the DatabaseConnection class
         }
         return productionSessions;
     }
 
     public static void insertProductionSession(ProductionSession productionSession) throws SQLException {
-        Connection connection;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = dbConnection.getConnection();
-            String query = "INSERT INTO productionsession (LactationPeriodID, ProductionDateID, StartTime, EndTime, Duration, QualityScore) VALUES (?, ?, ?, ?, ?, ?)";
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, productionSession.getLactationPeriodID());
-            preparedStatement.setInt(2, productionSession.getProductionDateID());
-            preparedStatement.setTimestamp(3, productionSession.getStartTime());
-            preparedStatement.setTimestamp(4, productionSession.getEndTime());
-            preparedStatement.setInt(5, productionSession.getDuration());
-            preparedStatement.setString(6, productionSession.getQualityScore());
-
-            preparedStatement.executeUpdate();
-        } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            // Connection will be closed automatically by the DatabaseConnection class
-        }
+        String query = "INSERT INTO productionsession (LactationPeriodID, CattleID, StartTime, EndTime, Duration, QualityScore) VALUES (?, ?, ?, ?, ?, ?)";
+        executeUpdate(query, productionSession, false);
     }
 
     public static void updateProductionSession(ProductionSession productionSession) throws SQLException {
-        Connection connection;
-        PreparedStatement preparedStatement = null;
+        String query = "UPDATE productionsession SET LactationPeriodID=?, CattleID=?, StartTime=?, EndTime=?, Duration=?, QualityScore=? WHERE SessionID=?";
+        executeUpdate(query, productionSession, true);
+    }
 
-        try {
-            connection = dbConnection.getConnection();
-            String query = "UPDATE productionsession SET LactationPeriodID=?, ProductionDateID=?, StartTime=?, EndTime=?, Duration=?, QualityScore=? WHERE SessionID=?";
-            preparedStatement = connection.prepareStatement(query);
+    public static void deleteProductionSession(int sessionID) throws SQLException {
+        String query = "DELETE FROM productionsession WHERE SessionID=?";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, sessionID);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    private static void executeUpdate(String query, ProductionSession productionSession, boolean includeSessionID) throws SQLException {
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
             preparedStatement.setInt(1, productionSession.getLactationPeriodID());
-            preparedStatement.setInt(2, productionSession.getProductionDateID());
+            preparedStatement.setInt(2, productionSession.getCattleID());
             preparedStatement.setTimestamp(3, productionSession.getStartTime());
             preparedStatement.setTimestamp(4, productionSession.getEndTime());
             preparedStatement.setInt(5, productionSession.getDuration());
             preparedStatement.setString(6, productionSession.getQualityScore());
-            preparedStatement.setInt(7, productionSession.getSessionID());
+
+            if (includeSessionID) {
+                preparedStatement.setInt(7, productionSession.getSessionID());
+            }
 
             preparedStatement.executeUpdate();
-        } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            // Connection will be closed automatically by the DatabaseConnection class
         }
     }
 
-    public static void deleteProductionSession(int sessionID) throws SQLException {
-        Connection connection;
-        PreparedStatement preparedStatement = null;
+    private static ProductionSession extractProductionSessionFromResultSet(ResultSet resultSet) throws SQLException {
+        int sessionID = resultSet.getInt("SessionID");
+        int lactationPeriodID = resultSet.getInt("LactationPeriodID");
+        int cattleID = resultSet.getInt("CattleID");
+        Timestamp startTime = resultSet.getTimestamp("StartTime");
+        Timestamp endTime = resultSet.getTimestamp("EndTime");
+        int duration = resultSet.getInt("Duration");
+        String qualityScore = resultSet.getString("QualityScore");
 
-        try {
-            connection = dbConnection.getConnection();
-            String query = "DELETE FROM productionsession WHERE SessionID=?";
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, sessionID);
+        return new ProductionSession(sessionID, lactationPeriodID, cattleID, startTime, endTime, duration, qualityScore);
+    }
 
-            preparedStatement.executeUpdate();
-        } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
+    public static boolean updateSessionDates(int cattleID, int lactationPeriodID, LocalDate newDate) {
+        String selectQuery = "SELECT SessionID, StartTime, EndTime FROM productionsession WHERE CattleID = ? AND LactationPeriodID = ?";
+        String updateQuery = "UPDATE productionsession SET StartTime = ?, EndTime = ? WHERE SessionID = ?";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement selectStmt = connection.prepareStatement(selectQuery);
+             PreparedStatement updateStmt = connection.prepareStatement(updateQuery)) {
+
+            selectStmt.setInt(1, cattleID);
+            selectStmt.setInt(2, lactationPeriodID);
+
+            try (ResultSet resultSet = selectStmt.executeQuery()) {
+                while (resultSet.next()) {
+                    int sessionID = resultSet.getInt("SessionID");
+                    Timestamp startTime = resultSet.getTimestamp("StartTime");
+                    Timestamp endTime = resultSet.getTimestamp("EndTime");
+
+                    // Retain the time part and update the date part
+                    LocalDateTime newStartDateTime = LocalDateTime.of(newDate, startTime.toLocalDateTime().toLocalTime());
+                    LocalDateTime newEndDateTime = LocalDateTime.of(newDate, endTime.toLocalDateTime().toLocalTime());
+
+                    updateStmt.setTimestamp(1, Timestamp.valueOf(newStartDateTime));
+                    updateStmt.setTimestamp(2, Timestamp.valueOf(newEndDateTime));
+                    updateStmt.setInt(3, sessionID);
+
+                    updateStmt.addBatch();
+                }
+                updateStmt.executeBatch();
             }
-            // Connection will be closed automatically by the DatabaseConnection class
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
         }
     }
+
 }

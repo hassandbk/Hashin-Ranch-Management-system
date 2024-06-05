@@ -92,6 +92,78 @@ public class LactationPeriodDAO {
         }
     }
 
+    public static boolean updateLactationPeriodStartDate(int lactationPeriodID, LocalDate newStartDate) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        boolean success = false;
+
+        try {
+            connection = dbConnection.getConnection();
+            String query = "UPDATE lactationperiod SET StartDate = ? WHERE LactationPeriodID = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setDate(1, newStartDate != null ? Date.valueOf(newStartDate) : null);
+            preparedStatement.setInt(2, lactationPeriodID);
+            int rowsUpdated = preparedStatement.executeUpdate();
+
+            // Check if any rows were updated
+            if (rowsUpdated > 0) {
+                success = true;
+            }
+        } finally {
+            // Close resources in reverse order of their creation to avoid any resource leak
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return success;
+    }
+
+    public static int getLactationIdByCattleIdAndStartDate(int cattleId, LocalDate startDate) throws SQLException {
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        ResultSet resultSet = null;
+        int lactationPeriodId = -1;
+
+        try {
+            connection = dbConnection.getConnection();
+            String query = "SELECT LactationPeriodID FROM lactationperiod WHERE CattleID = ? AND StartDate = ?";
+            preparedStatement = connection.prepareStatement(query);
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setDate(2, Date.valueOf(startDate));
+            resultSet = preparedStatement.executeQuery();
+
+            if (resultSet.next()) {
+                lactationPeriodId = resultSet.getInt("LactationPeriodID");
+            }
+        } finally {
+            // Close resources in reverse order of their creation to avoid any resource leak
+            if (resultSet != null) {
+                resultSet.close();
+            }
+            if (preparedStatement != null) {
+                preparedStatement.close();
+            }
+            if (connection != null) {
+                connection.close();
+            }
+        }
+        return lactationPeriodId;
+    }
+    public static boolean addLactationPeriod(int cattleId, LocalDate startDate) throws SQLException {
+        String insertQuery = "INSERT INTO lactationperiod (CattleID, StartDate) VALUES (?, ?)";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(insertQuery)) {
+
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setDate(2, Date.valueOf(startDate));
+            int rowsInserted = preparedStatement.executeUpdate();
+
+            return rowsInserted > 0;
+        }
+    }
 
 }
 

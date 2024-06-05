@@ -5,16 +5,16 @@ import java.sql.Timestamp;
 public class ProductionSession {
     private int sessionID;
     private int lactationPeriodID;
-    private int productionDateID; // New attribute for production date
+    private int cattleID; // Corrected attribute for cattle ID
     private Timestamp startTime;
     private Timestamp endTime;
     private int duration;
     private String qualityScore; // Changed to String to match the enum in the database
 
-    public ProductionSession(int sessionID, int lactationPeriodID, int productionDateID, Timestamp startTime, Timestamp endTime, int duration, String qualityScore) {
+    public ProductionSession(int sessionID, int lactationPeriodID, int cattleID, Timestamp startTime, Timestamp endTime, int duration, String qualityScore) {
         this.sessionID = sessionID;
         this.lactationPeriodID = lactationPeriodID;
-        this.productionDateID = productionDateID;
+        this.cattleID = cattleID;
         this.startTime = startTime;
         this.endTime = endTime;
         this.duration = duration;
@@ -38,12 +38,12 @@ public class ProductionSession {
         this.lactationPeriodID = lactationPeriodID;
     }
 
-    public int getProductionDateID() {
-        return productionDateID;
+    public int getCattleID() {
+        return cattleID;
     }
 
-    public void setProductionDateID(int productionDateID) {
-        this.productionDateID = productionDateID;
+    public void setCattleID(int cattleID) {
+        this.cattleID = cattleID;
     }
 
     public Timestamp getStartTime() {

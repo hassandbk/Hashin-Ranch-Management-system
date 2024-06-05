@@ -1,9 +1,6 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
-import com.example.hashinfarm.controller.dao.CattleDAO;
-import com.example.hashinfarm.controller.dao.HerdDAO;
-import com.example.hashinfarm.controller.dao.LactationPeriodDAO;
-import com.example.hashinfarm.controller.dao.ReproductiveVariablesDAO;
+import com.example.hashinfarm.controller.dao.*;
 import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewCattleController;
 import com.example.hashinfarm.controller.records.StageDetails;
 import com.example.hashinfarm.controller.records.SubStageDetails;
@@ -1124,12 +1121,19 @@ public class ProductivityAndCalving {
                                     ReproductiveVariables reproductiveVariables = getReproductiveVariables(breedingDate, gestationPeriod);
                                     boolean reproductiveSuccess = reproductiveVariablesDAO.addReproductiveVariable(reproductiveVariables);
                                     if (reproductiveSuccess) {
-                                        clearReproductiveData();
-                                        showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle and Reproductive data added successfully.");
-                                        loadCalvingHistoryForCattle(selectedCattleId);
+                                        // Add lactation period
+                                        boolean lactationPeriodSuccess = LactationPeriodDAO.addLactationPeriod(selectedCattleId, dateOfBirth);
+                                        if (lactationPeriodSuccess) {
+                                            clearReproductiveData();
+                                            showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle, Reproductive data, and Lactation Period added successfully.");
+                                            loadCalvingHistoryForCattle(selectedCattleId);
+                                        } else {
+                                            showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Lactation Period data.");
+                                            CattleDAO.deleteCattleById(newCattleId);  // Rollback cattle addition
+                                        }
                                     } else {
-                                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Cattle and Reproductive data.");
-                                        CattleDAO.deleteCattleById(newCattleId);
+                                        showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Reproductive data.");
+                                        CattleDAO.deleteCattleById(newCattleId);  // Rollback cattle addition
                                     }
                                 } else {
                                     showAlert(Alert.AlertType.ERROR, "Error", "Failed to add cattle: " + failureReason);
@@ -1247,14 +1251,37 @@ public class ProductivityAndCalving {
         LocalDate originalDateOfBirth = cattleDAO.fetchDateOfBirth(selectedReproductiveVariable.getCattleID());
         selectedReproductiveVariable.setCalvingDate(calvingDate.getValue());
         boolean dateOfBirthUpdated = CattleDAO.updateCattleDateOfBirth(selectedReproductiveVariable.getCattleID(), calvingDate.getValue());
+        boolean updatedLactationPeriodStartDate;
         if (dateOfBirthUpdated) {
-            reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle date of birth  and Reproductive data  updated successfully.");
-            loadCalvingHistoryForCattle(selectedCattleId);
-        } else {
-            handleDateOfBirthUpdateFailure(originalDateOfBirth);
+            boolean reproductiveVariableUpdated = reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
+            try {
+                int lactationPeriodID = LactationPeriodDAO.getLactationIdByCattleIdAndStartDate(selectedCattleId, originalDateOfBirth);
+                updatedLactationPeriodStartDate = LactationPeriodDAO.updateLactationPeriodStartDate(lactationPeriodID, calvingDate.getValue());
+
+                if (updatedLactationPeriodStartDate) {
+                    // Update production session dates
+                    boolean updateLactationSession =ProductionSessionDAO.updateSessionDates(selectedReproductiveVariable.getCattleID(), lactationPeriodID, calvingDate.getValue());
+                if(updateLactationSession){
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle date of birth, Reproductive data, Lactation Start Date, and Production Session Dates updated successfully.");
+
+                }
+
+
+                }
+
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            if (reproductiveVariableUpdated && updatedLactationPeriodStartDate) {
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle date of birth, Reproductive data, Lactation Start Date, and Production Session Dates updated successfully.");
+                loadCalvingHistoryForCattle(selectedCattleId);
+            } else {
+                handleDateOfBirthUpdateFailure(originalDateOfBirth);
+            }
         }
     }
+
 
     private void handleDateOfBirthUpdateFailure(LocalDate originalDateOfBirth) {
         boolean dateOfBirthReverted = CattleDAO.updateCattleDateOfBirth(selectedReproductiveVariable.getCattleID(), originalDateOfBirth);
@@ -1818,15 +1845,28 @@ private void initializeLactationPeriods(){
                                 // Update UI elements based on the production stage
                                 updateVolumeLabels(stage);
                                 updateStagePeriodLabel(stage);
+
+                                // If the selected period is ongoing, enable fields
+                                setFieldsDisabled(false);
+                            } else {
+                                // If the selected period is not ongoing, disable fields
+                                setFieldsDisabled(true);
                             }
                         }
                     }
                 });
+
+                // If no ongoing period is found, disable fields
+                if (ongoingLactationPeriod == null) {
+                    setFieldsDisabled(true);
+                }
+
             } catch (SQLException e) {
                 throw new RuntimeException(e);
             }
         });
     }
+
 
 
     private void clearLactationFieldsOnCattleIdChange() {
@@ -1869,9 +1909,7 @@ private void initializeLactationPeriods(){
         });
 
         // listener to track changes in the DatePicker
-        lactationEndDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            handleDatePickerChange(newValue);
-        });
+        lactationEndDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> handleDatePickerChange(newValue));
 
         modifyLactationButton.setDisable(true);
     }
@@ -2062,16 +2100,13 @@ private void initializeLactationPeriods(){
         // Initially, enable all fields
         setFieldsDisabled(true);
 
-        // Listen for changes in the selected production stage label
-        productionStageLabel.textProperty().addListener((observable, oldValue, newValue) -> {
-
-            setFieldsDisabled(newValue == null || (!newValue.equals("Colostrum Stage")
-                    && !newValue.equals("Transition Stage")
-                    && !newValue.equals("Peak Milk Harvesting")
-                    && !newValue.equals("Mid-Lactation")
-                    && !newValue.equals("Late Lactation")
-                    && !newValue.equals("Dry Period")));
-        });
+        /* Listen for changes in the selected production stage label */
+        productionStageLabel.textProperty().addListener((observable, oldValue, newValue) -> setFieldsDisabled(newValue == null || (!newValue.equals("Colostrum Stage")
+                && !newValue.equals("Transition Stage")
+                && !newValue.equals("Peak Milk Harvesting")
+                && !newValue.equals("Mid-Lactation")
+                && !newValue.equals("Late Lactation")
+                && !newValue.equals("Dry Period"))));
 
     }
 
