@@ -49,6 +49,9 @@ public class LactationPeriodDAO {
         return lactationPeriods;
     }
 
+
+
+
     public static void deleteLactationPeriod(int lactationPeriodID) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;

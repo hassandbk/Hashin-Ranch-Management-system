@@ -5,10 +5,7 @@ import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControll
 import com.example.hashinfarm.controller.records.StageDetails;
 import com.example.hashinfarm.controller.records.SubStageDetails;
 import com.example.hashinfarm.controller.utility.*;
-import com.example.hashinfarm.model.Cattle;
-import com.example.hashinfarm.model.Herd;
-import com.example.hashinfarm.model.LactationPeriod;
-import com.example.hashinfarm.model.ReproductiveVariables;
+import com.example.hashinfarm.model.*;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
@@ -107,7 +104,7 @@ public class ProductivityAndCalving {
     private ToggleGroup pregnancyStatus, toggleGroup;
     @FXML
     private DatePicker lactationEndDatePicker,
-             selectStartDate,
+            selectStartDate,
             selectEndDate,
             calvingDate,
             lastBreedingDate;
@@ -739,7 +736,7 @@ public class ProductivityAndCalving {
         if (latestCalvingDate != null) {
             lactationStartDateField.setText(String.valueOf(latestCalvingDate));
             // Disable all other days except the latest calving date
-            } else {
+        } else {
             lactationStartDateField.setText(null);
 
 
@@ -1112,6 +1109,7 @@ public class ProductivityAndCalving {
                             FXMLLoader loader = pair.getValue();
 
                             addNewCattleController = loader.getController();
+                            addNewCattleController.setStage(pair.getKey()); // Set the stage reference
                             addNewCattleController.initData(selectedHerd.getId(), selectedCattleId, dateOfBirth);
 
                             addNewCattleController.setCattleAdditionCallback((successFlag, failureReason, newCattleId) -> {
@@ -1127,6 +1125,7 @@ public class ProductivityAndCalving {
                                             clearReproductiveData();
                                             showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle, Reproductive data, and Lactation Period added successfully.");
                                             loadCalvingHistoryForCattle(selectedCattleId);
+                                            loadLactationPeriodsForSelectedCattle();
                                         } else {
                                             showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Lactation Period data.");
                                             CattleDAO.deleteCattleById(newCattleId);  // Rollback cattle addition
@@ -1147,6 +1146,7 @@ public class ProductivityAndCalving {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to save data: " + e.getMessage());
         }
     }
+
 
 
     private void openAddNewHerdForm() {
@@ -1173,7 +1173,7 @@ public class ProductivityAndCalving {
     }
 
 
-    public void updateReproductiveData() {
+    public void updateReproductiveData() throws SQLException {
         LocalDate breedingDate = lastBreedingDate.getValue();
         LocalDate calvedDate = calvingDate.getValue();
         int gestationPeriod = estimatedGestationSpinner.getValue();
@@ -1221,6 +1221,7 @@ public class ProductivityAndCalving {
                     }
                     if (calvingChanged) {
                         handleCalvingDateChange();
+
                     }
                 }
             } else {
@@ -1246,53 +1247,112 @@ public class ProductivityAndCalving {
         }
     }
 
-    private void handleCalvingDateChange() {
-        CattleDAO cattleDAO = new CattleDAO();
-        LocalDate originalDateOfBirth = cattleDAO.fetchDateOfBirth(selectedReproductiveVariable.getCattleID());
-        selectedReproductiveVariable.setCalvingDate(calvingDate.getValue());
-        boolean dateOfBirthUpdated = CattleDAO.updateCattleDateOfBirth(selectedReproductiveVariable.getCattleID(), calvingDate.getValue());
-        boolean updatedLactationPeriodStartDate;
-        if (dateOfBirthUpdated) {
-            boolean reproductiveVariableUpdated = reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
-            try {
-                int lactationPeriodID = LactationPeriodDAO.getLactationIdByCattleIdAndStartDate(selectedCattleId, originalDateOfBirth);
-                updatedLactationPeriodStartDate = LactationPeriodDAO.updateLactationPeriodStartDate(lactationPeriodID, calvingDate.getValue());
+    private void handleCalvingDateChange() throws SQLException {
+        LocalDate originalDateOfBirth = null;
 
-                if (updatedLactationPeriodStartDate) {
-                    // Update production session dates
-                    boolean updateLactationSession =ProductionSessionDAO.updateSessionDates(selectedReproductiveVariable.getCattleID(), lactationPeriodID, calvingDate.getValue());
-                if(updateLactationSession){
-                    showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle date of birth, Reproductive data, Lactation Start Date, and Production Session Dates updated successfully.");
+        try {
+            originalDateOfBirth = selectedReproductiveVariable.getCalvingDate();
+            selectedReproductiveVariable.setCalvingDate(calvingDate.getValue());
 
+            Cattle cattleToUpdate = CattleDAO.findCattleByBirthdateAndDamId(originalDateOfBirth, selectedCattleId);
+            if(cattleToUpdate != null){
+                boolean dateOfBirthUpdated = CattleDAO.updateCattleDateOfBirth(cattleToUpdate.getCattleId(), calvingDate.getValue());
+
+                if (dateOfBirthUpdated) {
+                    boolean reproductiveVariableUpdated = reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
+                    if (!reproductiveVariableUpdated) {
+                        showAlert(Alert.AlertType.ERROR, "Update Failed", "Failed to update Reproductive data." + "\n Reverting changes.");
+                        handleDateOfBirthUpdateFailure(originalDateOfBirth);
+                        return;
+                    }
+
+                    updateLactationPeriod(originalDateOfBirth);
+                    showAlert(Alert.AlertType.INFORMATION, "Update Successful", "Cattle date of birth, Reproductive data, Lactation Start Date, and Production Session Dates updated successfully.");
+                    loadCalvingHistoryForCattle(selectedCattleId);
+                    loadLactationPeriodsForSelectedCattle();
+                } else {
+                    handleUpdateFailure("Failed to update Cattle date of birth.",originalDateOfBirth);
                 }
-
-
-                }
-
-            } catch (SQLException e) {
-                throw new RuntimeException(e);
             }
 
-            if (reproductiveVariableUpdated && updatedLactationPeriodStartDate) {
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle date of birth, Reproductive data, Lactation Start Date, and Production Session Dates updated successfully.");
-                loadCalvingHistoryForCattle(selectedCattleId);
-            } else {
-                handleDateOfBirthUpdateFailure(originalDateOfBirth);
-            }
+        } catch (SQLException e) {
+            handleSqlException(originalDateOfBirth, e);
         }
     }
 
 
-    private void handleDateOfBirthUpdateFailure(LocalDate originalDateOfBirth) {
-        boolean dateOfBirthReverted = CattleDAO.updateCattleDateOfBirth(selectedReproductiveVariable.getCattleID(), originalDateOfBirth);
+    private void updateLactationPeriod(LocalDate originalDateOfBirth) throws SQLException {
+
+        try {
+            int lactationPeriodID= LactationPeriodDAO.getLactationIdByCattleIdAndStartDate(selectedCattleId, originalDateOfBirth);
+            if (lactationPeriodID == 0) {
+                boolean lactationPeriodAdded = LactationPeriodDAO.addLactationPeriod(selectedCattleId, calvingDate.getValue());
+                if (!lactationPeriodAdded) {
+                    handleUpdateFailure("Failed to add a new lactation period.",originalDateOfBirth);
+                    return;
+                }
+            } else {
+
+                boolean updatedLactationPeriodStartDate = LactationPeriodDAO.updateLactationPeriodStartDate(lactationPeriodID, calvingDate.getValue());
+                if (!updatedLactationPeriodStartDate) {
+                    handleUpdateFailure("Failed to update Lactation Start Date.",originalDateOfBirth);
+                    return;
+                }
+            }
+
+            List<ProductionSession> productionSessions = ProductionSessionDAO.getAllProductionSessions();
+            boolean hasSessionsToUpdate = productionSessions.stream()
+                    .anyMatch(session -> session.getCattleID() == selectedCattleId && session.getLactationPeriodID() == lactationPeriodID);
+
+            if (!hasSessionsToUpdate) {
+                showAlert(Alert.AlertType.WARNING, "No Production Sessions Found", "No production sessions found for the specified cattle and lactation period. Skipping session date updates.");
+                return;
+            }
+
+            boolean updateLactationSession = ProductionSessionDAO.updateSessionDates(selectedCattleId, lactationPeriodID, calvingDate.getValue());
+            if (!updateLactationSession) {
+                handleUpdateFailure("Failed to update Production Session Dates.",originalDateOfBirth);
+            }
+        } catch (SQLException e) {
+            handleUpdateFailure("An error occurred while updating lactation period: " + e.getMessage(),originalDateOfBirth);
+        }
+    }
+
+    private void handleUpdateFailure(String message,LocalDate originalDateOfBirth) throws SQLException {
+        showAlert(Alert.AlertType.ERROR, "Update Failed", message + " Reverting changes.");
+        handleDateOfBirthUpdateFailure(originalDateOfBirth);
+        selectedReproductiveVariable.setCalvingDate(originalDateOfBirth);
+        reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
+    }
+
+    private void handleDateOfBirthUpdateFailure(LocalDate originalDateOfBirth) throws SQLException {
+        Cattle cattleToUpdate = CattleDAO.findCattleByBirthdateAndDamId(originalDateOfBirth, selectedCattleId);
+        boolean dateOfBirthReverted = false;
+        if (cattleToUpdate != null) {
+            dateOfBirthReverted = CattleDAO.updateCattleDateOfBirth(cattleToUpdate.getCattleId(), originalDateOfBirth);
+        }
         if (dateOfBirthReverted) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to update cattle's date of birth and Reproductive data.");
+            showAlert(Alert.AlertType.ERROR, "Revert Successful", "Failed to update cattle's date of birth and Reproductive data. Changes have been reverted.");
             AppLogger.error("Failed to update cattle's date of birth.");
         } else {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to revert date of birth change.");
+            showAlert(Alert.AlertType.ERROR, "Revert Failed", "Failed to revert date of birth change. Manual intervention required.");
             AppLogger.error("Failed to revert date of birth change.");
         }
     }
+
+    private void handleSqlException(LocalDate originalDateOfBirth, SQLException e) throws SQLException {
+        showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating records: " + e.getMessage() + ". Reverting changes.");
+        handleDateOfBirthUpdateFailure(originalDateOfBirth);
+        try {
+            int lactationPeriodID = LactationPeriodDAO.getLactationIdByCattleIdAndStartDate(selectedCattleId, originalDateOfBirth);
+            LactationPeriodDAO.updateLactationPeriodStartDate(lactationPeriodID, originalDateOfBirth);
+            ProductionSessionDAO.updateSessionDates(selectedReproductiveVariable.getCattleID(), lactationPeriodID, originalDateOfBirth);
+        } catch (SQLException ex) {
+            throw new RuntimeException("Failed to handle SQL exception while reverting changes.", ex);
+        }
+    }
+
+
 
 
     private boolean cattleRecordExistsForCalvingDate() {
@@ -1316,6 +1376,7 @@ public class ProductivityAndCalving {
                             FXMLLoader loader = pair.getValue();
 
                             addNewCattleController = loader.getController();
+                            addNewCattleController.setStage(pair.getKey()); // Set the stage reference
                             addNewCattleController.initData(selectedHerd.getId(), selectedCattleId, dateOfBirth);
 
                             addNewCattleController.setCattleAdditionCallback((successFlag, failureReason, newCattleId) -> {
@@ -1329,15 +1390,13 @@ public class ProductivityAndCalving {
                                         clearReproductiveData();
                                         showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle and Reproductive data added and updated successfully.");
                                         loadCalvingHistoryForCattle(selectedCattleId);
-
-
+                                        pair.getKey().close(); // Close the stage after successful addition and update
                                     } else {
-
                                         showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Cattle and Reproductive data.");
-                                        CattleDAO.deleteCattleById(newCattleId);
+                                        CattleDAO.deleteCattleById(newCattleId);  // Rollback cattle addition
                                     }
                                 } else {
-                                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to add cattle: 3 " + failureReason);
+                                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to add cattle: " + failureReason);
                                 }
                             });
                         });
@@ -1348,6 +1407,7 @@ public class ProductivityAndCalving {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to save data: " + e.getMessage());
         }
     }
+
 
 
     private void handleHerdRetrievalError(SQLException e) {
@@ -1583,55 +1643,22 @@ public class ProductivityAndCalving {
         }
         return reproductiveVariables;
     }
-private void initializeLactationPeriods(){
-    if (selectedCattleId == 0) {
-          lactationEndDatePicker.setDisable(true); // Disable the date picker if no cattle is selected
-    }
-    SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
-        selectedCattleId = newValue != null ? newValue.intValue() : 0;
-        clearLactationFieldsOnCattleIdChange();
-        initializeTableColumns();
-        initializeTableViewSelectionListener();
-        loadLactationPeriodsForSelectedCattle();
-        initializeLactationEndDatePicker();
-
-    });
-}
-
-    private void updateStagePeriodLabel(String stage) {
-        Integer[] stageRange = stageDaysRangeMap.get(stage);
-        if (stageRange != null) {
-            String periodLabel =
-                    stageRange[0] + " - " + (stageRange[1] == -1 ? "∞" : stageRange[1]) + " days";
-            stagePeriodLabel.setText(periodLabel);
-        } else {
-            stagePeriodLabel.setText("N/A");
+    private void initializeLactationPeriods(){
+        if (selectedCattleId == 0) {
+            lactationEndDatePicker.setDisable(true); // Disable the date picker if no cattle is selected
         }
-    }
+        SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
+            selectedCattleId = newValue != null ? newValue.intValue() : 0;
+            clearLactationFieldsOnCattleIdChange();
+            initializeTableColumns();
+            initializeTableViewSelectionListener();
+            loadLactationPeriodsForSelectedCattle();
+            initializeLactationEndDatePicker();
 
-    private String calculateProductionStage(int daysInLactation) {
-        Map<Integer, String> stages = new HashMap<>();
-        stages.put(0, "Colostrum Stage");
-        stages.put(5, "Transition Stage");
-        stages.put(15, "Peak Milk Harvesting");
-        stages.put(60, "Mid-Lactation");
-        stages.put(150, "Late Lactation");
-        // Dry Period is the default case if no match is found
-        return stages.getOrDefault(daysInLactation, "Dry Period");
+        });
     }
 
 
-    private String getVolumeLabelText(String stage) {
-        return switch (stage) {
-            case "Colostrum Stage" -> "Colostrum Volume ";
-            case "Transition Stage" -> "Transitional Volume ";
-            case "Peak Milk Harvesting" -> "Peak Volume ";
-            case "Mid-Lactation" -> "Regular Volume ";
-            case "Late Lactation" -> "Decreasing Milk Harvesting Volume ";
-            case "Dry Period" -> "Dry Period Volume ";
-            default -> "";
-        };
-    }
 
 
     private void initializeTableColumns() {
@@ -1718,6 +1745,7 @@ private void initializeLactationPeriods(){
     private void loadLactationPeriodsForSelectedCattle() {
         if (selectedCattleId == 0) {
             lactationTableView.getItems().clear();
+            lactationTableView.refresh();  // Ensure the table view is refreshed
             return;
         }
 
@@ -1739,6 +1767,8 @@ private void initializeLactationPeriods(){
                             .collect(Collectors.toList())
             );
             lactationTableView.setItems(observableList);
+            lactationTableView.refresh();  // Ensure the table view is refreshed
+
             // Clear or set the date picker to null if there are no records, then disable it
             if (lactationPeriods.isEmpty()) {
                 lactationEndDatePicker.setValue(null);
@@ -1746,7 +1776,6 @@ private void initializeLactationPeriods(){
             } else {
                 lactationEndDatePicker.setDisable(false);
             }
-
 
             // If lactation periods exist, select the first (most recent) one
             if (!lactationPeriods.isEmpty()) {
@@ -1759,7 +1788,6 @@ private void initializeLactationPeriods(){
                     if (daysSinceStart <= 365) {
                         // Set the label text to "start date - now"
                         currentPeriodLabel.setText(mostRecentPeriod.getStartDate() + " - now");
-
                     }
                 }
             } else {
@@ -1772,6 +1800,7 @@ private void initializeLactationPeriods(){
             // Handle database error
         }
     }
+
 
 
     private void populateLactationFields(LactationPeriodWithSelection selectedPeriod) {
@@ -1867,7 +1896,59 @@ private void initializeLactationPeriods(){
         });
     }
 
+    private void updateStagePeriodLabel(String stage) {
+        Integer[] stageRange = stageDaysRangeMap.get(stage);
+        if (stageRange != null) {
+            String periodLabel =
+                    stageRange[0] + " - " + (stageRange[1] == -1 ? "∞" : stageRange[1]) + " days";
+            stagePeriodLabel.setText(periodLabel);
+        } else {
+            stagePeriodLabel.setText("N/A");
+        }
+    }
 
+    private String calculateProductionStage(int daysInLactation) {
+        String productionStage = "Dry Period"; // Default to Dry Period if no match is found
+
+        // Iterate through the stageDaysRangeMap
+        for (Map.Entry<String, Integer[]> entry : stageDaysRangeMap.entrySet()) {
+            String stage = entry.getKey();
+            Integer[] range = entry.getValue();
+            int startDay = range[0];
+            int endDay = range[1];
+
+            // Check if daysInLactation falls within the defined range
+            if (endDay == -1) {
+                // Handle open-ended ranges
+                if (daysInLactation >= startDay) {
+                    productionStage = stage;
+                    break;
+                }
+            } else {
+                // Handle ranges with both start and end days
+                if (daysInLactation >= startDay && daysInLactation <= endDay) {
+                    productionStage = stage;
+                    break;
+                }
+            }
+        }
+
+        return productionStage;
+    }
+
+
+
+    private String getVolumeLabelText(String stage) {
+        return switch (stage) {
+            case "Colostrum Stage" -> "Colostrum Volume ";
+            case "Transition Stage" -> "Transitional Volume ";
+            case "Peak Milk Harvesting" -> "Peak Volume ";
+            case "Mid-Lactation" -> "Regular Volume ";
+            case "Late Lactation" -> "Decreasing Milk Harvesting Volume ";
+            case "Dry Period" -> "Dry Period Volume ";
+            default -> "";
+        };
+    }
 
     private void clearLactationFieldsOnCattleIdChange() {
         // Clear the fields updated when the selected period matches the ongoing period
@@ -1881,6 +1962,67 @@ private void initializeLactationPeriods(){
     }
 
 
+
+    private void initializeVolumeLabels() {
+        volumeLabels.put("Colostrum Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Transition Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Peak Milk Harvesting", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Mid-Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Late Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+        volumeLabels.put("Dry Period", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
+    }
+
+    private void initializeStageDaysRangeMap() {
+        stageDaysRangeMap.put("Colostrum Stage", new Integer[]{0, 5});
+        stageDaysRangeMap.put("Transition Stage", new Integer[]{6, 15});
+        stageDaysRangeMap.put("Peak Milk Harvesting", new Integer[]{16, 60});
+        stageDaysRangeMap.put("Mid-Lactation", new Integer[]{61, 150});
+        stageDaysRangeMap.put("Late Lactation", new Integer[]{151, 305});
+        stageDaysRangeMap.put("Dry Period", new Integer[]{306, -1});
+    }
+
+
+
+
+    private void updateVolumeLabels(String stage) {
+
+        Label[] volumeLabelsArray = volumeLabels.get(stage);
+
+        if (volumeLabelsArray != null) {
+            String volumeLabelText = getVolumeLabelText(stage);
+
+            volumeLabelsArray[0].setText(volumeLabelText + " : (Morning)");
+            volumeLabelsArray[1].setText(volumeLabelText + " : (Afternoon)");
+            volumeLabelsArray[2].setText(volumeLabelText + " : (Evening)");
+
+
+
+        } else{
+            volumeLabel1.setText("Unknown Stage: (Morning)");
+            volumeLabel2.setText("Unknown Stage: (Afternoon)");
+            volumeLabel3.setText("Unknown Stage: (Evening)");
+        }
+    }
+    public void initializeProductionStages() {
+        // Initially, enable all fields
+        setFieldsDisabled(true);
+
+        /* Listen for changes in the selected production stage label */
+        productionStageLabel.textProperty().addListener((observable, oldValue, newValue) -> setFieldsDisabled(newValue == null || (!newValue.equals("Colostrum Stage")
+                && !newValue.equals("Transition Stage")
+                && !newValue.equals("Peak Milk Harvesting")
+                && !newValue.equals("Mid-Lactation")
+                && !newValue.equals("Late Lactation")
+                && !newValue.equals("Dry Period"))));
+
+    }
+
+    private void setFieldsDisabled(boolean disabled) {
+        for (Node node : gridPaneProduction.getChildren()) {
+            node.setDisable(disabled);
+        }
+        saveUpdateProduction.setDisable(disabled); // Disable the button
+    }
 
     private void initializeLactationEndDatePicker() {
         // Set the initial allowed date range
@@ -1988,7 +2130,7 @@ private void initializeLactationPeriods(){
 
                 // Call DAO to update the record in the database
                 LactationPeriodDAO.updateLactationPeriodEndDate(selectedPeriod.getLactationPeriodID(), newEndDate);
-                lactationTableView.refresh(); // Refresh the table to show updated data
+                loadLactationPeriodsForSelectedCattle();
 
             } catch (SQLException e) {
                 e.printStackTrace();
@@ -2055,67 +2197,6 @@ private void initializeLactationPeriods(){
     }
 
 
-
-    private void initializeVolumeLabels() {
-        volumeLabels.put("Colostrum Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Transition Stage", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Peak Milk Harvesting", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Mid-Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Late Lactation", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-        volumeLabels.put("Dry Period", new Label[]{volumeLabel1, volumeLabel2, volumeLabel3});
-    }
-
-    private void initializeStageDaysRangeMap() {
-        stageDaysRangeMap.put("Colostrum Stage", new Integer[]{0, 5});
-        stageDaysRangeMap.put("Transition Stage", new Integer[]{6, 15});
-        stageDaysRangeMap.put("Peak Milk Harvesting", new Integer[]{16, 60});
-        stageDaysRangeMap.put("Mid-Lactation", new Integer[]{61, 150});
-        stageDaysRangeMap.put("Late Lactation", new Integer[]{151, 305});
-        stageDaysRangeMap.put("Dry Period", new Integer[]{306, -1});
-    }
-
-
-
-
-    private void updateVolumeLabels(String stage) {
-
-        Label[] volumeLabelsArray = volumeLabels.get(stage);
-
-        if (volumeLabelsArray != null) {
-            String volumeLabelText = getVolumeLabelText(stage);
-
-            volumeLabelsArray[0].setText(volumeLabelText + " : (Morning)");
-            volumeLabelsArray[1].setText(volumeLabelText + " : (Afternoon)");
-            volumeLabelsArray[2].setText(volumeLabelText + " : (Evening)");
-
-
-
-        } else{
-            volumeLabel1.setText("Unknown Stage: (Morning)");
-            volumeLabel2.setText("Unknown Stage: (Afternoon)");
-            volumeLabel3.setText("Unknown Stage: (Evening)");
-        }
-    }
-    public void initializeProductionStages() {
-        // Initially, enable all fields
-        setFieldsDisabled(true);
-
-        /* Listen for changes in the selected production stage label */
-        productionStageLabel.textProperty().addListener((observable, oldValue, newValue) -> setFieldsDisabled(newValue == null || (!newValue.equals("Colostrum Stage")
-                && !newValue.equals("Transition Stage")
-                && !newValue.equals("Peak Milk Harvesting")
-                && !newValue.equals("Mid-Lactation")
-                && !newValue.equals("Late Lactation")
-                && !newValue.equals("Dry Period"))));
-
-    }
-
-    private void setFieldsDisabled(boolean disabled) {
-        for (Node node : gridPaneProduction.getChildren()) {
-            node.setDisable(disabled);
-        }
-        saveUpdateProduction.setDisable(disabled); // Disable the button
-    }
 
     public void initializeSpinners() {
         // Create individual DoubleSpinnerValueFactory for each spinner

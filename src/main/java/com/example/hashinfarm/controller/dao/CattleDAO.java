@@ -155,29 +155,34 @@ public class CattleDAO {
     }
 
     private static Cattle mapResultSetToCattle(ResultSet resultSet) throws SQLException {
-        return new Cattle(
-                resultSet.getInt("CattleID"),
-                resultSet.getString("TagID"),
-                resultSet.getInt("HerdID"),
-                resultSet.getString("ColorMarkings"),
-                resultSet.getString("Name"),
-                resultSet.getString("Gender"),
-                resultSet.getDate("DateOfBirth").toLocalDate(),
-                resultSet.getInt("WeightID"),
-                resultSet.getString("BCS"),
-                resultSet.getInt("BreedID"),
-                resultSet.getString("BreedName"),
-                resultSet.getInt("SireID"),
-                resultSet.getString("SireName"),
-                resultSet.getInt("DamID"),
-                resultSet.getString("DamName"),
-                resultSet.getInt("DamsHerd"),
-                resultSet.getInt("SiresHerd"),
-                resultSet.getString("DamHerdName"),
-                resultSet.getString("SireHerdName"),
-                resultSet.getString("SireBreedName"),
-                resultSet.getString("DamBreedName"));
+        int cattleID = resultSet.getInt("CattleID");
+        String tagID = resultSet.getString("TagID");
+        int herdID = resultSet.getInt("HerdID");
+        String colorMarkings = resultSet.getString("ColorMarkings");
+        String name = resultSet.getString("Name");
+        String gender = resultSet.getString("Gender");
+        LocalDate dateOfBirth = resultSet.getDate("DateOfBirth") != null ? resultSet.getDate("DateOfBirth").toLocalDate() : null;
+        int weightID = resultSet.getInt("WeightID");
+        String bcs = resultSet.getString("BCS");
+        int breedID = resultSet.getInt("BreedID");
+        String breedName = resultSet.getString("BreedName");
+        int sireID = resultSet.getInt("SireID");
+        String sireName = resultSet.getString("SireName");
+        int damID = resultSet.getInt("DamID");
+        String damName = resultSet.getString("DamName");
+        int damsHerd = resultSet.getInt("DamsHerd");
+        int siresHerd = resultSet.getInt("SiresHerd");
+        String damHerdName = resultSet.getString("DamHerdName");
+        String sireHerdName = resultSet.getString("SireHerdName");
+        String sireBreedName = resultSet.getString("SireBreedName");
+        String damBreedName = resultSet.getString("DamBreedName");
+
+        // Return a new Cattle object with the retrieved data
+        return new Cattle(cattleID, tagID, herdID, colorMarkings, name, gender, dateOfBirth, weightID,
+                bcs, breedID, breedName, sireID, sireName, damID, damName, damsHerd, siresHerd,
+                damHerdName, sireHerdName, sireBreedName, damBreedName);
     }
+
 
     public static Cattle getCattleByID(int cattleID) throws SQLException {
         String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +

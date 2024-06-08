@@ -10,6 +10,7 @@ import com.example.hashinfarm.model.Cattle;
 import com.example.hashinfarm.controller.records.CattleUIInfo;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
 import java.sql.SQLException;
@@ -54,8 +55,20 @@ public class AddNewCattleController {
     private Cattle newCattle;
     private boolean isInitDataWithSelectedCattle;
     private CattleAdditionCallback cattleAdditionCallback;
+
+    private Stage stage;
+
+    public void setStage(Stage stage) {
+        this.stage = stage;
+    }
+
     public void setCattleAdditionCallback(CattleAdditionCallback callback) {
-        this.cattleAdditionCallback = callback;
+        this.cattleAdditionCallback = (successFlag, failureReason, newCattleId) -> {
+            callback.onCattleAddedSuccessfully(successFlag, failureReason, newCattleId);
+            if (successFlag) {
+                stage.close();  // Close the stage on successful addition
+            }
+        };
     }
 
     public void initData(int herdId, EditHerdController editHerdController) {
@@ -174,15 +187,22 @@ public class AddNewCattleController {
     }
 
     private void showCattleSelectionDialog(Button buttonClicked, List<Cattle> cattleList) {
-        CattleUtils.handleCattleTagID(
-                buttonClicked,
-                cattleList,
-                damTagButton,
-                sireTagButton,
-                damNameLabel,
-                sireNameLabel
-        );
+        Cattle selectedCattle = CattleUtils.showSelectionDialog(
+                "Select Cattle", "Select a cattle from the list below", cattleList, Cattle::getTagId);
+
+        if (selectedCattle != null) {
+            if (buttonClicked == damTagButton) {
+                selectedDam = selectedCattle;
+                damTagButton.setText(selectedCattle.getTagId());
+                damNameLabel.setText(selectedCattle.getName());
+            } else if (buttonClicked == sireTagButton) {
+                selectedSire = selectedCattle;
+                sireTagButton.setText(selectedCattle.getTagId());
+                sireNameLabel.setText(selectedCattle.getName());
+            }
+        }
     }
+
 
 
     private Breed selectBreed() {
@@ -202,6 +222,12 @@ public class AddNewCattleController {
             // Gather cattle information...
             gatherCattleInformationFromUI();
 
+            // Check if a sire has been selected
+            if (selectedSire == null) {
+                showAlert(Alert.AlertType.WARNING, "Missing Sire", "Please select a sire before adding the cattle.");
+                return;
+            }
+
             // Ask for confirmation before adding cattle
             if (confirmCalfAddition()) {
                 int newCattleId = addCattleToDB();
@@ -214,9 +240,8 @@ public class AddNewCattleController {
                 if (!isInitDataWithSelectedCattle) {
                     refreshCattleTable();
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle added successfully!");
+
                 }
-
-
             } else {
                 showAlert(Alert.AlertType.INFORMATION, "Cancelled", "Cattle addition cancelled.");
             }
@@ -226,6 +251,8 @@ public class AddNewCattleController {
             handleInvalidWeightFormatError(e);
         }
     }
+
+
 
     private int addCattleToDB() throws SQLException {
         return CattleDAO.addCattle(newCattle);
@@ -247,8 +274,12 @@ public class AddNewCattleController {
         int damsHerd = selectedDam != null ? selectedDam.getHerdId() : 0;
         int siresHerd = selectedSire != null ? selectedSire.getHerdId() : 0;
 
-        newCattle = CattleUtils.createCattle(uiInfo.tagId(), herdId, uiInfo.name(), uiInfo.gender(), uiInfo.colorMarkings(), uiInfo.dateOfBirth(), uiInfo.weightId(), uiInfo.bcs(), breedId, sireId, damId, damsHerd, siresHerd, 0);
+        newCattle = CattleUtils.createCattle(
+                uiInfo.tagId(), herdId, uiInfo.name(), uiInfo.gender(), uiInfo.colorMarkings(), uiInfo.dateOfBirth(),
+                uiInfo.weightId(), uiInfo.bcs(), breedId, sireId, damId, damsHerd, siresHerd, 0
+        );
     }
+
 
 
     private void refreshCattleTable() {
