@@ -40,16 +40,17 @@ public class ProductionSessionDAO {
         executeUpdate(query, productionSession, true);
     }
 
-    public static void deleteProductionSession(int sessionID) throws SQLException {
-        String query = "DELETE FROM productionsession WHERE SessionID=?";
-
+    public static boolean deleteProductionSession(int sessionID) throws SQLException {
+        String query = "DELETE FROM productionsession WHERE SessionID = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setInt(1, sessionID);
-            preparedStatement.executeUpdate();
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
         }
     }
+
 
     private static void executeUpdate(String query, ProductionSession productionSession, boolean includeSessionID) throws SQLException {
         try (Connection connection = dbConnection.getConnection();
@@ -118,5 +119,44 @@ public class ProductionSessionDAO {
             return false;
         }
     }
+    public static List<ProductionSession> getProductionSessionsByLactationPeriodId(int lactationPeriodId) throws SQLException {
+        List<ProductionSession> productionSessions = new ArrayList<>();
+        String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ?";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, lactationPeriodId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    productionSessions.add(extractProductionSessionFromResultSet(resultSet));
+                }
+            }
+        }
+        return productionSessions;
+    }
+    public static List<ProductionSession> getProductionSessionsByLactationPeriodId(Connection connection, int lactationPeriodId) throws SQLException {
+        List<ProductionSession> productionSessions = new ArrayList<>();
+        String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ?";
+
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, lactationPeriodId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    productionSessions.add(extractProductionSessionFromResultSet(resultSet));
+                }
+            }
+        }
+        return productionSessions;
+    }
+    public static boolean deleteProductionSession(Connection connection, int sessionID) throws SQLException {
+        String query = "DELETE FROM productionsession WHERE SessionID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, sessionID);
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
 
 }

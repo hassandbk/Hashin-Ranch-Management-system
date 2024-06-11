@@ -167,6 +167,27 @@ public class LactationPeriodDAO {
             return rowsInserted > 0;
         }
     }
+    public static int getLactationIdByCattleIdAndStartDate(Connection connection, int cattleId, LocalDate startDate) throws SQLException {
+        String query = "SELECT LactationPeriodID FROM lactationperiod WHERE CattleID = ? AND StartDate = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setDate(2, Date.valueOf(startDate));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return resultSet.getInt("LactationPeriodID");
+                } else {
+                    return -1;
+                }
+            }
+        }
+    }
+    public static void deleteLactationPeriod(Connection connection, int lactationPeriodID) throws SQLException {
+        String query = "DELETE FROM lactationperiod WHERE LactationPeriodID = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, lactationPeriodID);
+            preparedStatement.executeUpdate();
+        }
+    }
 
 }
 

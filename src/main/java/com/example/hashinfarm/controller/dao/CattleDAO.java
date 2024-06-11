@@ -273,5 +273,37 @@ public class CattleDAO {
         }
         return null;
     }
+    public static Cattle findCattleByBirthdateAndDamId(Connection connection, LocalDate calvingDate, int damId) throws SQLException {
+        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
+                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
+                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
+                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
+                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
+                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
+                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
+                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
+                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
+                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
+                "WHERE c.DamID = ? AND c.DateOfBirth = ?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, damId);
+            preparedStatement.setDate(2, Date.valueOf(calvingDate));
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapResultSetToCattle(resultSet);
+                } else {
+                    return null;
+                }
+            }
+        }
+    }
+    public static void deleteCattleById(Connection connection, int cattleId) throws SQLException {
+        String query = "DELETE FROM cattle WHERE CattleID=?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            int rowsAffected = preparedStatement.executeUpdate();
+        }
+    }
+
 
 }

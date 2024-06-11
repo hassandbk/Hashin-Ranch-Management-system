@@ -34,6 +34,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.sql.Connection;
 import java.sql.SQLException;
 import java.time.Duration;
 import java.time.LocalDate;
@@ -125,7 +126,7 @@ public class ProductivityAndCalving {
     private LocalDate originalEndDate; // To keep track of the original end date from the database
     private LocalDate selectedEndDate; // To keep track of the selected end date
     private LactationPeriod ongoingLactationPeriod;
-
+    private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
     public void initialize() {
 
         initializeCattleDAO();
@@ -1487,6 +1488,7 @@ public class ProductivityAndCalving {
                                                     getTableView().getItems().get(getIndex());
                                             // Handle delete action
                                             handleDeletion(reproductiveVariables);
+                                            loadLactationPeriodsForSelectedCattle();
                                         });
                             }
 
@@ -1535,57 +1537,128 @@ public class ProductivityAndCalving {
         updateButton.setDisable(true);
     }
 
-    private void handleDeletion(ReproductiveVariables reproductiveVariables) {
+
+    public void handleDeletion(ReproductiveVariables reproductiveVariables) {
         ReproductiveVariablesDAO reproductiveVariablesDAO = new ReproductiveVariablesDAO();
+        LocalDate calvingDate = reproductiveVariables.getCalvingDate();
+        int reproductiveVariableID = reproductiveVariables.getReproductiveVariableID();
+        Connection conn = null;
 
-        // Confirmation prompt for deletion
-        if (confirmAction()) {
-            // Check and delete associated cattle if needed
-            if (reproductiveVariables.getCalvingDate() != null) {
-                if (!checkAndDeleteAssociatedCattle(reproductiveVariables.getCattleID(), reproductiveVariables.getCalvingDate())) {
-                    // User canceled associated cattle deletion
-                    return;
-                }
-            }
-
-            // Delete the record from the database
-            if (reproductiveVariablesDAO.deleteReproductiveVariable(reproductiveVariables.getReproductiveVariableID())) {
-                // Handle success
-                showSuccessAlert();
-                loadCalvingHistoryForCattle(selectedCattleId);
-                clearReproductiveData();
-            } else {
-                // Handle failure
-                showFailureAlert();
-            }
-        }
-    }
-
-    private boolean checkAndDeleteAssociatedCattle(int selectedCattleId, LocalDate calvingDate) {
         try {
-            Cattle cattle = CattleDAO.findCattleByBirthdateAndDamId(calvingDate, selectedCattleId);
-            if (cattle != null) {
-                // Prompt user about associated cattle deletion
-                Alert cattleAlert = new Alert(Alert.AlertType.CONFIRMATION);
-                cattleAlert.setTitle("Confirm Cattle Deletion");
-                cattleAlert.setHeaderText("Cattle associated with this record will also be deleted. Continue?");
-                cattleAlert.setContentText("Cattle ID: " + cattle.getCattleId() + " will be deleted.");
+            conn = dbConnection.getConnection();
+            conn.setAutoCommit(false); // Start transaction
 
-                Optional<ButtonType> result = cattleAlert.showAndWait();
-                if (result.isPresent() && result.get() == ButtonType.OK) {
-                    // Delete associated cattle
-                    CattleDAO.deleteCattleById(cattle.getCattleId());
+            if (confirmAction()) {
+
+                boolean proceedWithDeletion = true;
+
+
+                if (calvingDate != null) {
+
+                    proceedWithDeletion = checkAndDeleteAssociatedCattle(conn, selectedCattleId, calvingDate);
+                }
+
+                if (proceedWithDeletion) {
+
+                    if (calvingDate != null && !checkAndDeleteLactationPeriod(conn, selectedCattleId, calvingDate)) {
+                        conn.rollback();
+
+                        return;
+                    }
+
+                    if (reproductiveVariablesDAO.deleteReproductiveVariable(conn, reproductiveVariableID)) {
+                        conn.commit();
+                        showSuccessAlert();
+                        loadCalvingHistoryForCattle(selectedCattleId);
+                        clearReproductiveData();
+                    } else {
+                        conn.rollback();
+                         showFailureAlert("Failed to delete reproductive variable.");
+                    }
                 } else {
-                    return false; // User canceled associated cattle deletion
+                    conn.rollback();
+
                 }
             }
         } catch (SQLException e) {
-            // Handle SQL exception
+            try {
+                conn.rollback();
+            } catch (SQLException rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+            e.printStackTrace();
+            showFailureAlert("An error occurred: " + e.getMessage());
+        } finally {
+            if (conn != null) {
+                try {
+//                    conn.setAutoCommit(true);
+                    conn.close();
+
+                } catch (SQLException closeEx) {
+
+                    closeEx.printStackTrace();
+                }
+            }
+        }
+    }
+
+    private boolean checkAndDeleteAssociatedCattle(Connection conn, int selectedCattleId, LocalDate calvingDate) {
+        try {
+
+            Cattle cattle = CattleDAO.findCattleByBirthdateAndDamId(conn, calvingDate, selectedCattleId);
+            if (cattle != null) {
+                CattleDAO.deleteCattleById(conn, cattle.getCattleId());
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showFailureAlert("An error occurred while deleting associated cattle: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkAndDeleteLactationPeriod(Connection conn, int cattleId, LocalDate calvingDate) {
+        try {
+
+            int lactationPeriodId = LactationPeriodDAO.getLactationIdByCattleIdAndStartDate(conn, cattleId, calvingDate);
+            if (lactationPeriodId != -1) {
+                if (!checkAndDeleteProductionSessions(conn, lactationPeriodId)) {
+                    return false;
+                }
+                LactationPeriodDAO.deleteLactationPeriod(conn, lactationPeriodId);
+
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showFailureAlert("An error occurred while deleting lactation period: " + e.getMessage());
+            return false;
+        }
+        return true;
+    }
+
+    private boolean checkAndDeleteProductionSessions(Connection conn, int lactationPeriodId) {
+        try {
+
+            List<ProductionSession> productionSessions = ProductionSessionDAO.getProductionSessionsByLactationPeriodId(conn, lactationPeriodId);
+            if (!productionSessions.isEmpty()) {
+                for (ProductionSession session : productionSessions) {
+                    if (!ProductionSessionDAO.deleteProductionSession(conn, session.getSessionID())) {
+                        showFailureAlert("Failed to delete production session.");
+                        return false;
+                    }
+                }
+
+            }
+        } catch (SQLException e) {
             e.printStackTrace();
             return false;
         }
-        return true; // No associated cattle or cattle deletion successful
+        return true;
     }
+
+
+
 
 
     // Helper method for showing confirmation dialogs
@@ -1593,9 +1666,20 @@ public class ProductivityAndCalving {
         Alert confirmAlert = new Alert(Alert.AlertType.CONFIRMATION);
         confirmAlert.setTitle("Confirm Deletion");
         confirmAlert.setHeaderText(null);
-        confirmAlert.setContentText("Are you sure you want to delete the reproductive variable?");
+        confirmAlert.setContentText("Are you sure you want to delete the " + "reproductive variable" + "?");
         return confirmAlert.showAndWait().orElse(ButtonType.CANCEL) == ButtonType.OK;
     }
+
+    // Helper method for showing success/failure alerts
+    private void showSuccessAlert() {
+        showAlert(Alert.AlertType.INFORMATION, "Success", "Reproductive variable" + " deleted successfully.");
+    }
+
+    // Helper method for failure alerts (shortcut)
+    private void showFailureAlert(String errorMessage) {
+        showAlert(Alert.AlertType.ERROR, "Error", errorMessage);
+    }
+
 
     // Helper method for showing success/failure alerts
     private void showAlert(Alert.AlertType alertType, String title, String contentText) {
@@ -1606,15 +1690,6 @@ public class ProductivityAndCalving {
         alert.showAndWait();
     }
 
-    // Helper method for success alerts (shortcut)
-    private void showSuccessAlert() {
-        showAlert(Alert.AlertType.INFORMATION, "Success", "Reproductive variable deleted successfully.");
-    }
-
-    // Helper method for failure alerts (shortcut)
-    private void showFailureAlert() {
-        showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete reproductive variable.");
-    }
 
     private ReproductiveVariables getReproductiveVariables(LocalDate breedingDate, int gestationPeriod) {
         LocalDate calvingDateValue = calvingDate.getValue();

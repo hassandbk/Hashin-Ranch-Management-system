@@ -14,6 +14,7 @@ public class ReproductiveVariablesDAO {
     // Insert a new reproductive variable record
     public boolean addReproductiveVariable(ReproductiveVariables reproductiveVariables) {
         String query = "INSERT INTO reproductivevariables (CattleID, BreedingDate, GestationPeriod, CalvingDate, CalvingInterval) VALUES (?, ?, ?, ?, ?)";
+
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
@@ -123,4 +124,13 @@ public class ReproductiveVariablesDAO {
 
         return reproductiveVariables;
     }
+    public boolean deleteReproductiveVariable(Connection connection, int reproductiveVariableID) throws SQLException {
+        String query = "DELETE FROM reproductivevariables WHERE ReproductiveVariableID=?";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, reproductiveVariableID);
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0;
+        }
+    }
+
 }
