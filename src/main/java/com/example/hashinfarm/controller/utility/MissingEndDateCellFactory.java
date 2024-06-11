@@ -1,7 +1,9 @@
 package com.example.hashinfarm.controller.utility;
+
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.geometry.Pos;
 import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.Tooltip;
@@ -40,6 +42,7 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                 // Set HBox properties to fill the cell horizontally
                 content.setMaxWidth(Double.MAX_VALUE);
                 HBox.setHgrow(content, Priority.ALWAYS);
+                content.setAlignment(Pos.CENTER); // Center the content
 
                 blinkTimeline = new Timeline(
                         new KeyFrame(Duration.seconds(0.5), event -> imageView.setVisible(true)),
@@ -53,15 +56,15 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                 super.updateItem(item, empty);
 
                 if (empty) {
+                    setText(null);
                     setGraphic(null);
                     setTooltip(null);
                     blinkTimeline.stop(); // Stop blinking when cell is empty
+                    setStyle(null); // Clear any style applied
                 } else {
                     LactationPeriodWithSelection lactationPeriodWithSelection = getTableView().getItems().get(getIndex());
                     LocalDate startDate = lactationPeriodWithSelection.getLactationPeriod().getStartDate();
-                    LocalDate endDate = lactationPeriodWithSelection.getLactationPeriod().getEndDate() != null
-                            ? lactationPeriodWithSelection.getLactationPeriod().getEndDate()
-                            : null;
+                    LocalDate endDate = lactationPeriodWithSelection.getLactationPeriod().getEndDate();
                     LocalDate currentDate = LocalDate.now();
 
                     long daysSinceStart = ChronoUnit.DAYS.between(startDate, currentDate);
@@ -85,7 +88,10 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                         setGraphic(null);
                         setTooltip(null);
                         blinkTimeline.stop(); // Stop blinking when cell is not empty
+                        setStyle(null); // Clear any style applied
                     }
+
+                    setAlignment(Pos.CENTER); // Center the text
                 }
             }
         };

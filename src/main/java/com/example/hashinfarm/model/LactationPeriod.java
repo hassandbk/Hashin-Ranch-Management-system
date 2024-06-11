@@ -1,6 +1,5 @@
 package com.example.hashinfarm.model;
 
-
 import java.time.LocalDate;
 
 public class LactationPeriod {
@@ -8,10 +7,10 @@ public class LactationPeriod {
     private int cattleID;
     private LocalDate startDate;
     private LocalDate endDate;
-    private int milkYield;
+    private double milkYield;
     private double relativeMilkYield;
 
-    public LactationPeriod(int lactationPeriodID, int cattleID,LocalDate  startDate, LocalDate endDate, int milkYield, double relativeMilkYield) {
+    public LactationPeriod(int lactationPeriodID, int cattleID, LocalDate startDate, LocalDate endDate, double milkYield, double relativeMilkYield) {
         this.lactationPeriodID = lactationPeriodID;
         this.cattleID = cattleID;
         this.startDate = startDate;
@@ -53,11 +52,11 @@ public class LactationPeriod {
         this.endDate = endDate;
     }
 
-    public int getMilkYield() {
+    public double getMilkYield() {
         return milkYield;
     }
 
-    public void setMilkYield(int milkYield) {
+    public void setMilkYield(double milkYield) {
         this.milkYield = milkYield;
     }
 

@@ -12,12 +12,10 @@ public class ReproductiveVariablesDAO {
 
 
     // Insert a new reproductive variable record
-    public boolean addReproductiveVariable(ReproductiveVariables reproductiveVariables) {
+    public int addReproductiveVariableAndGetId(ReproductiveVariables reproductiveVariables) {
         String query = "INSERT INTO reproductivevariables (CattleID, BreedingDate, GestationPeriod, CalvingDate, CalvingInterval) VALUES (?, ?, ?, ?, ?)";
-
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
+             PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
             preparedStatement.setInt(1, reproductiveVariables.getCattleID());
             preparedStatement.setObject(2, reproductiveVariables.getBreedingDate() != null ? Date.valueOf(reproductiveVariables.getBreedingDate()) : null);
             preparedStatement.setInt(3, reproductiveVariables.getGestationPeriod());
@@ -25,12 +23,18 @@ public class ReproductiveVariablesDAO {
             preparedStatement.setObject(5, reproductiveVariables.getCalvingInterval());
 
             int rowsAffected = preparedStatement.executeUpdate();
-            return rowsAffected > 0;
+            if (rowsAffected > 0) {
+                ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Return the generated ID
+                }
+            }
         } catch (SQLException e) {
             AppLogger.error("Error adding reproductive variable for cattle: " + reproductiveVariables.getCattleID(), e);
-            return false;
         }
+        return -1; // Return -1 if insertion fails
     }
+
 
     // Retrieve all reproductive variables for a given cattle ID
     public List<ReproductiveVariables> getAllReproductiveVariablesForCattle(int cattleID) {
