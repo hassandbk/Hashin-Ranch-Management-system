@@ -102,12 +102,7 @@
             <artifactId>jfoenix</artifactId>
             <version>9.0.10</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/org.jfxtras/jfxtras-all -->
-        <dependency>
-            <groupId>org.jfxtras</groupId>
-            <artifactId>jfxtras-all</artifactId>
-            <version>10.0-r1</version>
-        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.microsoft.sqlserver/mssql-jdbc -->
         <dependency>
             <groupId>com.mysql</groupId>

@@ -2,15 +2,14 @@ package com.example.hashinfarm.controller.dao;
 
 import com.example.hashinfarm.model.ProductionSession;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
+import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 public class ProductionSessionDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
@@ -157,6 +156,58 @@ public class ProductionSessionDAO {
             return rowsAffected > 0;
         }
     }
+    public static List<ProductionSession> getProductionSessionsByDateAndLactationPeriodId(LocalDate date, int lactationPeriodId) throws SQLException {
+        List<ProductionSession> productionSessions = new ArrayList<>();
+        String query = "SELECT * FROM productionsession WHERE DATE(StartTime) = ? AND LactationPeriodID = ?";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setDate(1, Date.valueOf(date));
+            preparedStatement.setInt(2, lactationPeriodId);
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    productionSessions.add(extractProductionSessionFromResultSet(resultSet));
+                }
+            }
+        }
+        return productionSessions;
+    }
+
+
+
+    public static Map<String, List<ProductionSession>> categorizeSessionsByTimeOfDay(List<ProductionSession> sessions) {
+        Map<String, List<ProductionSession>> categorizedSessions = new HashMap<>();
+
+        // Initialize lists for morning, afternoon, and evening sessions
+        List<ProductionSession> morningSessions = new ArrayList<>();
+        List<ProductionSession> afternoonSessions = new ArrayList<>();
+        List<ProductionSession> eveningSessions = new ArrayList<>();
+
+        // Categorize sessions based on start time
+        for (ProductionSession session : sessions) {
+            LocalDateTime startTime = session.getStartTime().toLocalDateTime(); // Convert Timestamp to LocalDateTime
+            LocalTime timeOfDay = startTime.toLocalTime(); // Extract time from LocalDateTime
+
+            // Categorize sessions based on time range
+            if (timeOfDay.isBefore(LocalTime.NOON)) { // Before 12:00 PM
+                morningSessions.add(session);
+            } else if (timeOfDay.isBefore(LocalTime.of(16, 0))) { // Before 4:00 PM
+                afternoonSessions.add(session);
+            } else { // From 4:00 PM onwards
+                eveningSessions.add(session);
+            }
+        }
+
+        // Add categorized sessions to the map
+        categorizedSessions.put("Morning", morningSessions);
+        categorizedSessions.put("Afternoon", afternoonSessions);
+        categorizedSessions.put("Evening", eveningSessions);
+
+        return categorizedSessions;
+    }
+
 
 
 }

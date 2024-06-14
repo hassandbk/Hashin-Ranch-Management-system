@@ -14,6 +14,7 @@ module com.example.hashinfarm {
     requires java.sql;
     requires annotations;
     requires mysql.connector.j;
+    requires com.jfoenix;
 
 
     opens com.example.hashinfarm to javafx.fxml;
@@ -29,8 +30,6 @@ module com.example.hashinfarm {
     opens com.example.hashinfarm.controller.utility to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.controller.records to javafx.base, javafx.fxml;
 
-
-
     exports com.example.hashinfarm;
     exports com.example.hashinfarm.controller;
     exports com.example.hashinfarm.controller.utility;
@@ -44,6 +43,4 @@ module com.example.hashinfarm {
     exports com.example.hashinfarm.controller.dao;
     exports com.example.hashinfarm.controller.interfaces;
     exports com.example.hashinfarm.controller.records;
-
-
 }
