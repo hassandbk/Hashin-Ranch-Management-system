@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<VBox id="dark-blue" prefHeight="183.0" prefWidth="310.0" spacing="10" stylesheets="@../../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.utility.TimePickerController">
+    <HBox alignment="CENTER" spacing="40.0">
+        <Label fx:id="dateLabel" style="-fx-font-size: 18px;" text="Fri 15th/05/2015" textFill="#74ff71" />
+        <Label fx:id="timeSelectedLabel" style="-fx-font-size: 18px;" text="11:15 AM" textFill="#ff7c7c" />
+    </HBox>
+    <GridPane alignment="CENTER" hgap="5.0">
+        <columnConstraints>
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+        </columnConstraints>
+        <rowConstraints>
+            <RowConstraints prefHeight="30.0" vgrow="SOMETIMES" />
+            <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints minHeight="10.0" prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints valignment="CENTER" vgrow="SOMETIMES" />
+            <RowConstraints prefHeight="30.0" valignment="CENTER" vgrow="SOMETIMES" />
+        </rowConstraints>
+        <children>
+            <Spinner id="bevel-grey" fx:id="hourSpinner" GridPane.rowIndex="2" />
+            <Spinner fx:id="minuteSpinner" GridPane.columnIndex="2" GridPane.rowIndex="2" />
+            <Label text=":" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+            <Label  text="HOURS" textFill="#fcf9f9" />
+            <Label  text="MINUTES" textFill="#fffcfc" GridPane.columnIndex="2" />
+            <VBox alignment="CENTER" spacing="20.0" GridPane.columnIndex="3" GridPane.rowSpan="5">
+                <children>
+                    <ToggleButton fx:id="amPmToggleButton" mnemonicParsing="false" text="AM" />
+                   </children></VBox>
+            <Separator id="bevel-grey" prefWidth="200.0" GridPane.rowIndex="1" />
+            <Separator id="bevel-grey" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1" />
+
+        </children>
+    </GridPane>
+    <HBox id="d" alignment="CENTER" spacing="20">
+        <Button id="cancel-button" fx:id="cancelButton" text="CANCEL" />
+        <Button id="set-button" fx:id="setButton" text="SET" onAction="#handleSetButtonAction" textFill="#ececec" />
+    </HBox>
+</VBox>
