@@ -1,7 +1,7 @@
 package com.example.hashinfarm.controller.dao;
 
 import com.example.hashinfarm.model.Herd;
-
+import com.example.hashinfarm.controller.utility.AppLogger; // Assuming you have an AppLogger utility for logging
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class HerdDAO {
+
     // Method to add a new herd to the database
     public static void addHerd(Herd herd) throws SQLException {
         String query = "INSERT INTO herd (Name, TotalAnimals, AnimalsClass, BreedType, AgeClass, BreedSystem, SolutionType, FeedBasis, Location) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -34,6 +35,10 @@ public class HerdDAO {
                 String name = resultSet.getString("Name");
                 uniqueNames.add(name);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AppLogger.error("Error retrieving unique herd names", e);
+            throw e;
         }
         return uniqueNames;
     }
@@ -52,19 +57,13 @@ public class HerdDAO {
              ResultSet resultSet = preparedStatement.executeQuery()) {
 
             while (resultSet.next()) {
-                int herdID = resultSet.getInt("HerdID");
-                String name = resultSet.getString("Name");
-                int totalAnimals = resultSet.getInt("TotalAnimals");
-                String animalsClass = resultSet.getString("AnimalsClass");
-                String breedType = resultSet.getString("BreedType");
-                String ageClass = resultSet.getString("AgeClass");
-                String breedSystem = resultSet.getString("BreedSystem");
-                String solutionType = resultSet.getString("SolutionType");
-                String feedBasis = resultSet.getString("FeedBasis");
-                String location = resultSet.getString("Location");
-                Herd herd = new Herd(herdID, name, totalAnimals, animalsClass, breedType, ageClass, breedSystem, solutionType, feedBasis, location, "");
+                Herd herd = extractHerdFromResultSet(resultSet);
                 herds.add(herd);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AppLogger.error("Error executing query: " + query, e);
+            throw e;
         }
         return herds;
     }
@@ -73,19 +72,43 @@ public class HerdDAO {
     private static void executeUpdate(String query, Herd herd) throws SQLException {
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, herd.getName());
-            preparedStatement.setInt(2, herd.getTotalAnimals());
-            preparedStatement.setString(3, herd.getAnimalClass());
-            preparedStatement.setString(4, herd.getBreedType());
-            preparedStatement.setString(5, herd.getAgeClass());
-            preparedStatement.setString(6, herd.getBreedSystem());
-            preparedStatement.setString(7, herd.getSolutionType());
-            preparedStatement.setString(8, herd.getFeedBasis());
-            preparedStatement.setString(9, herd.getLocation());
-            if (query.contains("UPDATE")) {
-                preparedStatement.setInt(10, herd.getId());
-            }
+            prepareStatementForHerd(preparedStatement, herd);
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AppLogger.error("Error executing update: " + query, e);
+            throw e;
+        }
+    }
+
+    // Method to extract Herd object from ResultSet
+    private static Herd extractHerdFromResultSet(ResultSet resultSet) throws SQLException {
+        int herdID = resultSet.getInt("HerdID");
+        String name = resultSet.getString("Name");
+        int totalAnimals = resultSet.getInt("TotalAnimals");
+        String animalsClass = resultSet.getString("AnimalsClass");
+        String breedType = resultSet.getString("BreedType");
+        String ageClass = resultSet.getString("AgeClass");
+        String breedSystem = resultSet.getString("BreedSystem");
+        String solutionType = resultSet.getString("SolutionType");
+        String feedBasis = resultSet.getString("FeedBasis");
+        String location = resultSet.getString("Location");
+        return new Herd(herdID, name, totalAnimals, animalsClass, breedType, ageClass, breedSystem, solutionType, feedBasis, location, "");
+    }
+
+    // Method to prepare statement with herd data
+    private static void prepareStatementForHerd(PreparedStatement preparedStatement, Herd herd) throws SQLException {
+        preparedStatement.setString(1, herd.getName());
+        preparedStatement.setInt(2, herd.getTotalAnimals());
+        preparedStatement.setString(3, herd.getAnimalClass());
+        preparedStatement.setString(4, herd.getBreedType());
+        preparedStatement.setString(5, herd.getAgeClass());
+        preparedStatement.setString(6, herd.getBreedSystem());
+        preparedStatement.setString(7, herd.getSolutionType());
+        preparedStatement.setString(8, herd.getFeedBasis());
+        preparedStatement.setString(9, herd.getLocation());
+        if (preparedStatement.getParameterMetaData().getParameterCount() == 10) {
+            preparedStatement.setInt(10, herd.getId());
         }
     }
 
@@ -99,6 +122,10 @@ public class HerdDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, herdId);
             preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AppLogger.error("Error deleting herd with ID: " + herdId, e);
+            throw e;
         }
     }
 
@@ -110,19 +137,13 @@ public class HerdDAO {
             preparedStatement.setString(1, name);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
-                    int herdID = resultSet.getInt("HerdID");
-                    String herdName = resultSet.getString("Name");
-                    int totalAnimals = resultSet.getInt("TotalAnimals");
-                    String animalsClass = resultSet.getString("AnimalsClass");
-                    String breedType = resultSet.getString("BreedType");
-                    String ageClass = resultSet.getString("AgeClass");
-                    String breedSystem = resultSet.getString("BreedSystem");
-                    String solutionType = resultSet.getString("SolutionType");
-                    String feedBasis = resultSet.getString("FeedBasis");
-                    String location = resultSet.getString("Location");
-                    return new Herd(herdID, herdName, totalAnimals, animalsClass, breedType, ageClass, breedSystem, solutionType, feedBasis, location, "");
+                    return extractHerdFromResultSet(resultSet);
                 }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AppLogger.error("Error retrieving herd with name: " + name, e);
+            throw e;
         }
         return null; // If no herd with the given name is found
     }

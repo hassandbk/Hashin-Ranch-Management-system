@@ -5,20 +5,20 @@ import java.sql.Timestamp;
 public class ProductionSession {
     private int sessionID;
     private int lactationPeriodID;
-    private int cattleID; // Corrected attribute for cattle ID
+    private int cattleID;
     private Timestamp startTime;
     private Timestamp endTime;
-    private int duration;
-    private String qualityScore; // Changed to String to match the enum in the database
+    private String qualityScore;
+    private double productionVolume; // New attribute for ProductionVolume
 
-    public ProductionSession(int sessionID, int lactationPeriodID, int cattleID, Timestamp startTime, Timestamp endTime, int duration, String qualityScore) {
+    public ProductionSession(int sessionID, int lactationPeriodID, int cattleID, Timestamp startTime, Timestamp endTime, String qualityScore, double productionVolume) {
         this.sessionID = sessionID;
         this.lactationPeriodID = lactationPeriodID;
         this.cattleID = cattleID;
         this.startTime = startTime;
         this.endTime = endTime;
-        this.duration = duration;
         this.qualityScore = qualityScore;
+        this.productionVolume = productionVolume;
     }
 
     // Getters and Setters
@@ -62,19 +62,19 @@ public class ProductionSession {
         this.endTime = endTime;
     }
 
-    public int getDuration() {
-        return duration;
-    }
-
-    public void setDuration(int duration) {
-        this.duration = duration;
-    }
-
-    public String getQualityScore() {
+     public String getQualityScore() {
         return qualityScore;
     }
 
     public void setQualityScore(String qualityScore) {
         this.qualityScore = qualityScore;
+    }
+
+    public double getProductionVolume() {
+        return productionVolume;
+    }
+
+    public void setProductionVolume(double productionVolume) {
+        this.productionVolume = productionVolume;
     }
 }

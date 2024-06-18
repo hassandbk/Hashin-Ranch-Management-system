@@ -29,13 +29,13 @@ public class ProductionSessionDAO {
         return productionSessions;
     }
 
-    public static void insertProductionSession(ProductionSession productionSession) throws SQLException {
-        String query = "INSERT INTO productionsession (LactationPeriodID, CattleID, StartTime, EndTime, Duration, QualityScore) VALUES (?, ?, ?, ?, ?, ?)";
+    public static void saveProductionSession(ProductionSession productionSession) throws SQLException {
+        String query = "INSERT INTO productionsession (LactationPeriodID, CattleID, StartTime, EndTime, QualityScore, ProductionVolume) VALUES (?, ?, ?, ?, ?, ?)";
         executeUpdate(query, productionSession, false);
     }
 
     public static void updateProductionSession(ProductionSession productionSession) throws SQLException {
-        String query = "UPDATE productionsession SET LactationPeriodID=?, CattleID=?, StartTime=?, EndTime=?, Duration=?, QualityScore=? WHERE SessionID=?";
+        String query = "UPDATE productionsession SET LactationPeriodID=?, CattleID=?, StartTime=?, EndTime=?, QualityScore=?, ProductionVolume=? WHERE SessionID=?";
         executeUpdate(query, productionSession, true);
     }
 
@@ -50,7 +50,6 @@ public class ProductionSessionDAO {
         }
     }
 
-
     private static void executeUpdate(String query, ProductionSession productionSession, boolean includeSessionID) throws SQLException {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -59,8 +58,8 @@ public class ProductionSessionDAO {
             preparedStatement.setInt(2, productionSession.getCattleID());
             preparedStatement.setTimestamp(3, productionSession.getStartTime());
             preparedStatement.setTimestamp(4, productionSession.getEndTime());
-            preparedStatement.setInt(5, productionSession.getDuration());
-            preparedStatement.setString(6, productionSession.getQualityScore());
+            preparedStatement.setString(5, productionSession.getQualityScore());
+            preparedStatement.setDouble(6, productionSession.getProductionVolume());
 
             if (includeSessionID) {
                 preparedStatement.setInt(7, productionSession.getSessionID());
@@ -76,10 +75,10 @@ public class ProductionSessionDAO {
         int cattleID = resultSet.getInt("CattleID");
         Timestamp startTime = resultSet.getTimestamp("StartTime");
         Timestamp endTime = resultSet.getTimestamp("EndTime");
-        int duration = resultSet.getInt("Duration");
         String qualityScore = resultSet.getString("QualityScore");
+        double productionVolume = resultSet.getDouble("ProductionVolume");
 
-        return new ProductionSession(sessionID, lactationPeriodID, cattleID, startTime, endTime, duration, qualityScore);
+        return new ProductionSession(sessionID, lactationPeriodID, cattleID, startTime, endTime, qualityScore, productionVolume);
     }
 
     public static boolean updateSessionDates(int cattleID, int lactationPeriodID, LocalDate newDate) {
@@ -118,22 +117,7 @@ public class ProductionSessionDAO {
             return false;
         }
     }
-    public static List<ProductionSession> getProductionSessionsByLactationPeriodId(int lactationPeriodId) throws SQLException {
-        List<ProductionSession> productionSessions = new ArrayList<>();
-        String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ?";
 
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-
-            preparedStatement.setInt(1, lactationPeriodId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    productionSessions.add(extractProductionSessionFromResultSet(resultSet));
-                }
-            }
-        }
-        return productionSessions;
-    }
     public static List<ProductionSession> getProductionSessionsByLactationPeriodId(Connection connection, int lactationPeriodId) throws SQLException {
         List<ProductionSession> productionSessions = new ArrayList<>();
         String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ?";
@@ -148,6 +132,7 @@ public class ProductionSessionDAO {
         }
         return productionSessions;
     }
+
     public static boolean deleteProductionSession(Connection connection, int sessionID) throws SQLException {
         String query = "DELETE FROM productionsession WHERE SessionID = ?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -156,6 +141,7 @@ public class ProductionSessionDAO {
             return rowsAffected > 0;
         }
     }
+
     public static List<ProductionSession> getProductionSessionsByDateAndLactationPeriodId(LocalDate date, int lactationPeriodId) throws SQLException {
         List<ProductionSession> productionSessions = new ArrayList<>();
         String query = "SELECT * FROM productionsession WHERE DATE(StartTime) = ? AND LactationPeriodID = ?";
@@ -174,8 +160,6 @@ public class ProductionSessionDAO {
         }
         return productionSessions;
     }
-
-
 
     public static Map<String, List<ProductionSession>> categorizeSessionsByTimeOfDay(List<ProductionSession> sessions) {
         Map<String, List<ProductionSession>> categorizedSessions = new HashMap<>();
@@ -207,7 +191,6 @@ public class ProductionSessionDAO {
 
         return categorizedSessions;
     }
-
 
 
 }

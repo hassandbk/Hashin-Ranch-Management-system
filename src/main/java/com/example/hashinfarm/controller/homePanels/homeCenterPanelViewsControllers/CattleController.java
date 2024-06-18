@@ -25,7 +25,6 @@ public class CattleController {
     private final double minPosition = 0.1;
     private final double maxPosition = 0.9;
     private final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
-    private FXMLLoader fxmlLoader;
 
     @FXML
     private SplitPane splitPane;
@@ -44,20 +43,16 @@ public class CattleController {
 
     @FXML
     private void initialize() {
-        SplitPaneDividerEnforcer dividerEnforcer =
-                new SplitPaneDividerEnforcer(minPosition, maxPosition);
+        SplitPaneDividerEnforcer dividerEnforcer = new SplitPaneDividerEnforcer(minPosition, maxPosition);
         dividerEnforcer.enforceConstraints(splitPane);
 
         leftArrowButton.setOnAction(event -> animateSplitPane(minPosition));
         rightArrowButton.setOnAction(event -> animateSplitPane(maxPosition));
 
-        splitPane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) ->
-                updateButtonsPosition(newPos.doubleValue()));
+        splitPane.getDividers().get(0).positionProperty().addListener((obs, oldPos, newPos) -> updateButtonsPosition(newPos.doubleValue()));
 
-        loadFXMLAsync("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterLeft.fxml",
-                leftPanePlaceholder);
-        loadFXMLAsync("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterRight.fxml",
-                rightPanePlaceholder);
+        loadFXMLAsync("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterLeft.fxml", leftPanePlaceholder);
+        loadFXMLAsync("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterRight.fxml", rightPanePlaceholder);
 
         // Add shutdown hook to gracefully shutdown executorService
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownExecutorService));
@@ -67,7 +62,7 @@ public class CattleController {
         Task<VBox> task = new Task<>() {
             @Override
             protected VBox call() throws IOException {
-                fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
                 return fxmlLoader.load();
             }
         };
@@ -107,12 +102,11 @@ public class CattleController {
 
         double finalTargetPosition = targetPosition;
         Platform.runLater(() -> {
-            KeyValue dividerKeyValue = new KeyValue(splitPane.getDividers().getFirst().positionProperty(), finalTargetPosition);
+            KeyValue dividerKeyValue = new KeyValue(splitPane.getDividers().get(0).positionProperty(), finalTargetPosition);
             KeyValue leftButtonKeyValue = new KeyValue(leftArrowButton.layoutXProperty(), leftButtonTarget);
             KeyValue rightButtonKeyValue = new KeyValue(rightArrowButton.layoutXProperty(), rightButtonTarget);
 
-            KeyFrame keyFrame = new KeyFrame(Duration.millis(animationDurationMillis),
-                    dividerKeyValue, leftButtonKeyValue, rightButtonKeyValue);
+            KeyFrame keyFrame = new KeyFrame(Duration.millis(animationDurationMillis), dividerKeyValue, leftButtonKeyValue, rightButtonKeyValue);
 
             Timeline timeline = new Timeline(keyFrame);
             timeline.play();
@@ -143,5 +137,4 @@ public class CattleController {
             }
         }
     }
-
 }

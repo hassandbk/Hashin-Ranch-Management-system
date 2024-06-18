@@ -38,10 +38,7 @@
             <!-- Add sorting options -->
         </ComboBox>
         <CheckBox fx:id="ascendingOrderCheckBox" text="Ascending" GridPane.columnIndex="2" />
-        <Label text="Bulk Actions:" GridPane.columnIndex="5" />
-        <ComboBox fx:id="bulkActionsComboBox" minWidth="-Infinity"  GridPane.columnIndex="6" GridPane.hgrow="ALWAYS">
-            <!-- Add bulk action options -->
-        </ComboBox>
+
 
          <Label fx:id="selectedAnimal" alignment="CENTER" prefHeight="26.0" prefWidth="100.0" text="NONE" textFill="#1d2984" GridPane.columnIndex="4">
             <font>

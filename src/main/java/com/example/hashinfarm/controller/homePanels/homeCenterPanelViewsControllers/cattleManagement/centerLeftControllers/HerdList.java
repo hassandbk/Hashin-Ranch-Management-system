@@ -16,7 +16,6 @@ import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -80,9 +79,8 @@ public class HerdList {
       };
   @FXML private TextField searchField;
   @FXML private CheckBox ascendingOrderCheckBox;
-  @FXML
-  private ComboBox<String> bulkActionsComboBox,
-      sortingComboBox; // Assuming columnNames is a list of Strings
+    @FXML
+    private ComboBox<String> sortingComboBox; // Assuming columnNames is a list of Strings
   @FXML private TableView<Herd> tableView;
   @FXML private Label selectedAnimal;
   private Timer timer;
@@ -96,33 +94,6 @@ public class HerdList {
     setupSortingComboBox();
   }
 
-//  private void setupSearchField() {
-//    searchField
-//        .textProperty()
-//        .addListener(
-//            (observable, oldValue, newValue) -> {
-//              if (timer != null) {
-//                timer.cancel();
-//              }
-//              timer = new Timer();
-//              timer.schedule(
-//                  new TimerTask() {
-//                    @Override
-//                    public void run() {
-//                      Platform.runLater(() -> filterTable(newValue));
-//                    }
-//                  },
-//                  500);
-//            });
-//
-//    try {
-//      List<String> uniqueNames = HerdDAO.getUniqueNamesFromHerd();
-//      String[] possibleSuggestions = uniqueNames.toArray(new String[0]);
-//      bindAutoCompletion(searchField, possibleSuggestions);
-//    } catch (SQLException e) {
-//      AppLogger.error("Failed to load unique names for autocompletion", e);
-//    }
-//  }
 
   private void setupSearchField() {
     searchField.textProperty().addListener((observable, oldValue, newValue) -> {
@@ -244,79 +215,116 @@ public class HerdList {
 
   private Callback<TableColumn<Herd, String>, TableCell<Herd, String>> getAnimalsCellFactory() {
     return param ->
-        new TableCell<>() {
-          @Override
-          protected void updateItem(String item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty) {
-              setText(null);
-            } else {
-              setText(item);
-              setStyle("-fx-text-fill: blue;");
-              setOnMouseClicked(
-                  event -> {
-                    Herd herd = getTableView().getItems().get(getIndex());
-                    if (!herd.getAnimals().isEmpty()) {
-                      openAnimalListView(herd);
-                    } else {
-                      System.out.println("No animals in this herd.");
-                    }
-                  });
-            }
-          }
-        };
+            new TableCell<>() {
+              @Override
+              protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                  setText(null);
+                } else {
+                  setText(item);
+                  setStyle("-fx-text-fill: blue;");
+                  setOnMouseClicked(
+                          event -> {
+                            Herd herd = getTableView().getItems().get(getIndex());
+                            if (!herd.getAnimals().isEmpty()) {
+                              openAnimalListView(herd);
+                            } else {
+                              showAlert(Alert.AlertType.INFORMATION, "Information", "No animals in this herd.");
+                            }
+                          });
+                }
+              }
+            };
   }
+
 
   private Callback<TableColumn<Herd, String>, TableCell<Herd, String>> getActionCellFactory() {
     return param ->
-        new TableCell<>() {
-          private final Button viewButton = new Button("View");
-          private final Button editButton = new Button("Edit");
-          private final Button deleteButton = new Button("Delete");
-          private final HBox buttonsBox = new HBox(viewButton, editButton, deleteButton);
+            new TableCell<>() {
+              private final Button viewButton = new Button("View");
+              private final Button editButton = new Button("Edit");
+              private final Button deleteButton = new Button("Delete");
+              private final HBox buttonsBox = new HBox(viewButton, editButton, deleteButton);
 
-          {
-            viewButton.setOnAction(
-                event -> showViewStage(param.getTableView().getItems().get(getIndex()).getId()));
-            editButton.setOnAction(
-                event -> showEditStage(param.getTableView().getItems().get(getIndex()).getId()));
-            deleteButton.setOnAction(
-                event ->
-                    showDeleteConfirmation(
-                        param.getTableView().getItems().get(getIndex()).getId()));
-          }
+              {
+                viewButton.setOnAction(
+                        event -> showViewStage(param.getTableView().getItems().get(getIndex()).getId()));
+                editButton.setOnAction(
+                        event -> showEditStage(param.getTableView().getItems().get(getIndex()).getId()));
+                deleteButton.setOnAction(
+                        event ->
+                                showDeleteConfirmation(
+                                        param.getTableView().getItems().get(getIndex()).getId()));
+              }
 
-          @Override
-          protected void updateItem(String item, boolean empty) {
-            super.updateItem(item, empty);
-            if (empty) {
-              setGraphic(null);
-            } else {
-              setGraphic(buttonsBox);
-            }
-          }
-        };
+              @Override
+              protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                  setGraphic(null);
+                } else {
+                  setGraphic(buttonsBox);
+                }
+              }
+            };
   }
 
-  private void setupData() {
+
+  private void loadDataFromDatabase() throws SQLException {
+    List<Herd> herdsFromDB = HerdDAO.getAllHerds();
+
+    for (Herd herd : herdsFromDB) {
+      List<Cattle> cattleForHerd = CattleDAO.getCattleForHerd(herd.getId());
+      ObservableList<Cattle> cattleObservableList =
+              FXCollections.observableArrayList(cattleForHerd);
+      herd.setAnimals(cattleObservableList);
+    }
+
+    herds.addAll(herdsFromDB);
+  }
+
+  private void handleDataLoadException(SQLException e) {
+    AppLogger.error("Failed to load herd data", e);
+    // Handle data loading error (optional)
+    handleError(); // You can define a method to handle the error
+  }
+
+  public void setupData() {
     try {
-      List<Herd> herdsFromDB = HerdDAO.getAllHerds();
-
-      for (Herd herd : herdsFromDB) {
-        List<Cattle> cattleForHerd = CattleDAO.getCattleForHerd(herd.getId());
-        ObservableList<Cattle> cattleObservableList =
-            FXCollections.observableArrayList(cattleForHerd);
-        herd.setAnimals(cattleObservableList);
-      }
-
-      herds.addAll(herdsFromDB);
-      filteredHerds.addAll(herdsFromDB);
+      loadDataFromDatabase();
+      filteredHerds.addAll(herds); // Assuming filteredHerds should also be populated
     } catch (SQLException e) {
-      AppLogger.error("Failed to load herd data", e);
-      // Handle data loading error (optional)
-      handleError(); // You can define a method to handle the error
+      handleDataLoadException(e);
     }
   }
+
+  public void refreshTable() {
+    herds.clear(); // Clear the existing data
+    try {
+      loadDataFromDatabase();
+    } catch (SQLException e) {
+      AppLogger.error("Error refreshing herd table", e);
+      showAlert(
+              Alert.AlertType.ERROR, "Error", "Failed to refresh herd table. See logs for details.");
+    }
+  }
+
+  public void refreshHerdTable() {
+    herds.clear(); // Clear the existing data
+    try {
+      loadDataFromDatabase();
+      showAlert(Alert.AlertType.INFORMATION, "Success", "Herd table refreshed successfully.");
+    } catch (SQLException e) {
+      AppLogger.error("Error refreshing herd table", e);
+      showAlert(
+              Alert.AlertType.ERROR, "Error", "Failed to refresh herd table. See logs for details.");
+    }
+  }
+
+
+
+
 
   private void handleError() {
     // Display an error message to the user
@@ -537,7 +545,7 @@ public class HerdList {
   }
 
   @FXML
-  private void addNewHerd(ActionEvent actionEvent) {
+  private void addNewHerd() {
     try {
       FXMLLoader loader =
           new FXMLLoader(
@@ -560,53 +568,13 @@ public class HerdList {
       AppLogger.error("Error loading Add New Herd FXML", e);
     }
   }
-
-  public void refreshTable() {
-    herds.clear(); // Clear the existing data
-    try {
-      List<Herd> herdsFromDB = HerdDAO.getAllHerds();
-      for (Herd herd : herdsFromDB) {
-        List<Cattle> cattleForHerd = CattleDAO.getCattleForHerd(herd.getId());
-        ObservableList<Cattle> cattleObservableList =
-            FXCollections.observableArrayList(cattleForHerd);
-        herd.setAnimals(cattleObservableList);
-      }
-      herds.addAll(herdsFromDB); // Add the updated data
-    } catch (SQLException e) {
-      // Use AppLogger for error handling
-      AppLogger.error("Error refreshing herd table", e);
-      // Update error message in showAlert
-      showAlert(
-          Alert.AlertType.ERROR, "Error", "Failed to refresh herd table. See logs for details.");
-    }
-  }
-
-  public void refreshHerdTable() {
-    herds.clear(); // Clear the existing data
-    try {
-      List<Herd> herdsFromDB = HerdDAO.getAllHerds();
-      for (Herd herd : herdsFromDB) {
-        List<Cattle> cattleForHerd = CattleDAO.getCattleForHerd(herd.getId());
-        ObservableList<Cattle> cattleObservableList =
-            FXCollections.observableArrayList(cattleForHerd);
-        herd.setAnimals(cattleObservableList);
-      }
-      herds.addAll(herdsFromDB); // Add the updated data
-      showAlert(Alert.AlertType.INFORMATION, "Success", "Herd table refreshed successfully.");
-    } catch (SQLException e) {
-      // Use AppLogger for error handling
-      AppLogger.error("Error refreshing herd table", e);
-      // Update error message in showAlert
-      showAlert(
-          Alert.AlertType.ERROR, "Error", "Failed to refresh herd table. See logs for details.");
-    }
-  }
-
   private void showAlert(Alert.AlertType alertType, String title, String message) {
-    Alert alert = new Alert(alertType);
-    alert.setTitle(title);
-    alert.setHeaderText(null);
-    alert.setContentText(message);
-    alert.showAndWait();
+    Platform.runLater(() -> {
+      Alert alert = new Alert(alertType);
+      alert.setTitle(title);
+      alert.setHeaderText(null);
+      alert.setContentText(message);
+      alert.showAndWait();
+    });
   }
 }

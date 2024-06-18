@@ -1,32 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.String?>
-<?import javafx.collections.FXCollections?>
-<?import javafx.geometry.Insets?>
-<?import javafx.scene.control.Button?>
-<?import javafx.scene.control.ComboBox?>
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.ListView?>
-<?import javafx.scene.control.RadioButton?>
-<?import javafx.scene.control.ScrollPane?>
-<?import javafx.scene.control.Separator?>
-<?import javafx.scene.control.Spinner?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextArea?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.control.ToggleGroup?>
-<?import javafx.scene.control.Tooltip?>
-<?import javafx.scene.control.TreeView?>
-<?import javafx.scene.layout.ColumnConstraints?>
-<?import javafx.scene.layout.GridPane?>
-<?import javafx.scene.layout.HBox?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.VBox?>
-<?import javafx.scene.text.Font?>
+<?import java.lang.*?>
+<?import javafx.collections.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.ProductivityAndCalving">
+<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/17.0.2-ea" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.ProductivityAndCalving">
     <VBox spacing="10.0">
 
         <VBox spacing="10" />
@@ -409,25 +391,36 @@
         </HBox>
         <GridPane fx:id="gridPaneProduction" alignment="CENTER" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
 
-            <Label text="Morning Session" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                <font>
-                    <Font name="System Bold Italic" size="12.0" />
-                </font>
-            </Label>
+            <Label text="Start Time" textFill="#16ec07" GridPane.columnIndex="1">
+            <font>
+               <Font name="Bauhaus 93" size="18.0" />
+            </font></Label>
 
-            <Label text="Start Time" GridPane.rowIndex="1" />
-
-            <Label text="End Time" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-
-            <Label text="Duration" GridPane.columnIndex="4">
-                <font>
-                    <Font name="System Bold" size="14.0" />
-                </font>
-            </Label>
-            <Label fx:id="morningDuration" text="2 hours" GridPane.columnIndex="4" GridPane.rowIndex="1" />
-
-            <Label text="Quality Score" GridPane.columnIndex="5" GridPane.rowIndex="1" />
-            <ComboBox fx:id="morningQualityScore" GridPane.columnIndex="6" GridPane.rowIndex="1">
+            <Label text="End Time" textFill="#ec0b0b" GridPane.columnIndex="2">
+            <font>
+               <Font name="Bauhaus 93" size="17.0" />
+            </font></Label>
+            <ComboBox fx:id="morningQualityScore" GridPane.columnIndex="4" GridPane.rowIndex="1">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Excellent" />
+                        <String fx:value="Good" />
+                        <String fx:value="Fair" />
+                        <String fx:value="Poor" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+            <ComboBox fx:id="afternoonQualityScore" GridPane.columnIndex="4" GridPane.rowIndex="3">
+                <items>
+                    <FXCollections fx:factory="observableArrayList">
+                        <String fx:value="Excellent" />
+                        <String fx:value="Good" />
+                        <String fx:value="Fair" />
+                        <String fx:value="Poor" />
+                    </FXCollections>
+                </items>
+            </ComboBox>
+            <ComboBox fx:id="eveningQualityScore" GridPane.columnIndex="4" GridPane.rowIndex="5">
                 <items>
                     <FXCollections fx:factory="observableArrayList">
                         <String fx:value="Excellent" />
@@ -438,122 +431,151 @@
                 </items>
             </ComboBox>
 
-            <Label text="Afternoon Session" GridPane.columnIndex="0" GridPane.rowIndex="2">
-                <font>
-                    <Font name="System Bold Italic" size="11.0" />
-                </font>
-            </Label>
-
-            <Label text="Start Time" GridPane.rowIndex="3" />
-
-            <Label text="End Time" GridPane.columnIndex="2" GridPane.rowIndex="3" />
-
-            <Label text="Duration" GridPane.columnIndex="4" />
-            <Label fx:id="afternoonDuration" text="2 hours" GridPane.columnIndex="4" GridPane.rowIndex="3" />
-
-            <Label text="Quality Score" GridPane.columnIndex="5" GridPane.rowIndex="3" />
-            <ComboBox fx:id="afternoonQualityScore" GridPane.columnIndex="6" GridPane.rowIndex="3">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Excellent" />
-                        <String fx:value="Good" />
-                        <String fx:value="Fair" />
-                        <String fx:value="Poor" />
-                    </FXCollections>
-                </items>
-            </ComboBox>
-
-            <Label text="Evening Session" GridPane.columnIndex="0" GridPane.rowIndex="4">
-                <font>
-                    <Font name="System Bold Italic" size="12.0" />
-                </font>
-            </Label>
-
-            <Label text="Start Time" GridPane.rowIndex="5" />
-
-            <Label text="End Time" GridPane.columnIndex="2" GridPane.rowIndex="5" />
-
-            <Label text="Duration" GridPane.columnIndex="4" />
-            <Label fx:id="eveningDuration" text="2 hours" GridPane.columnIndex="4" GridPane.rowIndex="5" />
-
-            <Label text="Quality Score" GridPane.columnIndex="5" GridPane.rowIndex="5" />
-            <ComboBox fx:id="eveningQualityScore" GridPane.columnIndex="6" GridPane.rowIndex="5">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Excellent" />
-                        <String fx:value="Good" />
-                        <String fx:value="Fair" />
-                        <String fx:value="Poor" />
-                    </FXCollections>
-                </items>
-            </ComboBox>
-
-            <Label fx:id="volumeLabel1" text="Unknown Stage: (Morning)" GridPane.columnIndex="7" GridPane.rowIndex="1" />
-            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="8" GridPane.rowIndex="1">
-                <Spinner fx:id="spinnerMorning" maxWidth="100.0" minWidth="100.0" />
+            <Label fx:id="volumeLabel1" text="N/A : (Morning)" GridPane.columnIndex="6" GridPane.rowIndex="1" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="7" GridPane.rowIndex="1">
+                <Spinner fx:id="spinnerMorning" maxWidth="80.0" minWidth="80.0" />
                 <Label text="Ltrs" />
             </HBox>
 
-            <Label fx:id="volumeLabel2" text="Unknown Stage: (Afternoon)" GridPane.columnIndex="7" GridPane.rowIndex="3" />
-            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="8" GridPane.rowIndex="3">
-                <Spinner fx:id="spinnerAfternoon" maxWidth="100.0" minWidth="100.0" />
+            <Label fx:id="volumeLabel2" text="N/A : (Afternoon)" GridPane.columnIndex="6" GridPane.rowIndex="3" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="7" GridPane.rowIndex="3">
+                <Spinner fx:id="spinnerAfternoon" maxWidth="80.0" minWidth="80.0" />
                 <Label text="Ltrs" />
             </HBox>
 
-            <Label fx:id="volumeLabel3" text="Unknown Stage: (Evening)" GridPane.columnIndex="7" GridPane.rowIndex="5" />
-            <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="8" GridPane.rowIndex="5">
-                <Spinner fx:id="spinnerEvening" maxWidth="100.0" minWidth="100.0" />
+            <Label fx:id="volumeLabel3" text="N/A : (Evening)" GridPane.columnIndex="6" GridPane.rowIndex="5" />
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="7" GridPane.rowIndex="5">
+                <Spinner fx:id="spinnerEvening" maxWidth="80.0" minWidth="80.0" />
                 <Label text="Ltrs" />
             </HBox>
 
             <HBox spacing="10.0" GridPane.columnIndex="9" GridPane.rowIndex="1">
-                <Button fx:id="addMorning" minHeight="-Infinity" minWidth="50.0" mnemonicParsing="false" prefWidth="50.0" text="Add" />
-                <Button fx:id="modifyMorning" minHeight="-Infinity" minWidth="60.0" mnemonicParsing="false" prefWidth="60.0" text="Modify" />
+                <Button fx:id="morningSessionButton" minHeight="-Infinity" minWidth="80.0" mnemonicParsing="false" onAction="#handleAddOrUpdateProductionSession" prefWidth="80.0" text="Add" />
+                <Button fx:id="deleteMorningSession" minHeight="-Infinity" minWidth="60.0" mnemonicParsing="false" onAction="#handleDeleteProductionSession" prefWidth="60.0" text="Delete" />
             </HBox>
             <HBox spacing="10.0" GridPane.columnIndex="9" GridPane.rowIndex="3">
-                <Button fx:id="addAfternoon" minHeight="-Infinity" minWidth="50.0" mnemonicParsing="false" prefWidth="50.0" text="Add" />
-                <Button fx:id="modifyAfternoon" minHeight="-Infinity" minWidth="60.0" mnemonicParsing="false" prefWidth="60.0" text="Modify" />
+                <Button fx:id="afternoonSessionButton" minHeight="-Infinity" minWidth="80.0" mnemonicParsing="false" onAction="#handleAddOrUpdateProductionSession" prefWidth="80.0" text="Add" />
+                <Button fx:id="deleteAfternoonSession" minHeight="-Infinity" minWidth="60.0" mnemonicParsing="false" onAction="#handleDeleteProductionSession" prefWidth="60.0" text="Delete" />
             </HBox>
             <HBox spacing="10.0" GridPane.columnIndex="9" GridPane.rowIndex="5">
-                <Button fx:id="addEvening" minHeight="-Infinity" minWidth="50.0" mnemonicParsing="false" prefWidth="50.0" text="Add" />
-                <Button fx:id="modifyEvening" minHeight="-Infinity" minWidth="60.0" mnemonicParsing="false" prefWidth="60.0" text="Modify" />
+                <Button fx:id="eveningSessionButton" minHeight="-Infinity" minWidth="80.0" mnemonicParsing="false" onAction="#handleAddOrUpdateProductionSession" prefWidth="80.0" text="Add" />
+                <Button fx:id="deleteEveningSession" minHeight="-Infinity" minWidth="60.0" mnemonicParsing="false" onAction="#handleDeleteProductionSession" prefWidth="60.0" text="Delete" />
             </HBox>
-            <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                <Button fx:id="morningStartTimeButton" onAction="#showTimePicker" text="Select Time"/>
-                <TextField fx:id="morningStartTimeTextField" maxWidth="60.0"/>
+            <HBox id="dark-blue" alignment="CENTER" maxWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+               <TextField fx:id="morningStartTimeTextField" maxWidth="100.0" />
+                <Button fx:id="morningStartTimeButton" onAction="#showTimePicker" styleClass="round-button2">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="20.0">
+                            <Image url="@../../../../../../../icons/timePicker.png" />
+                        </ImageView>
+                    </graphic>
+                </Button>
             </HBox>
-            <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="3">
-                <Button fx:id="afternoonStartTimeButton" onAction="#showTimePicker" text="Select Time"/>
-                <TextField fx:id="afternoonStartTimeTextField" maxWidth="60.0"/>
+            <HBox id="dark-blue" alignment="CENTER" maxWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="3">
+                <TextField fx:id="afternoonStartTimeTextField" maxWidth="100.0" />
+                <Button fx:id="afternoonStartTimeButton" onAction="#showTimePicker" styleClass="round-button2">
+                <graphic>
+                    <ImageView fitHeight="30.0" fitWidth="20.0">
+                        <Image url="@../../../../../../../icons/timePicker.png" />
+                    </ImageView>
+                </graphic>
+                </Button>
             </HBox>
-            <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                <Button fx:id="eveningStartTimeButton" onAction="#showTimePicker" text="Select Time"/>
-                <TextField fx:id="eveningStartTimeTextField" maxWidth="60.0"/>
+
+            <HBox id="dark-blue" alignment="CENTER" maxWidth="150.0" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                <TextField fx:id="eveningStartTimeTextField" maxWidth="100.0" />
+                <Button fx:id="eveningStartTimeButton" onAction="#showTimePicker" styleClass="round-button2">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="20.0">
+                            <Image url="@../../../../../../../icons/timePicker.png" />
+                        </ImageView>
+                    </graphic>
+                </Button>
             </HBox>
-            <HBox alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="1">
-                <Button fx:id="morningEndTimeButton" onAction="#showTimePicker" text="Select Time"/>
-                <TextField fx:id="morningEndTimeTextField" maxWidth="60.0"/>
+
+            <HBox id="dark-blue" alignment="CENTER" maxWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                <TextField fx:id="morningEndTimeTextField" maxWidth="100.0" />
+                <Button fx:id="morningEndTimeButton" onAction="#showTimePicker" styleClass="round-button2">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="20.0">
+                            <Image url="@../../../../../../../icons/timePicker.png" />
+                        </ImageView>
+                    </graphic>
+                </Button>
+
             </HBox>
-            <HBox alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="3">
-                <Button fx:id="afternoonEndTimeButton" onAction="#showTimePicker" text="Select Time"/>
-                <TextField fx:id="afternoonEndTimeTextField" maxWidth="60.0"/>
+            <HBox id="dark-blue" alignment="CENTER" maxWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                <TextField fx:id="afternoonEndTimeTextField" maxWidth="100.0" />
+                <Button fx:id="afternoonEndTimeButton" onAction="#showTimePicker" styleClass="round-button2">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="20.0">
+                            <Image url="@../../../../../../../icons/timePicker.png" />
+                        </ImageView>
+                    </graphic>
+                </Button>
+
             </HBox>
-            <HBox alignment="CENTER" GridPane.columnIndex="3" GridPane.rowIndex="5">
-                <Button fx:id="eveningEndTimeButton" onAction="#showTimePicker" text="Select Time"/>
-                <TextField fx:id="eveningEndTimeTextField" maxWidth="60.0"/>
+            <HBox id="dark-blue" alignment="CENTER" maxWidth="150.0" GridPane.columnIndex="2" GridPane.rowIndex="5">
+                <TextField fx:id="eveningEndTimeTextField" maxWidth="100.0" />
+                <Button fx:id="eveningEndTimeButton" onAction="#showTimePicker" styleClass="round-button2">
+                    <graphic>
+                        <ImageView fitHeight="30.0" fitWidth="20.0">
+                            <Image url="@../../../../../../../icons/timePicker.png" />
+                        </ImageView>
+                    </graphic>
+                </Button>
+            </HBox>
+         <HBox prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+            <HBox alignment="CENTER" GridPane.columnIndex="4">
+                <Label text="Quality Score">
+                    <font>
+                        <Font name="System Bold" size="14.0" />
+                    </font>
+                </Label>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="6" GridPane.columnSpan="2">
+                <Label text="Production Volume" textFill="#99840f">
+                    <font>
+                        <Font name="Bauhaus 93" size="18.0" />
+                    </font>
+                </Label>
+            </HBox>
+         <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="3" GridPane.rowIndex="1" GridPane.rowSpan="5" />
+         <Separator orientation="VERTICAL" GridPane.columnIndex="5" GridPane.rowIndex="1" GridPane.rowSpan="5" />
+         <Separator orientation="VERTICAL" GridPane.columnIndex="8" GridPane.rowSpan="6" />
+            <HBox alignment="CENTER" GridPane.rowIndex="5">
+                <Label text="Evening Session" wrapText="true" HBox.hgrow="ALWAYS">
+                    <font>
+                        <Font name="System Bold Italic" size="14.0" />
+                    </font>
+                </Label>
+            </HBox>
+            <HBox alignment="CENTER" prefHeight="100.0" GridPane.rowIndex="3">
+                <Label text="Afternoon Session">
+                    <font>
+                        <Font name="System Bold Italic" size="14.0" />
+                    </font>
+                </Label>
+            </HBox>
+            <HBox alignment="CENTER" GridPane.rowIndex="1">
+                <Label text="Morning Session">
+                    <font>
+                        <Font name="System Bold Italic" size="14.0" />
+                    </font>
+                </Label>
             </HBox>
 
             <columnConstraints>
-                <ColumnConstraints maxWidth="112.0" minWidth="10.0" prefWidth="112.0" />
-                <ColumnConstraints minWidth="120.0" />
-                <ColumnConstraints maxWidth="61.0" minWidth="35.0" prefWidth="61.0" />
-                <ColumnConstraints minWidth="120.0" />
-                <ColumnConstraints minWidth="70.0" />
-                <ColumnConstraints minWidth="100.0" />
-                <ColumnConstraints minWidth="100.0" />
-                <ColumnConstraints hgrow="ALWAYS" maxWidth="220.0" minWidth="150.0" />
-                <ColumnConstraints hgrow="ALWAYS" maxWidth="100.0" minWidth="150.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="ALWAYS" />
+                <ColumnConstraints minWidth="10.0" />
+                <ColumnConstraints halignment="CENTER" maxWidth="180.0" minWidth="120.0" prefWidth="164.0" />
+                <ColumnConstraints halignment="CENTER" maxWidth="180.0" minWidth="120.0" prefWidth="164.0" />
+                <ColumnConstraints halignment="CENTER" maxWidth="180.0" />
+                <ColumnConstraints halignment="CENTER" maxWidth="140.0" minWidth="100.0" prefWidth="100.0" />
+                <ColumnConstraints halignment="CENTER" />
+                <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="220.0" minWidth="150.0" />
+            <ColumnConstraints halignment="CENTER" hgrow="ALWAYS" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" />
+            <ColumnConstraints halignment="CENTER" />
+            <ColumnConstraints hgrow="ALWAYS" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" />
@@ -567,7 +589,7 @@
 
         <HBox alignment="CENTER" spacing="10">
 
-            <Button fx:id="saveUpdateProduction" onAction="#handleSaveOrUpdateProduction" text="Production" />
+            <Button fx:id="saveUpdateProduction" text="Production" />
 
         </HBox>
         <Separator prefWidth="200.0" />
@@ -581,7 +603,7 @@
                 <RowConstraints maxHeight="124.80001106262208" minHeight="10.0" prefHeight="102.80000114440918" vgrow="SOMETIMES" />
             </rowConstraints>
 
-            <ListView fx:id="healthAlertsListView" GridPane.rowIndex="1">
+            <ListView GridPane.rowIndex="1">
                 <items>
                     <FXCollections fx:factory="observableArrayList">
                         <String fx:value="Unusual Milk Production Pattern" />

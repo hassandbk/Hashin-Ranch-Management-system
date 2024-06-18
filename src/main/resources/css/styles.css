@@ -2,7 +2,24 @@
     -fx-background-radius: 5em;
     -fx-min-width: 50px;
     -fx-min-height: 50px;
+    -fx-background-color: transparent;
 }
+.round-button2 {
+    -fx-background-radius: 10em;
+    -fx-min-width: 20px;
+    -fx-min-height: 30px;
+    -fx-background-color: transparent;
+    -fx-border-color: #6c6a6a;
+    -fx-border-width: 1px;
+    -fx-padding: 10px;
+    -fx-transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+}
+
+.round-button2:hover {
+      -fx-opacity: 0.8; /* Slight opacity change */
+}
+
+
 /* General Styling */
 .table-view{
     -fx-background-color: transparent;
@@ -265,7 +282,7 @@
     -fx-font-family: "Arial";
     -fx-text-fill: linear-gradient(white, #d0d0d0);
     -fx-font-size: 12px;
-    -fx-padding: 10 20 10 20;
+    -fx-padding: 5 5 5 5;
 }
 #dark-blue Text {
     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.9) , 1, 0.0 , 0 , 1 );
@@ -377,7 +394,6 @@
     -fx-text-fill: #242d35;
     -fx-font-family: "Helvetica";
     -fx-font-size: 12px;
-    -fx-text-fill: white;
 }
 #iphone Text {
     -fx-effect: dropshadow( one-pass-box , rgba(0,0,0,0.8) , 0, 0.0 , 0 , -1 );
@@ -463,3 +479,6 @@
     -fx-text-fill: black;
     -fx-font-size: 14px;
 }
+
+
+

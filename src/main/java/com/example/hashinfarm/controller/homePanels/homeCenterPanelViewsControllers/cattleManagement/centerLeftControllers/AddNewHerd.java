@@ -2,12 +2,12 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 
 import com.example.hashinfarm.controller.dao.HerdDAO;
 import com.example.hashinfarm.model.Herd;
-import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.jetbrains.annotations.NotNull;
 
 import java.sql.SQLException;
 
@@ -27,19 +27,8 @@ public class AddNewHerd {
     }
 
     @FXML
-    private void handleAddHerd(ActionEvent actionEvent) {
-        String name = herdNameTextField.getText();
-        String location = locationTextField.getText();
-        String animalClass = animalClassComboBox.getValue();
-        String breedType = breedTypeComboBox.getValue();
-        String breedSystem = breedSystemComboBox.getValue();
-        String solutionType = solutionTypeComboBox.getValue();
-        String ageClass = ageClassComboBox.getValue();
-        String feedBasis = feedBasisComboBox.getValue();
-
-        // Perform validation if needed
-
-        Herd herd = new Herd(0, name, 0, animalClass, breedType, ageClass, breedSystem, solutionType, feedBasis, location, "");
+    private void handleAddHerd() {
+        Herd herd = getHerd();
 
         try {
             // Attempt to add herd to the database
@@ -59,6 +48,21 @@ public class AddNewHerd {
             // Show error message
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to add herd: " + e.getMessage());
         }
+    }
+
+    private @NotNull Herd getHerd() {
+        String name = herdNameTextField.getText();
+        String location = locationTextField.getText();
+        String animalClass = animalClassComboBox.getValue();
+        String breedType = breedTypeComboBox.getValue();
+        String breedSystem = breedSystemComboBox.getValue();
+        String solutionType = solutionTypeComboBox.getValue();
+        String ageClass = ageClassComboBox.getValue();
+        String feedBasis = feedBasisComboBox.getValue();
+
+        // Perform validation if needed
+
+        return new Herd(0, name, 0, animalClass, breedType, ageClass, breedSystem, solutionType, feedBasis, location, "");
     }
 
     private void showAlert(Alert.AlertType alertType, String title, String message) {
