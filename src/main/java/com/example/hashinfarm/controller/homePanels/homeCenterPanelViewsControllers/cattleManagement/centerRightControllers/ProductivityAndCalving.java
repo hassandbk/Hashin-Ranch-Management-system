@@ -20,6 +20,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
+import javafx.scene.shape.Circle;
 import javafx.stage.*;
 
 import javafx.util.Pair;
@@ -78,7 +79,7 @@ public class ProductivityAndCalving {
 
     // Buttons for Operations
     @FXML private boolean saveButtonPressed = true;
-    @FXML private Button saveButton, updateButton, modifyLactationButton, clearButton, saveUpdateProduction;
+    @FXML private Button saveButton, updateButton, modifyLactationButton, clearButton,compareCowBtn;
     @FXML private Button morningSessionButton, afternoonSessionButton, eveningSessionButton,deleteMorningSession,deleteAfternoonSession,deleteEveningSession;
     @FXML private Button morningStartTimeButton, morningEndTimeButton, afternoonStartTimeButton, afternoonEndTimeButton, eveningStartTimeButton, eveningEndTimeButton;
 
@@ -88,8 +89,6 @@ public class ProductivityAndCalving {
     @FXML private RadioButton pregnantRadioBtn, notPregnantRadioBtn;
 
     // TextArea, VBox, Labels, and TextFields
-    @FXML private TextArea healthNotesTextArea;
-    @FXML private VBox compareCowBtn;
     @FXML private Label productionStageLabel, volumeLabel1, volumeLabel2, volumeLabel3, lactationPeriodLabel, stagePeriodLabel, currentProductionStageLabel, daysSinceCalvingLabel, relativeMilkYieldLabel, milkYieldLabel, targetCalvingAgeLabel, ageAtFirstCalvingLabel, projectedCalvingDate, currentPeriodLabel, ongoingLactationPeriodLabel;
     @FXML private TextArea daysInPregnancyTextArea;
     @FXML private TextField daysInLactationTextField, calvingIntervalTextField, currentDateTextField, lactationStartDateField;
@@ -97,7 +96,7 @@ public class ProductivityAndCalving {
     @FXML private ComboBox<String> morningQualityScore, afternoonQualityScore, eveningQualityScore;
 
     // Toggle Groups, DatePickers, and TableView
-    @FXML private ToggleGroup pregnancyStatus, toggleGroup;
+    @FXML private ToggleGroup pregnancyStatus;
     @FXML private DatePicker lactationEndDatePicker, selectStartDate, selectEndDate, calvingDate, lastBreedingDate, productionSessionDatePicker;
     @FXML private TableView<ReproductiveVariables> calvingHistoryTableView;
     @FXML private TreeView<String> stageOfPregnancy;
@@ -129,7 +128,7 @@ public class ProductivityAndCalving {
         initializeSpinners();
         initializeAllHeartbeats();
         initializeFieldChangeListeners();
-
+        initializeEndTimeButtonListeners();
 
     }
 
@@ -1424,7 +1423,7 @@ public class ProductivityAndCalving {
                                             // Update added cattle date of birth to use the reproductive variable original calving date
                                             LocalDate originalCalvingDate = originalReproductiveVariables.getCalvingDate();
 
-                                                CattleDAO.updateCattleDateOfBirth(newCattleId, originalCalvingDate);
+                                            CattleDAO.updateCattleDateOfBirth(newCattleId, originalCalvingDate);
 
 
                                             showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Lactation Period data. Reverted to original reproductive data.");
@@ -1612,7 +1611,7 @@ public class ProductivityAndCalving {
                         clearReproductiveData();
                     } else {
                         conn.rollback();
-                         showFailureAlert("Failed to delete reproductive variable.");
+                        showFailureAlert("Failed to delete reproductive variable.");
                     }
                 } else {
                     conn.rollback();
@@ -2239,7 +2238,6 @@ public class ProductivityAndCalving {
         for (Node node : gridPaneProduction.getChildren()) {
             node.setDisable(disabled);
         }
-        saveUpdateProduction.setDisable(disabled);
         productionSessionDatePicker.setDisable(disabled);
     }
 
@@ -2362,13 +2360,16 @@ public class ProductivityAndCalving {
         populateFields(categorizedSessions.getOrDefault("Afternoon", new ArrayList<>()), "Afternoon");
         populateFields(categorizedSessions.getOrDefault("Evening", new ArrayList<>()), "Evening");
 
+        updateButtonText(categorizedSessions, "Morning", deleteMorningSession, true);
+        updateButtonText(categorizedSessions, "Afternoon", deleteAfternoonSession, true);
+        updateButtonText(categorizedSessions, "Evening", deleteEveningSession, true);
+
         morningSessionButton.setDisable(true);
         afternoonSessionButton.setDisable(true);
         eveningSessionButton.setDisable(true);
 
         storeInitialValues();
     }
-
 
     private void populateFields(List<ProductionSession> sessions, String sessionType) {
         if (sessions.isEmpty()) {
@@ -2399,12 +2400,14 @@ public class ProductivityAndCalving {
             default:
                 throw new IllegalArgumentException("Invalid session type: " + sessionType);
         }
-              morningSessionButton.setDisable(true);
-              afternoonSessionButton.setDisable(true);
-              eveningSessionButton.setDisable(true);
+
+        morningSessionButton.setDisable(true);
+        afternoonSessionButton.setDisable(true);
+        eveningSessionButton.setDisable(true);
 
         storeInitialValues();
     }
+
     private void storeInitialValues() {
         initialValues.put("morningStartTime", morningStartTimeTextField.getText());
         initialValues.put("morningEndTime", morningEndTimeTextField.getText());
@@ -2421,6 +2424,7 @@ public class ProductivityAndCalving {
         initialValues.put("eveningQualityScore", String.valueOf(eveningQualityScore.getValue()));
         initialValues.put("spinnerEvening", String.valueOf(spinnerEvening.getValue()));
     }
+
     private void initializeFieldChangeListeners() {
         // Listener for morning session fields
         addChangeListener(morningStartTimeTextField.textProperty(), "morningStartTime", "Morning");
@@ -2439,7 +2443,52 @@ public class ProductivityAndCalving {
         addChangeListener(eveningEndTimeTextField.textProperty(), "eveningEndTime", "Evening");
         addChangeListener(eveningQualityScore.valueProperty(), "eveningQualityScore", "Evening");
         addChangeListener(spinnerEvening.valueProperty(), "spinnerEvening", "Evening");
+
+        }
+    private void initializeEndTimeButtonListeners() {
+        // Create tooltips
+        Tooltip morningTooltip = new Tooltip("Please provide the Morning start time first.");
+        Tooltip afternoonTooltip = new Tooltip("Please provide the Afternoon start time first.");
+        Tooltip eveningTooltip = new Tooltip("Please provide the Evening start time first.");
+
+        // Set tooltips and disable end time buttons initially based on the current values of start time text fields
+        setEndTimeButtonStateAndTooltip(morningStartTimeTextField, morningEndTimeButton, morningTooltip);
+        setEndTimeButtonStateAndTooltip(afternoonStartTimeTextField, afternoonEndTimeButton, afternoonTooltip);
+        setEndTimeButtonStateAndTooltip(eveningStartTimeTextField, eveningEndTimeButton, eveningTooltip);
+
+        // Add listeners to start time text fields
+        morningStartTimeTextField.textProperty().addListener((observable, oldValue, newValue) -> setEndTimeButtonStateAndTooltip(morningStartTimeTextField, morningEndTimeButton, morningTooltip));
+
+        afternoonStartTimeTextField.textProperty().addListener((observable, oldValue, newValue) -> setEndTimeButtonStateAndTooltip(afternoonStartTimeTextField, afternoonEndTimeButton, afternoonTooltip));
+
+        eveningStartTimeTextField.textProperty().addListener((observable, oldValue, newValue) -> setEndTimeButtonStateAndTooltip(eveningStartTimeTextField, eveningEndTimeButton, eveningTooltip));
     }
+
+    private void setEndTimeButtonStateAndTooltip(TextField startTimeTextField, Button endTimeButton, Tooltip tooltip) {
+        boolean isEmpty = isStartTimeEmpty(startTimeTextField);
+        endTimeButton.setDisable(isEmpty);
+
+        if (isEmpty) {
+            // Install the tooltip on the parent container
+            Tooltip.install(endTimeButton.getParent(), tooltip);
+            endTimeButton.getParent().setOnMouseEntered(event -> {
+                if (endTimeButton.isDisabled()) {
+                    Bounds bounds = endTimeButton.localToScreen(endTimeButton.getBoundsInLocal());
+                    tooltip.show(endTimeButton, bounds.getMinX(), bounds.getMaxY());
+                }
+            });
+            endTimeButton.getParent().setOnMouseExited(event -> tooltip.hide());
+        } else {
+            Tooltip.uninstall(endTimeButton.getParent(), tooltip);
+        }
+    }
+
+    private boolean isStartTimeEmpty(TextField startTimeTextField) {
+        String startTime = startTimeTextField.getText();
+        return startTime == null || startTime.trim().isEmpty();
+    }
+
+
 
     private void addChangeListener(ObservableValue<?> property, String fieldName, String sessionType) {
         property.addListener((observable, oldValue, newValue) -> {
@@ -2453,12 +2502,39 @@ public class ProductivityAndCalving {
         boolean changed = fieldChanged(fieldName, sessionType);
         switch (sessionType) {
             case "Morning":
+                if (changed) {
+                    updateButtonTextOnChange(deleteMorningSession);
+                } else {
+                    try {
+                        updateDeleteButtonStateAndText(sessionType, deleteMorningSession);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 morningSessionButton.setDisable(!changed);
                 break;
             case "Afternoon":
+                if (changed) {
+                    updateButtonTextOnChange(deleteAfternoonSession);
+                } else {
+                    try {
+                        updateDeleteButtonStateAndText(sessionType, deleteAfternoonSession);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 afternoonSessionButton.setDisable(!changed);
                 break;
             case "Evening":
+                if (changed) {
+                    updateButtonTextOnChange(deleteEveningSession);
+                } else {
+                    try {
+                        updateDeleteButtonStateAndText(sessionType, deleteEveningSession);
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+                }
                 eveningSessionButton.setDisable(!changed);
                 break;
             default:
@@ -2466,10 +2542,203 @@ public class ProductivityAndCalving {
         }
     }
 
+    private void updateButtonTextOnChange(Button button) {
+        if ("Delete".equals(button.getText())) {
+            button.setText("Modify");
+        } else {
+            button.setText("Clear");
+        }
+        button.setDisable(false);
+    }
+
     private boolean fieldChanged(String fieldName, String sessionType) {
         String currentValue = getCurrentValue(fieldName, sessionType);
         String initialValue = initialValues.get(fieldName);
         return !Objects.equals(initialValue, currentValue);
+    }
+
+    @FXML
+    private void handleAddOrUpdateProductionSession(ActionEvent event) {
+        Button sourceButton = (Button) event.getSource();
+        String sessionType = getSessionTypeFromButton(sourceButton);
+
+        if (sourceButton.getText().equals("Save")) {
+            saveNewSession(sessionType);
+        } else if (sourceButton.getText().equals("Update")) {
+            updateExistingSession(sessionType);
+        }
+    }
+
+    private void saveNewSession(String sessionType) {
+        if (isSessionInputComplete(sessionType)) {
+            showAlertWithHighlight(sessionType);
+            return;
+        }
+
+        try {
+            ProductionSession newSession = createProductionSessionFromInput(sessionType);
+            ProductionSessionDAO.saveProductionSession(newSession);
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Production session saved successfully.");
+            refreshUI();
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to save production session: " + e.getMessage());
+        }
+    }
+
+    private void updateExistingSession(String sessionType) {
+        if (isSessionInputComplete(sessionType)) {
+            showAlertWithHighlight(sessionType);
+            return;
+        }
+
+        try {
+            Map<String, String> currentValues = getCurrentValues(sessionType);
+            Map<String, String> initialValues = getInitialValues(sessionType);
+
+            if (mapsEqual(currentValues, initialValues)) {
+                showAlert(Alert.AlertType.INFORMATION, "Information", "No changes detected.");
+                return;
+            }
+
+            LocalDateTime initialStartTime = parseDateTime(initialValues.get("startTime"));
+            LocalDateTime initialEndTime = parseDateTime(initialValues.get("endTime"));
+            ProductionSession existingSession = findExistingSessionByTime(initialStartTime, initialEndTime);
+
+            if (existingSession != null) {
+                updateSession(existingSession, currentValues);
+                ProductionSessionDAO.updateProductionSession(existingSession);
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Production session updated successfully.");
+                refreshUI();
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to find existing session.");
+            }
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to update production session: " + e.getMessage());
+            e.printStackTrace();
+        } catch (DateTimeParseException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse time: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+
+    private boolean isSessionInputComplete(String sessionType) {
+        return !switch (sessionType) {
+            case "Morning" ->
+                    !morningStartTimeTextField.getText().isEmpty() && !morningEndTimeTextField.getText().isEmpty();
+            case "Afternoon" ->
+                    !afternoonStartTimeTextField.getText().isEmpty() && !afternoonEndTimeTextField.getText().isEmpty();
+            case "Evening" ->
+                    !eveningStartTimeTextField.getText().isEmpty() && !eveningEndTimeTextField.getText().isEmpty();
+            default -> false;
+        };
+    }
+
+    private void refreshUI() {
+        populateFieldsBasedOnDateAndLactationPeriod(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
+        checkExistingSessionsAndUpdateButton(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
+    }
+
+    private String getSessionTypeFromButton(Button button) {
+        if (button == morningSessionButton) {
+            return "Morning";
+        } else if (button == afternoonSessionButton) {
+            return "Afternoon";
+        } else if (button == eveningSessionButton) {
+            return "Evening";
+        }
+        return null;
+    }
+
+    public void showModifyDialog(String sessionType, Button clickedButton) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Modify Session");
+        alert.setHeaderText(null);
+        alert.initStyle(StageStyle.UNDECORATED);
+
+        // Set a more descriptive and clear instruction
+        alert.setContentText("What would you like to do with this session?");
+
+        ButtonType restoreButtonType = new ButtonType("Restore");
+        ButtonType deleteButtonType = new ButtonType("Delete");
+        ButtonType cancelButtonType = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        alert.getButtonTypes().setAll(restoreButtonType, deleteButtonType, cancelButtonType);
+
+        // Apply CSS styles to buttons
+        DialogPane dialogPane = alert.getDialogPane();
+        
+        dialogPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/styles.css")).toExternalForm());
+        // Set the style ID for the dialog pane
+        dialogPane.setId("dark-blue");
+        // Apply style ID to buttons
+        Button restoreButton = (Button) dialogPane.lookupButton(restoreButtonType);
+        restoreButton.setId("set-button");
+
+        Button deleteButton = (Button) dialogPane.lookupButton(deleteButtonType);
+        deleteButton.setId("delete-button");
+
+        Button cancelButton = (Button) dialogPane.lookupButton(cancelButtonType);
+        cancelButton.setId("cancel-button");
+
+        Optional<ButtonType> result = alert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == restoreButtonType) {
+                restoreSessionFields(sessionType);
+                clickedButton.setText("Delete");
+            } else if (result.get() == deleteButtonType) {
+                deleteSession(sessionType);
+            }
+        }
+    }
+
+    private void restoreSessionFields(String sessionType) {
+        switch (sessionType) {
+            case "Morning":
+                morningStartTimeTextField.setText(initialValues.get("morningStartTime"));
+                morningEndTimeTextField.setText(initialValues.get("morningEndTime"));
+                morningQualityScore.setValue(initialValues.get("morningQualityScore"));
+                spinnerMorning.getValueFactory().setValue(Double.valueOf(initialValues.get("spinnerMorning")));
+                break;
+            case "Afternoon":
+                afternoonStartTimeTextField.setText(initialValues.get("afternoonStartTime"));
+                afternoonEndTimeTextField.setText(initialValues.get("afternoonEndTime"));
+                afternoonQualityScore.setValue(initialValues.get("afternoonQualityScore"));
+                spinnerAfternoon.getValueFactory().setValue(Double.valueOf(initialValues.get("spinnerAfternoon")));
+                break;
+            case "Evening":
+                eveningStartTimeTextField.setText(initialValues.get("eveningStartTime"));
+                eveningEndTimeTextField.setText(initialValues.get("eveningEndTime"));
+                eveningQualityScore.setValue(initialValues.get("eveningQualityScore"));
+                spinnerEvening.getValueFactory().setValue(Double.valueOf(initialValues.get("spinnerEvening")));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid session type: " + sessionType);
+        }
+    }
+
+    private void clearSessionFields(String sessionType) {
+        switch (sessionType) {
+            case "Morning":
+                morningStartTimeTextField.clear();
+                morningEndTimeTextField.clear();
+                morningQualityScore.setValue(null);
+                spinnerMorning.getValueFactory().setValue(0.00);
+                break;
+            case "Afternoon":
+                afternoonStartTimeTextField.clear();
+                afternoonEndTimeTextField.clear();
+                afternoonQualityScore.setValue(null);
+                spinnerAfternoon.getValueFactory().setValue(0.00);
+                break;
+            case "Evening":
+                eveningStartTimeTextField.clear();
+                eveningEndTimeTextField.clear();
+                eveningQualityScore.setValue(null);
+                spinnerEvening.getValueFactory().setValue(0.00);
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid session type: " + sessionType);
+        }
     }
 
     private String getCurrentValue(String fieldName, String sessionType) {
@@ -2498,134 +2767,9 @@ public class ProductivityAndCalving {
             default -> throw new IllegalArgumentException("Invalid session type: " + sessionType);
         };
     }
-    @FXML
-    private void handleAddOrUpdateProductionSession(ActionEvent event) {
-        Button sourceButton = (Button) event.getSource();
-        String sessionType = getSessionTypeFromButton(sourceButton);
-
-        if (sourceButton.getText().equals("Save")) {
-            saveNewSession(sessionType);
-        } else if (sourceButton.getText().equals("Update")) {
-            updateExistingSession(sessionType);
-        }
-    }
-
-    private String getSessionTypeFromButton(Button button) {
-        if (button == morningSessionButton) {
-            return "Morning";
-        } else if (button == afternoonSessionButton) {
-            return "Afternoon";
-        } else if (button == eveningSessionButton) {
-            return "Evening";
-        }
-        return null;
-    }
-
-    private void saveNewSession(String sessionType) {
-        if (isSessionInputComplete(sessionType)) {
-            showAlertWithHighlight(sessionType);
-            return;
-        }
-
-        try {
-            // Proceed with saving the session
-            ProductionSession newSession = createProductionSessionFromInput(sessionType);
-            ProductionSessionDAO.saveProductionSession(newSession);
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Production session saved successfully.");
-            populateFieldsBasedOnDateAndLactationPeriod(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
-            checkExistingSessionsAndUpdateButton(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
-        } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to save production session: " + e.getMessage());
-        }
-    }
-
-    private void updateExistingSession(String sessionType) {
-        if (isSessionInputComplete(sessionType)) {
-            showAlertWithHighlight(sessionType);
-            return;
-        }
-
-        try {
-            // Get current input values
-            String currentStartTimeText = "", currentEndTimeText = "", currentQualityScore = "";
-            double currentProductionVolume = 0.0;
-
-            switch (sessionType) {
-                case "Morning":
-                    currentStartTimeText = morningStartTimeTextField.getText();
-                    currentEndTimeText = morningEndTimeTextField.getText();
-                    currentQualityScore = morningQualityScore.getValue();
-                    currentProductionVolume = spinnerMorning.getValue();
-                    break;
-                case "Afternoon":
-                    currentStartTimeText = afternoonStartTimeTextField.getText();
-                    currentEndTimeText = afternoonEndTimeTextField.getText();
-                    currentQualityScore = afternoonQualityScore.getValue();
-                    currentProductionVolume = spinnerAfternoon.getValue();
-                    break;
-                case "Evening":
-                    currentStartTimeText = eveningStartTimeTextField.getText();
-                    currentEndTimeText = eveningEndTimeTextField.getText();
-                    currentQualityScore = eveningQualityScore.getValue();
-                    currentProductionVolume = spinnerEvening.getValue();
-                    break;
-                default:
-                    throw new IllegalArgumentException("Invalid session type: " + sessionType);
-            }
-
-            // Get initial values
-            String initialStartTimeText = initialValues.get(sessionType.toLowerCase() + "StartTime");
-            String initialEndTimeText = initialValues.get(sessionType.toLowerCase() + "EndTime");
-            String initialQualityScore = initialValues.get(sessionType.toLowerCase() + "QualityScore");
-            String initialProductionVolume = initialValues.get("spinner" + sessionType);
-
-            // Check if there's any change
-            if (Objects.equals(initialStartTimeText, currentStartTimeText) &&
-                    Objects.equals(initialEndTimeText, currentEndTimeText) &&
-                    Objects.equals(initialQualityScore, currentQualityScore) &&
-                    Objects.equals(initialProductionVolume, String.valueOf(currentProductionVolume))) {
-                showAlert(Alert.AlertType.INFORMATION, "Information", "No changes detected.");
-                return;
-            }
-
-            // Parse initial start/end times to LocalDateTime
-            LocalDateTime initialStartTime = LocalDateTime.of(selectedDateProductionSessionDate, LocalTime.parse(initialStartTimeText, timeFormatter));
-            LocalDateTime initialEndTime = LocalDateTime.of(selectedDateProductionSessionDate, LocalTime.parse(initialEndTimeText, timeFormatter));
-
-            // Retrieve existing session based on initial start and end times
-            ProductionSession existingSession = findExistingSessionByTime(initialStartTime, initialEndTime);
-
-            if (existingSession != null) {
-                // Update session with current values
-                LocalDateTime currentStartTime = LocalDateTime.of(selectedDateProductionSessionDate, LocalTime.parse(currentStartTimeText, timeFormatter));
-                LocalDateTime currentEndTime = LocalDateTime.of(selectedDateProductionSessionDate, LocalTime.parse(currentEndTimeText, timeFormatter));
-
-                existingSession.setStartTime(Timestamp.valueOf(currentStartTime));
-                existingSession.setEndTime(Timestamp.valueOf(currentEndTime));
-                existingSession.setQualityScore(currentQualityScore);
-                existingSession.setProductionVolume(currentProductionVolume);
-
-                // Update session in database
-                ProductionSessionDAO.updateProductionSession(existingSession);
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Production session updated successfully.");
-
-                // Reload UI and update buttons
-                populateFieldsBasedOnDateAndLactationPeriod(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
-                checkExistingSessionsAndUpdateButton(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
-            } else {
-                showAlert(Alert.AlertType.ERROR, "Error", "Failed to find existing session.");
-            }
-        } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to update production session: " + e.getMessage());
-        } catch (DateTimeParseException e) {
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to parse time: " + e.getMessage());
-        }
-    }
-
-
 
     private ProductionSession createProductionSessionFromInput(String sessionType) {
-        int sessionID = 0; // Placeholder for session ID
+        int sessionID = 0;
         int lactationPeriodID = ongoingLactationPeriod.getLactationPeriodID();
         int cattleID = selectedCattleId;
         Timestamp startTime;
@@ -2659,8 +2803,6 @@ public class ProductivityAndCalving {
         return new ProductionSession(sessionID, lactationPeriodID, cattleID, startTime, endTime, qualityScore, productionVolume);
     }
 
-
-
     private ProductionSession findExistingSessionByTime(LocalDateTime startTime, LocalDateTime endTime) {
         try {
             List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
@@ -2675,40 +2817,124 @@ public class ProductivityAndCalving {
         return null;
     }
 
-    private boolean isSessionInputComplete(String sessionType) {
-        return !switch (sessionType) {
-            case "Morning" ->
-                    !morningStartTimeTextField.getText().isEmpty() && !morningEndTimeTextField.getText().isEmpty();
-            case "Afternoon" ->
-                    !afternoonStartTimeTextField.getText().isEmpty() && !afternoonEndTimeTextField.getText().isEmpty();
-            case "Evening" ->
-                    !eveningStartTimeTextField.getText().isEmpty() && !eveningEndTimeTextField.getText().isEmpty();
-            default -> false;
-        };
-    }
-
     private void checkExistingSessionsAndUpdateButton(LocalDate selectedDate, int lactationPeriodId) {
         try {
             List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDate, lactationPeriodId);
             Map<String, List<ProductionSession>> categorizedSessions = ProductionSessionDAO.categorizeSessionsByTimeOfDay(sessions);
 
-            updateButtonText(categorizedSessions, "Morning", morningSessionButton);
-            updateButtonText(categorizedSessions, "Afternoon", afternoonSessionButton);
-            updateButtonText(categorizedSessions, "Evening", eveningSessionButton);
+            updateButtonText(categorizedSessions, "Morning", morningSessionButton, false);
+            updateButtonText(categorizedSessions, "Afternoon", afternoonSessionButton, false);
+            updateButtonText(categorizedSessions, "Evening", eveningSessionButton, false);
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private void updateButtonText(Map<String, List<ProductionSession>> categorizedSessions, String sessionType, Button button) {
+    private Map<String, String> getCurrentValues(String sessionType) {
+        Map<String, String> values = new HashMap<>();
+        switch (sessionType) {
+            case "Morning":
+                values.put("startTime", morningStartTimeTextField.getText());
+                values.put("endTime", morningEndTimeTextField.getText());
+                values.put("qualityScore", morningQualityScore.getValue());
+                values.put("productionVolume", String.valueOf(spinnerMorning.getValue()));
+                break;
+            case "Afternoon":
+                values.put("startTime", afternoonStartTimeTextField.getText());
+                values.put("endTime", afternoonEndTimeTextField.getText());
+                values.put("qualityScore", afternoonQualityScore.getValue());
+                values.put("productionVolume", String.valueOf(spinnerAfternoon.getValue()));
+                break;
+            case "Evening":
+                values.put("startTime", eveningStartTimeTextField.getText());
+                values.put("endTime", eveningEndTimeTextField.getText());
+                values.put("qualityScore", eveningQualityScore.getValue());
+                values.put("productionVolume", String.valueOf(spinnerEvening.getValue()));
+                break;
+            default:
+                throw new IllegalArgumentException("Invalid session type: " + sessionType);
+        }
+        return values;
+    }
+
+    private Map<String, String> getInitialValues(String sessionType) {
+        Map<String, String> values = new HashMap<>();
+        values.put("startTime", initialValues.get(sessionType.toLowerCase() + "StartTime"));
+        values.put("endTime", initialValues.get(sessionType.toLowerCase() + "EndTime"));
+        values.put("qualityScore", initialValues.get(sessionType.toLowerCase() + "QualityScore"));
+        values.put("productionVolume", initialValues.get("spinner" + sessionType));
+        return values;
+    }
+
+    private boolean mapsEqual(Map<String, String> map1, Map<String, String> map2) {
+        if (map1.size() != map2.size()) return false;
+        for (String key : map1.keySet()) {
+            if (!Objects.equals(map1.get(key), map2.get(key))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private LocalDateTime parseDateTime(String timeString) {
+        return LocalDateTime.of(selectedDateProductionSessionDate, LocalTime.parse(timeString, ProductivityAndCalving.timeFormatter));
+    }
+
+    private void updateSession(ProductionSession session, Map<String, String> values) {
+        LocalDateTime currentStartTime = parseDateTime(values.get("startTime"));
+        LocalDateTime currentEndTime = parseDateTime(values.get("endTime"));
+        session.setStartTime(Timestamp.valueOf(currentStartTime));
+        session.setEndTime(Timestamp.valueOf(currentEndTime));
+        session.setQualityScore(values.get("qualityScore"));
+        session.setProductionVolume(Double.parseDouble(values.get("productionVolume")));
+    }
+    private void updateButtonText(Map<String, List<ProductionSession>> categorizedSessions, String sessionType, Button button, boolean forDeleteButton) {
         if (categorizedSessions.containsKey(sessionType) && !categorizedSessions.get(sessionType).isEmpty()) {
-            button.setText("Update");
-            button.setDisable(true);
+            if (forDeleteButton) {
+                button.setText("Delete");
+                button.setDisable(false);
+            } else {
+                button.setText("Update");
+                button.setDisable(true);
+            }
         } else {
-            button.setText("Save");
+            if (forDeleteButton) {
+                button.setText("Clear");
+                button.setDisable(true);
+            } else {
+                button.setText("Save");
+                button.setDisable(true);
+            }
+        }
+    }
+
+    private void updateDeleteButtonStateAndText(String sessionType, Button button) throws SQLException {
+        List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
+
+        boolean hasExistingSession = sessions.stream()
+                .anyMatch(session -> isSessionOfType(session, sessionType));
+
+        if (hasExistingSession) {
+            button.setText("Delete");
+            button.setDisable(false);
+        } else {
+            button.setText("Clear");
             button.setDisable(true);
         }
     }
+
+    private boolean isSessionOfType(ProductionSession session, String sessionType) {
+        LocalDateTime startTime = session.getStartTime().toLocalDateTime();
+        LocalTime timeOfDay = startTime.toLocalTime();
+
+        return switch (sessionType) {
+            case "Morning" -> timeOfDay.isBefore(LocalTime.NOON);
+            case "Afternoon" -> timeOfDay.isAfter(LocalTime.NOON) && timeOfDay.isBefore(LocalTime.of(16, 0));
+            case "Evening" -> timeOfDay.isAfter(LocalTime.of(16, 0));
+            default -> throw new IllegalArgumentException("Invalid session type: " + sessionType);
+        };
+    }
+
     private void showAlertWithHighlight(String sessionType) {
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Validation Error");
@@ -2745,6 +2971,7 @@ public class ProductivityAndCalving {
 
         alert.showAndWait();
     }
+
     public void highlightField(TextField field) {
         field.setStyle("-fx-background-color: white;");
 
@@ -2771,7 +2998,6 @@ public class ProductivityAndCalving {
         SequentialTransition sequentialTransition = new SequentialTransition(fadeInTransition, fadeOutTransition);
         sequentialTransition.setCycleCount(5);
         sequentialTransition.play();
-
 
         field.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty()) {
@@ -2802,6 +3028,7 @@ public class ProductivityAndCalving {
         spinnerAfternoon.getValueFactory().setValue(0.0);
         spinnerEvening.getValueFactory().setValue(0.0);
     }
+
     public void initializeShowTimePickerButtons() {
         buttonTextFieldMap = new HashMap<>();
         buttonTextFieldMap.put(morningStartTimeButton, morningStartTimeTextField);
@@ -2842,7 +3069,6 @@ public class ProductivityAndCalving {
                     eveningStartTimeButton, eveningEndTimeButton };
 
             controller.setButtons(buttons);
-
             controller.setSessionType(button);
 
             // Determine initial time to display in the timePicker
@@ -2851,18 +3077,62 @@ public class ProductivityAndCalving {
             if (!currentText.isEmpty()) {
                 parseTimeToVariables(currentText, timeParts);
             } else {
-                timeParts = null;
+                String startTimeText = determineStartTimeText(button);
+                if (!startTimeText.isEmpty()) {
+                    parseTimeToVariables(startTimeText, timeParts);
+                } else {
+                    timeParts = null;
+                }
             }
 
             controller.setInitialTimeParts(timeParts);
 
+            // Set minimum time if the end time picker is being opened
+            if (button == morningEndTimeButton && !morningStartTimeTextField.getText().isEmpty()) {
+                controller.setMinimumTime(parseTimeStringToLocalTime(morningStartTimeTextField.getText()));
+            } else if (button == afternoonEndTimeButton && !afternoonStartTimeTextField.getText().isEmpty()) {
+                controller.setMinimumTime(parseTimeStringToLocalTime(afternoonStartTimeTextField.getText()));
+            } else if (button == eveningEndTimeButton && !eveningStartTimeTextField.getText().isEmpty()) {
+                controller.setMinimumTime(parseTimeStringToLocalTime(eveningStartTimeTextField.getText()));
+            }
+
+            // Set maximum time if the start time picker is being opened
+            if (button == morningStartTimeButton && !morningEndTimeTextField.getText().isEmpty()) {
+                controller.setMaximumTime(parseTimeStringToLocalTime(morningEndTimeTextField.getText()));
+            } else if (button == afternoonStartTimeButton && !afternoonEndTimeTextField.getText().isEmpty()) {
+                controller.setMaximumTime(parseTimeStringToLocalTime(afternoonEndTimeTextField.getText()));
+            } else if (button == eveningStartTimeButton && !eveningEndTimeTextField.getText().isEmpty()) {
+                controller.setMaximumTime(parseTimeStringToLocalTime(eveningEndTimeTextField.getText()));
+            }
+
             // Set callback to update the associated TextField
             controller.setTimeSelectedCallback(selectedTime -> associatedTextField.setText(selectedTime.format(timeFormatter)));
+
+            // Create and style the close button
+            Button closeButton = new Button("X");
+            closeButton.setStyle("-fx-background-color: red; -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 50%; -fx-padding: 0; -fx-alignment: center;");
+            closeButton.setMinSize(20, 20);
+            closeButton.setMaxSize(20, 20);
+
+            // Ensure the button is perfectly round
+            closeButton.setShape(new Circle(10));
+
+            // Add the close button to the VBox
+            VBox rootVBox = (VBox) root;
+            HBox closeButtonContainer = new HBox();
+            closeButtonContainer.setAlignment(Pos.TOP_RIGHT);
+            closeButtonContainer.getChildren().add(closeButton);
+
+            // Insert the close button container at the top of the VBox
+            rootVBox.getChildren().addFirst(closeButtonContainer);
+
+            // Set the close action
+            closeButton.setOnAction(event -> timePickerStage.close());
 
             // Set the stage properties
             timePickerStage.initModality(Modality.WINDOW_MODAL);
             timePickerStage.initOwner(stage);
-            timePickerStage.setScene(new Scene(root));
+            timePickerStage.setScene(new Scene(rootVBox));
 
             // Calculate the position of the new stage relative to the button
             timePickerStage.setX(button.localToScreen(button.getBoundsInLocal()).getMinX());
@@ -2874,6 +3144,20 @@ public class ProductivityAndCalving {
             e.printStackTrace();
         }
     }
+
+
+
+    private String determineStartTimeText(Button button) {
+        if (button == morningEndTimeButton) {
+            return morningStartTimeTextField.getText();
+        } else if (button == afternoonEndTimeButton) {
+            return afternoonStartTimeTextField.getText();
+        } else if (button == eveningEndTimeButton) {
+            return eveningStartTimeTextField.getText();
+        }
+        return "";
+    }
+
 
     public static void parseTimeToVariables(String timeStr, int[] timeParts) {
         if (timeStr == null || timeStr.isBlank() || timeParts.length != 3) {
@@ -2910,8 +3194,22 @@ public class ProductivityAndCalving {
         // Assign values to timeParts array
         timeParts[0] = hours;
         timeParts[1] = minutes;
-        timeParts[2] = meridian.equals("AM") ? 0 : 1; // Store AM/PM as 0/1
+        timeParts[2] = meridian.equals("AM") ? 0 : 1; // Store AM/PM as 0
     }
+    private LocalTime parseTimeStringToLocalTime(String timeStr) {
+        int[] timeParts = new int[3];
+        parseTimeToVariables(timeStr, timeParts);
+        int hour = timeParts[0];
+        int minute = timeParts[1];
+        boolean isPM = timeParts[2] == 1;
+        if (isPM && hour != 12) {
+            hour += 12;
+        } else if (!isPM && hour == 12) {
+            hour = 0;
+        }
+        return LocalTime.of(hour, minute);
+    }
+
     private void initializeHeartbeatAnimation(Button button) {
         Timeline timeline = new Timeline(
                 new KeyFrame(javafx.util.Duration.ZERO,
@@ -2935,18 +3233,69 @@ public class ProductivityAndCalving {
         button.setOnMouseExited(event -> timeline.stop());
     }
 
-
     @FXML
-    private void handleDeleteProductionSession() {
+    private void handleDeleteProductionSession(ActionEvent event) {
+        Button clickedButton = (Button) event.getSource();
+        String buttonText = clickedButton.getText();
+        String sessionType = getSessionTypeFromButtonForDeletion(clickedButton);
+
+        if ("Modify".equals(buttonText)) {
+            showModifyDialog(sessionType, clickedButton);
+        } else if ("Clear".equals(buttonText)) {
+            clearSessionFields(Objects.requireNonNull(sessionType));
+            clickedButton.setDisable(true);
+        } else if (sessionType != null) {
+            boolean confirmDelete = showConfirmationDialog("Are you sure you want to delete the " + sessionType + " session?");
+            if (confirmDelete) {
+                deleteSession(sessionType);
+            }
+        }
     }
 
-    public void addHealthAlertOrNotes() {
+    private String getSessionTypeFromButtonForDeletion(Button button) {
+        if (button == deleteMorningSession) {
+            return "Morning";
+        } else if (button == deleteAfternoonSession) {
+            return "Afternoon";
+        } else if (button == deleteEveningSession) {
+            return "Evening";
+        }
+        return null;
     }
 
-    public void updateHealthAlertOrNotes() {
+    private void deleteSession(String sessionType) {
+        try {
+            Map<String, String> initialValues = getInitialValues(sessionType);
+
+            LocalDateTime startTime = parseDateTime(initialValues.get("startTime"));
+            LocalDateTime endTime = parseDateTime(initialValues.get("endTime"));
+
+            ProductionSession session = findExistingSessionByTime(startTime, endTime);
+            if (session != null) {
+                boolean deleted = ProductionSessionDAO.deleteProductionSession(session.getSessionID());
+                if (deleted) {
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Production session deleted successfully.");
+                    refreshUI();
+                } else {
+                    showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete production session.");
+                }
+            } else {
+                showAlert(Alert.AlertType.ERROR, "Error", "Failed to find session for deletion.");
+            }
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete production session: " + e.getMessage());
+            e.printStackTrace();
+        }
     }
 
-    public void deleteHealthAlertOrNotes() {
+    private boolean showConfirmationDialog(String message) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Confirm Deletion");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+
+        Optional<ButtonType> result = alert.showAndWait();
+        return result.isPresent() && result.get() == ButtonType.OK;
     }
 
     public void selectStartDate() {

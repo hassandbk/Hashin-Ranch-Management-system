@@ -1,6 +1,8 @@
 package com.example.hashinfarm.controller.utility;
 
 import com.example.hashinfarm.model.LactationPeriod;
+import javafx.animation.KeyFrame;
+import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -10,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 import javafx.util.StringConverter;
 
 import java.time.LocalDate;
@@ -20,24 +23,28 @@ import java.util.function.Consumer;
 
 public class TimePickerController {
 
-    @FXML private Label lactationPeriodStartDateLabel,selectedProductionSessionDateLabel,timeSelectedLabel;
+    @FXML private Label lactationPeriodStartDateLabel, selectedProductionSessionDateLabel, timeSelectedLabel;
     @FXML private Spinner<Integer> hourSpinner, minuteSpinner;
     @FXML private ToggleButton amPmToggleButton;
-    @FXML private Button cancelButton,setButton;
-
+    @FXML private Button cancelButton, setButton;
+    @FXML private Label errorLabel;
 
     private Stage stage;
     private Consumer<LocalTime> timeSelectedCallback;
     private Button morningStartTimeButton, morningEndTimeButton;
     private Button afternoonStartTimeButton, afternoonEndTimeButton;
     private Button eveningStartTimeButton, eveningEndTimeButton;
+    private LocalTime minimumTime;
+    private LocalTime maximumTime;
 
+
+    private Timeline errorLabelTimeline;
 
     public void setInitialTimeParts(int[] initialTimeParts) {
         if (initialTimeParts != null) {
             hourSpinner.getValueFactory().setValue(initialTimeParts[0]);
             minuteSpinner.getValueFactory().setValue(initialTimeParts[1]);
-         }
+        }
         updateTimeSelectedLabel();
     }
 
@@ -45,7 +52,9 @@ public class TimePickerController {
     public void initialize() {
         setupTimeSpinners();
         setButtonActions();
+        errorLabel.setVisible(false);
     }
+
     public void setButtons(Button[] buttons) {
         if (buttons.length == 6) {
             this.morningStartTimeButton = buttons[0];
@@ -65,6 +74,13 @@ public class TimePickerController {
 
     public void setStage(Stage stage) {
         this.stage = stage;
+    }
+
+    public void setMinimumTime(LocalTime minimumTime) {
+        this.minimumTime = minimumTime;
+    }
+    public void setMaximumTime(LocalTime maximumTime) {
+        this.maximumTime = maximumTime;
     }
 
     public void setLactationPeriodStartDate(LactationPeriod lactationPeriod) {
@@ -105,7 +121,6 @@ public class TimePickerController {
         }
     }
 
-
     private void setupMorningSession() {
         amPmToggleButton.setSelected(false);
         hourSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(4, 11));
@@ -119,34 +134,26 @@ public class TimePickerController {
         hourSpinner.setValueFactory(valueFactory);
     }
 
-
     private void setupEveningSession() {
         amPmToggleButton.setSelected(true);
         hourSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(4, 9));
     }
 
-    // Helper method to format LocalDate as "Fri 15th/05/2015"
     public static HBox formatDate(LocalDate date) {
-        // Get day of the week abbreviation (e.g., Fri)
-        String dayOfWeek = date.getDayOfWeek().toString().substring(0, 3); // Get first 3 characters in lowercase
-        dayOfWeek = dayOfWeek.substring(0, 1).toUpperCase() + dayOfWeek.substring(1); // Convert first character to uppercase
+        String dayOfWeek = date.getDayOfWeek().toString().substring(0, 3);
+        dayOfWeek = dayOfWeek.substring(0, 1).toUpperCase() + dayOfWeek.substring(1);
 
-        // Get day of the month with proper suffix (e.g., 15th)
         int dayOfMonth = date.getDayOfMonth();
         String dayOfMonthFormatted = dayOfMonth + getDayOfMonthSuffix(dayOfMonth);
 
-        // Get month abbreviation (e.g., 05 for May)
-        String month = String.format("%02d", date.getMonthValue()); // 2-digit month
+        String month = String.format("%02d", date.getMonthValue());
 
-        // Get year (e.g., 2015)
         int year = date.getYear();
 
-        // Create Text nodes for different parts of the formatted date
         Text dayOfWeekText = new Text(dayOfWeek + " ");
         Text dayOfMonthText = new Text(dayOfMonthFormatted + "/");
         Text monthText = new Text(month + "/");
         Text yearText = new Text(String.valueOf(year));
-
 
         dayOfMonthText.setFill(Color.WHITE);
         monthText.setFill(Color.WHITE);
@@ -155,7 +162,6 @@ public class TimePickerController {
         return new HBox(dayOfWeekText, dayOfMonthText, monthText, yearText);
     }
 
-    // Helper method to get the proper suffix for the day of the month (e.g., "st", "nd", "rd", "th")
     private static String getDayOfMonthSuffix(int dayOfMonth) {
         if (dayOfMonth >= 11 && dayOfMonth <= 13) {
             return "th";
@@ -175,9 +181,36 @@ public class TimePickerController {
         setupSpinnerConverter(hourSpinner);
         setupSpinnerConverter(minuteSpinner);
 
-        hourSpinner.valueProperty().addListener((observable, oldValue, newValue) -> updateTimeSelectedLabel());
-        minuteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> updateTimeSelectedLabel());
+        hourSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateTimeSelectedLabel();
+            enforceMinimumTime();
+        });
+        minuteSpinner.valueProperty().addListener((observable, oldValue, newValue) -> {
+            updateTimeSelectedLabel();
+            enforceMinimumTime();
+        });
     }
+
+    private void enforceMinimumTime() {
+        if (minimumTime == null && maximumTime == null) {
+            return;
+        }
+
+        int selectedHour = hourSpinner.getValue();
+        int selectedMinute = minuteSpinner.getValue();
+        LocalTime selectedTime = LocalTime.of(amPmToggleButton.isSelected() && selectedHour != 12 ? selectedHour + 12 : selectedHour, selectedMinute);
+
+        if (minimumTime != null && selectedTime.isBefore(minimumTime)) {
+            hourSpinner.getValueFactory().setValue(minimumTime.getHour());
+            minuteSpinner.getValueFactory().setValue(minimumTime.getMinute());
+            showErrorLabel("Selected time cannot be earlier than the start time.");
+        } else if (maximumTime != null && selectedTime.isAfter(maximumTime)) {
+            hourSpinner.getValueFactory().setValue(maximumTime.getHour());
+            minuteSpinner.getValueFactory().setValue(maximumTime.getMinute());
+            showErrorLabel("Selected time cannot be later than the end time.");
+        }
+    }
+
 
     private void setupSpinnerConverter(Spinner<Integer> spinner) {
         spinner.getValueFactory().setConverter(new StringConverter<>() {
@@ -192,8 +225,6 @@ public class TimePickerController {
             }
         });
     }
-
-
 
     private void setButtonActions() {
         setButton.setOnAction(this::handleSetButtonAction);
@@ -210,16 +241,34 @@ public class TimePickerController {
             hour = 0;
         }
         LocalTime selectedTime = LocalTime.of(hour, minute);
+
+        if (minimumTime != null && selectedTime.isBefore(minimumTime)) {
+            showErrorLabel("Selected time cannot be earlier than the start time.");
+            return;
+        }
+
         if (timeSelectedCallback != null) {
             timeSelectedCallback.accept(selectedTime);
         }
         closeWindow();
     }
 
+    private void showErrorLabel(String message) {
+        errorLabel.setText(message);
+        errorLabel.setVisible(true);
+
+        if (errorLabelTimeline != null) {
+            errorLabelTimeline.stop();
+        }
+
+        errorLabelTimeline = new Timeline(new KeyFrame(Duration.seconds(2), event -> errorLabel.setVisible(false)));
+        errorLabelTimeline.setCycleCount(1);
+        errorLabelTimeline.play();
+    }
+
     private void closeWindow() {
         if (stage != null) {
             stage.close();
-
         }
     }
 
@@ -228,7 +277,6 @@ public class TimePickerController {
         int minute = minuteSpinner.getValue();
         String amPm = amPmToggleButton.isSelected() ? "PM" : "AM";
         timeSelectedLabel.setText(String.format("%02d:%02d %s", hour, minute, amPm));
-
     }
 
     private void updateToggleButtonStyle(ToggleButton button) {
@@ -240,22 +288,17 @@ public class TimePickerController {
             String style = baseStyle + (button.isSelected() ? selectedStyle : unselectedStyle);
             button.setStyle(style);
         } else if (amPmToggleButton.getText().equals("PM")) {
-            // Adjust styles accordingly for PM
             String style = baseStyle + (button.isSelected() ? selectedStyle : unselectedStyle);
             button.setStyle(style);
         }
     }
 
-
     private void updateToggleButtonText(Button button) {
         if (button == morningStartTimeButton || button == morningEndTimeButton) {
             amPmToggleButton.setText("AM");
-
         } else {
             amPmToggleButton.setText("PM");
-
         }
         updateToggleButtonStyle(amPmToggleButton);
     }
-
 }
