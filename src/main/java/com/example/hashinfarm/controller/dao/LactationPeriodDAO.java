@@ -50,29 +50,6 @@ public class LactationPeriodDAO {
     }
 
 
-
-
-    public static void deleteLactationPeriod(int lactationPeriodID) throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-
-        try {
-            connection = dbConnection.getConnection();
-            String query = "DELETE FROM lactationperiod WHERE LactationPeriodID = ?";
-            preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setInt(1, lactationPeriodID);
-            preparedStatement.executeUpdate();
-        } finally {
-            // Close resources in reverse order of their creation to avoid any resource leak
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-            if (connection != null) {
-                connection.close();
-            }
-        }
-    }
-
     public static void updateLactationPeriodEndDate(int lactationPeriodID, LocalDate newEndDate) throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;

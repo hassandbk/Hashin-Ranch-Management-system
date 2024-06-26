@@ -2,6 +2,7 @@ package com.example.hashinfarm.controller.dao;
 
 import com.example.hashinfarm.controller.utility.AppLogger;
 import com.example.hashinfarm.model.Cattle;
+import com.example.hashinfarm.model.FilteredCattle;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -303,6 +304,71 @@ public class CattleDAO {
             preparedStatement.setInt(1, cattleId);
             int rowsAffected = preparedStatement.executeUpdate();
         }
+    }
+    public List<FilteredCattle> getAllCattleBySelectedCriteria(String selectedCriteria, String selectedValue) throws SQLException {
+        List<FilteredCattle> filteredCattleList = new ArrayList<>();
+
+        try (Connection connection = dbConnection.getConnection()) {
+            String herdQuery = "SELECT HerdID FROM herd WHERE ";
+
+            switch (selectedCriteria) {
+                case "Feed Type":
+                    herdQuery += "FeedBasis = ?";
+                    break;
+                case "Solution Type":
+                    herdQuery += "SolutionType = ?";
+                    break;
+                case "Breed System":
+                    herdQuery += "BreedSystem = ?";
+                    break;
+                case "Breed Type":
+                    herdQuery += "BreedType = ?";
+                    break;
+                case "Animal Class":
+                    herdQuery += "AnimalsClass = ?";
+                    break;
+                default:
+                    throw new IllegalArgumentException("Invalid selected criteria: " + selectedCriteria);
+            }
+
+            try (PreparedStatement stmt = connection.prepareStatement(herdQuery)) {
+                stmt.setString(1, selectedValue);
+
+                ResultSet herdResultSet = stmt.executeQuery();
+
+                while (herdResultSet.next()) {
+                    int herdID = herdResultSet.getInt("HerdID");
+
+                    String cattleQuery = "SELECT * FROM cattle WHERE Gender = 'Cow' AND HerdID = ?";
+
+                    try (PreparedStatement cattleStmt = connection.prepareStatement(cattleQuery)) {
+                        cattleStmt.setInt(1, herdID);
+                        ResultSet cattleResultSet = cattleStmt.executeQuery();
+
+                        while (cattleResultSet.next()) {
+                            FilteredCattle cattle = extractFilteredCattleFromResultSet(cattleResultSet);
+                            filteredCattleList.add(cattle);
+                        }
+                    }
+                }
+            }
+        }
+
+        return filteredCattleList;
+    }
+
+
+
+
+
+
+    private static FilteredCattle extractFilteredCattleFromResultSet(ResultSet resultSet) throws SQLException {
+        int cattleID = resultSet.getInt("CattleID");
+        String tagID = resultSet.getString("TagID");
+        String name = resultSet.getString("Name");
+        int herdID = resultSet.getInt("HerdID");
+
+        return new FilteredCattle(cattleID, tagID, name, herdID);
     }
 
 

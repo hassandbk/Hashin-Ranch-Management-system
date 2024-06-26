@@ -52,6 +52,7 @@ public class ProductivityAndCalving {
     private final Map<String, StageDetails> stageDetailsMap = new HashMap<>();
     private final Map<String, String> initialValues = new HashMap<>();
 
+
     // Other Fields
     private int selectedCattleId = 0;
     private LocalDate selectedCattleDateOfBirth;
@@ -79,7 +80,7 @@ public class ProductivityAndCalving {
 
     // Buttons for Operations
     @FXML private boolean saveButtonPressed = true;
-    @FXML private Button saveButton, updateButton, modifyLactationButton, clearButton,compareCowBtn;
+    @FXML private Button saveButton, updateButton, modifyLactationButton, clearButton;
     @FXML private Button morningSessionButton, afternoonSessionButton, eveningSessionButton,deleteMorningSession,deleteAfternoonSession,deleteEveningSession;
     @FXML private Button morningStartTimeButton, morningEndTimeButton, afternoonStartTimeButton, afternoonEndTimeButton, eveningStartTimeButton, eveningEndTimeButton;
 
@@ -97,12 +98,15 @@ public class ProductivityAndCalving {
 
     // Toggle Groups, DatePickers, and TableView
     @FXML private ToggleGroup pregnancyStatus;
-    @FXML private DatePicker lactationEndDatePicker, selectStartDate, selectEndDate, calvingDate, lastBreedingDate, productionSessionDatePicker;
+    @FXML private DatePicker lactationEndDatePicker, calvingDate, lastBreedingDate, productionSessionDatePicker;
     @FXML private TableView<ReproductiveVariables> calvingHistoryTableView;
     @FXML private TreeView<String> stageOfPregnancy;
     @FXML private GridPane gridPaneProduction;
 
-
+//new
+    @FXML private ChoiceBox<String> selectCriteriaChoiceBox,dependentCriteriaChoiceBox,lactationStageChoiceBox;
+    @FXML  private TableView<CowTableItem> cowTableView;
+    private String selectedLactationStage;
     public void initialize() {
 
         initializeCattleDAO();
@@ -129,7 +133,7 @@ public class ProductivityAndCalving {
         initializeAllHeartbeats();
         initializeFieldChangeListeners();
         initializeEndTimeButtonListeners();
-
+        initializeProductionData();
     }
 
     private void initializeCattleDAO() {
@@ -138,8 +142,6 @@ public class ProductivityAndCalving {
 
     private void setDatesAndDateFormats() {
         setDatePickerFormat(lactationEndDatePicker);
-        setDatePickerFormat(selectStartDate);
-        setDatePickerFormat(selectEndDate);
         setDatePickerFormat(calvingDate);
         setDatePickerFormat(lastBreedingDate);
         setDatePickerFormat(productionSessionDatePicker);
@@ -1523,10 +1525,25 @@ public class ProductivityAndCalving {
                                         event -> {
                                             ReproductiveVariables reproductiveVariables =
                                                     getTableView().getItems().get(getIndex());
-                                            // Handle delete action
-                                            handleDeletion(reproductiveVariables);
-                                            loadLactationPeriodsForSelectedCattle();
+
+                                            // Check if end date is present
+                                            LocalDate CalvingDate = reproductiveVariables.getCalvingDate();
+                                            if (CalvingDate != null) {
+
+                                                handleDeletion(reproductiveVariables);
+                                            } else {
+
+                                                if(ReproductiveVariablesDAO.deleteReproductiveVariable(reproductiveVariables.getReproductiveVariableID())){
+                                                    loadCalvingHistoryForCattle(selectedCattleId);
+                                                    showAlert(Alert.AlertType.INFORMATION, "Success", "reproductive Record deleted successfully.");
+                                                }else{
+                                                    showAlert(Alert.AlertType.ERROR, "Failure", "Failed to delete reproductive Record.");
+                                                }
+
+
+                                            }
                                         });
+
                             }
 
                             @Override
@@ -1800,37 +1817,32 @@ public class ProductivityAndCalving {
                 cellData.getValue().getLactationPeriod().getEndDate()));
         endDateColumn.setCellFactory(new MissingEndDateCellFactory(dateFormatter));
 
-        milkYieldColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().getMilkYield()));
-        milkYieldColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(String.format("%.2f", item));
-                    setAlignment(Pos.CENTER);
-                }
-            }
-        });
+        //yield columns missing
 
-        relativeMilkYieldColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().getRelativeMilkYield()));
-        relativeMilkYieldColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(String.format("%.2f", item));
-                    setAlignment(Pos.CENTER);
-                }
-            }
-        });
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     }
 
 
@@ -3298,22 +3310,290 @@ public class ProductivityAndCalving {
         return result.isPresent() && result.get() == ButtonType.OK;
     }
 
-    public void selectStartDate() {
-    }
-
-    public void selectEndDate() {
-    }
-
-    public void compareCattleProduction() {
-    }
-
-
-
 
     public static class HerdNotFoundException extends Exception {
         public HerdNotFoundException(String message) {
             super(message);
         }
     }
+
+
+
+
+
+    public void initializeProductionData() {
+        // Initialize ChoiceBoxes with options
+        selectCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
+                "Feed Type", "Solution Type", "Breed System", "Breed Type", "Animal Class"));
+
+        // Add listener to selectCriteriaChoiceBox
+        selectCriteriaChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                // Enable dependent criteria ChoiceBox based on selected criteria
+                switch (newValue) {
+                    case "Feed Type":
+                        // Add options for Feed Type criteria
+                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
+                                "Dry Matter (DM)", "AS-Fed (AF)"));
+                        dependentCriteriaChoiceBox.setDisable(false);
+                        break;
+                    case "Solution Type":
+                        // Add options for Solution Type criteria
+                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
+                                "Equivalent Livestock System (ELS)", "Multiple Livestock System (MLS)"));
+                        dependentCriteriaChoiceBox.setDisable(false);
+                        break;
+                    case "Breed System":
+                        // Add options for Breed System criteria
+                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
+                                "Straightbred", "2-way-x", "3-way-x"));
+                        dependentCriteriaChoiceBox.setDisable(false);
+                        break;
+                    case "Breed Type":
+                        // Add options for Breed Type criteria
+                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
+                                "Dual-purpose", "Bos Taurus", "Bos Indicus", "Dairy"));
+                        dependentCriteriaChoiceBox.setDisable(false);
+                        break;
+                    case "Animal Class":
+                        // Add options for Animal Class criteria
+                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
+                                "Grow/Finish", "Lactating", "Dry"));
+                        dependentCriteriaChoiceBox.setDisable(false);
+                        break;
+                    default:
+                        dependentCriteriaChoiceBox.setItems(FXCollections.emptyObservableList());
+                        dependentCriteriaChoiceBox.setDisable(true);
+                        break;
+                }
+
+
+            }
+        });
+
+        // Add listener to dependentCriteriaChoiceBox if needed
+        dependentCriteriaChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+
+                    lactationStageChoiceBox.setDisable(false);
+
+            }
+        });
+
+        // Add listener to lactationStageChoiceBox
+        lactationStageChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+
+                selectedLactationStage = newValue;
+                compareCattleProduction();
+            }
+        });
+
+
+    }
+
+
+    private String getSelectedCriteria() {
+        String selectedCriteria = selectCriteriaChoiceBox.getValue();
+        if (selectedCriteria != null && !selectedCriteria.isEmpty()) {
+            return selectedCriteria;
+        } else {
+            return "";
+        }
+    }
+
+    private String getSelectedValue(String selectedCriteria) {
+        String selectedValue = null;
+
+        // Determine which choice box to get value from based on selectedCriteria
+        if ("Feed Type".equals(selectedCriteria) || "Solution Type".equals(selectedCriteria) ||
+                "Breed System".equals(selectedCriteria) || "Breed Type".equals(selectedCriteria) ||
+                "Animal Class".equals(selectedCriteria)) {
+            selectedValue = dependentCriteriaChoiceBox.getValue();
+        }
+
+        return selectedValue;
+    }
+
+
+    private void compareCattleProduction() {
+        try {
+            String selectedCriteria = getSelectedCriteria();
+            String selectedValue = getSelectedValue(selectedCriteria);
+            List<FilteredCattle> cattleList = cattleDAO.getAllCattleBySelectedCriteria(selectedCriteria, selectedValue);
+
+            List<FilteredCattle> filteredCattleList = new ArrayList<>();
+            for (FilteredCattle cow : cattleList) {
+                int cattleID = cow.getCattleID();
+                List<LactationPeriod> lactationPeriods = LactationPeriodDAO.getLactationPeriodsByCattleId(cattleID);
+
+                boolean ongoingLactationFound = false;
+                for (LactationPeriod period : lactationPeriods) {
+                    if (isOngoingLactationPeriod(period)) {
+                        ongoingLactationFound = true;
+                        break;
+                    }
+                }
+
+                if (ongoingLactationFound) {
+                    filteredCattleList.add(cow);
+                }
+            }
+
+            updateComparisonTableView(filteredCattleList);
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // Implement proper error handling
+        }
+    }
+
+
+
+    // Helper method to determine if a lactation period is ongoing
+    private boolean isOngoingLactationPeriod(LactationPeriod period) {
+        if (period.getStartDate() != null && period.getEndDate() == null) {
+            long daysBetween = ChronoUnit.DAYS.between(period.getStartDate(), LocalDate.now());
+            return daysBetween < 365;
+        }
+        return false;
+    }
+
+    private void updateComparisonTableView(List<FilteredCattle> filteredCattleList) throws SQLException {
+        List<CowTableItem> cowTableItems = new ArrayList<>();
+
+        if (filteredCattleList.isEmpty()) {
+            Label noDataLabel = new Label("No cattle to compare based on the selected criteria.");
+            noDataLabel.setStyle("-fx-font-size: 16; -fx-text-fill: gray;");
+            cowTableView.setPlaceholder(noDataLabel);
+        } else {
+            for (FilteredCattle cow : filteredCattleList) {
+                int cattleID = cow.getCattleID();
+                System.out.println("Processing cattle ID: " + cattleID);
+
+                LactationPeriod ongoingPeriod = getOngoingLactationPeriod(cattleID);
+                if (ongoingPeriod == null) {
+                    System.out.println("No ongoing lactation period found for cattle ID: " + cattleID);
+                    continue; // Skip to the next cattle
+                }
+
+                String currentStage = determineLactationStage(ongoingPeriod.getStartDate());
+                String selectedStage = selectedLactationStage;
+                System.out.println("Current Stage for cattle ID " + cattleID + ": " + currentStage);
+                System.out.println("Selected Stage for cattle ID " + cattleID + ": " + selectedStage);
+
+                LocalDate startDate = determineStageStartDate(ongoingPeriod, selectedStage);
+                LocalDate endDate;
+                if (selectedStage.equals(currentStage)) {
+                    endDate = LocalDate.now();
+                    System.out.println("End Date for current stage (" + currentStage + ") for cattle ID " + cattleID + ": " + endDate);
+                } else {
+                    endDate = determineStageEndDate(ongoingPeriod, selectedStage);
+                    System.out.println("End Date for selected stage (" + selectedStage + ") for cattle ID " + cattleID + ": " + endDate);
+                }
+
+                if (startDate == null || endDate == null) {
+                    System.out.println("Date range not provided for cattle ID: " + cattleID);
+                    showAlertMessage("Date Range Required for cattle ID: " + cattleID);
+                    continue; // Skip to the next cattle
+                }
+
+                try {
+                    List<ProductionSession> productionSessions = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
+                    System.out.println("Fetched " + productionSessions.size() + " production sessions for cattle ID " + cattleID);
+
+                    // Convert cattleID to String for the CowTableItem constructor
+                    String cattleIDStr = String.valueOf(cattleID);
+
+                    CowTableItem cowTableItem = new CowTableItem(
+                            cattleIDStr,
+                            selectedStage,
+                            calculateTotalMilkYield(productionSessions),
+                            calculateStageMilkYield(productionSessions),
+                            calculateRelativeMilkYield(cattleID, productionSessions),
+                            "performance" // Replace with the actual production performance string
+                    );
+
+                    cowTableItems.add(cowTableItem);
+                } catch (SQLException ex) {
+                    // Handle SQL exceptions
+                    showAlertMessage("Error fetching production sessions for cattle ID: " + cattleID);
+                    ex.printStackTrace(); // Log the exception to console
+                }
+            }
+        }
+
+        cowTableView.getItems().setAll(cowTableItems);
+    }
+
+    private void showAlertMessage(String message) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
+    }
+
+
+
+    private LactationPeriod getOngoingLactationPeriod(int cattleID) throws SQLException {
+        List<LactationPeriod> lactationPeriods = LactationPeriodDAO.getLactationPeriodsByCattleId(cattleID);
+        for (LactationPeriod period : lactationPeriods) {
+            if (isOngoingLactationPeriod(period)) {
+                return period;
+            }
+        }
+        return null;
+    }
+    private LocalDate determineStageStartDate(LactationPeriod lactationPeriod, String selectedStage) {
+        LocalDate lactationStartDate = lactationPeriod.getStartDate();
+        Integer[] stageDaysRange = stageDaysRangeMap.get(selectedStage);
+
+        if (stageDaysRange != null) {
+            int startDayOffset = stageDaysRange[0];
+            return lactationStartDate.plusDays(startDayOffset);
+        }
+
+        return null; // Handle case where selected stage is not found in the map
+    }
+
+    private LocalDate determineStageEndDate(LactationPeriod lactationPeriod, String selectedStage) {
+        LocalDate lactationStartDate = lactationPeriod.getStartDate();
+        Integer[] stageDaysRange = stageDaysRangeMap.get(selectedStage);
+
+        if (stageDaysRange != null) {
+            int endDayOffset = stageDaysRange[1];
+            if (endDayOffset == -1) {
+                // Handle case where the end day is indefinite (dry period)
+                return null; // or handle appropriately based on your business logic
+            }
+            return lactationStartDate.plusDays(endDayOffset);
+        }
+
+        return null; // Handle case where selected stage is not found in the map
+    }
+    private String determineLactationStage(LocalDate startDate) {
+        long daysSinceStart = ChronoUnit.DAYS.between(startDate, LocalDate.now());
+        for (Map.Entry<String, Integer[]> entry : stageDaysRangeMap.entrySet()) {
+            Integer[] range = entry.getValue();
+            if ((range[1] == -1 && daysSinceStart >= range[0]) || (daysSinceStart >= range[0] && daysSinceStart <= range[1])) {
+                return entry.getKey();
+            }
+        }
+        return "Unknown Stage";
+    }
+
+    private double calculateTotalMilkYield(List<ProductionSession> productionSessions) {
+        return productionSessions.stream().mapToDouble(ProductionSession::getProductionVolume).sum();
+    }
+
+    private double calculateStageMilkYield(List<ProductionSession> productionSessions) {
+        return productionSessions.stream().mapToDouble(ProductionSession::getProductionVolume).average().orElse(0.0);
+    }
+
+    private double calculateRelativeMilkYield(int cattleID, List<ProductionSession> productionSessions) {
+        // Implement the logic to compare with a reference cow if needed
+        return 0.0; // Placeholder
+    }
+
 
 }

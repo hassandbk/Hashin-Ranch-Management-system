@@ -91,7 +91,7 @@ public class ReproductiveVariablesDAO {
 
 
     // Delete reproductive variable record by ID
-    public boolean deleteReproductiveVariable(int reproductiveVariableID) {
+    public static boolean deleteReproductiveVariable(int reproductiveVariableID) {
         String query = "DELETE FROM reproductivevariables WHERE ReproductiveVariableID=?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {

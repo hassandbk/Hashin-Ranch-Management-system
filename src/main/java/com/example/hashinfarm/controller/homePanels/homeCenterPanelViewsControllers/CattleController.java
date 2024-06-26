@@ -15,13 +15,11 @@ import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 import java.io.IOException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
 
 public class CattleController {
 
-    private static final int THREAD_POOL_SIZE = 2;
+    private static final int THREAD_POOL_SIZE = 4; // Adjust pool size if needed
     private final double minPosition = 0.1;
     private final double maxPosition = 0.9;
     private final ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
@@ -85,7 +83,6 @@ public class CattleController {
 
     private void handleLoadFailure(Throwable exception, String fxmlPath) {
         AppLogger.error("Error during asynchronous FXML loading: " + fxmlPath, exception);
-        // Print stack trace to console
         if (exception != null) {
             exception.printStackTrace();
         }
