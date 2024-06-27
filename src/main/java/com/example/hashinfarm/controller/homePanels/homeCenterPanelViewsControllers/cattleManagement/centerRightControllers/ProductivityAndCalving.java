@@ -1138,7 +1138,7 @@ public class ProductivityAndCalving {
                                             showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Lactation Period data.");
                                             // Rollback the added cattle and reproductive variables
                                             CattleDAO.deleteCattleById(newCattleId);
-                                            reproductiveVariablesDAO.deleteReproductiveVariable(reproductiveVariableId);
+                                            ReproductiveVariablesDAO.deleteReproductiveVariable(reproductiveVariableId);
                                         }
                                     } else {
                                         showAlert(Alert.AlertType.ERROR, "Error", "Failed to save Reproductive data.");
@@ -3449,10 +3449,10 @@ public class ProductivityAndCalving {
     }
 
     private <T> void centerAlignColumn(TableColumn<CowTableItem, T> column) {
-        column.setCellFactory(new Callback<TableColumn<CowTableItem, T>, TableCell<CowTableItem, T>>() {
+        column.setCellFactory(new Callback<>() {
             @Override
             public TableCell<CowTableItem, T> call(TableColumn<CowTableItem, T> param) {
-                return new TableCell<CowTableItem, T>() {
+                return new TableCell<>() {
                     @Override
                     protected void updateItem(T item, boolean empty) {
                         super.updateItem(item, empty);
