@@ -201,6 +201,11 @@ public class ProductivityAndCalving {
                             selectedCattleId = newValue.intValue();
                             loadCalvingHistoryForCattle(selectedCattleId);
                             updateCalvingHistoryData();
+                            try {
+                                populateLactationStageChoiceBox(selectedCattleId);
+                            } catch (SQLException e) {
+                                throw new RuntimeException(e);
+                            }
                         });
 
         selectedCattleManager
@@ -2031,9 +2036,14 @@ public class ProductivityAndCalving {
 
                                 // If the selected period is ongoing, enable fields
                                 setFieldsDisabled(false);
+                                clearAndDisableChoiceBoxes();
+                                selectCriteriaChoiceBox.setDisable(false);
                             } else {
                                 // If the selected period is not ongoing, disable fields
                                 setFieldsDisabled(true);
+                                clearAndDisableChoiceBoxes();
+                                selectCriteriaChoiceBox.setDisable(true);
+
                             }
                         }
                     }
@@ -2379,17 +2389,12 @@ public class ProductivityAndCalving {
     private void initializeProductionSessionDatePicker() {
         productionSessionDatePicker.setValue(LocalDate.now());
         selectedDateProductionSessionDate = productionSessionDatePicker.getValue();
+
         productionSessionDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 selectedDateProductionSessionDate = newValue;
-                LactationPeriod newSelectedLactationPeriod = lactationTableView.getSelectionModel().getSelectedItem().getLactationPeriod();
-                if (newSelectedLactationPeriod != null) {
-                    int lactationPeriodId = newSelectedLactationPeriod.getLactationPeriodID();
-                    populateFieldsBasedOnDateAndLactationPeriod(selectedDateProductionSessionDate, lactationPeriodId);
-                    checkExistingSessionsAndUpdateButton(selectedDateProductionSessionDate, lactationPeriodId);
-                } else {
-                    clearFields();
-                }
+
+                clearAndDisableChoiceBoxes();
             }
         });
     }
@@ -3368,67 +3373,96 @@ public class ProductivityAndCalving {
         // Add listener to selectCriteriaChoiceBox
         selectCriteriaChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                // Enable dependent criteria ChoiceBox based on selected criteria
-                switch (newValue) {
-                    case "Feed Type":
-                        // Add options for Feed Type criteria
-                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
-                                "Dry Matter (DM)", "AS-Fed (AF)"));
-                        dependentCriteriaChoiceBox.setDisable(false);
-                        break;
-                    case "Solution Type":
-                        // Add options for Solution Type criteria
-                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
-                                "Equivalent Livestock System (ELS)", "Multiple Livestock System (MLS)"));
-                        dependentCriteriaChoiceBox.setDisable(false);
-                        break;
-                    case "Breed System":
-                        // Add options for Breed System criteria
-                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
-                                "Straightbred", "2-way-x", "3-way-x"));
-                        dependentCriteriaChoiceBox.setDisable(false);
-                        break;
-                    case "Breed Type":
-                        // Add options for Breed Type criteria
-                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
-                                "Dual-purpose", "Bos Taurus", "Bos Indicus", "Dairy"));
-                        dependentCriteriaChoiceBox.setDisable(false);
-                        break;
-                    case "Animal Class":
-                        // Add options for Animal Class criteria
-                        dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList(
-                                "Grow/Finish", "Lactating", "Dry"));
-                        dependentCriteriaChoiceBox.setDisable(false);
-                        break;
-                    default:
-                        dependentCriteriaChoiceBox.setItems(FXCollections.emptyObservableList());
-                        dependentCriteriaChoiceBox.setDisable(true);
-                        break;
-                }
-
-
+                enableDependentCriteriaChoiceBox(newValue);
             }
         });
 
         // Add listener to dependentCriteriaChoiceBox if needed
         dependentCriteriaChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-
-                    lactationStageChoiceBox.setDisable(false);
-
+                lactationStageChoiceBox.setDisable(false);
             }
         });
 
         // Add listener to lactationStageChoiceBox
         lactationStageChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-
                 selectedLactationStage = newValue;
                 compareCattleProduction();
             }
         });
+    }
+    private void populateLactationStageChoiceBox(int selectedCattleID) throws SQLException {
+        LactationPeriod ongoingPeriod = getOngoingLactationPeriod(selectedCattleID);
+
+        if (ongoingPeriod == null) {
+            lactationStageChoiceBox.setItems(FXCollections.observableArrayList());
+            return;
+        }
+
+        String currentStage = determineLactationStage(ongoingPeriod.getStartDate());
+
+        List<String> allStages = List.of(
+                "Colostrum Stage (0-5 days)",
+                "Transition Stage (6-15 days)",
+                "Peak Milk Harvesting (16-60 days)",
+                "Mid-Lactation (61-150 days)",
+                "Late Lactation (151-305 days)",
+                "Dry Period (306+ days)"
+        );
+
+        List<String> availableStages = new ArrayList<>();
+        for (String stage : allStages) {
+            String mappedStage = mapUserSelectionToStage(stage);
+            if (isBeforeOrCurrentStage(currentStage, mappedStage)) {
+                availableStages.add(stage);
+            }
+        }
+
+        lactationStageChoiceBox.setItems(FXCollections.observableArrayList(availableStages));
+    }
+
+    private boolean isBeforeOrCurrentStage(String currentStage, String stage) {
+        List<String> stageOrder = List.of(
+                "Colostrum Stage",
+                "Transition Stage",
+                "Peak Milk Harvesting",
+                "Mid-Lactation",
+                "Late Lactation",
+                "Dry Period"
+        );
+
+        return stageOrder.indexOf(stage) <= stageOrder.indexOf(currentStage);
+    }
 
 
+    private void enableDependentCriteriaChoiceBox(String selectedCriteria) {
+        switch (selectedCriteria) {
+            case "Feed Type":
+                dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList("Dry Matter (DM)", "AS-Fed (AF)"));
+                dependentCriteriaChoiceBox.setDisable(false);
+                break;
+            case "Solution Type":
+                dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList("Equivalent Livestock System (ELS)", "Multiple Livestock System (MLS)"));
+                dependentCriteriaChoiceBox.setDisable(false);
+                break;
+            case "Breed System":
+                dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList("Straightbred", "2-way-x", "3-way-x"));
+                dependentCriteriaChoiceBox.setDisable(false);
+                break;
+            case "Breed Type":
+                dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList("Dual-purpose", "Bos Taurus", "Bos Indicus", "Dairy"));
+                dependentCriteriaChoiceBox.setDisable(false);
+                break;
+            case "Animal Class":
+                dependentCriteriaChoiceBox.setItems(FXCollections.observableArrayList("Grow/Finish", "Lactating", "Dry"));
+                dependentCriteriaChoiceBox.setDisable(false);
+                break;
+            default:
+                dependentCriteriaChoiceBox.setItems(FXCollections.emptyObservableList());
+                dependentCriteriaChoiceBox.setDisable(true);
+                break;
+        }
     }
 
     private void initializeColumnCellValueFactoriesForProductionData() {
@@ -3536,6 +3570,7 @@ public class ProductivityAndCalving {
     private void updateComparisonTableView(List<FilteredCattle> filteredCattleList) throws SQLException {
         List<CowTableItem> cowTableItems = new ArrayList<>();
 
+
         if (filteredCattleList.isEmpty()) {
             Label noDataLabel = new Label("No cattle to compare based on the selected criteria.");
             noDataLabel.setStyle("-fx-font-size: 16; -fx-text-fill: gray;");
@@ -3543,6 +3578,11 @@ public class ProductivityAndCalving {
         } else {
             for (FilteredCattle cow : filteredCattleList) {
                 int cattleID = cow.getCattleID();
+
+                // Skip the cow if its ID matches the selectedCattleID
+                if (cattleID == selectedCattleId) {
+                    continue;
+                }
 
                 LactationPeriod ongoingPeriod = getOngoingLactationPeriod(cattleID);
                 if (ongoingPeriod == null) continue;
@@ -3589,6 +3629,7 @@ public class ProductivityAndCalving {
 
         cowTableView.getItems().setAll(cowTableItems);
     }
+
 
 
     private void showAlertMessage(String message) {
@@ -3644,6 +3685,20 @@ public class ProductivityAndCalving {
             default -> throw new IllegalArgumentException("Unknown stage selected: " + selectedStage);
         };
     }
+
+
+    private void clearAndDisableChoiceBoxes() {
+        selectCriteriaChoiceBox.getSelectionModel().clearSelection();
+        dependentCriteriaChoiceBox.getSelectionModel().clearSelection();
+        dependentCriteriaChoiceBox.setDisable(true);
+        lactationStageChoiceBox.getSelectionModel().clearSelection();
+        lactationStageChoiceBox.setDisable(true);
+        cowTableView.getItems().clear();
+        cowTableView.setPlaceholder(new Label("No Criteria selected"));
+    }
+
+
+
     private double calculateTotalMilkYield(List<ProductionSession> productionSessions) {
         return productionSessions.stream().mapToDouble(ProductionSession::getProductionVolume).sum();
     }

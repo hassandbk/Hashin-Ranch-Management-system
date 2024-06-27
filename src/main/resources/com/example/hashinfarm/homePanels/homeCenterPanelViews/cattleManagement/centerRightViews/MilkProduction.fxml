@@ -646,19 +646,9 @@
                </font></Label>
             </HBox>
             <HBox alignment="CENTER" GridPane.columnIndex="4" GridPane.rowIndex="1">
-                <ChoiceBox fx:id="lactationStageChoiceBox" disable="true">
-                    <items>
-                        <FXCollections fx:factory="observableArrayList">
-                            <String fx:value="Colostrum Stage (0-5 days)" />
-                            <String fx:value="Transition Stage (6-15 days)" />
-                            <String fx:value="Peak Milk Harvesting (16-60 days)" />
-                            <String fx:value="Mid-Lactation (61-150 days)" />
-                            <String fx:value="Late Lactation (151-305 days)" />
-                            <String fx:value="Dry Period (306+ days)" />
-                        </FXCollections>
-                    </items>
-                </ChoiceBox>
+                <ChoiceBox fx:id="lactationStageChoiceBox" />
             </HBox>
+
             <HBox GridPane.columnIndex="3" GridPane.rowIndex="1">
                 <ChoiceBox fx:id="dependentCriteriaChoiceBox" disable="true" prefHeight="26.0" prefWidth="199.0">
                     <!-- This will be populated dynamically based on the selection in selectCriteriaChoiceBox -->
