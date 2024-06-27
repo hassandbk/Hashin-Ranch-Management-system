@@ -23,6 +23,7 @@ import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
 import javafx.stage.*;
 
+import javafx.util.Callback;
 import javafx.util.Pair;
 import org.jetbrains.annotations.NotNull;
 
@@ -105,8 +106,15 @@ public class ProductivityAndCalving {
 
 //new
     @FXML private ChoiceBox<String> selectCriteriaChoiceBox,dependentCriteriaChoiceBox,lactationStageChoiceBox;
-    @FXML  private TableView<CowTableItem> cowTableView;
+    @FXML private TableView<CowTableItem> cowTableView;
+    @FXML private TableColumn<CowTableItem, String> cowIdColumn;
+    @FXML private TableColumn<CowTableItem, String> currentStageColumn;
+    @FXML private TableColumn<CowTableItem, Double> milkYieldedColumn;
+    @FXML private TableColumn<CowTableItem, Double> stageMilkYieldColumn;
+    @FXML private TableColumn<CowTableItem, Double> relativeMilkYieldedColumn;
+    @FXML private TableColumn<CowTableItem, String> selectedCriteriaProductionColumn;
     private String selectedLactationStage;
+
     public void initialize() {
 
         initializeCattleDAO();
@@ -134,6 +142,7 @@ public class ProductivityAndCalving {
         initializeFieldChangeListeners();
         initializeEndTimeButtonListeners();
         initializeProductionData();
+        initializeColumnCellValueFactoriesForProductionData();
     }
 
     private void initializeCattleDAO() {
@@ -309,6 +318,7 @@ public class ProductivityAndCalving {
                             if (newValue != null && newValue.intValue() != 0) {
                                 selectedCattleId = selectedCattleManager.getSelectedCattleID();
                                 updateLactationStartDateField();
+                                productionSessionDatePicker.setValue(LocalDate.now());
                             }
                         });
         selectedCattleManager
@@ -1932,6 +1942,7 @@ public class ProductivityAndCalving {
             selectedEndDate = null;
             milkYieldLabel.setText("");
             relativeMilkYieldLabel.setText("");
+            productionSessionDatePicker.setValue(null);
         }
         modifyLactationButton.setDisable(true);
     }
@@ -3392,7 +3403,43 @@ public class ProductivityAndCalving {
 
     }
 
+    private void initializeColumnCellValueFactoriesForProductionData() {
+        cowIdColumn.setCellValueFactory(new PropertyValueFactory<>("cowId"));
+        currentStageColumn.setCellValueFactory(new PropertyValueFactory<>("currentStage"));
+        milkYieldColumn.setCellValueFactory(new PropertyValueFactory<>("milkYield"));
+        stageMilkYieldColumn.setCellValueFactory(new PropertyValueFactory<>("stageMilkYield"));
+        relativeMilkYieldColumn.setCellValueFactory(new PropertyValueFactory<>("relativeMilkYield"));
+        selectedCriteriaProductionColumn.setCellValueFactory(new PropertyValueFactory<>("selectedCriteriaProduction"));
 
+        // Center align the cells
+        centerAlignColumn(cowIdColumn);
+        centerAlignColumn(currentStageColumn);
+        centerAlignColumn(milkYieldedColumn);
+        centerAlignColumn(stageMilkYieldColumn);
+        centerAlignColumn(relativeMilkYieldedColumn);
+        centerAlignColumn(selectedCriteriaProductionColumn);
+    }
+
+    private <T> void centerAlignColumn(TableColumn<CowTableItem, T> column) {
+        column.setCellFactory(new Callback<TableColumn<CowTableItem, T>, TableCell<CowTableItem, T>>() {
+            @Override
+            public TableCell<CowTableItem, T> call(TableColumn<CowTableItem, T> param) {
+                return new TableCell<CowTableItem, T>() {
+                    @Override
+                    protected void updateItem(T item, boolean empty) {
+                        super.updateItem(item, empty);
+                        if (empty || item == null) {
+                            setText(null);
+                            setGraphic(null);
+                        } else {
+                            setText(item.toString());
+                            setStyle("-fx-alignment: CENTER;");
+                        }
+                    }
+                };
+            }
+        });
+    }
     private String getSelectedCriteria() {
         String selectedCriteria = selectCriteriaChoiceBox.getValue();
         if (selectedCriteria != null && !selectedCriteria.isEmpty()) {
@@ -3468,62 +3515,53 @@ public class ProductivityAndCalving {
         } else {
             for (FilteredCattle cow : filteredCattleList) {
                 int cattleID = cow.getCattleID();
-                System.out.println("Processing cattle ID: " + cattleID);
 
                 LactationPeriod ongoingPeriod = getOngoingLactationPeriod(cattleID);
-                if (ongoingPeriod == null) {
-                    System.out.println("No ongoing lactation period found for cattle ID: " + cattleID);
-                    continue; // Skip to the next cattle
-                }
+                if (ongoingPeriod == null) continue;
 
                 String currentStage = determineLactationStage(ongoingPeriod.getStartDate());
-                String selectedStage = selectedLactationStage;
-                System.out.println("Current Stage for cattle ID " + cattleID + ": " + currentStage);
-                System.out.println("Selected Stage for cattle ID " + cattleID + ": " + selectedStage);
+                String selectedStage = mapUserSelectionToStage(selectedLactationStage);
 
-                LocalDate startDate = determineStageStartDate(ongoingPeriod, selectedStage);
+                LocalDate startDate;
                 LocalDate endDate;
                 if (selectedStage.equals(currentStage)) {
+                    startDate = determineStageStartDate(ongoingPeriod, currentStage);
                     endDate = LocalDate.now();
-                    System.out.println("End Date for current stage (" + currentStage + ") for cattle ID " + cattleID + ": " + endDate);
                 } else {
+                    startDate = determineStageStartDate(ongoingPeriod, selectedStage);
                     endDate = determineStageEndDate(ongoingPeriod, selectedStage);
-                    System.out.println("End Date for selected stage (" + selectedStage + ") for cattle ID " + cattleID + ": " + endDate);
                 }
 
                 if (startDate == null || endDate == null) {
-                    System.out.println("Date range not provided for cattle ID: " + cattleID);
                     showAlertMessage("Date Range Required for cattle ID: " + cattleID);
-                    continue; // Skip to the next cattle
+                    continue;
                 }
 
                 try {
                     List<ProductionSession> productionSessions = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
-                    System.out.println("Fetched " + productionSessions.size() + " production sessions for cattle ID " + cattleID);
 
-                    // Convert cattleID to String for the CowTableItem constructor
                     String cattleIDStr = String.valueOf(cattleID);
 
                     CowTableItem cowTableItem = new CowTableItem(
                             cattleIDStr,
-                            selectedStage,
+                            currentStage,
                             calculateTotalMilkYield(productionSessions),
                             calculateStageMilkYield(productionSessions),
                             calculateRelativeMilkYield(cattleID, productionSessions),
-                            "performance" // Replace with the actual production performance string
+                            "performance"
                     );
 
                     cowTableItems.add(cowTableItem);
                 } catch (SQLException ex) {
-                    // Handle SQL exceptions
                     showAlertMessage("Error fetching production sessions for cattle ID: " + cattleID);
-                    ex.printStackTrace(); // Log the exception to console
+                    ex.printStackTrace();
                 }
             }
         }
 
         cowTableView.getItems().setAll(cowTableItems);
     }
+
 
     private void showAlertMessage(String message) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
@@ -3544,44 +3582,40 @@ public class ProductivityAndCalving {
         }
         return null;
     }
-    private LocalDate determineStageStartDate(LactationPeriod lactationPeriod, String selectedStage) {
-        LocalDate lactationStartDate = lactationPeriod.getStartDate();
-        Integer[] stageDaysRange = stageDaysRangeMap.get(selectedStage);
 
-        if (stageDaysRange != null) {
-            int startDayOffset = stageDaysRange[0];
-            return lactationStartDate.plusDays(startDayOffset);
-        }
 
-        return null; // Handle case where selected stage is not found in the map
+    public LocalDate determineStageStartDate(LactationPeriod lactationPeriod, String selectedStage) {
+
+        Integer[] stageRange = stageDaysRangeMap.get(selectedStage);
+        int stageStartDay = stageRange[0];
+        return lactationPeriod.getStartDate().plusDays(stageStartDay);
     }
 
-    private LocalDate determineStageEndDate(LactationPeriod lactationPeriod, String selectedStage) {
-        LocalDate lactationStartDate = lactationPeriod.getStartDate();
-        Integer[] stageDaysRange = stageDaysRangeMap.get(selectedStage);
 
-        if (stageDaysRange != null) {
-            int endDayOffset = stageDaysRange[1];
-            if (endDayOffset == -1) {
-                // Handle case where the end day is indefinite (dry period)
-                return null; // or handle appropriately based on your business logic
-            }
-            return lactationStartDate.plusDays(endDayOffset);
+    public LocalDate determineStageEndDate(LactationPeriod lactationPeriod, String selectedStage) {
+
+        Integer[] stageRange = stageDaysRangeMap.get(selectedStage);
+        int stageEndDay = stageRange[1];
+        if (stageEndDay == -1) {
+            return null; // Indefinite end date
         }
-
-        return null; // Handle case where selected stage is not found in the map
+        return lactationPeriod.getStartDate().plusDays(stageEndDay);
     }
-    private String determineLactationStage(LocalDate startDate) {
-        long daysSinceStart = ChronoUnit.DAYS.between(startDate, LocalDate.now());
-        for (Map.Entry<String, Integer[]> entry : stageDaysRangeMap.entrySet()) {
-            Integer[] range = entry.getValue();
-            if ((range[1] == -1 && daysSinceStart >= range[0]) || (daysSinceStart >= range[0] && daysSinceStart <= range[1])) {
-                return entry.getKey();
-            }
-        }
-        return "Unknown Stage";
+    public String determineLactationStage(LocalDate startDate) {
+        long totalDays = Duration.between(startDate.atStartOfDay(), LocalDate.now().atStartOfDay()).toDays();
+        return calculateProductionStage((int) totalDays);
     }
-
+    private String mapUserSelectionToStage(String selectedStage) {
+        return switch (selectedStage) {
+            case "Colostrum Stage (0-5 days)" -> "Colostrum Stage";
+            case "Transition Stage (6-15 days)" -> "Transition Stage";
+            case "Peak Milk Harvesting (16-60 days)" -> "Peak Milk Harvesting";
+            case "Mid-Lactation (61-150 days)" -> "Mid-Lactation";
+            case "Late Lactation (151-305 days)" -> "Late Lactation";
+            case "Dry Period (306+ days)" -> "Dry Period";
+            default -> throw new IllegalArgumentException("Unknown stage selected: " + selectedStage);
+        };
+    }
     private double calculateTotalMilkYield(List<ProductionSession> productionSessions) {
         return productionSessions.stream().mapToDouble(ProductionSession::getProductionVolume).sum();
     }

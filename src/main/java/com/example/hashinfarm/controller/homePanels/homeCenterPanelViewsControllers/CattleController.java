@@ -47,38 +47,63 @@ public class CattleController {
         leftArrowButton.setOnAction(event -> animateSplitPane(minPosition));
         rightArrowButton.setOnAction(event -> animateSplitPane(maxPosition));
 
-        splitPane.getDividers().get(0).positionProperty().addListener((obs, oldPos, newPos) -> updateButtonsPosition(newPos.doubleValue()));
+        splitPane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) -> updateButtonsPosition(newPos.doubleValue()));
 
-        loadFXMLAsync("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterLeft.fxml", leftPanePlaceholder);
-        loadFXMLAsync("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterRight.fxml", rightPanePlaceholder);
+        loadLeftPanel();
 
         // Add shutdown hook to gracefully shutdown executorService
         Runtime.getRuntime().addShutdownHook(new Thread(this::shutdownExecutorService));
     }
 
-    private void loadFXMLAsync(String fxmlPath, VBox placeholder) {
-        Task<VBox> task = new Task<>() {
+    private void loadLeftPanel() {
+        Task<VBox> leftTask = new Task<>() {
             @Override
             protected VBox call() throws IOException {
-                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource(fxmlPath));
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterLeft.fxml"));
                 return fxmlLoader.load();
             }
         };
 
-        task.setOnSucceeded(event -> {
+        leftTask.setOnSucceeded(event -> {
             try {
-                VBox content = task.getValue();
-                placeholder.getChildren().setAll(content.getChildren());
+                VBox leftContent = leftTask.getValue();
+                leftPanePlaceholder.getChildren().setAll(leftContent.getChildren());
+                loadRightPanel();  // Load the right panel only after the left panel has successfully loaded
             } catch (Exception e) {
-                handleLoadFailure(e, fxmlPath);
+                handleLoadFailure(e, "/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterLeft.fxml");
             }
         });
 
-        task.setOnFailed(event -> {
-            handleLoadFailure(task.getException(), fxmlPath);
+        leftTask.setOnFailed(event -> {
+            handleLoadFailure(leftTask.getException(), "/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterLeft.fxml");
         });
 
-        executorService.execute(task);
+        executorService.execute(leftTask);
+    }
+
+    private void loadRightPanel() {
+        Task<VBox> rightTask = new Task<>() {
+            @Override
+            protected VBox call() throws IOException {
+                FXMLLoader fxmlLoader = new FXMLLoader(getClass().getResource("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterRight.fxml"));
+                return fxmlLoader.load();
+            }
+        };
+
+        rightTask.setOnSucceeded(event -> {
+            try {
+                VBox rightContent = rightTask.getValue();
+                rightPanePlaceholder.getChildren().setAll(rightContent.getChildren());
+            } catch (Exception e) {
+                handleLoadFailure(e, "/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterRight.fxml");
+            }
+        });
+
+        rightTask.setOnFailed(event -> {
+            handleLoadFailure(rightTask.getException(), "/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/CattleManagerCenterRight.fxml");
+        });
+
+        executorService.execute(rightTask);
     }
 
     private void handleLoadFailure(Throwable exception, String fxmlPath) {

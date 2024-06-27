@@ -272,8 +272,8 @@
                     <TableColumn fx:id="selectionColumn" maxWidth="50.0" minWidth="-Infinity" prefWidth="50.0" text="Select" />
                     <TableColumn fx:id="startDateColumn" maxWidth="150.0" minWidth="-Infinity" prefWidth="150.0" text="Start Date" />
                     <TableColumn fx:id="endDateColumn" maxWidth="150.0" minWidth="-Infinity" prefWidth="150.0" text="End Date" />
-                    <TableColumn fx:id="milkYieldedColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Milk Yield" />
-                    <TableColumn fx:id="relativeMilkYieldedColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Relative Yield" />
+                    <TableColumn fx:id="milkYieldColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Milk Yield" />
+                    <TableColumn fx:id="relativeMilkYieldColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Relative Yield" />
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
@@ -697,17 +697,18 @@
         <!-- TableView for displaying cattle production data -->
         <TableView fx:id="cowTableView" prefHeight="200.0" VBox.vgrow="ALWAYS">
             <columns>
-                <TableColumn prefWidth="75.0" text="Cow ID" />
-                <TableColumn prefWidth="150.0" text="Current Stage" />
-                <TableColumn prefWidth="100.0" text="Milk Yield" />
-                <TableColumn prefWidth="150.0" text="Stage Milk Yield" />
-                <TableColumn prefWidth="150.0" text="Relative Milk Yield" />
-                <TableColumn prefWidth="200.0" text="Selected Criteria Production" />
+                <TableColumn fx:id="cowIdColumn" prefWidth="75.0" text="Cow ID" />
+                <TableColumn fx:id="currentStageColumn" prefWidth="150.0" text="Current Stage" />
+                <TableColumn fx:id="milkYieldedColumn" prefWidth="100.0" text="Milk Yield" />
+                <TableColumn fx:id="stageMilkYieldColumn" prefWidth="150.0" text="Stage Milk Yield" />
+                <TableColumn fx:id="relativeMilkYieldedColumn" prefWidth="150.0" text="Relative Milk Yield" />
+                <TableColumn fx:id="selectedCriteriaProductionColumn" prefWidth="200.0" text="Selected Criteria Production" />
             </columns>
             <columnResizePolicy>
                 <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
             </columnResizePolicy>
         </TableView>
+
 
 
 
