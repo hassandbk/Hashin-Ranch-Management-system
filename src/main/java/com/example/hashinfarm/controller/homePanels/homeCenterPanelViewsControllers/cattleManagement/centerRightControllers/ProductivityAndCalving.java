@@ -1827,9 +1827,37 @@ public class ProductivityAndCalving {
                 cellData.getValue().getLactationPeriod().getEndDate()));
         endDateColumn.setCellFactory(new MissingEndDateCellFactory(dateFormatter));
 
-        //yield columns missing
+        milkYieldColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
+                cellData.getValue().getLactationPeriod().getMilkYield()));
+        milkYieldColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(String.format("%.2f", item));
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
 
-
+        relativeMilkYieldColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
+                cellData.getValue().getLactationPeriod().getRelativeMilkYield()));
+        relativeMilkYieldColumn.setCellFactory(column -> new TableCell<>() {
+            @Override
+            protected void updateItem(Double item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty) {
+                    setText(null);
+                    setGraphic(null);
+                } else {
+                    setText(String.format("%.2f", item));
+                    setAlignment(Pos.CENTER);
+                }
+            }
+        });
 
 
 
