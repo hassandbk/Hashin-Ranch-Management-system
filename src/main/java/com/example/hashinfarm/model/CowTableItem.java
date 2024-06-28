@@ -1,74 +1,77 @@
 package com.example.hashinfarm.model;
 
 public class CowTableItem {
-    private String cowId;
-    private String currentStage;
-    private double milkYield;
-    private double stageMilkYield;
-    private double relativeMilkYield;
-    private String selectedCriteriaProduction;
+    private String cattleID;
+    private String stage;
+    private double stageMilkYielded;
+    private double totalDailyMilkYielded;
+    private double averageDailyMilkYielded;
+    private double relativeDailyMilkYielded;
+    private String performanceRating;
 
-    // Empty constructor
-    public CowTableItem() {
+    public CowTableItem(String cattleID, String stage, double stageMilkYielded, double totalDailyMilkYielded, double averageDailyMilkYielded, double relativeDailyMilkYielded, String performanceRating) {
+        this.cattleID = cattleID;
+        this.stage = stage;
+        this.stageMilkYielded = stageMilkYielded;
+        this.totalDailyMilkYielded = totalDailyMilkYielded;
+        this.averageDailyMilkYielded = averageDailyMilkYielded;
+        this.relativeDailyMilkYielded = relativeDailyMilkYielded;
+        this.performanceRating = performanceRating;
     }
 
-    // Constructor with parameters
-    public CowTableItem(String cowId, String currentStage, double milkYield, double stageMilkYield, double relativeMilkYield,  String selectedCriteriaProduction) {
-        this.cowId = cowId;
-        this.currentStage = currentStage;
-        this.milkYield = milkYield;
-        this.stageMilkYield = stageMilkYield;
-        this.relativeMilkYield = relativeMilkYield;
-        this.selectedCriteriaProduction = selectedCriteriaProduction;
+    public String getCattleID() {
+        return cattleID;
     }
 
-    // Getters and setters
-    public String getCowId() {
-        return cowId;
+    public void setCattleID(String cattleID) {
+        this.cattleID = cattleID;
     }
 
-    public void setCowId(String cowId) {
-        this.cowId = cowId;
+    public String getStage() {
+        return stage;
     }
 
-    public String getCurrentStage() {
-        return currentStage;
+    public void setStage(String stage) {
+        this.stage = stage;
     }
 
-    public void setCurrentStage(String currentStage) {
-        this.currentStage = currentStage;
+    public double getStageMilkYielded() {
+        return stageMilkYielded;
     }
 
-    public double getMilkYield() {
-        return milkYield;
+    public void setStageMilkYielded(double stageMilkYielded) {
+        this.stageMilkYielded = stageMilkYielded;
     }
 
-    public void setMilkYield(double milkYield) {
-        this.milkYield = milkYield;
+    public double getTotalDailyMilkYielded() {
+        return totalDailyMilkYielded;
     }
 
-    public double getStageMilkYield() {
-        return stageMilkYield;
+    public void setTotalDailyMilkYielded(double totalDailyMilkYielded) {
+        this.totalDailyMilkYielded = totalDailyMilkYielded;
     }
 
-    public void setStageMilkYield(double stageMilkYield) {
-        this.stageMilkYield = stageMilkYield;
+    public double getAverageDailyMilkYielded() {
+        return averageDailyMilkYielded;
     }
 
-    public double getRelativeMilkYield() {
-        return relativeMilkYield;
+    public void setAverageDailyMilkYielded(double averageDailyMilkYielded) {
+        this.averageDailyMilkYielded = averageDailyMilkYielded;
     }
 
-    public void setRelativeMilkYield(double relativeMilkYield) {
-        this.relativeMilkYield = relativeMilkYield;
+    public double getRelativeDailyMilkYielded() {
+        return relativeDailyMilkYielded;
     }
 
-
-    public String getSelectedCriteriaProduction() {
-        return selectedCriteriaProduction;
+    public void setRelativeDailyMilkYielded(double relativeDailyMilkYielded) {
+        this.relativeDailyMilkYielded = relativeDailyMilkYielded;
     }
 
-    public void setSelectedCriteriaProduction(String selectedCriteriaProduction) {
-        this.selectedCriteriaProduction = selectedCriteriaProduction;
+    public String getPerformanceRating() {
+        return performanceRating;
+    }
+
+    public void setPerformanceRating(String performanceRating) {
+        this.performanceRating = performanceRating;
     }
 }

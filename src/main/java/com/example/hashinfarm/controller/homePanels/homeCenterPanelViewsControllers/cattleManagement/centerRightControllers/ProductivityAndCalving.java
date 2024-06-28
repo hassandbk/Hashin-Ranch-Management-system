@@ -29,6 +29,7 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.*;
 import java.sql.*;
+import java.text.DecimalFormat;
 import java.time.*;
 import java.time.format.*;
 import java.time.temporal.ChronoUnit;
@@ -52,6 +53,7 @@ public class ProductivityAndCalving {
     private final Map<String, Integer[]> stageDaysRangeMap = new HashMap<>();
     private final Map<String, StageDetails> stageDetailsMap = new HashMap<>();
     private final Map<String, String> initialValues = new HashMap<>();
+
 
 
     // Other Fields
@@ -104,16 +106,13 @@ public class ProductivityAndCalving {
     @FXML private TreeView<String> stageOfPregnancy;
     @FXML private GridPane gridPaneProduction;
 
-//new
-    @FXML private ChoiceBox<String> selectCriteriaChoiceBox,dependentCriteriaChoiceBox,lactationStageChoiceBox;
+    //new
+    @FXML private ChoiceBox<String> selectCriteriaChoiceBox,dependentCriteriaChoiceBox;
     @FXML private TableView<CowTableItem> cowTableView;
-    @FXML private TableColumn<CowTableItem, String> cowIdColumn;
-    @FXML private TableColumn<CowTableItem, String> currentStageColumn;
-    @FXML private TableColumn<CowTableItem, Double> milkYieldedColumn;
-    @FXML private TableColumn<CowTableItem, Double> stageMilkYieldColumn;
-    @FXML private TableColumn<CowTableItem, Double> relativeMilkYieldedColumn;
-    @FXML private TableColumn<CowTableItem, String> selectedCriteriaProductionColumn;
-    private String selectedLactationStage;
+    @FXML private TableColumn<CowTableItem, String> cowIdColumn, currentStageColumn, performanceRatingColumn;
+    @FXML private TableColumn<CowTableItem, Double> stageMilkYieldedColumn, totalDailyMilkYieldedColumn, averageDailyMilkYieldedColumn, relativeDailyMilkYieldedColumn;
+
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
     public void initialize() {
 
@@ -201,11 +200,6 @@ public class ProductivityAndCalving {
                             selectedCattleId = newValue.intValue();
                             loadCalvingHistoryForCattle(selectedCattleId);
                             updateCalvingHistoryData();
-                            try {
-                                populateLactationStageChoiceBox(selectedCattleId);
-                            } catch (SQLException e) {
-                                throw new RuntimeException(e);
-                            }
                         });
 
         selectedCattleManager
@@ -2017,6 +2011,7 @@ public class ProductivityAndCalving {
                             if (selectedStartDate.equals(ongoingLactationPeriod.getStartDate())) {
                                 LocalDate startDate = ongoingLactationPeriod.getStartDate();
                                 long totalDays = Duration.between(startDate.atStartOfDay(), currentDate.atStartOfDay()).toDays();
+                                productionSessionDatePicker.setValue(currentDate);
                                 lactationPeriodLabel.setText(totalDays + " days");
 
                                 // Calculate the production stage based on total days
@@ -2036,11 +2031,13 @@ public class ProductivityAndCalving {
 
                                 // If the selected period is ongoing, enable fields
                                 setFieldsDisabled(false);
+
                                 clearAndDisableChoiceBoxes();
                                 selectCriteriaChoiceBox.setDisable(false);
                             } else {
                                 // If the selected period is not ongoing, disable fields
                                 setFieldsDisabled(true);
+                                productionSessionDatePicker.setValue(null);
                                 clearAndDisableChoiceBoxes();
                                 selectCriteriaChoiceBox.setDisable(true);
 
@@ -2393,8 +2390,16 @@ public class ProductivityAndCalving {
         productionSessionDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
                 selectedDateProductionSessionDate = newValue;
+                populateFieldsBasedOnDateAndLactationPeriod(newValue,ongoingLactationPeriod.getLactationPeriodID());
+                if (selectCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null &&
+                        dependentCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null) {
 
-                clearAndDisableChoiceBoxes();
+                    compareCattleProduction(); // Call your method to compare cattle production
+
+                } else {
+                     clearAndDisableChoiceBoxes();
+                    dependentCriteriaChoiceBox.setDisable(true);
+                }
             }
         });
     }
@@ -2500,7 +2505,7 @@ public class ProductivityAndCalving {
         addChangeListener(eveningQualityScore.valueProperty(), "eveningQualityScore", "Evening");
         addChangeListener(spinnerEvening.valueProperty(), "spinnerEvening", "Evening");
 
-        }
+    }
     private void initializeEndTimeButtonListeners() {
         // Create tooltips
         Tooltip morningTooltip = new Tooltip("Please provide the Morning start time first.");
@@ -2722,7 +2727,7 @@ public class ProductivityAndCalving {
 
         // Apply CSS styles to buttons
         DialogPane dialogPane = alert.getDialogPane();
-        
+
         dialogPane.getStylesheets().add(Objects.requireNonNull(getClass().getResource("/css/styles.css")).toExternalForm());
         // Set the style ID for the dialog pane
         dialogPane.setId("dark-blue");
@@ -3380,60 +3385,13 @@ public class ProductivityAndCalving {
         // Add listener to dependentCriteriaChoiceBox if needed
         dependentCriteriaChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                lactationStageChoiceBox.setDisable(false);
-            }
-        });
-
-        // Add listener to lactationStageChoiceBox
-        lactationStageChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                selectedLactationStage = newValue;
                 compareCattleProduction();
             }
         });
-    }
-    private void populateLactationStageChoiceBox(int selectedCattleID) throws SQLException {
-        LactationPeriod ongoingPeriod = getOngoingLactationPeriod(selectedCattleID);
 
-        if (ongoingPeriod == null) {
-            lactationStageChoiceBox.setItems(FXCollections.observableArrayList());
-            return;
-        }
 
-        String currentStage = determineLactationStage(ongoingPeriod.getStartDate());
-
-        List<String> allStages = List.of(
-                "Colostrum Stage (0-5 days)",
-                "Transition Stage (6-15 days)",
-                "Peak Milk Harvesting (16-60 days)",
-                "Mid-Lactation (61-150 days)",
-                "Late Lactation (151-305 days)",
-                "Dry Period (306+ days)"
-        );
-
-        List<String> availableStages = new ArrayList<>();
-        for (String stage : allStages) {
-            String mappedStage = mapUserSelectionToStage(stage);
-            if (isBeforeOrCurrentStage(currentStage, mappedStage)) {
-                availableStages.add(stage);
-            }
-        }
-
-        lactationStageChoiceBox.setItems(FXCollections.observableArrayList(availableStages));
     }
 
-    private boolean isBeforeOrCurrentStage(String currentStage, String stage) {
-        List<String> stageOrder = List.of(
-                "Colostrum Stage",
-                "Transition Stage",
-                "Peak Milk Harvesting",
-                "Mid-Lactation",
-                "Late Lactation",
-                "Dry Period"
-        );
-
-        return stageOrder.indexOf(stage) <= stageOrder.indexOf(currentStage);
-    }
 
 
     private void enableDependentCriteriaChoiceBox(String selectedCriteria) {
@@ -3466,21 +3424,25 @@ public class ProductivityAndCalving {
     }
 
     private void initializeColumnCellValueFactoriesForProductionData() {
-        cowIdColumn.setCellValueFactory(new PropertyValueFactory<>("cowId"));
-        currentStageColumn.setCellValueFactory(new PropertyValueFactory<>("currentStage"));
-        milkYieldColumn.setCellValueFactory(new PropertyValueFactory<>("milkYield"));
-        stageMilkYieldColumn.setCellValueFactory(new PropertyValueFactory<>("stageMilkYield"));
-        relativeMilkYieldColumn.setCellValueFactory(new PropertyValueFactory<>("relativeMilkYield"));
-        selectedCriteriaProductionColumn.setCellValueFactory(new PropertyValueFactory<>("selectedCriteriaProduction"));
+        cowIdColumn.setCellValueFactory(new PropertyValueFactory<>("cattleID"));
+        currentStageColumn.setCellValueFactory(new PropertyValueFactory<>("stage"));
+        stageMilkYieldedColumn.setCellValueFactory(new PropertyValueFactory<>("stageMilkYielded"));
+        totalDailyMilkYieldedColumn.setCellValueFactory(new PropertyValueFactory<>("totalDailyMilkYielded"));
+        averageDailyMilkYieldedColumn.setCellValueFactory(new PropertyValueFactory<>("averageDailyMilkYielded"));
+        relativeDailyMilkYieldedColumn.setCellValueFactory(new PropertyValueFactory<>("relativeDailyMilkYielded"));
+        performanceRatingColumn.setCellValueFactory(new PropertyValueFactory<>("performanceRating"));
 
-        // Center align the cells
+        // Center align the cells if necessary (optional)
         centerAlignColumn(cowIdColumn);
         centerAlignColumn(currentStageColumn);
-        centerAlignColumn(milkYieldedColumn);
-        centerAlignColumn(stageMilkYieldColumn);
-        centerAlignColumn(relativeMilkYieldedColumn);
-        centerAlignColumn(selectedCriteriaProductionColumn);
+        centerAlignColumn(stageMilkYieldedColumn);
+        centerAlignColumn(totalDailyMilkYieldedColumn);
+        centerAlignColumn(averageDailyMilkYieldedColumn);
+        centerAlignColumn(relativeDailyMilkYieldedColumn);
+        centerAlignColumn(performanceRatingColumn);
     }
+
+
 
     private <T> void centerAlignColumn(TableColumn<CowTableItem, T> column) {
         column.setCellFactory(new Callback<>() {
@@ -3570,76 +3532,89 @@ public class ProductivityAndCalving {
     private void updateComparisonTableView(List<FilteredCattle> filteredCattleList) throws SQLException {
         List<CowTableItem> cowTableItems = new ArrayList<>();
 
+        for (FilteredCattle cow : filteredCattleList) {
+            int cattleID = cow.getCattleID();
 
-        if (filteredCattleList.isEmpty()) {
-            Label noDataLabel = new Label("No cattle to compare based on the selected criteria.");
-            noDataLabel.setStyle("-fx-font-size: 16; -fx-text-fill: gray;");
-            cowTableView.setPlaceholder(noDataLabel);
-        } else {
-            for (FilteredCattle cow : filteredCattleList) {
-                int cattleID = cow.getCattleID();
-
-                // Skip the cow if its ID matches the selectedCattleID
-                if (cattleID == selectedCattleId) {
-                    continue;
-                }
-
-                LactationPeriod ongoingPeriod = getOngoingLactationPeriod(cattleID);
-                if (ongoingPeriod == null) continue;
-
-                String currentStage = determineLactationStage(ongoingPeriod.getStartDate());
-                String selectedStage = mapUserSelectionToStage(selectedLactationStage);
-
-                LocalDate startDate;
-                LocalDate endDate;
-                if (selectedStage.equals(currentStage)) {
-                    startDate = determineStageStartDate(ongoingPeriod, currentStage);
-                    endDate = LocalDate.now();
-                } else {
-                    startDate = determineStageStartDate(ongoingPeriod, selectedStage);
-                    endDate = determineStageEndDate(ongoingPeriod, selectedStage);
-                }
-
-                if (startDate == null || endDate == null) {
-                    showAlertMessage("Date Range Required for cattle ID: " + cattleID);
-                    continue;
-                }
-
-                try {
-                    List<ProductionSession> productionSessions = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
-
-                    String cattleIDStr = String.valueOf(cattleID);
-
-                    CowTableItem cowTableItem = new CowTableItem(
-                            cattleIDStr,
-                            currentStage,
-                            calculateTotalMilkYield(productionSessions),
-                            calculateStageMilkYield(productionSessions),
-                            calculateRelativeMilkYield(cattleID, productionSessions),
-                            "performance"
-                    );
-
-                    cowTableItems.add(cowTableItem);
-                } catch (SQLException ex) {
-                    showAlertMessage("Error fetching production sessions for cattle ID: " + cattleID);
-                    ex.printStackTrace();
-                }
+            if (cattleID == selectedCattleId) {
+                continue;
             }
+
+            LactationPeriod ongoingPeriod = getOngoingLactationPeriod(cattleID);
+            if (ongoingPeriod == null) {
+                continue;
+            }
+
+            String currentStage = determineCurrentLactationStage(ongoingPeriod.getStartDate());
+            String selectedStage = determineSelectedLactationStage(ongoingLactationPeriod.getStartDate(),selectedDateProductionSessionDate);
+            LocalDate startDate, endDate;
+
+
+            startDate = determineStageStartDate(ongoingPeriod, selectedStage);
+            endDate = determineStageEndDate(ongoingPeriod, selectedStage);
+
+
+            List<ProductionSession> productionSessionsByStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
+            List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), startDate);
+
+            double stageMilkYield = calculateTotalYield(productionSessionsByStage);
+            double totalDailyYield = calculateTotalYield(productionSessionsByDate);
+            double averageDailyYield = calculateAverageDailyYield(stageMilkYield, startDate,endDate);
+            double relativeDailyYield = Double.parseDouble(decimalFormat.format(totalDailyYield / averageDailyYield));
+            String performanceRating = determinePerformanceRating(relativeDailyYield);
+
+
+            cowTableItems.add(new CowTableItem(
+                    String.valueOf(cattleID),
+                    currentStage,
+                    stageMilkYield,
+                    totalDailyYield,
+                    averageDailyYield,
+                    relativeDailyYield,
+                    performanceRating
+            ));
         }
 
         cowTableView.getItems().setAll(cowTableItems);
     }
+    private double calculateTotalYield(List<ProductionSession> productionSessions) {
+        double totalYield = 0;
+        for (ProductionSession session : productionSessions) {
+            totalYield += session.getProductionVolume();
+        }
 
-
-
-    private void showAlertMessage(String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle("Error");
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        return Double.parseDouble(decimalFormat.format(totalYield));
     }
 
+    private double calculateAverageDailyYield(double stageMilkYield,LocalDate startDate,LocalDate endDate ) {
+
+        long totalDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
+
+        return Double.parseDouble(decimalFormat.format(stageMilkYield / totalDays));
+    }
+
+
+    private String determinePerformanceRating(double relativeDailyMilkYield) {
+        // Performance rating thresholds (modify as needed)
+        final Map<String, Double[]> performanceRanges = new HashMap<>();
+        performanceRanges.put("Excellent", new Double[]{1.2, Double.POSITIVE_INFINITY});
+        performanceRanges.put("Good", new Double[]{1.0, 1.2});
+        performanceRanges.put("Average", new Double[]{0.8, 1.0});
+        performanceRanges.put("Below Average", new Double[]{0.6, 0.8});
+        performanceRanges.put("Poor", new Double[]{0.0, 0.6});
+
+        for (Map.Entry<String, Double[]> entry : performanceRanges.entrySet()) {
+            String rating = entry.getKey();
+            Double lowerBound = entry.getValue()[0];
+            Double upperBound = entry.getValue()[1];
+
+            if (lowerBound <= relativeDailyMilkYield && relativeDailyMilkYield < upperBound) {
+                return rating;
+            }
+        }
+
+        // Default rating if yield falls outside all categories
+        return "Very Poor";
+    }
 
 
     private LactationPeriod getOngoingLactationPeriod(int cattleID) throws SQLException {
@@ -3666,51 +3641,23 @@ public class ProductivityAndCalving {
         Integer[] stageRange = stageDaysRangeMap.get(selectedStage);
         int stageEndDay = stageRange[1];
         if (stageEndDay == -1) {
-            return null; // Indefinite end date
+            stageEndDay=365;
         }
         return lactationPeriod.getStartDate().plusDays(stageEndDay);
     }
-    public String determineLactationStage(LocalDate startDate) {
-        long totalDays = Duration.between(startDate.atStartOfDay(), LocalDate.now().atStartOfDay()).toDays();
+    public String determineCurrentLactationStage(LocalDate LactationStartDate) {
+        long totalDays = Duration.between(LactationStartDate.atStartOfDay(), LocalDate.now().atStartOfDay()).toDays();
         return calculateProductionStage((int) totalDays);
     }
-    private String mapUserSelectionToStage(String selectedStage) {
-        return switch (selectedStage) {
-            case "Colostrum Stage (0-5 days)" -> "Colostrum Stage";
-            case "Transition Stage (6-15 days)" -> "Transition Stage";
-            case "Peak Milk Harvesting (16-60 days)" -> "Peak Milk Harvesting";
-            case "Mid-Lactation (61-150 days)" -> "Mid-Lactation";
-            case "Late Lactation (151-305 days)" -> "Late Lactation";
-            case "Dry Period (306+ days)" -> "Dry Period";
-            default -> throw new IllegalArgumentException("Unknown stage selected: " + selectedStage);
-        };
+    public String determineSelectedLactationStage(LocalDate lactationStartDate,LocalDate productionDate) {
+        long totalDays = Duration.between(lactationStartDate.atStartOfDay(), productionDate.atStartOfDay()).toDays();
+        return calculateProductionStage((int) totalDays);
     }
-
-
     private void clearAndDisableChoiceBoxes() {
         selectCriteriaChoiceBox.getSelectionModel().clearSelection();
         dependentCriteriaChoiceBox.getSelectionModel().clearSelection();
         dependentCriteriaChoiceBox.setDisable(true);
-        lactationStageChoiceBox.getSelectionModel().clearSelection();
-        lactationStageChoiceBox.setDisable(true);
         cowTableView.getItems().clear();
         cowTableView.setPlaceholder(new Label("No Criteria selected"));
     }
-
-
-
-    private double calculateTotalMilkYield(List<ProductionSession> productionSessions) {
-        return productionSessions.stream().mapToDouble(ProductionSession::getProductionVolume).sum();
-    }
-
-    private double calculateStageMilkYield(List<ProductionSession> productionSessions) {
-        return productionSessions.stream().mapToDouble(ProductionSession::getProductionVolume).average().orElse(0.0);
-    }
-
-    private double calculateRelativeMilkYield(int cattleID, List<ProductionSession> productionSessions) {
-        // Implement the logic to compare with a reference cow if needed
-        return 0.0; // Placeholder
-    }
-
-
 }

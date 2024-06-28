@@ -87,6 +87,24 @@ public class ProductionSessionDAO {
         }
         return productionSessions;
     }
+    public static List<ProductionSession> getProductionSessionsByLactationIdAndDate(int lactationPeriodId, LocalDate SpecifiedDate) throws SQLException {
+        List<ProductionSession> productionSessions = new ArrayList<>();
+        String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ? AND DATE(StartTime) = ?";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, lactationPeriodId);
+            preparedStatement.setDate(2, Date.valueOf(SpecifiedDate));
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    productionSessions.add(extractProductionSessionFromResultSet(resultSet));
+                }
+            }
+        }
+        return productionSessions;
+    }
     private static ProductionSession extractProductionSessionFromResultSet(ResultSet resultSet) throws SQLException {
         int sessionID = resultSet.getInt("SessionID");
         int lactationPeriodID = resultSet.getInt("LactationPeriodID");
@@ -141,6 +159,22 @@ public class ProductionSessionDAO {
         String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ?";
 
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, lactationPeriodId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    productionSessions.add(extractProductionSessionFromResultSet(resultSet));
+                }
+            }
+        }
+        return productionSessions;
+    }
+    public static List<ProductionSession> getProductionSessionsByLactationPeriodId(int lactationPeriodId) throws SQLException {
+        List<ProductionSession> productionSessions = new ArrayList<>();
+        String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ?";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
             preparedStatement.setInt(1, lactationPeriodId);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {

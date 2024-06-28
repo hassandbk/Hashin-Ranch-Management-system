@@ -15,6 +15,7 @@ module com.example.hashinfarm {
     requires annotations;
     requires mysql.connector.j;
     requires com.jfoenix;
+    requires commons.math3;
 
 
     opens com.example.hashinfarm to javafx.fxml;
