@@ -46,12 +46,13 @@
     -fx-background-color: transparent;
     -fx-text-fill: #005797;
     -fx-font-weight:bold;
-    -fx-font-size:13px;
+    -fx-font-size:10px;
 }
 
 .table-view .column-header {
     -fx-background-color: transparent;
     -fx-pref-height:50px;
+    -fx-wrap-text: true;
 }
 .table-view  .table-column{
     -fx-padding: 6 0 0 6;
@@ -96,6 +97,9 @@
     -fx-border-color:#FFFFFF;
 }
 
+.table-view .column-header .label {
+    -fx-wrap-text: true;
+}
 
 
 

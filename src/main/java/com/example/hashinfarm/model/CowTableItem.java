@@ -2,22 +2,38 @@ package com.example.hashinfarm.model;
 
 public class CowTableItem {
     private String cattleID;
-    private String stage;
-    private double stageMilkYielded;
-    private double totalDailyMilkYielded;
-    private double averageDailyMilkYielded;
-    private double relativeDailyMilkYielded;
+    private String currentStage;
+    private String selectedStageByDate;
+    private String equivalentSelectedDate;
+    private double todayMY;
+    private double equivalentDayMY;
+    private double currentStageMilkMY;
+    private double selectedStageMilkMY;
+    private double totalDailyMY;
+    private double averageDailyMY;
+    private double relativeMY;
     private String performanceRating;
+    private String comparisonPerformance;
 
-    public CowTableItem(String cattleID, String stage, double stageMilkYielded, double totalDailyMilkYielded, double averageDailyMilkYielded, double relativeDailyMilkYielded, String performanceRating) {
+    public CowTableItem(String cattleID, String currentStage, String selectedStageByDate, String equivalentSelectedDate, double todayMY,
+                        double equivalentDayMY, double currentStageMilkMY, double selectedStageMilkMY, double totalDailyMY,
+                        double averageDailyMY, double relativeMY, String performanceRating, String comparisonPerformance) {
         this.cattleID = cattleID;
-        this.stage = stage;
-        this.stageMilkYielded = stageMilkYielded;
-        this.totalDailyMilkYielded = totalDailyMilkYielded;
-        this.averageDailyMilkYielded = averageDailyMilkYielded;
-        this.relativeDailyMilkYielded = relativeDailyMilkYielded;
+        this.currentStage = currentStage;
+        this.selectedStageByDate = selectedStageByDate;
+        this.equivalentSelectedDate = equivalentSelectedDate;
+        this.todayMY = todayMY;
+        this.equivalentDayMY = equivalentDayMY;
+        this.currentStageMilkMY = currentStageMilkMY;
+        this.selectedStageMilkMY = selectedStageMilkMY;
+        this.totalDailyMY = totalDailyMY;
+        this.averageDailyMY = averageDailyMY;
+        this.relativeMY = relativeMY;
         this.performanceRating = performanceRating;
+        this.comparisonPerformance = comparisonPerformance;
     }
+
+    // Getters and Setters
 
     public String getCattleID() {
         return cattleID;
@@ -27,44 +43,84 @@ public class CowTableItem {
         this.cattleID = cattleID;
     }
 
-    public String getStage() {
-        return stage;
+    public String getCurrentStage() {
+        return currentStage;
     }
 
-    public void setStage(String stage) {
-        this.stage = stage;
+    public void setCurrentStage(String currentStage) {
+        this.currentStage = currentStage;
     }
 
-    public double getStageMilkYielded() {
-        return stageMilkYielded;
+    public String getSelectedStageByDate() {
+        return selectedStageByDate;
     }
 
-    public void setStageMilkYielded(double stageMilkYielded) {
-        this.stageMilkYielded = stageMilkYielded;
+    public void setSelectedStageByDate(String selectedStageByDate) {
+        this.selectedStageByDate = selectedStageByDate;
     }
 
-    public double getTotalDailyMilkYielded() {
-        return totalDailyMilkYielded;
+    public String getEquivalentSelectedDate() {
+        return equivalentSelectedDate;
     }
 
-    public void setTotalDailyMilkYielded(double totalDailyMilkYielded) {
-        this.totalDailyMilkYielded = totalDailyMilkYielded;
+    public void setEquivalentSelectedDate(String equivalentSelectedDate) {
+        this.equivalentSelectedDate = equivalentSelectedDate;
     }
 
-    public double getAverageDailyMilkYielded() {
-        return averageDailyMilkYielded;
+    public double getTodayMY() {
+        return todayMY;
     }
 
-    public void setAverageDailyMilkYielded(double averageDailyMilkYielded) {
-        this.averageDailyMilkYielded = averageDailyMilkYielded;
+    public void setTodayMY(double todayMY) {
+        this.todayMY = todayMY;
     }
 
-    public double getRelativeDailyMilkYielded() {
-        return relativeDailyMilkYielded;
+    public double getEquivalentDayMY() {
+        return equivalentDayMY;
     }
 
-    public void setRelativeDailyMilkYielded(double relativeDailyMilkYielded) {
-        this.relativeDailyMilkYielded = relativeDailyMilkYielded;
+    public void setEquivalentDayMY(double equivalentDayMY) {
+        this.equivalentDayMY = equivalentDayMY;
+    }
+
+    public double getCurrentStageMilkMY() {
+        return currentStageMilkMY;
+    }
+
+    public void setCurrentStageMilkMY(double currentStageMilkMY) {
+        this.currentStageMilkMY = currentStageMilkMY;
+    }
+
+    public double getSelectedStageMilkMY() {
+        return selectedStageMilkMY;
+    }
+
+    public void setSelectedStageMilkMY(double selectedStageMilkMY) {
+        this.selectedStageMilkMY = selectedStageMilkMY;
+    }
+
+    public double getTotalDailyMY() {
+        return totalDailyMY;
+    }
+
+    public void setTotalDailyMY(double totalDailyMY) {
+        this.totalDailyMY = totalDailyMY;
+    }
+
+    public double getAverageDailyMY() {
+        return averageDailyMY;
+    }
+
+    public void setAverageDailyMY(double averageDailyMY) {
+        this.averageDailyMY = averageDailyMY;
+    }
+
+    public double getRelativeMY() {
+        return relativeMY;
+    }
+
+    public void setRelativeMY(double relativeMY) {
+        this.relativeMY = relativeMY;
     }
 
     public String getPerformanceRating() {
@@ -73,5 +129,13 @@ public class CowTableItem {
 
     public void setPerformanceRating(String performanceRating) {
         this.performanceRating = performanceRating;
+    }
+
+    public String getComparisonPerformance() {
+        return comparisonPerformance;
+    }
+
+    public void setComparisonPerformance(String comparisonPerformance) {
+        this.comparisonPerformance = comparisonPerformance;
     }
 }
