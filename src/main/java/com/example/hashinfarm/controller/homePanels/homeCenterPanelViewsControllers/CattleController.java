@@ -44,10 +44,10 @@ public class CattleController {
         SplitPaneDividerEnforcer dividerEnforcer = new SplitPaneDividerEnforcer(minPosition, maxPosition);
         dividerEnforcer.enforceConstraints(splitPane);
 
-        leftArrowButton.setOnAction(event -> animateSplitPane(minPosition));
-        rightArrowButton.setOnAction(event -> animateSplitPane(maxPosition));
+        leftArrowButton.setOnAction(event -> animateSplitPane(minPosition,splitPane,minPosition,maxPosition,leftArrowButton,rightArrowButton));
+        rightArrowButton.setOnAction(event -> animateSplitPane(maxPosition,splitPane,minPosition,maxPosition,leftArrowButton,rightArrowButton));
 
-        splitPane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) -> updateButtonsPosition(newPos.doubleValue()));
+        splitPane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) -> updateButtonsPosition(newPos.doubleValue(),splitPane,leftArrowButton,rightArrowButton));
 
         loadLeftPanel();
 
@@ -113,7 +113,8 @@ public class CattleController {
         }
     }
 
-    private void animateSplitPane(double targetPosition) {
+
+    public void animateSplitPane(double targetPosition,SplitPane splitPane,double minPosition, double maxPosition,Button leftArrowButton,Button rightArrowButton) {
         targetPosition = Math.max(minPosition, Math.min(maxPosition, targetPosition));
 
         double animationDurationMillis = 800;
@@ -124,18 +125,18 @@ public class CattleController {
 
         double finalTargetPosition = targetPosition;
         Platform.runLater(() -> {
-            KeyValue dividerKeyValue = new KeyValue(splitPane.getDividers().get(0).positionProperty(), finalTargetPosition);
+            KeyValue dividerKeyValue = new KeyValue(splitPane.getDividers().getFirst().positionProperty(), finalTargetPosition);
             KeyValue leftButtonKeyValue = new KeyValue(leftArrowButton.layoutXProperty(), leftButtonTarget);
             KeyValue rightButtonKeyValue = new KeyValue(rightArrowButton.layoutXProperty(), rightButtonTarget);
 
-            KeyFrame keyFrame = new KeyFrame(Duration.millis(animationDurationMillis), dividerKeyValue, leftButtonKeyValue, rightButtonKeyValue);
+            KeyFrame keyFrame = new KeyFrame(javafx.util.Duration.millis(animationDurationMillis), dividerKeyValue, leftButtonKeyValue, rightButtonKeyValue);
 
             Timeline timeline = new Timeline(keyFrame);
             timeline.play();
         });
     }
 
-    private void updateButtonsPosition(double dividerPosition) {
+    public void updateButtonsPosition(double dividerPosition,SplitPane splitPane,Button leftArrowButton,Button rightArrowButton) {
         double buttonSpace = 30.0;
         double leftButtonPosition = dividerPosition * splitPane.getWidth() - buttonSpace;
         double rightButtonPosition = dividerPosition * splitPane.getWidth();

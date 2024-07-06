@@ -2,6 +2,7 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 
 import com.example.hashinfarm.controller.dao.*;
 import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewCattleController;
+import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.CattleController;
 import com.example.hashinfarm.controller.records.StageDetails;
 import com.example.hashinfarm.controller.records.SubStageDetails;
 import com.example.hashinfarm.controller.utility.*;
@@ -47,6 +48,9 @@ public class ProductivityAndCalving {
     private final int maxGestationDays = 295;
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
     private static final DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("hh:mm a");
+    private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
+    private final double minPosition = 0.1;
+    private final double maxPosition = 0.5;
 
     // Maps
     private final Map<String, Label[]> volumeLabels = new HashMap<>();
@@ -76,16 +80,20 @@ public class ProductivityAndCalving {
     // TableView and Columns
     @FXML private TableView<LactationPeriodWithSelection> lactationTableView;
     @FXML private TableColumn<LactationPeriodWithSelection, Boolean> selectionColumn;
-    @FXML private TableColumn<LactationPeriodWithSelection, LocalDate> startDateColumn;
-    @FXML private TableColumn<LactationPeriodWithSelection, LocalDate> endDateColumn;
-    @FXML private TableColumn<LactationPeriodWithSelection, Double> milkYieldColumn;
-    @FXML private TableColumn<LactationPeriodWithSelection, Double> relativeMilkYieldColumn;
+    @FXML private TableColumn<LactationPeriodWithSelection, LocalDate> startDateColumn,endDateColumn;
+    @FXML private TableColumn<LactationPeriodWithSelection, Double> milkYieldColumn,relativeMilkYieldColumn;
+
+    @FXML private TableView<CowTableItem> cowTableView;
+    @FXML private TableColumn<CowTableItem, String> cowIdColumn, currentStageColumn, selectedStageByDateColumn, equivalentSelectedDateColumn, selectedCattlePRColumn, comparisonPerformanceColumn;
+    @FXML private TableColumn<CowTableItem, Double> todayMYColumn, equivalentDayMYColumn, currentStageMilkMYColumn, selectedStageMilkMYColumn, totalDailyMYColumn, averageDailyMYColumn, relativeMYColumn;
+
 
     // Buttons for Operations
     @FXML private boolean saveButtonPressed = true;
     @FXML private Button saveButton, updateButton, modifyLactationButton, clearButton;
     @FXML private Button morningSessionButton, afternoonSessionButton, eveningSessionButton,deleteMorningSession,deleteAfternoonSession,deleteEveningSession;
     @FXML private Button morningStartTimeButton, morningEndTimeButton, afternoonStartTimeButton, afternoonEndTimeButton, eveningStartTimeButton, eveningEndTimeButton;
+    @FXML private Button leftArrowButton,rightArrowButton;
 
     // Spinners and Radio Buttons
     @FXML private Spinner<Integer> estimatedGestationSpinner;
@@ -94,6 +102,7 @@ public class ProductivityAndCalving {
 
     // TextArea, VBox, Labels, and TextFields
     @FXML private Label productionStageLabel, volumeLabel1, volumeLabel2, volumeLabel3, lactationPeriodLabel, stagePeriodLabel, currentProductionStageLabel, daysSinceCalvingLabel, relativeMilkYieldLabel, milkYieldLabel, targetCalvingAgeLabel, ageAtFirstCalvingLabel, projectedCalvingDate, currentPeriodLabel, ongoingLactationPeriodLabel;
+    @FXML private Label selectedCattleIDLabel, currentStageLabel, selectedDateLabel, stageMYLabel, selectedDateMYLabel, totalDMYLabel, averageDMYLabel, selectedStageLabel;
     @FXML private TextArea daysInPregnancyTextArea;
     @FXML private TextField daysInLactationTextField, calvingIntervalTextField, currentDateTextField, lactationStartDateField;
     @FXML private TextField morningStartTimeTextField, morningEndTimeTextField, afternoonStartTimeTextField, afternoonEndTimeTextField, eveningStartTimeTextField, eveningEndTimeTextField;
@@ -105,15 +114,10 @@ public class ProductivityAndCalving {
     @FXML private TableView<ReproductiveVariables> calvingHistoryTableView;
     @FXML private TreeView<String> stageOfPregnancy;
     @FXML private GridPane gridPaneProduction;
-
-    //new
     @FXML private ChoiceBox<String> selectCriteriaChoiceBox,dependentCriteriaChoiceBox;
-    @FXML private TableView<CowTableItem> cowTableView;
-    @FXML private TableColumn<CowTableItem, String> cowIdColumn, currentStageColumn, selectedStageByDateColumn, equivalentSelectedDateColumn, selectedCattlePRColumn, comparisonPerformanceColumn;
-    @FXML private TableColumn<CowTableItem, Double> todayMYColumn, equivalentDayMYColumn, currentStageMilkMYColumn, selectedStageMilkMYColumn, totalDailyMYColumn, averageDailyMYColumn, relativeMYColumn;
+    @FXML private SplitPane splitPane;
 
 
-    private final DecimalFormat decimalFormat = new DecimalFormat("#.##");
 
     public void initialize() {
 
@@ -141,6 +145,7 @@ public class ProductivityAndCalving {
         initializeAllHeartbeats();
         initializeFieldChangeListeners();
         initializeEndTimeButtonListeners();
+        initializeSplitPlane();
         initializeProductionData();
         initializeColumnCellValueFactoriesForProductionData();
     }
@@ -2387,28 +2392,30 @@ public class ProductivityAndCalving {
     private void initializeProductionSessionDatePicker() {
         productionSessionDatePicker.setValue(LocalDate.now());
         selectedDateProductionSessionDate = productionSessionDatePicker.getValue();
+        if(ongoingLactationPeriod != null){
+            productionSessionDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    selectedDateProductionSessionDate = newValue;
 
-        productionSessionDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                selectedDateProductionSessionDate = newValue;
+                    long totalDays = Duration.between(ongoingLactationPeriod.getStartDate().atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
+                    String stage = calculateProductionStage((int) totalDays);
+                    productionStageLabel.setText(stage);
+                    updateVolumeLabels(stage);
 
-                long totalDays = Duration.between(ongoingLactationPeriod.getStartDate().atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
-                String stage = calculateProductionStage((int) totalDays);
-                productionStageLabel.setText(stage);
-                updateVolumeLabels(stage);
+                    refreshUI();
+                    if (selectCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null &&
+                            dependentCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null) {
 
-                refreshUI();
-                if (selectCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null &&
-                        dependentCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null) {
+                        compareCattleProduction(); // Call your method to compare cattle production
 
-                    compareCattleProduction(); // Call your method to compare cattle production
-
-                } else {
-                    clearAndDisableChoiceBoxes();
-                    dependentCriteriaChoiceBox.setDisable(true);
+                    } else {
+                        clearAndDisableChoiceBoxes();
+                        dependentCriteriaChoiceBox.setDisable(true);
+                    }
                 }
-            }
-        });
+            });
+        }
+
     }
 
     private void populateFieldsBasedOnDateAndLactationPeriod(LocalDate selectedDate, int lactationPeriodId) {
@@ -3399,8 +3406,6 @@ public class ProductivityAndCalving {
 
     }
 
-
-
     private void enableDependentCriteriaChoiceBox(String selectedCriteria) {
         switch (selectedCriteria) {
             case "Feed Type":
@@ -3461,8 +3466,6 @@ public class ProductivityAndCalving {
         centerAlignColumn(comparisonPerformanceColumn);
     }
 
-
-
     private <T> void centerAlignColumn(TableColumn<CowTableItem, T> column) {
         column.setCellFactory(new Callback<>() {
             @Override
@@ -3505,7 +3508,6 @@ public class ProductivityAndCalving {
         return selectedValue;
     }
 
-
     private void compareCattleProduction() {
         try {
             String selectedCriteria = getSelectedCriteria();
@@ -3537,8 +3539,6 @@ public class ProductivityAndCalving {
         }
     }
 
-
-
     // Helper method to determine if a lactation period is ongoing
     private boolean isOngoingLactationPeriod(LactationPeriod period) {
         if (period.getStartDate() != null && period.getEndDate() == null) {
@@ -3553,20 +3553,31 @@ public class ProductivityAndCalving {
         String selectedStage = determineSelectedLactationStage(ongoingLactationPeriod.getStartDate(),selectedDateProductionSessionDate);
 
         LocalDate startDate, endDate,startDate2,endDate2;
-
-
         startDate = determineStageStartDate(ongoingLactationPeriod, selectedStage);
         endDate = determineStageEndDate(ongoingLactationPeriod, selectedStage);
 
         List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), startDate, endDate);
+        List<ProductionSession> productionSessionsByFromStartToDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), ongoingLactationPeriod.getStartDate(), LocalDate.now());
         List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.getLactationPeriodID(),selectedDateProductionSessionDate);
 
         double stageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
-        double totalDailyYield = calculateTotalYield(productionSessionsByDate);
+        double todayYield = calculateTotalYield(productionSessionsByDate);
+        double totalDailyYield = calculateTotalYield(productionSessionsByFromStartToDate);
         double averageDailyYield = calculateAverageDailyYield(stageMilkYield, startDate,endDate);
-        double selectedCattleRelativeDailyYield = Double.parseDouble(decimalFormat.format(totalDailyYield / averageDailyYield));
+        double selectedCattleRelativeDailyYield = Double.parseDouble(decimalFormat.format(todayYield / averageDailyYield));
 
         int daysElapsed = (int) Duration.between( startDate.atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
+        stageMYLabel.setText(String.valueOf(stageMilkYield));
+        selectedDateMYLabel.setText(String.valueOf(todayYield));
+        totalDMYLabel.setText(String.valueOf(totalDailyYield));
+        averageDMYLabel.setText(String.valueOf(averageDailyYield));
+        selectedStageLabel.setText(selectedStage);
+        selectedCattleIDLabel.setText(String.valueOf(selectedCattleId));
+        currentStageLabel.setText(determineCurrentLactationStage(ongoingLactationPeriod.getStartDate()));
+        selectedDateLabel.setText(String.valueOf(selectedDateProductionSessionDate));
+
+
+
 
         for (FilteredCattle cow : filteredCattleList) {
             int cattleID = cow.getCattleID();
@@ -3591,6 +3602,7 @@ public class ProductivityAndCalving {
             LocalDate estimatedDate =estimateProductionDate(startDate,daysElapsed);
 
             productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
+            List<ProductionSession> productionSessionsByNow = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), ongoingPeriod.getStartDate(), LocalDate.now());
             List<ProductionSession> productionSessionsByCurrentStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate2, endDate2);
             productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), estimatedDate);
             List<ProductionSession> todayMilkYield =ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), LocalDate.now());
@@ -3598,11 +3610,12 @@ public class ProductivityAndCalving {
 
             stageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
             double currentStageMilkMY = calculateTotalYield(productionSessionsByCurrentStage);
-            totalDailyYield = calculateTotalYield(productionSessionsByDate);
+            double dateDailyYield = calculateTotalYield(productionSessionsByDate);
+            totalDailyYield = calculateTotalYield(productionSessionsByNow);
             averageDailyYield = calculateAverageDailyYield(stageMilkYield, startDate,endDate);
-            double relativeDailyYield = Double.parseDouble(decimalFormat.format(totalDailyYield / averageDailyYield));
+            double relativeDailyYield = Double.parseDouble(decimalFormat.format(dateDailyYield / averageDailyYield));
             String performanceRating = determinePerformanceRating(relativeDailyYield);
-            String selectedCattlePerformanceRating = determineSelectedCattlePerformanceRating(relativeDailyYield,selectedCattleRelativeDailyYield);
+            String selectedCattlePerformanceRating = determineSelectedCattleComparisonRating(relativeDailyYield,selectedCattleRelativeDailyYield);
 
             cowTableItems.add(new CowTableItem(
                     String.valueOf(cattleID),
@@ -3610,7 +3623,7 @@ public class ProductivityAndCalving {
                     selectedStage,
                     estimatedDate.toString(),
                     todayMY,
-                    totalDailyYield,
+                    dateDailyYield,
                     currentStageMilkMY,
                     stageMilkYield,
                     totalDailyYield,
@@ -3623,7 +3636,8 @@ public class ProductivityAndCalving {
 
         cowTableView.getItems().setAll(cowTableItems);
     }
-    private String determineSelectedCattlePerformanceRating(double comparedCattleYield, double selectedCattleYield) {
+
+    private String determineSelectedCattleComparisonRating(double comparedCattleYield, double selectedCattleYield) {
         double difference = (comparedCattleYield - selectedCattleYield) / selectedCattleYield;
 
         // Define a LinkedHashMap with performance rating scale using lower & upper bounds
@@ -3651,14 +3665,11 @@ public class ProductivityAndCalving {
         for (ProductionSession session : productionSessions) {
             totalYield += session.getProductionVolume();
         }
-
         return Double.parseDouble(decimalFormat.format(totalYield));
     }
 
     private double calculateAverageDailyYield(double stageMilkYield,LocalDate startDate,LocalDate endDate ) {
-
         long totalDays = ChronoUnit.DAYS.between(startDate, endDate) + 1;
-
         return Double.parseDouble(decimalFormat.format(stageMilkYield / totalDays));
     }
 
@@ -3699,7 +3710,6 @@ public class ProductivityAndCalving {
 
 
     public LocalDate determineStageStartDate(LactationPeriod lactationPeriod, String selectedStage) {
-
         Integer[] stageRange = stageDaysRangeMap.get(selectedStage);
         int stageStartDay = stageRange[0];
         return lactationPeriod.getStartDate().plusDays(stageStartDay);
@@ -3707,7 +3717,6 @@ public class ProductivityAndCalving {
 
 
     public LocalDate determineStageEndDate(LactationPeriod lactationPeriod, String selectedStage) {
-
         Integer[] stageRange = stageDaysRangeMap.get(selectedStage);
         int stageEndDay = stageRange[1];
         if (stageEndDay == -1) {
@@ -3734,4 +3743,15 @@ public class ProductivityAndCalving {
         cowTableView.getItems().clear();
         cowTableView.setPlaceholder(new Label("No Criteria selected"));
     }
+
+    private void initializeSplitPlane() {
+        SplitPaneDividerEnforcer dividerEnforcer = new SplitPaneDividerEnforcer(minPosition, maxPosition);
+        dividerEnforcer.enforceConstraints(splitPane);
+        CattleController cattleController = new CattleController();
+        leftArrowButton.setOnAction(event -> cattleController.animateSplitPane(minPosition,splitPane,minPosition,maxPosition,leftArrowButton,rightArrowButton));
+        rightArrowButton.setOnAction(event -> cattleController.animateSplitPane(maxPosition,splitPane,minPosition,maxPosition,leftArrowButton,rightArrowButton));
+        splitPane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) -> cattleController.updateButtonsPosition(newPos.doubleValue(),splitPane,leftArrowButton,rightArrowButton));
+
+    }
+
 }

@@ -12,7 +12,6 @@ public class Herd {
     private String breedSystem;
     private String ageClass;
     private String solutionType;
-
     private String feedBasis;
     private String location;
     private String action;
