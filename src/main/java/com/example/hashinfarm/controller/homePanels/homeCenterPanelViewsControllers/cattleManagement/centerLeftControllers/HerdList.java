@@ -46,8 +46,7 @@ public class HerdList {
   @FXML
   private Label selectedAnimal;
 
-  @FXML
-  private void initialize() {
+  public void initialize() {
     setupTableColumns();
     setupData();
     setupAnimalSelectionListener();

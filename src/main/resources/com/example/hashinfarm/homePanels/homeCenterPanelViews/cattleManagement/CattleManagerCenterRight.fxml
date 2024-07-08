@@ -40,7 +40,7 @@
         </Tab>
 
         <Tab text="Productivity and Calving" fx:id="productivityAndCalvingTab">
-            <fx:include source="centerRightViews/MilkProduction.fxml"/>
+            <fx:include source="centerRightViews/ProductivityAndCalving.fxml"/>
         </Tab>
 
         <Tab text="Detailed Health Records">

@@ -102,7 +102,7 @@ public class ProductivityAndCalving {
 
     // TextArea, VBox, Labels, and TextFields
     @FXML private Label productionStageLabel, volumeLabel1, volumeLabel2, volumeLabel3, lactationPeriodLabel, stagePeriodLabel, currentProductionStageLabel, daysSinceCalvingLabel, relativeMilkYieldLabel, milkYieldLabel, targetCalvingAgeLabel, ageAtFirstCalvingLabel, projectedCalvingDate, currentPeriodLabel, ongoingLactationPeriodLabel;
-    @FXML private Label selectedCattleIDLabel, currentStageLabel, selectedDateLabel, stageMYLabel, selectedDateMYLabel, totalDMYLabel, averageDMYLabel, selectedStageLabel;
+    @FXML private Label selectedCattleIDLabel, currentStageLabel, selectedDateLabel, stageMYLabel, selectedDateMYLabel, totalDMYLabel, averageDMYLabel, selectedStageLabel,selectedCowRMY,selectedCowPR;
     @FXML private TextArea daysInPregnancyTextArea;
     @FXML private TextField daysInLactationTextField, calvingIntervalTextField, currentDateTextField, lactationStartDateField;
     @FXML private TextField morningStartTimeTextField, morningEndTimeTextField, afternoonStartTimeTextField, afternoonEndTimeTextField, eveningStartTimeTextField, eveningEndTimeTextField;
@@ -139,7 +139,7 @@ public class ProductivityAndCalving {
         initializeStageDetailsMap();
         updateLactationStartDateField();
         initializeProductionStages();
-        initializeProductionSessionDatePicker();
+
         initializeShowTimePickerButtons();
         initializeSpinners();
         initializeAllHeartbeats();
@@ -148,6 +148,8 @@ public class ProductivityAndCalving {
         initializeSplitPlane();
         initializeProductionData();
         initializeColumnCellValueFactoriesForProductionData();
+
+        initializeProductionSessionDatePicker();
     }
 
     private void initializeCattleDAO() {
@@ -2049,6 +2051,31 @@ public class ProductivityAndCalving {
 
                             }
                         }
+
+
+
+                        productionSessionDatePicker.valueProperty().addListener((observables, oldDate, newDate) -> {
+                            if (newDate != null) {
+                                selectedDateProductionSessionDate = newDate;
+
+                                long totalDays = Duration.between(ongoingLactationPeriod.getStartDate().atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
+                                String stage = calculateProductionStage((int) totalDays);
+                                productionStageLabel.setText(stage);
+                                updateVolumeLabels(stage);
+
+                                refreshUI();
+
+                                if (selectCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null &&
+                                        dependentCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null) {
+                                    compareCattleProduction(); // Call your method to compare cattle production
+                                } else {
+                                    clearAndDisableChoiceBoxes();
+                                    dependentCriteriaChoiceBox.setDisable(true);
+                                }
+                            }
+                        });
+
+
                     }
                 });
 
@@ -2392,31 +2419,9 @@ public class ProductivityAndCalving {
     private void initializeProductionSessionDatePicker() {
         productionSessionDatePicker.setValue(LocalDate.now());
         selectedDateProductionSessionDate = productionSessionDatePicker.getValue();
-        if(ongoingLactationPeriod != null){
-            productionSessionDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    selectedDateProductionSessionDate = newValue;
-
-                    long totalDays = Duration.between(ongoingLactationPeriod.getStartDate().atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
-                    String stage = calculateProductionStage((int) totalDays);
-                    productionStageLabel.setText(stage);
-                    updateVolumeLabels(stage);
-
-                    refreshUI();
-                    if (selectCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null &&
-                            dependentCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null) {
-
-                        compareCattleProduction(); // Call your method to compare cattle production
-
-                    } else {
-                        clearAndDisableChoiceBoxes();
-                        dependentCriteriaChoiceBox.setDisable(true);
-                    }
-                }
-            });
-        }
-
     }
+
+
 
     private void populateFieldsBasedOnDateAndLactationPeriod(LocalDate selectedDate, int lactationPeriodId) {
         try {
@@ -2655,6 +2660,14 @@ public class ProductivityAndCalving {
             ProductionSessionDAO.saveProductionSession(newSession);
             showAlert(Alert.AlertType.INFORMATION, "Success", "Production session saved successfully.");
             refreshUI();
+
+            if (selectCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null &&
+                    dependentCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null) {
+                compareCattleProduction(); // Call your method to compare cattle production
+            } else {
+                clearAndDisableChoiceBoxes();
+                dependentCriteriaChoiceBox.setDisable(true);
+            }
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to save production session: " + e.getMessage());
         }
@@ -2684,6 +2697,14 @@ public class ProductivityAndCalving {
                 ProductionSessionDAO.updateProductionSession(existingSession);
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Production session updated successfully.");
                 refreshUI();
+
+                if (selectCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null &&
+                        dependentCriteriaChoiceBox.getSelectionModel().getSelectedItem() != null) {
+                    compareCattleProduction(); // Call your method to compare cattle production
+                } else {
+                    clearAndDisableChoiceBoxes();
+                    dependentCriteriaChoiceBox.setDisable(true);
+                }
             } else {
                 showAlert(Alert.AlertType.ERROR, "Error", "Failed to find existing session.");
             }
@@ -3553,8 +3574,15 @@ public class ProductivityAndCalving {
         String selectedStage = determineSelectedLactationStage(ongoingLactationPeriod.getStartDate(),selectedDateProductionSessionDate);
 
         LocalDate startDate, endDate,startDate2,endDate2;
+        String selectedCattleCurrentStage = determineCurrentLactationStage(ongoingLactationPeriod.getStartDate());
+
         startDate = determineStageStartDate(ongoingLactationPeriod, selectedStage);
-        endDate = determineStageEndDate(ongoingLactationPeriod, selectedStage);
+        if(selectedStage.equals(selectedCattleCurrentStage)){
+            endDate = LocalDate.now();
+        }else{
+            endDate = determineStageEndDate(ongoingLactationPeriod, selectedStage);
+        }
+
 
         List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), startDate, endDate);
         List<ProductionSession> productionSessionsByFromStartToDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), ongoingLactationPeriod.getStartDate(), LocalDate.now());
@@ -3573,10 +3601,10 @@ public class ProductivityAndCalving {
         averageDMYLabel.setText(String.valueOf(averageDailyYield));
         selectedStageLabel.setText(selectedStage);
         selectedCattleIDLabel.setText(String.valueOf(selectedCattleId));
-        currentStageLabel.setText(determineCurrentLactationStage(ongoingLactationPeriod.getStartDate()));
+        currentStageLabel.setText(selectedCattleCurrentStage);
         selectedDateLabel.setText(String.valueOf(selectedDateProductionSessionDate));
-
-
+        selectedCowRMY.setText(String.valueOf(selectedCattleRelativeDailyYield));
+        selectedCowPR.setText(determinePerformanceRating(selectedCattleRelativeDailyYield));
 
 
         for (FilteredCattle cow : filteredCattleList) {
@@ -3638,27 +3666,29 @@ public class ProductivityAndCalving {
     }
 
     private String determineSelectedCattleComparisonRating(double comparedCattleYield, double selectedCattleYield) {
-        double difference = (comparedCattleYield - selectedCattleYield) / selectedCattleYield;
+        double difference = (comparedCattleYield - selectedCattleYield);
 
-        // Define a LinkedHashMap with performance rating scale using lower & upper bounds
-        Map<String, Double[]> comparisonRatings = new LinkedHashMap<>();
-        comparisonRatings.put("Poor", new Double[]{0.20, Double.POSITIVE_INFINITY});
+        // Define a HashMap with performance rating scale
+        Map<String, Double[]> comparisonRatings = new HashMap<>();
+        comparisonRatings.put("Poor", new Double[]{0.2, Double.POSITIVE_INFINITY});
         comparisonRatings.put("Inferior", new Double[]{0.05, 0.19});
-        comparisonRatings.put("Comparable", new Double[]{-0.04, 0.04});
-        comparisonRatings.put("Better", new Double[]{-0.19, -0.05});
-        comparisonRatings.put("Superior", new Double[]{Double.NEGATIVE_INFINITY, -0.20});
+        comparisonRatings.put("Comparable", new Double[]{-0.04, 0.05});
+        comparisonRatings.put("Better", new Double[]{-0.19, -0.04});
+        comparisonRatings.put("Superior", new Double[]{Double.NEGATIVE_INFINITY, -0.2});
 
-        // Find the first range where difference falls within bounds
+        // Find the first matching range
         for (Map.Entry<String, Double[]> entry : comparisonRatings.entrySet()) {
             Double[] range = entry.getValue();
-            if (difference >= range[0] && difference <= range[1]) {
+            if (difference >= range[0] && difference < range[1]) { // Use '<' for exclusive upper bound
                 return entry.getKey();
             }
         }
 
-        // Default case (no matching range)
+        // Default return value if no range is matched
         return "Unknown";
     }
+
+
 
     private double calculateTotalYield(List<ProductionSession> productionSessions) {
         double totalYield = 0;

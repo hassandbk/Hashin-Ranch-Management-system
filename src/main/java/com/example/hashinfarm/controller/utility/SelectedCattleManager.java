@@ -30,12 +30,9 @@ public class SelectedCattleManager {
     private final StringProperty selectedDamHerdName = new SimpleStringProperty();
     private final StringProperty selectedSireBreedName = new SimpleStringProperty();
     private final StringProperty selectedDamBreedName = new SimpleStringProperty();
-
-    // New property for age
     private final IntegerProperty selectedAge = new SimpleIntegerProperty();
 
     private SelectedCattleManager() {
-        // Bind selectedAge to the selectedDateOfBirth property
         selectedDateOfBirth.addListener((observable, oldValue, newValue) -> updateAge(newValue));
     }
 
@@ -46,7 +43,6 @@ public class SelectedCattleManager {
         return instance;
     }
 
-    // Update the age based on the date of birth
     private void updateAge(LocalDate dateOfBirth) {
         if (dateOfBirth != null) {
             selectedAge.set(Period.between(dateOfBirth, LocalDate.now()).getYears());
@@ -54,7 +50,7 @@ public class SelectedCattleManager {
             selectedAge.set(0);
         }
     }
-
+    // Getters and setters for all properties
     public int getSelectedCattleID() {
         return selectedCattleID.get();
     }
@@ -320,7 +316,6 @@ public class SelectedCattleManager {
         this.selectedDamBreedName.set(selectedDamBreedName);
     }
 
-    // Update method to set all properties at once
     public void setSelectedCattle(Cattle cattle) {
         selectedCattleID.set(cattle.getCattleId());
         selectedTagId.set(cattle.getTagId());
@@ -344,7 +339,6 @@ public class SelectedCattleManager {
         selectedSireBreedName.set(cattle.getSireBreedName());
         selectedDamBreedName.set(cattle.getDamBreedName());
 
-        // Update age based on the new date of birth
         updateAge(cattle.getDateOfBirth());
     }
 
