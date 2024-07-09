@@ -17,6 +17,7 @@ import javafx.event.ActionEvent;
 import javafx.fxml.*;
 import javafx.geometry.*;
 import javafx.scene.*;
+import javafx.scene.chart.*;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.*;
 import javafx.scene.image.*;
@@ -116,6 +117,7 @@ public class ProductivityAndCalving {
     @FXML private GridPane gridPaneProduction;
     @FXML private ChoiceBox<String> selectCriteriaChoiceBox,dependentCriteriaChoiceBox;
     @FXML private SplitPane splitPane;
+    @FXML private VBox comparisonChartVBox;
 
 
 
@@ -3395,6 +3397,7 @@ public class ProductivityAndCalving {
     }
 
 
+
     public static class HerdNotFoundException extends Exception {
         public HerdNotFoundException(String message) {
             super(message);
@@ -3568,33 +3571,34 @@ public class ProductivityAndCalving {
         }
         return false;
     }
-
+private List<CattleYieldData> cattleYieldData = new ArrayList<>();
     private void updateComparisonTableView(List<FilteredCattle> filteredCattleList) throws SQLException {
         List<CowTableItem> cowTableItems = new ArrayList<>();
-        String selectedStage = determineSelectedLactationStage(ongoingLactationPeriod.getStartDate(),selectedDateProductionSessionDate);
+        List<CattleYieldData> cattleYieldDataList = new ArrayList<>();
 
-        LocalDate startDate, endDate,startDate2,endDate2;
+        String selectedStage = determineSelectedLactationStage(ongoingLactationPeriod.getStartDate(), selectedDateProductionSessionDate);
+
+        LocalDate startDate, endDate;
         String selectedCattleCurrentStage = determineCurrentLactationStage(ongoingLactationPeriod.getStartDate());
 
         startDate = determineStageStartDate(ongoingLactationPeriod, selectedStage);
-        if(selectedStage.equals(selectedCattleCurrentStage)){
+        if (selectedStage.equals(selectedCattleCurrentStage)) {
             endDate = LocalDate.now();
-        }else{
+        } else {
             endDate = determineStageEndDate(ongoingLactationPeriod, selectedStage);
         }
 
-
         List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), startDate, endDate);
         List<ProductionSession> productionSessionsByFromStartToDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), ongoingLactationPeriod.getStartDate(), LocalDate.now());
-        List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.getLactationPeriodID(),selectedDateProductionSessionDate);
+        List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.getLactationPeriodID(), selectedDateProductionSessionDate);
 
         double stageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
         double todayYield = calculateTotalYield(productionSessionsByDate);
         double totalDailyYield = calculateTotalYield(productionSessionsByFromStartToDate);
-        double averageDailyYield = calculateAverageDailyYield(stageMilkYield, startDate,endDate);
+        double averageDailyYield = calculateAverageDailyYield(stageMilkYield, startDate, endDate);
         double selectedCattleRelativeDailyYield = Double.parseDouble(decimalFormat.format(todayYield / averageDailyYield));
 
-        int daysElapsed = (int) Duration.between( startDate.atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
+        int daysElapsed = (int) Duration.between(startDate.atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
         stageMYLabel.setText(String.valueOf(stageMilkYield));
         selectedDateMYLabel.setText(String.valueOf(todayYield));
         totalDMYLabel.setText(String.valueOf(totalDailyYield));
@@ -3606,7 +3610,20 @@ public class ProductivityAndCalving {
         selectedCowRMY.setText(String.valueOf(selectedCattleRelativeDailyYield));
         selectedCowPR.setText(determinePerformanceRating(selectedCattleRelativeDailyYield));
 
+        // For the selected cattle
+        ObservableList<Double> selectedCattleDailyYields = FXCollections.observableArrayList(Collections.nCopies(daysElapsed, 0.0));
 
+        CattleYieldData selectedCattleYieldData = new CattleYieldData(selectedCattleId, selectedStage, startDate, endDate, selectedCattleDailyYields);
+        cattleYieldDataList.add(selectedCattleYieldData);
+
+        updateComparisonTableViewForSelectedCattle(filteredCattleList, cowTableItems, cattleYieldDataList, daysElapsed, selectedStage,selectedCattleRelativeDailyYield);
+
+        cowTableView.getItems().setAll(cowTableItems);
+        cattleYieldData = cattleYieldDataList;
+
+    }
+
+    private void updateComparisonTableViewForSelectedCattle(List<FilteredCattle> filteredCattleList, List<CowTableItem> cowTableItems, List<CattleYieldData> cattleYieldDataList, int daysElapsed, String selectedStage,double selectedCattleRelativeDailyYield) throws SQLException {
         for (FilteredCattle cow : filteredCattleList) {
             int cattleID = cow.getCattleID();
 
@@ -3620,30 +3637,39 @@ public class ProductivityAndCalving {
             }
 
             String currentStage = determineCurrentLactationStage(ongoingPeriod.getStartDate());
-
+            LocalDate startDate,endDate;
             startDate = determineStageStartDate(ongoingPeriod, selectedStage);
-            endDate = determineStageEndDate(ongoingPeriod, selectedStage);
+            if (selectedStage.equals(currentStage)) {
+                endDate = LocalDate.now();
+            } else {
+                endDate = determineStageEndDate(ongoingPeriod, selectedStage);
+            }
 
-            startDate2 = determineStageStartDate(ongoingPeriod, currentStage);
-            endDate2 = determineStageEndDate(ongoingPeriod, currentStage);
+            ObservableList<Double> dailyYields = FXCollections.observableArrayList(Collections.nCopies(daysElapsed, 0.0));
 
-            LocalDate estimatedDate =estimateProductionDate(startDate,daysElapsed);
+            CattleYieldData cattleYieldData = new CattleYieldData(cattleID, selectedStage, startDate, endDate, dailyYields);
+            cattleYieldDataList.add(cattleYieldData);
 
-            productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
+            LocalDate startDate2 = determineStageStartDate(ongoingPeriod, currentStage);
+            LocalDate endDate2 = determineStageEndDate(ongoingPeriod, currentStage);
+
+            LocalDate estimatedDate = estimateProductionDate(startDate, daysElapsed);
+
+            List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
             List<ProductionSession> productionSessionsByNow = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), ongoingPeriod.getStartDate(), LocalDate.now());
             List<ProductionSession> productionSessionsByCurrentStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate2, endDate2);
-            productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), estimatedDate);
-            List<ProductionSession> todayMilkYield =ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), LocalDate.now());
+            List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), estimatedDate);
+            List<ProductionSession> todayMilkYield = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), LocalDate.now());
             double todayMY = calculateTotalYield(todayMilkYield);
 
-            stageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
+            double stageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
             double currentStageMilkMY = calculateTotalYield(productionSessionsByCurrentStage);
             double dateDailyYield = calculateTotalYield(productionSessionsByDate);
-            totalDailyYield = calculateTotalYield(productionSessionsByNow);
-            averageDailyYield = calculateAverageDailyYield(stageMilkYield, startDate,endDate);
+            double totalDailyYield = calculateTotalYield(productionSessionsByNow);
+            double averageDailyYield = calculateAverageDailyYield(stageMilkYield, startDate, endDate);
             double relativeDailyYield = Double.parseDouble(decimalFormat.format(dateDailyYield / averageDailyYield));
             String performanceRating = determinePerformanceRating(relativeDailyYield);
-            String selectedCattlePerformanceRating = determineSelectedCattleComparisonRating(relativeDailyYield,selectedCattleRelativeDailyYield);
+            String selectedCattlePerformanceRating = determineSelectedCattleComparisonRating(relativeDailyYield, selectedCattleRelativeDailyYield);
 
             cowTableItems.add(new CowTableItem(
                     String.valueOf(cattleID),
@@ -3661,9 +3687,76 @@ public class ProductivityAndCalving {
                     selectedCattlePerformanceRating
             ));
         }
-
-        cowTableView.getItems().setAll(cowTableItems);
     }
+
+    @FXML
+    private void showChart() throws SQLException {
+        populateDailyYields(cattleYieldData);
+        createLineChart(cattleYieldData);
+    }
+
+
+    private void populateDailyYields(List<CattleYieldData> cattleYieldDataList) throws SQLException {
+        for (CattleYieldData cattleYieldData : cattleYieldDataList) {
+            LocalDate startDate = cattleYieldData.getStartDate();
+            LocalDate endDate = cattleYieldData.getEndDate();
+            int lactationPeriodId = Objects.requireNonNull(getOngoingLactationPeriod(cattleYieldData.getCattleID())).getLactationPeriodID();
+
+            // Fetch all production sessions for the date range
+            List<ProductionSession> productionSessions = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(lactationPeriodId, startDate, endDate);
+
+            // Process each date in the range
+            List<Double> dailyYields = cattleYieldData.getDailyYields(); // Assuming this returns ArrayList or similar
+            for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
+                final LocalDate currentDate = date; // effectively final variable for lambda
+
+                // Filter production sessions for the current date
+                List<ProductionSession> filteredSessions = productionSessions.stream()
+                        .filter(session -> {
+                            LocalDate sessionDate = session.getStartTime().toLocalDateTime().toLocalDate();
+                            return sessionDate.equals(currentDate);
+                        })
+                        .collect(Collectors.toList());
+
+                double totalYield = calculateTotalYield(filteredSessions);
+                int index = (int) ChronoUnit.DAYS.between(startDate, date);
+
+                if (index >= 0 && index < dailyYields.size()) {
+                    dailyYields.set(index, totalYield);
+                }
+            }
+        }
+    }
+
+
+
+    private void createLineChart(List<CattleYieldData> cattleYieldDataList) {
+        CategoryAxis xAxis = new CategoryAxis();
+        NumberAxis yAxis = new NumberAxis();
+        LineChart<String, Number> lineChart = new LineChart<>(xAxis, yAxis);
+
+        xAxis.setLabel("Index of Days Considered");
+        yAxis.setLabel("Milk Yield");
+
+        for (CattleYieldData cattleYieldData : cattleYieldDataList) {
+            XYChart.Series<String, Number> series = new XYChart.Series<>();
+            series.setName("Cow " + cattleYieldData.getCattleID() + " (" +
+                    cattleYieldData.getStartDate() + " to " + cattleYieldData.getEndDate() + ")");
+
+            int index = 0;
+            for (Double yield : cattleYieldData.getDailyYields()) {
+                series.getData().add(new XYChart.Data<>(String.valueOf(index), yield));
+                index++;
+            }
+
+            lineChart.getData().add(series);
+        }
+
+        comparisonChartVBox.getChildren().clear();
+        comparisonChartVBox.getChildren().add(lineChart);
+    }
+
+
 
     private String determineSelectedCattleComparisonRating(double comparedCattleYield, double selectedCattleYield) {
         double difference = (comparedCattleYield - selectedCattleYield);
