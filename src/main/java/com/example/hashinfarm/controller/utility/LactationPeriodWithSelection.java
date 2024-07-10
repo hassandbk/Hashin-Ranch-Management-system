@@ -21,14 +21,6 @@ public class LactationPeriodWithSelection {
         return selected;
     }
 
-    public double getMilkYield() {
-        return lactationPeriod.getMilkYield();
-    }
-
-    public double getRelativeMilkYield() {
-        return lactationPeriod.getRelativeMilkYield();
-    }
-
     public boolean isSelected() {
         return selected.get();
     }

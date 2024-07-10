@@ -82,7 +82,6 @@ public class ProductivityAndCalving {
     @FXML private TableView<LactationPeriodWithSelection> lactationTableView;
     @FXML private TableColumn<LactationPeriodWithSelection, Boolean> selectionColumn;
     @FXML private TableColumn<LactationPeriodWithSelection, LocalDate> startDateColumn,endDateColumn;
-    @FXML private TableColumn<LactationPeriodWithSelection, Double> milkYieldColumn,relativeMilkYieldColumn;
 
     @FXML private TableView<CowTableItem> cowTableView;
     @FXML private TableColumn<CowTableItem, String> cowIdColumn, currentStageColumn, selectedStageByDateColumn, equivalentSelectedDateColumn, selectedCattlePRColumn, comparisonPerformanceColumn;
@@ -94,7 +93,7 @@ public class ProductivityAndCalving {
     @FXML private Button saveButton, updateButton, modifyLactationButton, clearButton;
     @FXML private Button morningSessionButton, afternoonSessionButton, eveningSessionButton,deleteMorningSession,deleteAfternoonSession,deleteEveningSession;
     @FXML private Button morningStartTimeButton, morningEndTimeButton, afternoonStartTimeButton, afternoonEndTimeButton, eveningStartTimeButton, eveningEndTimeButton;
-    @FXML private Button leftArrowButton,rightArrowButton;
+    @FXML private Button leftArrowButton,rightArrowButton,showChartButton;
 
     // Spinners and Radio Buttons
     @FXML private Spinner<Integer> estimatedGestationSpinner;
@@ -102,7 +101,7 @@ public class ProductivityAndCalving {
     @FXML private RadioButton pregnantRadioBtn, notPregnantRadioBtn;
 
     // TextArea, VBox, Labels, and TextFields
-    @FXML private Label productionStageLabel, volumeLabel1, volumeLabel2, volumeLabel3, lactationPeriodLabel, stagePeriodLabel, currentProductionStageLabel, daysSinceCalvingLabel, relativeMilkYieldLabel, milkYieldLabel, targetCalvingAgeLabel, ageAtFirstCalvingLabel, projectedCalvingDate, currentPeriodLabel, ongoingLactationPeriodLabel;
+    @FXML private Label productionStageLabel, volumeLabel1, volumeLabel2, volumeLabel3, lactationPeriodLabel, stagePeriodLabel, currentProductionStageLabel, daysSinceCalvingLabel, averageMilkYieldLabel, milkYieldLabel, targetCalvingAgeLabel, ageAtFirstCalvingLabel, projectedCalvingDate, currentPeriodLabel, ongoingLactationPeriodLabel;
     @FXML private Label selectedCattleIDLabel, currentStageLabel, selectedDateLabel, stageMYLabel, selectedDateMYLabel, totalDMYLabel, averageDMYLabel, selectedStageLabel,selectedCowRMY,selectedCowPR;
     @FXML private TextArea daysInPregnancyTextArea;
     @FXML private TextField daysInLactationTextField, calvingIntervalTextField, currentDateTextField, lactationStartDateField;
@@ -152,8 +151,8 @@ public class ProductivityAndCalving {
         initializeColumnCellValueFactoriesForProductionData();
 
         initializeProductionSessionDatePicker();
+        initializeShowChartButtonState();
     }
-
     private void initializeCattleDAO() {
         cattleDAO = new CattleDAO();
     }
@@ -1836,60 +1835,6 @@ public class ProductivityAndCalving {
                 cellData.getValue().getLactationPeriod().getEndDate()));
         endDateColumn.setCellFactory(new MissingEndDateCellFactory(dateFormatter));
 
-        milkYieldColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().getMilkYield()));
-        milkYieldColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(String.format("%.2f", item));
-                    setAlignment(Pos.CENTER);
-                }
-            }
-        });
-
-        relativeMilkYieldColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().getRelativeMilkYield()));
-        relativeMilkYieldColumn.setCellFactory(column -> new TableCell<>() {
-            @Override
-            protected void updateItem(Double item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty) {
-                    setText(null);
-                    setGraphic(null);
-                } else {
-                    setText(String.format("%.2f", item));
-                    setAlignment(Pos.CENTER);
-                }
-            }
-        });
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     }
 
 
@@ -1968,17 +1913,17 @@ public class ProductivityAndCalving {
             lactationEndDatePicker.setValue(period.getEndDate() != null ? period.getEndDate() : null);
             originalEndDate = period.getEndDate(); // Set the original end date
             selectedEndDate = originalEndDate; // Initially, selected end date is the same as original
-            milkYieldLabel.setText(String.valueOf(period.getMilkYield()));
-            relativeMilkYieldLabel.setText(String.valueOf(period.getRelativeMilkYield()));
+            
             if(lactationEndDatePicker.getValue() == null){
                 clearButton.setDisable(true);
             }
+            
         } else {
             lactationStartDateField.clear();
             originalEndDate = null;
             selectedEndDate = null;
             milkYieldLabel.setText("");
-            relativeMilkYieldLabel.setText("");
+            averageMilkYieldLabel.setText("");
             productionSessionDatePicker.setValue(null);
         }
         modifyLactationButton.setDisable(true);
@@ -2034,6 +1979,29 @@ public class ProductivityAndCalving {
                                 daysInLactationTextField.setText(progressText);
                                 currentProductionStageLabel.setText(stage);
                                 productionStageLabel.setText(stage);
+
+
+                                List<ProductionSession> productionSessionsBySelectedStage;
+                                try {
+                                    productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), startDate, LocalDate.now());
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+                               
+                                List<ProductionSession> productionSessionsByDate;
+                                try {
+                                    productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.getLactationPeriodID(), LocalDate.now());
+                                } catch (SQLException e) {
+                                    throw new RuntimeException(e);
+                                }
+
+                                double lactationStageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
+                                double todayYield = calculateTotalYield(productionSessionsByDate);
+                                double averageDailyYield = calculateAverageDailyYield(lactationStageMilkYield, startDate, LocalDate.now());
+
+                                milkYieldLabel.setText(String.valueOf(todayYield));
+                                averageMilkYieldLabel.setText(String.valueOf(averageDailyYield));
+
 
                                 // Update UI elements based on the production stage
                                 updateVolumeLabels(stage);
@@ -3571,6 +3539,8 @@ public class ProductivityAndCalving {
         }
         return false;
     }
+    
+    
 private List<CattleYieldData> cattleYieldData = new ArrayList<>();
     private void updateComparisonTableView(List<FilteredCattle> filteredCattleList) throws SQLException {
         List<CowTableItem> cowTableItems = new ArrayList<>();
@@ -3865,6 +3835,19 @@ private List<CattleYieldData> cattleYieldData = new ArrayList<>();
         dependentCriteriaChoiceBox.setDisable(true);
         cowTableView.getItems().clear();
         cowTableView.setPlaceholder(new Label("No Criteria selected"));
+
+        selectedCattleIDLabel.setText("N/A");
+        currentStageLabel.setText("N/A");
+        selectedDateLabel.setText("N/A");
+        selectedStageLabel.setText("N/A");
+        stageMYLabel.setText("N/A");
+        selectedDateMYLabel.setText("N/A");
+        totalDMYLabel.setText("N/A");
+        averageDMYLabel.setText("N/A");
+        selectedCowRMY.setText("N/A");
+        selectedCowPR.setText("N/A");
+
+        comparisonChartVBox.getChildren().clear();
     }
 
     private void initializeSplitPlane() {
@@ -3875,6 +3858,22 @@ private List<CattleYieldData> cattleYieldData = new ArrayList<>();
         rightArrowButton.setOnAction(event -> cattleController.animateSplitPane(maxPosition,splitPane,minPosition,maxPosition,leftArrowButton,rightArrowButton));
         splitPane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) -> cattleController.updateButtonsPosition(newPos.doubleValue(),splitPane,leftArrowButton,rightArrowButton));
 
+    }
+    private void initializeShowChartButtonState() {
+        // Initially disable the showChartButton
+        showChartButton.setDisable(true);
+
+        // Add listeners to both ChoiceBoxes
+        selectCriteriaChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateChartButtonState());
+        dependentCriteriaChoiceBox.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> updateChartButtonState());
+        dependentCriteriaChoiceBox.disableProperty().addListener((observable, oldValue, newValue) -> updateChartButtonState());
+    }
+
+    private void updateChartButtonState() {
+        boolean selectCriteriaSelected = selectCriteriaChoiceBox.getValue() != null;
+        boolean dependentCriteriaEnabled = !dependentCriteriaChoiceBox.isDisable() && dependentCriteriaChoiceBox.getValue() != null;
+
+        showChartButton.setDisable(!(selectCriteriaSelected && dependentCriteriaEnabled));
     }
 
 }

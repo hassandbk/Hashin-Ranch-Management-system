@@ -272,16 +272,15 @@
             </HBox>
             <TableView fx:id="lactationTableView" prefHeight="200.0" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="4">
                 <columns>
-                    <TableColumn fx:id="selectionColumn" maxWidth="50.0" minWidth="-Infinity" prefWidth="50.0" text="Select" />
-                    <TableColumn fx:id="startDateColumn" maxWidth="150.0" minWidth="-Infinity" prefWidth="150.0" text="Start Date" />
-                    <TableColumn fx:id="endDateColumn" maxWidth="150.0" minWidth="-Infinity" prefWidth="150.0" text="End Date" />
-                    <TableColumn fx:id="milkYieldColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Milk Yield" />
-                    <TableColumn fx:id="relativeMilkYieldColumn" maxWidth="100.0" minWidth="100.0" prefWidth="100.0" text="Relative Yield" />
+                    <TableColumn fx:id="selectionColumn" minWidth="50.0" prefWidth="50.0" text="Select" />
+                    <TableColumn fx:id="startDateColumn" minWidth="150.0" prefWidth="150.0" text="Start Date" />
+                    <TableColumn fx:id="endDateColumn" minWidth="150.0" prefWidth="150.0" text="End Date" />
                 </columns>
                 <columnResizePolicy>
                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                 </columnResizePolicy>
             </TableView>
+
             <HBox alignment="CENTER" prefWidth="200.0" spacing="10.0" GridPane.columnIndex="5" GridPane.columnSpan="2" GridPane.rowIndex="4">
                 <Button fx:id="modifyLactationButton" mnemonicParsing="false" onAction="#modifyLactation" text="Modify" />
                 <Button fx:id="clearButton" mnemonicParsing="false" onAction="#clearEndDate" text="Clear" />
@@ -349,15 +348,15 @@
                 </HBox>
                 <HBox prefWidth="300.0">
                     <HBox alignment="CENTER" maxWidth="200.0" prefWidth="200.0">
-                        <Label text="Relative Milk Yield:" />
+                        <Label text="Average Milk Yield:" />
                     </HBox>
                     <HBox maxWidth="100.0" prefWidth="100.0">
-                        <Label fx:id="relativeMilkYieldLabel" text="Label" />
+                        <Label fx:id="averageMilkYieldLabel" text="Label" />
                     </HBox>
                 </HBox>
                 <HBox prefWidth="200.0">
                     <HBox alignment="CENTER" maxWidth="200.0" prefWidth="200.0">
-                        <Label text="Milk Yield:" />
+                        <Label text="Today's Milk Yield:" />
                     </HBox>
                     <HBox maxWidth="100.0" prefWidth="100.0">
                         <Label fx:id="milkYieldLabel" text="Label" />
@@ -661,7 +660,7 @@
                     </font>
                 </Label>
             </HBox>
-         <Button mnemonicParsing="false" onAction="#showChart" text="Show Chart" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+            <Button mnemonicParsing="false" fx:id="showChartButton" onAction="#showChart" text="Show Chart" GridPane.columnIndex="4" GridPane.rowIndex="2" />
 
             <columnConstraints>
                 <ColumnConstraints />
@@ -672,7 +671,7 @@
                 <ColumnConstraints />
                 <ColumnConstraints />
                 <ColumnConstraints />
-            <ColumnConstraints />
+                <ColumnConstraints />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints minHeight="10.0" prefHeight="30.0" />
@@ -706,7 +705,7 @@
                             <!-- Row Constraints -->
                             <rowConstraints>
                                 <RowConstraints maxHeight="Infinity" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                        <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="SOMETIMES" />
+                                <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="SOMETIMES" />
                                 <RowConstraints maxHeight="Infinity" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 <RowConstraints maxHeight="Infinity" minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                             </rowConstraints>
@@ -718,12 +717,12 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                 <Label text="Selected Cattle" wrapText="true" />
                                 <Label text="Current Stage" wrapText="true" GridPane.rowIndex="1" />
                                 <Label text="Selected Date" GridPane.rowIndex="2" />
-                        <Label text="Selected Stage" GridPane.rowIndex="3" />
+                                <Label text="Selected Stage" GridPane.rowIndex="3" />
                             </GridPane>
                             <GridPane alignment="CENTER" GridPane.rowIndex="2" GridPane.rowSpan="2">
                                 <columnConstraints>
@@ -734,9 +733,9 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                 <Label text="Stage MY" />
                                 <Label text="Total DMY" GridPane.rowIndex="2" />
@@ -745,9 +744,9 @@
                                     <Label prefHeight="32.0" prefWidth="103.0" text="Selected-Date's" wrapText="true" />
                                     <Label text="MY" />
                                 </VBox>
-                        <Label text="Relative Milk Yield" GridPane.rowIndex="5" />
-                        <Label text="Performance Rate" GridPane.rowIndex="6" />
-                        <Separator prefWidth="200.0" GridPane.rowIndex="4" />
+                                <Label text="Relative Milk Yield" GridPane.rowIndex="5" />
+                                <Label text="Performance Rate" GridPane.rowIndex="6" />
+                                <Separator prefWidth="200.0" GridPane.rowIndex="4" />
                             </GridPane>
                             <GridPane alignment="CENTER" prefHeight="200.0" prefWidth="174.0" GridPane.columnIndex="3" GridPane.rowSpan="4">
                                 <columnConstraints>
@@ -853,13 +852,13 @@
                                 <rowConstraints>
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                 <Label fx:id="selectedCattleIDLabel" text="N/A" wrapText="true" />
                                 <Label fx:id="currentStageLabel" text="N/A" wrapText="true" GridPane.rowIndex="1" />
                                 <Label fx:id="selectedDateLabel" text="N/A" GridPane.rowIndex="2" />
-                        <Label fx:id="selectedStageLabel" text="N/A" GridPane.rowIndex="3" />
+                                <Label fx:id="selectedStageLabel" text="N/A" GridPane.rowIndex="3" />
                             </GridPane>
                             <GridPane alignment="CENTER" GridPane.columnIndex="1" GridPane.rowIndex="2" GridPane.rowSpan="2">
                                 <columnConstraints>
@@ -870,23 +869,19 @@
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="5.0" minHeight="5.0" prefHeight="5.0" vgrow="SOMETIMES" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                                 </rowConstraints>
                                 <Label fx:id="stageMYLabel" text="N/A" />
                                 <Label fx:id="selectedDateMYLabel" text="N/A" wrapText="true" GridPane.rowIndex="1" />
                                 <Label fx:id="totalDMYLabel" text="N/A" GridPane.rowIndex="2" />
                                 <Label fx:id="averageDMYLabel" text="N/A" GridPane.rowIndex="3" />
-                        <Label fx:id="selectedCowRMY" text="N/A" GridPane.rowIndex="5" />
-                        <Label fx:id="selectedCowPR" text="N/A" GridPane.rowIndex="6" />
-                        <Separator prefWidth="200.0" GridPane.rowIndex="4" />
+                                <Label fx:id="selectedCowRMY" text="N/A" GridPane.rowIndex="5" />
+                                <Label fx:id="selectedCowPR" text="N/A" GridPane.rowIndex="6" />
+                                <Separator prefWidth="200.0" GridPane.rowIndex="4" />
                             </GridPane>
-                     <Separator prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="1" />
-
-
-                            <!-- Add more labels or fields for the other columns and rows as needed -->
-
+                            <Separator prefWidth="200.0" GridPane.columnSpan="2" GridPane.rowIndex="1" />
                         </GridPane>
 
                     </VBox>
@@ -898,10 +893,10 @@
                                 <Font name="Berlin Sans FB Bold" size="17.0" />
                             </font>
                         </Label>
-                        <!-- TableView for Table 1 -->
+                        <!-- TableView for Table 2 -->
                         <TableView fx:id="cowTableView" VBox.vgrow="ALWAYS">
                             <columns>
-                                <!-- Columns for Table 1 -->
+                                <!-- Columns for Table 2 -->
                                 <TableColumn fx:id="cowIdColumn" text="Cattle ID" />
                                 <TableColumn fx:id="currentStageColumn" text="Current Stage" />
                                 <TableColumn fx:id="selectedStageByDateColumn" text="Selected Stage by (DATE)" />
@@ -932,15 +927,10 @@
             </bottom>
         </BorderPane>
 
-
-
-
         <Separator prefWidth="200.0" />
-      <VBox fx:id="comparisonChartVBox" prefWidth="100.0" />
+        <VBox fx:id="comparisonChartVBox" prefWidth="100.0" />
         <padding>
             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
         </padding>
-
-
     </VBox>
 </ScrollPane>

@@ -28,10 +28,8 @@ public class LactationPeriodDAO {
                 int cattleID = resultSet.getInt("CattleID");
                 LocalDate startDate = resultSet.getDate("StartDate") != null ? resultSet.getDate("StartDate").toLocalDate() : null;
                 LocalDate endDate = resultSet.getDate("EndDate") != null ? resultSet.getDate("EndDate").toLocalDate() : null;
-                int milkYield = resultSet.getInt("MilkYield");
-                double relativeMilkYield = resultSet.getDouble("RelativeMilkYield");
 
-                LactationPeriod lactationPeriod = new LactationPeriod(lactationPeriodID, cattleID, startDate, endDate, milkYield, relativeMilkYield);
+                LactationPeriod lactationPeriod = new LactationPeriod(lactationPeriodID, cattleID, startDate, endDate);
                 lactationPeriods.add(lactationPeriod);
             }
         } finally {

@@ -7,16 +7,13 @@ public class LactationPeriod {
     private int cattleID;
     private LocalDate startDate;
     private LocalDate endDate;
-    private double milkYield;
-    private double relativeMilkYield;
 
-    public LactationPeriod(int lactationPeriodID, int cattleID, LocalDate startDate, LocalDate endDate, double milkYield, double relativeMilkYield) {
+
+    public LactationPeriod(int lactationPeriodID, int cattleID, LocalDate startDate, LocalDate endDate) {
         this.lactationPeriodID = lactationPeriodID;
         this.cattleID = cattleID;
         this.startDate = startDate;
         this.endDate = endDate;
-        this.milkYield = milkYield;
-        this.relativeMilkYield = relativeMilkYield;
     }
 
     // Getters and Setters
@@ -52,19 +49,5 @@ public class LactationPeriod {
         this.endDate = endDate;
     }
 
-    public double getMilkYield() {
-        return milkYield;
-    }
 
-    public void setMilkYield(double milkYield) {
-        this.milkYield = milkYield;
-    }
-
-    public double getRelativeMilkYield() {
-        return relativeMilkYield;
-    }
-
-    public void setRelativeMilkYield(double relativeMilkYield) {
-        this.relativeMilkYield = relativeMilkYield;
-    }
 }
