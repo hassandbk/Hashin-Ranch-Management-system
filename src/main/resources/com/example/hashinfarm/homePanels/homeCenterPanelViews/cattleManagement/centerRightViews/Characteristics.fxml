@@ -23,7 +23,7 @@
     <VBox prefHeight="829.0" prefWidth="1178.0">
 
         <HBox alignment="CENTER" prefWidth="200.0">
-            <GridPane alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="433.0" prefWidth="1178.0" HBox.hgrow="ALWAYS">
+            <GridPane alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
 
 
                 <!-- Cattle ID -->
@@ -60,7 +60,7 @@
                     </HBox>
                 </HBox>
                 <!-- Breed -->
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" spacing="10" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9" GridPane.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" spacing="10" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" GridPane.vgrow="ALWAYS">
                     <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Quick Add Breed:" HBox.hgrow="ALWAYS">
                         <HBox.margin>
                             <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
@@ -84,60 +84,47 @@
                     </HBox>
 
                 </HBox>
-                <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="20.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
-               <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
-                  <children>
-                          <VBox alignment="CENTER_LEFT">
-                              <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Date of Birth:" />
-                              <Label text="(DOB)" />
-                          </VBox>
-                          <Label fx:id="dateOfBirthLabel" minHeight="-Infinity" minWidth="-Infinity" text="N/A" wrapText="true" HBox.hgrow="ALWAYS">
-                              <HBox.margin>
-                                  <Insets />
-                              </HBox.margin>
-      
-                          </Label>
-                  </children>
-               </HBox>
-               <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                  <children>
-                          <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-                              <VBox alignment="TOP_CENTER" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-                                  <Label alignment="CENTER" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age" textAlignment="CENTER" />
-                                  <Label fx:id="ageLabel" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="label" textFill="#59b928" wrapText="true">
-                                      <font>
-                                          <Font name="Bernard MT Condensed" size="24.0" />
-                                      </font>
-                                  </Label>
-                              </VBox>
-                          </HBox>
-                  </children>
-               </HBox>
-               <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                  <children>
-                          <HBox alignment="CENTER_LEFT" minWidth="-Infinity" spacing="10">
-                              <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                                  <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age Class:" />
-                                  <Label fx:id="ageClassLabel" text="Label" />
-                              </VBox>
-                          </HBox>
-                  </children>
-               </HBox>
-                </HBox>
-                <VBox alignment="CENTER" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
-                    <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Herd Solution Type:" wrapText="true" HBox.hgrow="ALWAYS">
+                <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="20.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                    <HBox alignment="CENTER_LEFT" spacing="10.0" HBox.hgrow="ALWAYS">
+                        <VBox alignment="CENTER_LEFT">
+                            <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Date of Birth:" />
+                            <Label text="(DOB)" />
+                        </VBox>
+                        <Label fx:id="dateOfBirthLabel" minHeight="-Infinity" minWidth="-Infinity" text="N/A" wrapText="true" HBox.hgrow="ALWAYS">
                             <HBox.margin>
                                 <Insets />
                             </HBox.margin>
+
                         </Label>
                     </HBox>
+                    <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
+                            <VBox alignment="TOP_CENTER" minWidth="-Infinity" HBox.hgrow="ALWAYS">
+                                <Label alignment="CENTER" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age" textAlignment="CENTER" />
+                                <Label fx:id="ageLabel" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="label" textFill="#59b928" wrapText="true">
+                                    <font>
+                                        <Font name="Bernard MT Condensed" size="24.0" />
+                                    </font>
+                                </Label>
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                    <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                        <HBox alignment="CENTER_LEFT" minWidth="-Infinity" spacing="10">
+                            <VBox alignment="CENTER" HBox.hgrow="ALWAYS">
+                                <Label style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Age Class:" />
+                                <Label fx:id="ageClassLabel" text="Label" />
+                            </VBox>
+                        </HBox>
+                    </HBox>
+                </HBox>
+                <VBox alignment="CENTER" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
                     <HBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
                         <Label fx:id="herdSolutionTypeLabel" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" wrapText="true" HBox.hgrow="ALWAYS" />
                     </HBox>
                 </VBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
+                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.vgrow="ALWAYS">
                     <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Days Pregnant (DP):" />
                     <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
                         <HBox.margin>
@@ -147,157 +134,18 @@
                     </HBox>
                 </HBox>
                 <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.valignment="TOP" />
-                <Separator orientation="VERTICAL" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="9" />
-                <VBox alignment="BOTTOM_CENTER" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
+                <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS">
                     <Label alignment="CENTER" text="BREEDING">
                   <font>
                      <Font name="System Bold" size="18.0" />
                   </font></Label>
                 </VBox>
                 <Separator disable="true" prefHeight="0.0" prefWidth="243.0" valignment="BOTTOM" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.hgrow="ALWAYS" GridPane.valignment="BOTTOM" />
-                <Separator prefWidth="200.0" GridPane.columnIndex="1" GridPane.columnSpan="4" GridPane.rowIndex="10" GridPane.valignment="TOP" />
                 <Separator orientation="VERTICAL" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.rowSpan="9" />
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.vgrow="ALWAYS">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Days In Lactation/Milk (DIM):" wrapText="true" />
-                    <HBox alignment="CENTER_RIGHT" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets right="20.0" />
-                        </HBox.margin>
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" />
-                    </HBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.rowIndex="9">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Relative Milk Yield (RMY):" />
-                    <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets />
-                        </HBox.margin>
-                        <Label text="Label" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets right="20.0" />
-                            </HBox.margin>
-                        </Label>
-                    </HBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.rowIndex="8">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Milk Yield (MY):" />
-                    <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets right="20.0" />
-                        </HBox.margin>
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" />
-                    </HBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="8">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Age at First Calving:" />
-                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets right="20.0" />
-                        </HBox.margin>
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" />
-                    </HBox>
-                </HBox>
-                <HBox alignment="BOTTOM_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="7">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Calving Interval (CI):" />
-                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets right="20.0" />
-                        </HBox.margin>
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" />
-                    </HBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="4">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Days Since Calving (DIM):" />
-                    <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets right="20.0" />
-                        </HBox.margin>
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" />
-                    </HBox>
-                </HBox>
-                <HBox alignment="BOTTOM_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4">
-                    <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Breed Type:" />
-                        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets right="20.0" />
-                            </HBox.margin>
-                            <Label fx:id="breedTypeLabel" alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" HBox.hgrow="ALWAYS" />
-                        </HBox>
-                    </HBox>
-                    <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="150.0" HBox.hgrow="ALWAYS">
-                        <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Breeding System:" HBox.hgrow="ALWAYS" />
-                        <HBox alignment="CENTER_RIGHT" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets right="20.0" />
-                            </HBox.margin>
-                            <Label fx:id="breedSystemLabel" alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" HBox.hgrow="ALWAYS" />
-                        </HBox>
-                    </HBox>
-                </HBox>
-                <Separator prefWidth="200.0" GridPane.columnIndex="4" GridPane.valignment="BOTTOM" />
-                <Separator orientation="VERTICAL" GridPane.columnIndex="5" GridPane.rowIndex="1" GridPane.rowSpan="9" />
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="5">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Calf Birth Weight (CBW):" HBox.hgrow="ALWAYS" />
-                    <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets />
-                        </HBox.margin>
-                        <Label text="Label" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets right="20.0" />
-                            </HBox.margin>
-                        </Label>
-                    </HBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="6">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Target Calving Age (TCA):" />
-                    <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets />
-                        </HBox.margin>
-                        <Label text="Label" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets right="20.0" />
-                            </HBox.margin>
-                        </Label>
-                    </HBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="9">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Target Calving Interval (TCI):" />
-                    <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets />
-                        </HBox.margin>
-                        <Label text="Label" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets right="20.0" />
-                            </HBox.margin>
-                        </Label>
-                    </HBox>
-                </HBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.rowIndex="7">
-                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Production Stage:" />
-                    <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
-                        <HBox.margin>
-                            <Insets />
-                        </HBox.margin>
-                        <Label text="Label" HBox.hgrow="ALWAYS">
-                            <HBox.margin>
-                                <Insets right="20.0" />
-                            </HBox.margin>
-                        </Label>
-                    </HBox>
-                </HBox>
-                <Separator halignment="RIGHT" orientation="VERTICAL" GridPane.columnIndex="1" GridPane.halignment="RIGHT" GridPane.rowIndex="4" GridPane.rowSpan="5" GridPane.vgrow="ALWAYS" />
-                <Separator orientation="VERTICAL" GridPane.columnIndex="6" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.rowSpan="9" />
-                <Separator GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.valignment="BOTTOM" />
-                <Separator orientation="VERTICAL" GridPane.columnIndex="9" GridPane.rowIndex="1" GridPane.rowSpan="9" />
-                <Separator GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="9" GridPane.valignment="BOTTOM" />
-                <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5">
-                    <Label alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="LIVE WEIGHT" HBox.hgrow="ALWAYS" />
-                </HBox>
-                <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6">
+                <HBox alignment="BOTTOM_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" />
+                <Separator orientation="VERTICAL" GridPane.columnIndex="3" GridPane.halignment="RIGHT" GridPane.rowIndex="1" GridPane.rowSpan="9" />
+                <Separator GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.valignment="BOTTOM" />
+                <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5">
                     <Label alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Initial Body Weight (IBW):" HBox.hgrow="ALWAYS" />
                     <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
                         <HBox.margin>
@@ -310,7 +158,7 @@
                         </Label>
                     </HBox>
                 </HBox>
-                <HBox alignment="CENTER_RIGHT" layoutX="976.0" layoutY="129.0" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7">
+                <HBox alignment="CENTER_RIGHT" layoutX="976.0" layoutY="129.0" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6">
                     <Label alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Final Body weight (FBW):" HBox.hgrow="ALWAYS" />
                     <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
                         <HBox.margin>
@@ -323,7 +171,7 @@
                         </Label>
                     </HBox>
                 </HBox>
-                <HBox alignment="CENTER_RIGHT" layoutX="976.0" layoutY="164.0" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8">
+                <HBox alignment="CENTER_RIGHT" layoutX="976.0" layoutY="164.0" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7">
                     <Label alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Weight at Birth (BW):" HBox.hgrow="ALWAYS" />
                     <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
                         <HBox.margin>
@@ -336,7 +184,7 @@
                         </Label>
                     </HBox>
                 </HBox>
-                <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9">
+                <HBox alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8">
                     <Label alignment="CENTER_RIGHT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Mature Weight (MW):" wrapText="true" HBox.hgrow="ALWAYS" />
                     <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
                         <HBox.margin>
@@ -349,13 +197,7 @@
                         </Label>
                     </HBox>
                 </HBox>
-                <VBox alignment="BOTTOM_CENTER" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="2" GridPane.rowIndex="3">
-                    <Label alignment="CENTER" text="CALVING" />
-                </VBox>
-                <VBox alignment="BOTTOM_CENTER" minHeight="-Infinity" minWidth="-Infinity" prefHeight="30.0" prefWidth="257.0" GridPane.columnIndex="4" GridPane.rowIndex="5">
-                    <Label alignment="CENTER" text="PRODUCTION" />
-                </VBox>
-                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="4" GridPane.rowIndex="2">
+                <HBox alignment="CENTER_LEFT" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="2" GridPane.rowIndex="5">
                     <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Animal Class:" HBox.hgrow="ALWAYS" />
                     <HBox alignment="CENTER_RIGHT" prefHeight="18.0" prefWidth="48.0" HBox.hgrow="ALWAYS">
                         <HBox.margin>
@@ -368,11 +210,7 @@
                         </Label>
                     </HBox>
                 </HBox>
-                <HBox alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" spacing="10" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="1">
-                    <Label alignment="CENTER" maxHeight="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="BODY CONDITION" HBox.hgrow="ALWAYS" />
-                </HBox>
-                <VBox alignment="CENTER" GridPane.columnIndex="7" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="3">
-                    <Label text="Body Condition Score" wrapText="true" />
+                <VBox alignment="CENTER" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
                     <Label alignment="CENTER" minWidth="-Infinity" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="BCS:" wrapText="true" VBox.vgrow="ALWAYS" />
                     <VBox alignment="CENTER_LEFT" minHeight="-Infinity" minWidth="-Infinity">
                         <Slider fx:id="BCSSlider" disable="true" minHeight="-Infinity" minWidth="-Infinity">
@@ -399,20 +237,6 @@
                         </tooltip>
                     </Button>
 
-                </HBox>
-                <HBox alignment="CENTER" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.rowIndex="5" GridPane.valignment="CENTER">
-                    <HBox alignment="CENTER_LEFT" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-                        <Label text="Cattle's Breed:" HBox.hgrow="ALWAYS" />
-                        <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                            <Label fx:id="cattleBreedLabel" minWidth="-Infinity" text="Label" HBox.hgrow="ALWAYS" />
-                        </HBox>
-                    </HBox>
-                    <HBox alignment="CENTER" prefHeight="42.0" prefWidth="86.0" HBox.hgrow="ALWAYS">
-                        <Label text="Breed ID:" />
-                        <HBox alignment="CENTER" HBox.hgrow="ALWAYS">
-                            <Label fx:id="breedIDLabel" text="Label" HBox.hgrow="ALWAYS" />
-                        </HBox>
-                    </HBox>
                 </HBox>
                 <VBox GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
                     <VBox alignment="CENTER" minWidth="-Infinity">
@@ -447,8 +271,7 @@
                         </HBox>
                     </HBox>
                 </VBox>
-            <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="4" GridPane.rowIndex="4" />
-                <VBox alignment="CENTER" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="8" GridPane.vgrow="ALWAYS">
+                <VBox alignment="CENTER" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="7" GridPane.vgrow="ALWAYS">
                     <VBox alignment="CENTER" minWidth="-Infinity">
                         <Label text="DAM">
                             <font>
@@ -483,23 +306,57 @@
                         </HBox>
                     </HBox>
                 </VBox>
-                <HBox alignment="CENTER" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6">
-                    <Label text="Cattle's Herd:" HBox.hgrow="ALWAYS" />
-                    <HBox alignment="CENTER" prefWidth="200.0">
-                        <Label fx:id="cattleHerdLabel" text="Label" />
-                    </HBox>
-                </HBox>
+                <GridPane GridPane.columnIndex="1" GridPane.rowIndex="4" GridPane.rowSpan="3">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                    </columnConstraints>
+                    <rowConstraints>
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                    </rowConstraints>
+                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Breed Type:" GridPane.rowIndex="1" />
+                    <Label text="Cattle's Breed:" GridPane.rowIndex="3" />
+                    <Label text="Cattle's Herd:" GridPane.rowIndex="4" />
+                    <Label fx:id="breedTypeLabel" alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                    <Label fx:id="cattleBreedLabel" minWidth="-Infinity" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                    <Label fx:id="cattleHerdLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                    <Label maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Breeding System:" />
+                    <Label fx:id="breedSystemLabel" alignment="CENTER_RIGHT" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" text="Label" GridPane.columnIndex="1" />
+                    <Label text="Breed ID:" GridPane.rowIndex="2" />
+                    <Label fx:id="breedIDLabel" text="Label" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                </GridPane>
+                <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                    <Label alignment="CENTER" text="SOLUTION TYPE">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Label>
+                </VBox>
+                <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="1">
+                    <Label alignment="CENTER" text="BODY CONDITION SCORE">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Label>
+                </VBox>
+                <VBox alignment="CENTER" minHeight="-Infinity" minWidth="-Infinity" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="4">
+                    <Label alignment="CENTER" text="LIVE WEIGHT">
+                        <font>
+                            <Font name="System Bold" size="18.0" />
+                        </font>
+                    </Label>
+                </VBox>
                 <columnConstraints>
                     <ColumnConstraints maxWidth="565.6000244140624" minWidth="10.0" prefWidth="22.39999160766601" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
-                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
-                    <ColumnConstraints hgrow="ALWAYS" maxWidth="164.79996337890628" minWidth="11.999975585937477" prefWidth="12.000012207031205" />
-                    <ColumnConstraints hgrow="ALWAYS" maxWidth="256.79998779296875" minWidth="-Infinity" prefWidth="256.79998779296875" />
-                    <ColumnConstraints maxWidth="768.8000122070312" minWidth="5.6000244140625455" prefWidth="9.600024414062545" />
+                    <ColumnConstraints hgrow="ALWAYS" maxWidth="398.40001220703124" minWidth="-Infinity" prefWidth="318.40001220703124" />
+                    <ColumnConstraints hgrow="ALWAYS" maxWidth="362.40002441406256" minWidth="-Infinity" prefWidth="356.7999877929688" />
                     <ColumnConstraints maxWidth="768.8000122070312" minWidth="10.0" prefWidth="15.999975585937477" />
                     <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" prefWidth="128.39992675781252" />
                     <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" prefWidth="147.0" />
-                    <ColumnConstraints maxWidth="768.8000122070312" minWidth="10.0" prefWidth="43.0" />
                 </columnConstraints>
                 <rowConstraints>
                     <RowConstraints maxHeight="-Infinity" minHeight="10.0" />
@@ -511,10 +368,12 @@
                     <RowConstraints maxHeight="99.9999938964844" minHeight="-Infinity" prefHeight="47.99998474121094" vgrow="ALWAYS" />
                     <RowConstraints maxHeight="84.79999389648438" minHeight="-Infinity" prefHeight="52.800006103515614" vgrow="ALWAYS" />
                     <RowConstraints maxHeight="94.60001220703128" minHeight="-Infinity" prefHeight="60.79999389648441" vgrow="ALWAYS" />
-                    <RowConstraints maxHeight="114.80000000000001" minHeight="-Infinity" prefHeight="48.80001220703127" vgrow="ALWAYS" />
-                    <RowConstraints maxHeight="92.0000061035156" minHeight="10.0" prefHeight="59.9999938964844" vgrow="ALWAYS" />
+               <RowConstraints />
                 </rowConstraints>
             </GridPane>
+        </HBox>
+        <HBox fx:id="productivityAndCalvingContainer" alignment="CENTER">
+
         </HBox>
         <ScrollPane fitToHeight="true" fitToWidth="true" prefHeight="344.0" prefWidth="1035.0">
 

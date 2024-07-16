@@ -6,23 +6,19 @@ import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControll
 import com.example.hashinfarm.controller.utility.*;
 import com.example.hashinfarm.model.CattleImage;
 import javafx.application.Platform;
-import javafx.beans.value.ChangeListener;
+import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.HBox;
+import javafx.scene.layout.*;
 import javafx.scene.paint.Color;
-import javafx.scene.text.Font;
-import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.scene.text.TextFlow;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.StringConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -31,12 +27,12 @@ import java.sql.Timestamp;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
 
 public class CharacteristicsController {
+
+
 
   private static final Map<String, Integer> BCS_VALUES = Map.of(
           "Emaciated", 1,
@@ -67,6 +63,7 @@ public class CharacteristicsController {
   public CharacteristicsController() {}
 
   public void initialize() {
+
     initializeButtonHandlers(modifyCattle, addBreed);
     initializeCattleAndHerdListeners();
     fileValidationController = new FileValidationController();
@@ -74,6 +71,8 @@ public class CharacteristicsController {
     initBCSSliderListener();
     initSelectedCattleListeners();
     initDateOfBirthLabelStyle();
+
+    // Listen for changes from SelectedCattleManager
   }
 
   private void initSelectedCattleListeners() {
@@ -90,7 +89,9 @@ public class CharacteristicsController {
       updateAgeLabel(newValue);
       updateDateOfBirthLabel(newValue);
     });
+
   }
+
 
   private void initDateOfBirthLabelStyle() {
     dateOfBirthLabel.setStyle("-fx-background-color: white; -fx-text-fill: black; -fx-font-weight: bold;");
@@ -170,8 +171,8 @@ public class CharacteristicsController {
         // Get the property
         Object property = manager.getClass().getMethod(properties[i]).invoke(manager);
         // Ensure the property is observable and add a listener
-        if (property instanceof javafx.beans.property.Property<?>) {
-          ((javafx.beans.property.Property<?>) property).addListener(
+        if (property instanceof Property<?>) {
+          ((Property<?>) property).addListener(
                   (observable, oldValue, newValue) -> updateLabel(label, newValue != null ? newValue.toString() : ""));
         }
       } catch (Exception e) {
@@ -226,11 +227,6 @@ public class CharacteristicsController {
       ageLabel.setGraphic(ageTextFlow); // Set TextFlow as graphic
     }
   }
-
-
-
-
-
 
   private void initializeButtonHandlers(Button... buttons) {
     for (Button button : buttons) {

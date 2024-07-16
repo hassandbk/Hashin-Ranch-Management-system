@@ -50,9 +50,9 @@ public class CattleController {
     }
 
     private void updateTabState(String gender, boolean isValidAge, long ageInMonths) {
-        if (("Cow".equals(gender) || "Heifer".equals(gender)) && isValidAge) {
+        if ("Female".equals(gender) && isValidAge) {
             showTab();
-        } else if ("Heifer".equals(gender)) {
+        } else if (!isValidAge) {
             showInfoAndHideTab(ageInMonths);
         } else {
             // Other genders, hide the tab

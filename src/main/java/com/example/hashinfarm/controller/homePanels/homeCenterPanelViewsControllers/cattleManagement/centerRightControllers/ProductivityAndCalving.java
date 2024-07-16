@@ -71,7 +71,7 @@ public class ProductivityAndCalving {
     private LocalDate selectedDateProductionSessionDate;
 
     private CattleDAO cattleDAO;
-    private AddNewCattleController addNewCattleController;
+     private AddNewCattleController addNewCattleController;
     private Stage selectionStage;
     private LactationPeriodWithSelection selectedPeriodWithSelection;
     private LactationPeriod ongoingLactationPeriod;
@@ -117,7 +117,6 @@ public class ProductivityAndCalving {
     @FXML private ChoiceBox<String> selectCriteriaChoiceBox,dependentCriteriaChoiceBox;
     @FXML private SplitPane splitPane;
     @FXML private VBox comparisonChartVBox;
-
 
 
     public void initialize() {
@@ -879,6 +878,7 @@ public class ProductivityAndCalving {
             daysSinceCalvingLabel.setText("Calving date not provided");
         }
     }
+
 
     private void updatePregnancyStatus(LocalDate breedingDate) {
 
@@ -3443,41 +3443,22 @@ public class ProductivityAndCalving {
         comparisonPerformanceColumn.setCellValueFactory(new PropertyValueFactory<>("comparisonPerformance"));
 
         // Center align the cells
-        centerAlignColumn(cowIdColumn);
-        centerAlignColumn(currentStageColumn);
-        centerAlignColumn(selectedStageByDateColumn);
-        centerAlignColumn(equivalentSelectedDateColumn);
-        centerAlignColumn(todayMYColumn);
-        centerAlignColumn(equivalentDayMYColumn);
-        centerAlignColumn(currentStageMilkMYColumn);
-        centerAlignColumn(selectedStageMilkMYColumn);
-        centerAlignColumn(totalDailyMYColumn);
-        centerAlignColumn(averageDailyMYColumn);
-        centerAlignColumn(relativeMYColumn);
-        centerAlignColumn(selectedCattlePRColumn);
-        centerAlignColumn(comparisonPerformanceColumn);
+        TableColumnUtils.centerAlignColumn(cowIdColumn);
+        TableColumnUtils.centerAlignColumn(currentStageColumn);
+        TableColumnUtils.centerAlignColumn(selectedStageByDateColumn);
+        TableColumnUtils.centerAlignColumn(equivalentSelectedDateColumn);
+        TableColumnUtils.centerAlignColumn(todayMYColumn);
+        TableColumnUtils.centerAlignColumn(equivalentDayMYColumn);
+        TableColumnUtils.centerAlignColumn(currentStageMilkMYColumn);
+        TableColumnUtils.centerAlignColumn(selectedStageMilkMYColumn);
+        TableColumnUtils.centerAlignColumn(totalDailyMYColumn);
+        TableColumnUtils.centerAlignColumn(averageDailyMYColumn);
+        TableColumnUtils.centerAlignColumn(relativeMYColumn);
+        TableColumnUtils.centerAlignColumn(selectedCattlePRColumn);
+        TableColumnUtils.centerAlignColumn(comparisonPerformanceColumn);
     }
 
-    private <T> void centerAlignColumn(TableColumn<CowTableItem, T> column) {
-        column.setCellFactory(new Callback<>() {
-            @Override
-            public TableCell<CowTableItem, T> call(TableColumn<CowTableItem, T> param) {
-                return new TableCell<>() {
-                    @Override
-                    protected void updateItem(T item, boolean empty) {
-                        super.updateItem(item, empty);
-                        if (empty || item == null) {
-                            setText(null);
-                            setGraphic(null);
-                        } else {
-                            setText(item.toString());
-                            setStyle("-fx-alignment: CENTER;");
-                        }
-                    }
-                };
-            }
-        });
-    }
+
     private String getSelectedCriteria() {
         String selectedCriteria = selectCriteriaChoiceBox.getValue();
         if (selectedCriteria != null && !selectedCriteria.isEmpty()) {
@@ -3791,7 +3772,7 @@ private List<CattleYieldData> cattleYieldData = new ArrayList<>();
     }
 
 
-    private LactationPeriod getOngoingLactationPeriod(int cattleID) throws SQLException {
+    public LactationPeriod getOngoingLactationPeriod(int cattleID) throws SQLException {
         List<LactationPeriod> lactationPeriods = LactationPeriodDAO.getLactationPeriodsByCattleId(cattleID);
         for (LactationPeriod period : lactationPeriods) {
             if (isOngoingLactationPeriod(period)) {
@@ -3875,5 +3856,6 @@ private List<CattleYieldData> cattleYieldData = new ArrayList<>();
 
         showChartButton.setDisable(!(selectCriteriaSelected && dependentCriteriaEnabled));
     }
+
 
 }

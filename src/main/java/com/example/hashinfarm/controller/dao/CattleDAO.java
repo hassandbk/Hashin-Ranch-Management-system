@@ -371,5 +371,38 @@ public class CattleDAO {
         return new FilteredCattle(cattleID, tagID, name, herdID);
     }
 
+    public static List<Cattle> getProgenyByCattleId(int cattleId) throws SQLException {
+        List<Cattle> progenyList = new ArrayList<>();
+        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
+                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
+                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
+                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
+                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
+                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
+                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
+                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
+                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
+                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
+                "WHERE (c.SireID = ? OR c.DamID = ?) AND c.CattleID != ?";  // Exclude the cattle itself from the results
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setInt(2, cattleId);
+            preparedStatement.setInt(3, cattleId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    Cattle progeny = mapResultSetToCattle(resultSet);
+                    // Identify dam or sire based on cattleId match
+                    if (cattleId == progeny.getSireId()) {
+                        progeny.setDamList(true);  // Flag this record as dam's progeny
+                    } else {
+                        progeny.setSireList(true);  // Flag this record as sire's progeny
+                    }
+                    progenyList.add(progeny);
+                }
+            }
+        }
+        return progenyList;
+    }
 
 }

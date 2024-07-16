@@ -30,6 +30,10 @@ public class Cattle {
     private String damHerdName;
     private String sireBreedName;
     private String damBreedName;
+    private boolean damList;  // Flag to indicate if cattle belongs to dam's progeny
+    private boolean sireList;  // Flag to indicate if cattle belongs to sire's progeny
+
+
 
     public Cattle() {
         // Default constructor
@@ -250,5 +254,21 @@ public class Cattle {
 
     public BooleanProperty selectedProperty() {
         return selected;
+    }
+    // Getters and setters for damList and sireList
+    public boolean isDamList() {
+        return damList;
+    }
+
+    public void setDamList(boolean damList) {
+        this.damList = damList;
+    }
+
+    public boolean isSireList() {
+        return sireList;
+    }
+
+    public void setSireList(boolean sireList) {
+        this.sireList = sireList;
     }
 }

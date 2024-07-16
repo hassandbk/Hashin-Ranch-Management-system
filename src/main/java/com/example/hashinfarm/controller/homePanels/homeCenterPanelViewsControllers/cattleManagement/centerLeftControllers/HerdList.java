@@ -145,8 +145,7 @@ public class HerdList {
               selectedCattle.setSelected(true);
               SelectedCattleManager.getInstance().setSelectedCattle(selectedCattle);
               SelectedHerdManager.getInstance().setSelectedHerd(herd);
-              // Assuming 'selectedAnimal' is your label to display selected cattle name
-              // selectedAnimal.setText(selectedCattle.getName());
+
             }
             animalDropdown.hide();
           });

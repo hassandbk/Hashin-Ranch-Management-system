@@ -342,29 +342,5 @@ public class SelectedCattleManager {
         updateAge(cattle.getDateOfBirth());
     }
 
-    public Cattle getSelectedCattle() {
-        return new Cattle(
-                selectedCattleID.get(),
-                selectedTagId.get(),
-                selectedHerdId.get(),
-                selectedColorMarkings.get(),
-                selectedName.get(),
-                selectedGender.get(),
-                selectedDateOfBirth.get(),
-                selectedWeightId.get(),
-                selectedBcs.get(),
-                selectedBreedId.get(),
-                selectedBreedName.get(),
-                selectedSireId.get(),
-                selectedSireName.get(),
-                selectedDamId.get(),
-                selectedDamName.get(),
-                selectedDamsHerd.get(),
-                selectedSiresHerd.get(),
-                selectedDamHerdName.get(),
-                selectedSireHerdName.get(),
-                selectedSireBreedName.get(),
-                selectedDamBreedName.get()
-        );
-    }
+
 }
