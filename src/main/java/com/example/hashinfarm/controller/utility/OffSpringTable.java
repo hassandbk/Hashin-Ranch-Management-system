@@ -3,24 +3,24 @@ package com.example.hashinfarm.controller.utility;
 import java.time.LocalDate;
 
 public class OffSpringTable {
-    private int offspringId; // Add this field
+    private int offspringId;
     private String cattleId;
     private String cattleName;
     private String gender;
     private String breedingMethod;
-    private double birthWeight;
-    private int easeOfCalving;
-    private int gestationLength;
-    private double measuredWeight;
+    private Double birthWeight;
+    private Integer easeOfCalving;
+    private Integer gestationLength;
+    private Double measuredWeight;
     private LocalDate lastDateWeightTaken;
     private String intendedUse;
     private String sireId;
 
     // Updated Constructor
     public OffSpringTable(int offspringId, String cattleId, String cattleName, String gender, String breedingMethod,
-                          double birthWeight, int easeOfCalving, int gestationLength, double measuredWeight,
+                          Double birthWeight, Integer easeOfCalving, Integer gestationLength, Double measuredWeight,
                           LocalDate lastDateWeightTaken, String intendedUse, String sireId) {
-        this.offspringId = offspringId; // Initialize the new field
+        this.offspringId = offspringId;
         this.cattleId = cattleId;
         this.cattleName = cattleName;
         this.gender = gender;
@@ -37,7 +37,7 @@ public class OffSpringTable {
     // Getters and Setters
     public int getOffspringId() { return offspringId; }
     public void setOffspringId(int offspringId) { this.offspringId = offspringId; }
-    // Getters and Setters for all properties
+
     public String getCattleId() { return cattleId; }
     public void setCattleId(String cattleId) { this.cattleId = cattleId; }
 
@@ -50,17 +50,17 @@ public class OffSpringTable {
     public String getBreedingMethod() { return breedingMethod; }
     public void setBreedingMethod(String breedingMethod) { this.breedingMethod = breedingMethod; }
 
-    public double getBirthWeight() { return birthWeight; }
-    public void setBirthWeight(double birthWeight) { this.birthWeight = birthWeight; }
+    public Double getBirthWeight() { return birthWeight; }
+    public void setBirthWeight(Double birthWeight) { this.birthWeight = birthWeight; }
 
-    public int getEaseOfCalving() { return easeOfCalving; }
-    public void setEaseOfCalving(int easeOfCalving) { this.easeOfCalving = easeOfCalving; }
+    public Integer getEaseOfCalving() { return easeOfCalving; }
+    public void setEaseOfCalving(Integer easeOfCalving) { this.easeOfCalving = easeOfCalving; }
 
-    public int getGestationLength() { return gestationLength; }
-    public void setGestationLength(int gestationLength) { this.gestationLength = gestationLength; }
+    public Integer getGestationLength() { return gestationLength; }
+    public void setGestationLength(Integer gestationLength) { this.gestationLength = gestationLength; }
 
-    public double getMeasuredWeight() { return measuredWeight; }
-    public void setMeasuredWeight(double measuredWeight) { this.measuredWeight = measuredWeight; }
+    public Double getMeasuredWeight() { return measuredWeight; }
+    public void setMeasuredWeight(Double measuredWeight) { this.measuredWeight = measuredWeight; }
 
     public LocalDate getLastDateWeightTaken() { return lastDateWeightTaken; }
     public void setLastDateWeightTaken(LocalDate lastDateWeightTaken) { this.lastDateWeightTaken = lastDateWeightTaken; }
