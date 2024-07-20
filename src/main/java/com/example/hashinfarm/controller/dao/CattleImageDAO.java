@@ -1,7 +1,7 @@
 package com.example.hashinfarm.controller.dao;
 
 import com.example.hashinfarm.controller.utility.AppLogger;
-import com.example.hashinfarm.model.CattleImage;
+import com.example.hashinfarm.controller.utility.CattleImage;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;

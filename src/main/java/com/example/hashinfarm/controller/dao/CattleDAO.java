@@ -2,7 +2,7 @@ package com.example.hashinfarm.controller.dao;
 
 import com.example.hashinfarm.controller.utility.AppLogger;
 import com.example.hashinfarm.model.Cattle;
-import com.example.hashinfarm.model.FilteredCattle;
+import com.example.hashinfarm.controller.utility.FilteredCattle;
 
 import java.sql.*;
 import java.time.LocalDate;

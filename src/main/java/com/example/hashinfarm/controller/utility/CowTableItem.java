@@ -1,4 +1,4 @@
-package com.example.hashinfarm.model;
+package com.example.hashinfarm.controller.utility;
 
 public class CowTableItem {
     private String cattleID;

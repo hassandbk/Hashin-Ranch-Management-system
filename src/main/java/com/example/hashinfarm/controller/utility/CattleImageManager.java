@@ -1,7 +1,7 @@
 package com.example.hashinfarm.controller.utility;
 
 import com.example.hashinfarm.controller.dao.CattleImageDAO;
-import com.example.hashinfarm.model.CattleImage;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;

@@ -4,7 +4,7 @@ import com.example.hashinfarm.controller.dao.CattleImageDAO;
 import com.example.hashinfarm.controller.handlers.ActionHandlerFactory;
 import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController;
 import com.example.hashinfarm.controller.utility.*;
-import com.example.hashinfarm.model.CattleImage;
+import com.example.hashinfarm.controller.utility.CattleImage;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
