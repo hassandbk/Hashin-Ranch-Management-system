@@ -13,7 +13,7 @@ public class CalvingEventDAO {
 
     public static List<CalvingEvent> getCalvingEventsBySireOrDam(int cattleId) throws SQLException {
         String query = "SELECT ce.CalvingEventID, ce.CattleID, ce.ReproductiveVariableID, ce.OffspringID, " +
-                "ce.AssistanceRequired, ce.DurationOfCalving, ce.PhysicalConditionCalf, " +
+                "ce.AssistanceRequired, ce.PhysicalConditionCalf, " +
                 "ce.NumberOfCalvesBorn, ce.CalvesBornAlive, ce.Stillbirths " +
                 "FROM cattle c " +
                 "INNER JOIN reproductivevariables rv ON rv.CalvingDate = c.DateOfBirth " +
@@ -44,8 +44,7 @@ public class CalvingEventDAO {
     }
 
     public static void updateCalvingEvent(CalvingEvent calvingEvent) throws SQLException {
-        String query = "UPDATE calvingevents SET CattleID = ?, ReproductiveVariableID = ?, OffspringID = ?, " +
-                "AssistanceRequired = ?, DurationOfCalving = ?, PhysicalConditionCalf = ?, " +
+        String query = "UPDATE calvingevents SET AssistanceRequired = ?, PhysicalConditionCalf = ?, " +
                 "NumberOfCalvesBorn = ?, CalvesBornAlive = ?, Stillbirths = ? " +
                 "WHERE CalvingEventID = ?";
 
@@ -53,7 +52,8 @@ public class CalvingEventDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             setPreparedStatementValues(preparedStatement, calvingEvent);
-            preparedStatement.setInt(11, calvingEvent.getCalvingEventId());
+            // Set the correct index for the WHERE clause parameter
+            preparedStatement.setInt(7, calvingEvent.calvingEventIdProperty().get());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -61,6 +61,7 @@ public class CalvingEventDAO {
             throw e; // Rethrow the exception for higher-level handling
         }
     }
+
 
     public static void deleteCalvingEventById(int calvingEventId) throws SQLException {
         String query = "DELETE FROM calvingevents WHERE CalvingEventID = ?";
@@ -78,16 +79,14 @@ public class CalvingEventDAO {
     }
 
     private static void setPreparedStatementValues(PreparedStatement preparedStatement, CalvingEvent calvingEvent) throws SQLException {
-        preparedStatement.setInt(1, calvingEvent.getCattleId());
-        preparedStatement.setInt(2, calvingEvent.getReproductiveVariableId());
-        preparedStatement.setInt(3, calvingEvent.getOffspringId());
-        preparedStatement.setString(4, calvingEvent.getAssistanceRequired());
-        preparedStatement.setObject(5, calvingEvent.getDurationOfCalving(), Types.INTEGER);
-        preparedStatement.setString(6, calvingEvent.getPhysicalConditionCalf());
-        preparedStatement.setInt(7, calvingEvent.getNumberOfCalvesBorn());
-        preparedStatement.setInt(8, calvingEvent.getCalvesBornAlive());
-        preparedStatement.setObject(9, calvingEvent.getStillbirths(), Types.INTEGER);
+        preparedStatement.setString(1, calvingEvent.assistanceRequiredProperty().get());
+        preparedStatement.setString(2, calvingEvent.physicalConditionCalfProperty().get());
+        preparedStatement.setInt(3, calvingEvent.numberOfCalvesBornProperty().get());
+        preparedStatement.setInt(4, calvingEvent.calvesBornAliveProperty().get());
+        preparedStatement.setObject(5, calvingEvent.stillbirthsProperty().get(), Types.INTEGER);
     }
+
+
 
     private static CalvingEvent mapResultSetToCalvingEvent(ResultSet resultSet) throws SQLException {
         return new CalvingEvent(
@@ -96,7 +95,6 @@ public class CalvingEventDAO {
                 resultSet.getInt("ReproductiveVariableID"),
                 resultSet.getInt("OffspringID"),
                 resultSet.getString("AssistanceRequired"),
-                resultSet.getObject("DurationOfCalving", Integer.class),
                 resultSet.getString("PhysicalConditionCalf"),
                 resultSet.getInt("NumberOfCalvesBorn"),
                 resultSet.getInt("CalvesBornAlive"),

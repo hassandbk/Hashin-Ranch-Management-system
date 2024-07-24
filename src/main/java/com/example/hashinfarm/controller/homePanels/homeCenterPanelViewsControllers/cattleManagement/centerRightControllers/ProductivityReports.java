@@ -3,8 +3,10 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 import com.example.hashinfarm.controller.dao.CattleDAO;
 import com.example.hashinfarm.controller.dao.OffspringDAO;
 import com.example.hashinfarm.controller.dao.CalvingEventDAO;
+import com.example.hashinfarm.controller.dao.BreedingAttemptDAO;
 import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.CattleController;
 import com.example.hashinfarm.controller.utility.*;
+import com.example.hashinfarm.model.BreedingAttempt;
 import com.example.hashinfarm.model.CalvingEvent;
 import com.example.hashinfarm.model.Cattle;
 import com.example.hashinfarm.model.Offspring;
@@ -15,6 +17,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.*;
 
 @SuppressWarnings("CallToPrintStackTrace")
@@ -32,23 +35,33 @@ public class ProductivityReports {
     @FXML private TableView<OffSpringTable> cattleTableView;
     @FXML private TableColumn<OffSpringTable, String> offspringIdColumn,cattleIdColumn, cattleNameColumn, genderColumn, breedingMethodColumn;
     @FXML private Button modifyOffspringDetailsButton,updateOffSpringDetailsButton;
+
     private int selectedCattleId;
     private final Map<String, String> initialValuesOffspring = new HashMap<>();
     private final Map<String, String> initialValuesCalvingEvent = new HashMap<>();
     private final double minPosition = 0.1;
-    private final double maxPosition = 0.5;
+    private final double maxPosition = 0.7;
     @FXML private SplitPane splitPaneOffSpringInfo,splitPaneCalveEvents,splitPaneBreedAttempts;
     @FXML private Button leftArrowButtonOffSpringInfo, rightArrowButtonOffSpringInfo,leftArrowButtonCalveEvents, rightArrowButtonCalveEvents,leftArrowButtonBreedAttempts,rightArrowButtonBreedAttempts;
 
     @FXML private Label calvingEventIdLabel;
     @FXML private TextField cattleIdCalveEventsTextField,reproductiveVariableIdTextField,numberOfCalvesBornTextField,calvesBornAliveTextField,stillbirthsTextField,offspringIdTextField;
-    @FXML private TextArea assistanceRequiredTextArea;
-    @FXML private TextField durationOfCalvingTextField;
-    @FXML private TextArea physicalConditionCalfTextArea;
+    @FXML private TextArea assistanceRequiredTextArea, physicalConditionCalfTextArea;
     @FXML private Button modifyCalvingEventDetailsButton,updateCalvingEventsDetailsButton;
     @FXML private TableView<CalvingEvent> calvingEventsTableView;
     @FXML private TableColumn<CalvingEvent, Integer> calvingEventIdColumn,cattleIdCalveEventsColumn,reproductiveVariableIdColumn;
     @FXML private TableColumn<CalvingEvent, Integer> numberOfCalvesBornColumn,calvesBornAliveColumn,stillbirthsColumn;
+
+    @FXML private TableView<BreedingAttempt> breedingAttemptsTableView;
+    @FXML private TableColumn<BreedingAttempt, Integer> breedingAttemptIdColumn;
+    @FXML private TableColumn<BreedingAttempt, String> estrusDateColumn, breedingMethodBreedingAttemptColumn, sireUsedColumn, attemptDateColumn, attemptStatusColumn;
+    @FXML private Label breedingAttemptIdLabel,sireNameLabel;
+    @FXML private TextField attemptNumberTextField;
+    @FXML private DatePicker estrusDatePicker, attemptDatePicker;
+    @FXML private ComboBox<String> breedingMethodBreedingAttemptComboBox, attemptStatusComboBox;
+    @FXML private TextArea notesTextArea;
+    @FXML private Button modifyBreedingAttemptButton, updateBreedingAttemptButton,sireNameButton;
+
 
     @FXML private void initialize() {
         initializeButtons();
@@ -59,14 +72,21 @@ public class ProductivityReports {
         initializeTableColumns();
         setupOffspringTableSelectionListener();
         setupCalvingEventTableSelectionListener();
+        setupBreedingAttemptsTableSelectionListener();
         addFieldChangeListenersForOffspring();
         addFieldChangeListenersForCalveEvent();
+        addFieldChangeListenersForBreedingAttempt();
+
+        breedingMethodBreedingAttemptComboBox.setItems(FXCollections.observableArrayList("Natural Mating", "Artificial Insemination", "Embryo Transfer"));
+        attemptStatusComboBox.setItems(FXCollections.observableArrayList("Success", "Failure", "Unknown"));
     }
     private void initializeButtons(){
         modifyOffspringDetailsButton.setDisable(true);
         updateOffSpringDetailsButton.setDisable(true);
         modifyCalvingEventDetailsButton.setDisable(true);
         updateCalvingEventsDetailsButton.setDisable(true);
+        modifyBreedingAttemptButton.setDisable(true);
+        updateBreedingAttemptButton.setDisable(true);
     }
     private void initializeSplitPlane(SplitPane splitpane,Button leftArrowButton,Button rightArrowButton) {
         SplitPaneDividerEnforcer dividerEnforcer = new SplitPaneDividerEnforcer(minPosition, maxPosition);
@@ -88,6 +108,7 @@ public class ProductivityReports {
                 try {
                     loadOffspringData();
                     loadCalvingEventsData();
+                    loadBreedingAttemptsData();
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -158,7 +179,15 @@ public class ProductivityReports {
                 {reproductiveVariableIdColumn, "reproductiveVariableId"},
                 {numberOfCalvesBornColumn, "numberOfCalvesBorn"},
                 {calvesBornAliveColumn, "calvesBornAlive"},
-                {stillbirthsColumn, "stillbirths"}
+                {stillbirthsColumn, "stillbirths"},
+
+                //breeding Attempts
+                {breedingAttemptIdColumn, "breedingAttemptId"},
+                {estrusDateColumn, "estrusDate"},
+                {breedingMethodBreedingAttemptColumn, "breedingMethod"},
+                {sireUsedColumn, "sireId"},
+                {attemptDateColumn, "attemptDate"},
+                {attemptStatusColumn, "attemptStatus"}
         };
 
         // Set cell value factories and center align columns
@@ -549,30 +578,31 @@ public class ProductivityReports {
         if (selectedCalvingEvent != null) {
             modifyCalvingEventDetailsButton.setDisable(false);
 
-            initialValuesCalvingEvent.put("cattleId", String.valueOf(selectedCalvingEvent.getCattleId()));
-            initialValuesCalvingEvent.put("reproductiveVariableId", String.valueOf(selectedCalvingEvent.getReproductiveVariableId()));
-            initialValuesCalvingEvent.put("offspringIdTextField", String.valueOf(selectedCalvingEvent.getOffspringId()));
-            initialValuesCalvingEvent.put("numberOfCalvesBorn", String.valueOf(selectedCalvingEvent.getNumberOfCalvesBorn()));
-            initialValuesCalvingEvent.put("calvesBornAlive", String.valueOf(selectedCalvingEvent.getCalvesBornAlive()));
-            initialValuesCalvingEvent.put("stillbirths", String.valueOf(selectedCalvingEvent.getStillbirths()));
-            initialValuesCalvingEvent.put("durationOfCalving", String.valueOf(selectedCalvingEvent.getDurationOfCalving()));
-            initialValuesCalvingEvent.put("assistanceRequired", selectedCalvingEvent.getAssistanceRequired());
-            initialValuesCalvingEvent.put("physicalConditionCalf", selectedCalvingEvent.getPhysicalConditionCalf());
+            // Retrieve values from properties using getter methods
+            initialValuesCalvingEvent.put("cattleId", String.valueOf(selectedCalvingEvent.cattleIdProperty().get()));
+            initialValuesCalvingEvent.put("reproductiveVariableId", String.valueOf(selectedCalvingEvent.reproductiveVariableIdProperty().get()));
+            initialValuesCalvingEvent.put("offspringIdTextField", String.valueOf(selectedCalvingEvent.offspringIdProperty().get()));
+            initialValuesCalvingEvent.put("numberOfCalvesBorn", String.valueOf(selectedCalvingEvent.numberOfCalvesBornProperty().get()));
+            initialValuesCalvingEvent.put("calvesBornAlive", String.valueOf(selectedCalvingEvent.calvesBornAliveProperty().get()));
+            initialValuesCalvingEvent.put("stillbirths", String.valueOf(selectedCalvingEvent.stillbirthsProperty().get()));
+            initialValuesCalvingEvent.put("assistanceRequired", selectedCalvingEvent.assistanceRequiredProperty().get());
+            initialValuesCalvingEvent.put("physicalConditionCalf", selectedCalvingEvent.physicalConditionCalfProperty().get());
 
-            calvingEventIdLabel.setText(String.valueOf(selectedCalvingEvent.getCalvingEventId()));
-            cattleIdCalveEventsTextField.setText(String.valueOf(selectedCalvingEvent.getCattleId()));
-            reproductiveVariableIdTextField.setText(String.valueOf(selectedCalvingEvent.getReproductiveVariableId()));
-            offspringIdTextField.setText(String.valueOf(selectedCalvingEvent.getOffspringId()));
-            numberOfCalvesBornTextField.setText(String.valueOf(selectedCalvingEvent.getNumberOfCalvesBorn()));
-            calvesBornAliveTextField.setText(String.valueOf(selectedCalvingEvent.getCalvesBornAlive()));
-            stillbirthsTextField.setText(String.valueOf(selectedCalvingEvent.getStillbirths()));
-            durationOfCalvingTextField.setText(String.valueOf(selectedCalvingEvent.getDurationOfCalving()));
-            assistanceRequiredTextArea.setText(selectedCalvingEvent.getAssistanceRequired());
-            physicalConditionCalfTextArea.setText(selectedCalvingEvent.getPhysicalConditionCalf());
+            // Update UI components
+            calvingEventIdLabel.setText(String.valueOf(selectedCalvingEvent.calvingEventIdProperty().get()));
+            cattleIdCalveEventsTextField.setText(String.valueOf(selectedCalvingEvent.cattleIdProperty().get()));
+            reproductiveVariableIdTextField.setText(String.valueOf(selectedCalvingEvent.reproductiveVariableIdProperty().get()));
+            offspringIdTextField.setText(String.valueOf(selectedCalvingEvent.offspringIdProperty().get()));
+            numberOfCalvesBornTextField.setText(String.valueOf(selectedCalvingEvent.numberOfCalvesBornProperty().get()));
+            calvesBornAliveTextField.setText(String.valueOf(selectedCalvingEvent.calvesBornAliveProperty().get()));
+            stillbirthsTextField.setText(String.valueOf(selectedCalvingEvent.stillbirthsProperty().get()));
+            assistanceRequiredTextArea.setText(selectedCalvingEvent.assistanceRequiredProperty().get());
+            physicalConditionCalfTextArea.setText(selectedCalvingEvent.physicalConditionCalfProperty().get());
 
             updateCalvingEventsDetailsButton.setDisable(true);
         }
     }
+
 
 
     // Method to validate fields for updating Calving Events
@@ -581,13 +611,11 @@ public class ProductivityReports {
             Integer.parseInt(numberOfCalvesBornTextField.getText());
             Integer.parseInt(calvesBornAliveTextField.getText());
             Integer.parseInt(stillbirthsTextField.getText());
-            Double.parseDouble(durationOfCalvingTextField.getText());
 
             // Check if all fields are filled
             return  !numberOfCalvesBornTextField.getText().isEmpty() &&
                     !calvesBornAliveTextField.getText().isEmpty() &&
                     !stillbirthsTextField.getText().isEmpty() &&
-                    !durationOfCalvingTextField.getText().isEmpty() &&
                     !assistanceRequiredTextArea.getText().isEmpty() &&
                     !physicalConditionCalfTextArea.getText().isEmpty();
         } catch (NumberFormatException e) {
@@ -600,7 +628,6 @@ public class ProductivityReports {
         numberOfCalvesBornTextField.textProperty().addListener((observable, oldValue, newValue) -> checkForCalveEventDetailChanges());
         calvesBornAliveTextField.textProperty().addListener((observable, oldValue, newValue) -> checkForCalveEventDetailChanges());
         stillbirthsTextField.textProperty().addListener((observable, oldValue, newValue) -> checkForCalveEventDetailChanges());
-        durationOfCalvingTextField.textProperty().addListener((observable, oldValue, newValue) -> checkForCalveEventDetailChanges());
         assistanceRequiredTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkForCalveEventDetailChanges());
         physicalConditionCalfTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkForCalveEventDetailChanges());
     }
@@ -611,7 +638,6 @@ public class ProductivityReports {
                 !numberOfCalvesBornTextField.getText().equals(initialValuesCalvingEvent.get("numberOfCalvesBorn")) ||
                         !calvesBornAliveTextField.getText().equals(initialValuesCalvingEvent.get("calvesBornAlive")) ||
                         !stillbirthsTextField.getText().equals(initialValuesCalvingEvent.get("stillbirths")) ||
-                        !durationOfCalvingTextField.getText().equals(initialValuesCalvingEvent.get("durationOfCalving")) ||
                         !assistanceRequiredTextArea.getText().equals(initialValuesCalvingEvent.get("assistanceRequired")) ||
                         !physicalConditionCalfTextArea.getText().equals(initialValuesCalvingEvent.get("physicalConditionCalf"));
 
@@ -621,26 +647,34 @@ public class ProductivityReports {
     // Method to check if Calving Event fields have changed
     private boolean calvingEventFieldsHaveChanged() {
         CalvingEvent selectedCalvingEvent = calvingEventsTableView.getSelectionModel().getSelectedItem();
-        return  !numberOfCalvesBornTextField.getText().equals(String.valueOf(selectedCalvingEvent.getNumberOfCalvesBorn())) ||
-                !calvesBornAliveTextField.getText().equals(String.valueOf(selectedCalvingEvent.getCalvesBornAlive())) ||
-                !stillbirthsTextField.getText().equals(String.valueOf(selectedCalvingEvent.getStillbirths())) ||
-                !durationOfCalvingTextField.getText().equals(String.valueOf(selectedCalvingEvent.getDurationOfCalving())) ||
-                !assistanceRequiredTextArea.getText().equals(selectedCalvingEvent.getAssistanceRequired()) ||
-                !physicalConditionCalfTextArea.getText().equals(selectedCalvingEvent.getPhysicalConditionCalf());
+        if (selectedCalvingEvent == null) {
+            return false;
+        }
+
+        return !numberOfCalvesBornTextField.getText().equals(String.valueOf(selectedCalvingEvent.numberOfCalvesBornProperty().get())) ||
+                !calvesBornAliveTextField.getText().equals(String.valueOf(selectedCalvingEvent.calvesBornAliveProperty().get())) ||
+                !stillbirthsTextField.getText().equals(String.valueOf(selectedCalvingEvent.stillbirthsProperty().get())) ||
+                !assistanceRequiredTextArea.getText().equals(selectedCalvingEvent.assistanceRequiredProperty().get()) ||
+                !physicalConditionCalfTextArea.getText().equals(selectedCalvingEvent.physicalConditionCalfProperty().get());
     }
+
 
     // Method to check if Calving Event fields are populated
     private boolean calvingEventFieldsArePopulated() {
         CalvingEvent selectedCalvingEvent = calvingEventsTableView.getSelectionModel().getSelectedItem();
-        return cattleIdCalveEventsTextField.getText().equals(String.valueOf(selectedCalvingEvent.getCattleId())) &&
-                reproductiveVariableIdTextField.getText().equals(String.valueOf(selectedCalvingEvent.getReproductiveVariableId())) &&
-                numberOfCalvesBornTextField.getText().equals(String.valueOf(selectedCalvingEvent.getNumberOfCalvesBorn())) &&
-                calvesBornAliveTextField.getText().equals(String.valueOf(selectedCalvingEvent.getCalvesBornAlive())) &&
-                stillbirthsTextField.getText().equals(String.valueOf(selectedCalvingEvent.getStillbirths())) &&
-                durationOfCalvingTextField.getText().equals(String.valueOf(selectedCalvingEvent.getDurationOfCalving())) &&
-                assistanceRequiredTextArea.getText().equals(selectedCalvingEvent.getAssistanceRequired()) &&
-                physicalConditionCalfTextArea.getText().equals(selectedCalvingEvent.getPhysicalConditionCalf());
+        if (selectedCalvingEvent == null) {
+            return false;
+        }
+
+        return cattleIdCalveEventsTextField.getText().equals(String.valueOf(selectedCalvingEvent.cattleIdProperty().get())) &&
+                reproductiveVariableIdTextField.getText().equals(String.valueOf(selectedCalvingEvent.reproductiveVariableIdProperty().get())) &&
+                numberOfCalvesBornTextField.getText().equals(String.valueOf(selectedCalvingEvent.numberOfCalvesBornProperty().get())) &&
+                calvesBornAliveTextField.getText().equals(String.valueOf(selectedCalvingEvent.calvesBornAliveProperty().get())) &&
+                stillbirthsTextField.getText().equals(String.valueOf(selectedCalvingEvent.stillbirthsProperty().get())) &&
+                assistanceRequiredTextArea.getText().equals(selectedCalvingEvent.assistanceRequiredProperty().get()) &&
+                physicalConditionCalfTextArea.getText().equals(selectedCalvingEvent.physicalConditionCalfProperty().get());
     }
+
 
 
     // Method to handle clearing fields for Calving Event
@@ -652,7 +686,6 @@ public class ProductivityReports {
         numberOfCalvesBornTextField.clear();
         calvesBornAliveTextField.clear();
         stillbirthsTextField.clear();
-        durationOfCalvingTextField.clear();
         assistanceRequiredTextArea.clear();
         physicalConditionCalfTextArea.clear();
 
@@ -683,34 +716,37 @@ public class ProductivityReports {
             return;
         }
 
-        try {
-            if (!areFieldsValidForCalveEvent()) {
-                showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
-                return;
+        if (!areFieldsValidForCalveEvent()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
+            return;
+        }
+
+        Optional<ButtonType> result = showConfirmationAlert("Update Record", "Are you sure you want to update the calving event details?");
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            try {
+                CalvingEvent updatedCalvingEvent = new CalvingEvent(
+                        selectedCalvingEvent.calvingEventIdProperty().get(),
+                        Integer.parseInt(cattleIdCalveEventsTextField.getText()),
+                        Integer.parseInt(reproductiveVariableIdTextField.getText()),
+                        Integer.parseInt(offspringIdTextField.getText()),
+                        assistanceRequiredTextArea.getText(),
+                        physicalConditionCalfTextArea.getText(),
+                        Integer.parseInt(numberOfCalvesBornTextField.getText()),
+                        Integer.parseInt(calvesBornAliveTextField.getText()),
+                        parseIntegerOrNull(stillbirthsTextField.getText())
+                );
+
+                CalvingEventDAO.updateCalvingEvent(updatedCalvingEvent);
+
+                loadCalvingEventsData();
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Calving event details updated successfully.");
+            } catch (NumberFormatException | SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating calving event details.");
             }
-
-            CalvingEvent updatedCalvingEvent = new CalvingEvent(
-                    selectedCalvingEvent.getCalvingEventId(),
-                    Integer.parseInt(cattleIdCalveEventsTextField.getText()),
-                    Integer.parseInt(reproductiveVariableIdTextField.getText()),
-                    Integer.parseInt(offspringIdTextField.getText()),
-                    assistanceRequiredTextArea.getText(),
-                    parseIntegerOrNull(durationOfCalvingTextField.getText()),
-                    physicalConditionCalfTextArea.getText(),
-                    Integer.parseInt(numberOfCalvesBornTextField.getText()),
-                    Integer.parseInt(calvesBornAliveTextField.getText()),
-                    parseIntegerOrNull(stillbirthsTextField.getText())
-            );
-
-            CalvingEventDAO.updateCalvingEvent(updatedCalvingEvent);
-
-            loadCalvingEventsData();
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Calving event details updated successfully.");
-        } catch (NumberFormatException | SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating calving event details.");
         }
     }
+
 
     private void handleDeleteCalvingEvent() {
         Optional<ButtonType> result = showConfirmationAlert("Delete Calving Event", "Are you sure you want to delete this Calving Event?");
@@ -718,7 +754,7 @@ public class ProductivityReports {
             CalvingEvent selectedCalvingEvent = calvingEventsTableView.getSelectionModel().getSelectedItem();
             if (selectedCalvingEvent != null) {
                 try {
-                    CalvingEventDAO.deleteCalvingEventById(Integer.parseInt(String.valueOf(selectedCalvingEvent.getCalvingEventId())));
+                    CalvingEventDAO.deleteCalvingEventById(Integer.parseInt(String.valueOf(selectedCalvingEvent.calvingEventIdProperty().get())));
                     calvingEventsTableView.getItems().remove(selectedCalvingEvent);
 
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Calving Event deleted successfully.");
@@ -749,5 +785,292 @@ public class ProductivityReports {
 
 
 
+
+
+    // Method to load Breeding Attempts data
+    private void loadBreedingAttemptsData() throws SQLException {
+        try {
+            List<BreedingAttempt> breedingAttemptsList = BreedingAttemptDAO.getBreedingAttemptsByCattleId(selectedCattleId);
+            ObservableList<BreedingAttempt> tableData = FXCollections.observableArrayList(breedingAttemptsList);
+
+            breedingAttemptsTableView.setItems(tableData);
+            if (!tableData.isEmpty()) {
+                breedingAttemptsTableView.getSelectionModel().selectFirst();
+                populateFieldsWithSelectedBreedingAttempt();
+            } else {
+                handleClearFieldsForBreedingAttempt();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading breeding attempts.");
+        }
+    }
+
+    private void setupBreedingAttemptsTableSelectionListener() {
+        breedingAttemptsTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                populateFieldsWithSelectedBreedingAttempt();
+            }
+        });
+    }
+
+    // Method to populate fields with selected Breeding Attempt data
+    private void populateFieldsWithSelectedBreedingAttempt() {
+        BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
+        if (selectedAttempt != null) {
+            modifyBreedingAttemptButton.setDisable(false);
+
+            breedingAttemptIdLabel.setText(String.valueOf(selectedAttempt.getBreedingAttemptId()));
+            estrusDatePicker.setValue(LocalDate.parse(selectedAttempt.getEstrusDate()));
+
+            if (selectedAttempt.getSireId() != 0) {
+                try {
+                    Cattle cattle = CattleDAO.getCattleByID(selectedAttempt.getSireId());
+                    sireNameLabel.setText(Objects.requireNonNull(cattle).getName());
+                    sireNameButton.setText(Objects.requireNonNull(cattle).getTagId());
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                }
+
+            } else {
+                sireNameLabel.setText("N/A");
+            }
+            breedingMethodBreedingAttemptComboBox.setValue(selectedAttempt.getBreedingMethod());
+            attemptNumberTextField.setText(computeAttempts());
+            attemptDatePicker.setValue(LocalDate.parse(selectedAttempt.getAttemptDate()));
+            attemptStatusComboBox.setValue(selectedAttempt.getAttemptStatus());
+            notesTextArea.setText(selectedAttempt.getNotes());
+
+            updateBreedingAttemptButton.setDisable(true);
+        }
+    }
+
+    // Method to validate fields for updating Breeding Attempts
+    private boolean areFieldsValidForBreedingAttempt() {
+        try {
+
+            return estrusDatePicker.getValue() != null &&
+                    !sireNameLabel.getText().isEmpty() &&
+                    breedingMethodBreedingAttemptComboBox.getValue() != null &&
+                    attemptDatePicker.getValue() != null &&
+                    attemptStatusComboBox.getValue() != null &&
+                    !notesTextArea.getText().isEmpty();
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    private void addFieldChangeListenersForBreedingAttempt() {
+        estrusDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+        sireNameLabel.textProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+        breedingMethodBreedingAttemptComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+        notesTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+        attemptDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+        attemptStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+    }
+
+    private void checkForBreedingAttemptDetailChanges() {
+        // Retrieve values from the UI elements, handling potential nulls
+        String estrusDateValue = estrusDatePicker.getValue() != null ? estrusDatePicker.getValue().toString() : null;
+        String sireUsedValue = sireNameLabel.getText() != null ? sireNameLabel.getText() : null;
+        String breedingMethodValue = breedingMethodBreedingAttemptComboBox.getValue() != null ? breedingMethodBreedingAttemptComboBox.getValue() : null;
+        String attemptDateValue = attemptDatePicker.getValue() != null ? attemptDatePicker.getValue().toString() : null;
+        String attemptStatusValue = attemptStatusComboBox.getValue() != null ? attemptStatusComboBox.getValue() : null;
+        String notesValue = notesTextArea.getText() != null ? notesTextArea.getText() : null;
+
+        // Retrieve the selected breeding attempt values
+        String selectedEstrusDate = getSelectedBreedingAttemptValue("estrusDate");
+        String selectedSireId = getSelectedBreedingAttemptValue("sireId");
+        String selectedBreedingMethod = getSelectedBreedingAttemptValue("breedingMethod");
+        String selectedAttemptDate = getSelectedBreedingAttemptValue("attemptDate");
+        String selectedAttemptStatus = getSelectedBreedingAttemptValue("attemptStatus");
+        String selectedNotes = getSelectedBreedingAttemptValue("notes");
+
+        // Check for changes
+        boolean hasChanges =
+                !Objects.equals(estrusDateValue, selectedEstrusDate) ||
+                        !Objects.equals(sireUsedValue, selectedSireId) ||
+                        !Objects.equals(breedingMethodValue, selectedBreedingMethod) ||
+                        !Objects.equals(attemptDateValue, selectedAttemptDate) ||
+                        !Objects.equals(attemptStatusValue, selectedAttemptStatus) ||
+                        !Objects.equals(notesValue, selectedNotes);
+
+        // Update the button state based on whether there are changes
+        updateBreedingAttemptButton.setDisable(!hasChanges);
+    }
+
+
+    private String getSelectedBreedingAttemptValue(String propertyName) {
+        BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
+        if (selectedAttempt == null) return "";
+
+
+        return switch (propertyName) {
+            case "estrusDate" -> selectedAttempt.getEstrusDate();
+            case "sireId" ->  getSireName(selectedAttempt.getSireId());
+            case "breedingMethod" -> selectedAttempt.getBreedingMethod();
+            case "attemptDate" -> selectedAttempt.getAttemptDate();
+            case "attemptStatus" -> selectedAttempt.getAttemptStatus();
+            case "notes" -> selectedAttempt.getNotes();
+            default -> "";
+        };
+    }
+
+    private boolean breedingAttemptFieldsHaveChanged() {
+        BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
+        if (selectedAttempt == null) return false;
+
+
+        return  !estrusDatePicker.getValue().toString().equals(selectedAttempt.getEstrusDate()) ||
+                !sireNameLabel.getText().equals( getSireName(selectedAttempt.getSireId())) ||
+                !breedingMethodBreedingAttemptComboBox.getValue().equals(selectedAttempt.getBreedingMethod()) ||
+                !attemptDatePicker.getValue().toString().equals(selectedAttempt.getAttemptDate()) ||
+                !attemptStatusComboBox.getValue().equals(selectedAttempt.getAttemptStatus()) ||
+                !notesTextArea.getText().equals(selectedAttempt.getNotes());
+    }
+
+    // Method to check if Breeding Attempt fields are populated
+    private boolean breedingAttemptFieldsArePopulated() {
+        return estrusDatePicker.getValue() != null &&
+                !sireNameLabel.getText().isEmpty() &&
+                breedingMethodBreedingAttemptComboBox.getValue() != null;
+    }
+
+    // Method to handle clearing fields for Breeding Attempt
+    private void handleClearFieldsForBreedingAttempt() {
+        breedingAttemptIdLabel.setText("N/A");
+        estrusDatePicker.setValue(null);
+        sireNameLabel.setText("N/A");
+        breedingMethodBreedingAttemptComboBox.setValue(null);
+        attemptNumberTextField.clear();
+        attemptDatePicker.setValue(null);
+        attemptStatusComboBox.setValue(null);
+        notesTextArea.clear();
+        sireNameButton.setText("Select Sire");
+        modifyBreedingAttemptButton.setDisable(true);
+        updateBreedingAttemptButton.setDisable(true);
+    }
+
+    @FXML
+    private void modifyBreedingAttempt() {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Modify Breeding Attempt");
+        alert.setHeaderText(null);
+
+        if (breedingAttemptFieldsArePopulated() && !breedingAttemptFieldsHaveChanged()) {
+            showActionDialog(alert, "Delete Record", this::handleClearFieldsForBreedingAttempt, this::handleDeleteBreedingAttempt);
+        } else if (breedingAttemptFieldsHaveChanged()) {
+            showActionDialog(alert, "Reset Fields", this::handleClearFieldsForBreedingAttempt, this::populateFieldsWithSelectedBreedingAttempt);
+        }
+    }
+
+    @FXML
+    private void updateBreedingAttempt() {
+        BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedAttempt == null) {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a breeding attempt from the table.");
+            return;
+        }
+
+        if (!areFieldsValidForBreedingAttempt()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
+            return;
+        }
+
+        Optional<ButtonType> result = showConfirmationAlert("Update Record", "Are you sure you want to update the breeding attempt details?");
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            int sireId;
+            String sireText = sireNameLabel.getText();
+            if (sireText == null || sireText.equals("N/A") || sireText.isEmpty()) {
+                sireId = 0;
+            }else {
+                sireId = Integer.parseInt(sireText);
+            }
+
+            try {
+                // Creating the updated BreedingAttempt object with the corrected parameters
+                BreedingAttempt updatedAttempt = new BreedingAttempt(
+                        selectedAttempt.getBreedingAttemptId(),
+                        selectedAttempt.getCattleId(),
+                        estrusDatePicker.getValue().toString(),
+                        breedingMethodBreedingAttemptComboBox.getValue(),
+                        sireId,
+                        notesTextArea.getText(),
+                        attemptDatePicker.getValue().toString(),
+                        attemptStatusComboBox.getValue()
+                );
+
+                // Update the breeding attempt in the database
+                BreedingAttemptDAO.updateBreedingAttempt(updatedAttempt);
+                loadBreedingAttemptsData();
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding attempt details updated successfully.");
+            } catch (NumberFormatException | SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating breeding attempt details.");
+            }
+        }
+    }
+
+
+    private void handleDeleteBreedingAttempt() {
+        Optional<ButtonType> result = showConfirmationAlert("Delete Breeding Attempt", "Are you sure you want to delete this breeding attempt?");
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
+            if (selectedAttempt != null) {
+                try {
+                    BreedingAttemptDAO.deleteBreedingAttemptById(selectedAttempt.getBreedingAttemptId());
+                    breedingAttemptsTableView.getItems().remove(selectedAttempt);
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding attempt deleted successfully.");
+                    loadBreedingAttemptsData();
+
+                    if (!breedingAttemptsTableView.getItems().isEmpty()) {
+                        breedingAttemptsTableView.getSelectionModel().selectFirst();
+                        populateFieldsWithSelectedBreedingAttempt();
+                    } else {
+                        handleClearFieldsForBreedingAttempt();
+                    }
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while deleting breeding attempt.");
+                }
+            } else {
+                showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a breeding attempt from the table.");
+            }
+        }
+    }
+
+    private String computeAttempts(){
+        return "N/A";
+    }
+    @FXML
+    private void handleSireTagSelection() {
+        List<Cattle> cattleList;
+        try {
+
+            cattleList = CattleDAO.getCattleForGender("Male");
+
+
+            CattleUtils.handleCattleTagID(sireNameButton, cattleList, null, sireNameButton, null, sireNameLabel);
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+    private String getSireName(int sireId) {
+        String sireName = "N/A";
+        if (sireId != 0) {
+            try {
+                Cattle cattle = CattleDAO.getCattleByID(sireId);
+                if (cattle != null) {
+                    sireName = cattle.getName();
+                }
+            } catch (SQLException e) {
+                // Handle the exception as per your application's requirements
+                throw new RuntimeException(e);
+            }
+        }
+        return sireName;
+    }
 
 }

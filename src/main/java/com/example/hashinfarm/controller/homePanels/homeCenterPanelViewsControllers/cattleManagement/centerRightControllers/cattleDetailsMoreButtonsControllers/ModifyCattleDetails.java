@@ -136,9 +136,9 @@ public class ModifyCattleDetails {
         List<Cattle> cattleList;
         try {
             if (buttonClicked == damTagButton) {
-                cattleList = CattleDAO.getCattleForGender("Cow");
+                cattleList = CattleDAO.getCattleForGender("Female");
             } else if (buttonClicked == sireTagButton) {
-                cattleList = CattleDAO.getCattleForGender("Bull");
+                cattleList = CattleDAO.getCattleForGender("Male");
             } else {
                 return;
             }
