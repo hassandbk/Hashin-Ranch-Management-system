@@ -19,6 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Pane;
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -319,17 +320,33 @@ public class HerdList {
   private void showSuggestions(TextField textField, List<String> suggestions) {
     ListView<String> suggestionList = new ListView<>();
     suggestionList.getItems().addAll(suggestions);
+
+    // Clear the previous suggestions if they exist
+    Parent parent = textField.getParent();
+    if (parent instanceof Pane pane) {
+        // Remove any existing suggestion lists
+      pane.getChildren().removeIf(node -> node instanceof ListView);
+    }
+
     suggestionList.setOnMouseClicked(event -> {
       String selectedSuggestion = suggestionList.getSelectionModel().getSelectedItem();
       textField.setText(selectedSuggestion);
       suggestionList.getItems().clear(); // Clear suggestion list after selection
     });
+
+    // Position the suggestion list
     suggestionList.setLayoutX(textField.getLayoutX());
     suggestionList.setLayoutY(textField.getLayoutY() + textField.getHeight());
     suggestionList.setPrefWidth(textField.getWidth());
     suggestionList.setMaxHeight(150);
-    textField.getParent().getChildrenUnmodifiable().add(suggestionList);
+
+    // Add the suggestion list to the parent
+    if (parent instanceof Pane pane) {
+        pane.getChildren().add(suggestionList);
+    }
   }
+
+
 
   private void setupSortingComboBox() {
     sortingComboBox.setItems(FXCollections.observableArrayList(columnNames));
