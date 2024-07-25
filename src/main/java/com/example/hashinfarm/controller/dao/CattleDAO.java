@@ -339,7 +339,7 @@ public class CattleDAO {
                 while (herdResultSet.next()) {
                     int herdID = herdResultSet.getInt("HerdID");
 
-                    String cattleQuery = "SELECT * FROM cattle WHERE Gender = 'Cow' AND HerdID = ?";
+                    String cattleQuery = "SELECT * FROM cattle WHERE Gender = 'Female' AND HerdID = ?";
 
                     try (PreparedStatement cattleStmt = connection.prepareStatement(cattleQuery)) {
                         cattleStmt.setInt(1, herdID);
