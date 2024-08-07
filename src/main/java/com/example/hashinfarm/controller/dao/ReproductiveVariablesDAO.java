@@ -4,6 +4,7 @@ import com.example.hashinfarm.controller.utility.AppLogger;
 import com.example.hashinfarm.model.ReproductiveVariables;
 
 import java.sql.*;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -134,6 +135,43 @@ public class ReproductiveVariablesDAO {
             preparedStatement.setInt(1, reproductiveVariableID);
             int rowsAffected = preparedStatement.executeUpdate();
             return rowsAffected > 0;
+        }
+    }
+    public  ReproductiveVariables getReproductiveVariableByCattleIdAndBreedingDate(int cattleId, LocalDate breedingDate) throws SQLException {
+        String query = "SELECT * FROM reproductivevariables WHERE CattleID = ? AND BreedingDate = ?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setDate(2, Date.valueOf(breedingDate)); // Convert LocalDate to SQL Date
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapResultSetToReproductiveVariables(resultSet);
+                } else {
+                    return null; // No record found
+                }
+            }
+        } catch (SQLException e) {
+            AppLogger.error("Error fetching reproductive variable for cattle: " + cattleId + " and breeding date: " + breedingDate, e);
+            throw e; // Re-throw the exception for proper handling
+        }
+    }
+
+    public ReproductiveVariables getNextBreedingAttempt(int cattleId, LocalDate afterDate) throws SQLException {
+        String query = "SELECT * FROM reproductivevariables WHERE CattleID = ? AND BreedingDate > ? ORDER BY BreedingDate ASC LIMIT 1";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setDate(2, Date.valueOf(afterDate)); // Convert LocalDate to SQL Date
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    return mapResultSetToReproductiveVariables(resultSet);
+                } else {
+                    return null; // No next breeding attempt found
+                }
+            }
+        } catch (SQLException e) {
+            AppLogger.error("Error fetching next breeding attempt for cattle: " + cattleId + " after date: " + afterDate, e);
+            throw e; // Re-throw the exception for proper handling
         }
     }
 

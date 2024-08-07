@@ -4,63 +4,99 @@ import com.example.hashinfarm.controller.dao.CattleDAO;
 import com.example.hashinfarm.controller.dao.OffspringDAO;
 import com.example.hashinfarm.controller.dao.CalvingEventDAO;
 import com.example.hashinfarm.controller.dao.BreedingAttemptDAO;
+import com.example.hashinfarm.controller.dao.ReproductiveVariablesDAO;
 import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.CattleController;
 import com.example.hashinfarm.controller.utility.*;
-import com.example.hashinfarm.model.BreedingAttempt;
-import com.example.hashinfarm.model.CalvingEvent;
-import com.example.hashinfarm.model.Cattle;
-import com.example.hashinfarm.model.Offspring;
+import com.example.hashinfarm.model.*;
+import javafx.beans.property.BooleanProperty;
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.HBox;
+import javafx.util.Callback;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
+import java.util.stream.Collectors;
+
 
 @SuppressWarnings("CallToPrintStackTrace")
 public class ProductivityReports {
 
 
     // FXML elements for Cattle Information
-    @FXML private Label selectedCattleIdLabel, offspringIdLabel, sireIdOrDamIdLabel;
-    @FXML private TextField sireIdTextField, damIdTextField, cattleNameTextField, birthWeightTextField;
-    @FXML private ComboBox<String> statusComboBox, breedingMethodComboBox, outcomeComboBox, offspringGenderComboBox, intendedUseComboBox;
-    @FXML private Slider easeOfCalvingSlider;
-    @FXML private TextField sireIdOrDamIdTextField, gestationLengthTextField, measuredWeightTextField, sireNameTextField, damNameTextField;
-    @FXML private DatePicker lastDateWeightTakenDatePicker;
-    @FXML private TableView<OffSpringTable> cattleTableView;
-    @FXML private TableColumn<OffSpringTable, String> offspringIdColumn, cattleIdColumn, cattleNameColumn, genderColumn, breedingMethodColumn;
-    @FXML private Button modifyOffspringDetailsButton, updateOffSpringDetailsButton;
+    @FXML
+    private Label selectedCattleIdLabel, offspringIdLabel, sireIdOrDamIdLabel;
+    @FXML
+    private TextField sireIdTextField, damIdTextField, cattleNameTextField, birthWeightTextField;
+    @FXML
+    private ComboBox<String> statusComboBox, breedingMethodComboBox, outcomeComboBox, offspringGenderComboBox, intendedUseComboBox;
+    @FXML
+    private Slider easeOfCalvingSlider;
+    @FXML
+    private TextField sireIdOrDamIdTextField, gestationLengthTextField, measuredWeightTextField, sireNameTextField, damNameTextField;
+    @FXML
+    private DatePicker lastDateWeightTakenDatePicker;
+    @FXML
+    private TableView<OffSpringTable> cattleTableView;
+    @FXML
+    private TableColumn<OffSpringTable, String> offspringIdColumn, cattleIdColumn, cattleNameColumn, genderColumn, breedingMethodColumn;
+    @FXML
+    private Button modifyOffspringDetailsButton, updateOffSpringDetailsButton;
 
     // FXML elements for Calving Events
-    @FXML private Label calvingEventIdLabel;
-    @FXML private TextField cattleIdCalveEventsTextField, reproductiveVariableIdTextField, numberOfCalvesBornTextField, calvesBornAliveTextField, stillbirthsTextField, offspringIdTextField;
-    @FXML private TextArea assistanceRequiredTextArea, physicalConditionCalfTextArea;
-    @FXML private Button modifyCalvingEventDetailsButton, updateCalvingEventsDetailsButton;
-    @FXML private TableView<CalvingEvent> calvingEventsTableView;
-    @FXML private TableColumn<CalvingEvent, Integer> calvingEventIdColumn, cattleIdCalveEventsColumn, reproductiveVariableIdColumn;
-    @FXML private TableColumn<CalvingEvent, Integer> numberOfCalvesBornColumn, calvesBornAliveColumn, stillbirthsColumn;
+    @FXML
+    private Label calvingEventIdLabel;
+    @FXML
+    private TextField cattleIdCalveEventsTextField, reproductiveVariableIdTextField, numberOfCalvesBornTextField, calvesBornAliveTextField, stillbirthsTextField, offspringIdTextField;
+    @FXML
+    private TextArea assistanceRequiredTextArea, physicalConditionCalfTextArea;
+    @FXML
+    private Button modifyCalvingEventDetailsButton, updateCalvingEventsDetailsButton;
+    @FXML
+    private TableView<CalvingEvent> calvingEventsTableView;
+    @FXML
+    private TableColumn<CalvingEvent, Integer> calvingEventIdColumn, cattleIdCalveEventsColumn, reproductiveVariableIdColumn;
+    @FXML
+    private TableColumn<CalvingEvent, Integer> numberOfCalvesBornColumn, calvesBornAliveColumn, stillbirthsColumn;
 
     // FXML elements for Breeding Attempts
-    @FXML private TableView<BreedingAttempt> breedingAttemptsTableView;
-    @FXML private TableColumn<BreedingAttempt, Integer> breedingAttemptIdColumn;
-    @FXML private TableColumn<BreedingAttempt, String> estrusDateColumn, breedingMethodBreedingAttemptColumn, sireUsedColumn, attemptDateColumn, attemptStatusColumn;
-    @FXML private Label breedingAttemptIdLabel, sireNameLabel;
-    @FXML private TextField attemptNumberTextField;
-    @FXML private DatePicker estrusDatePicker, attemptDatePicker;
-    @FXML private ComboBox<String> breedingMethodBreedingAttemptComboBox, attemptStatusComboBox;
-    @FXML private TextArea notesTextArea;
-    @FXML private Button modifyBreedingAttemptButton, updateBreedingAttemptButton, sireNameButton;
-
+    @FXML
+    private TableView<BreedingAttempt> breedingAttemptsTableView;
+    @FXML
+    private TableColumn<BreedingAttempt, Integer> breedingAttemptIdColumn;
+    @FXML
+    private TableColumn<BreedingAttempt, String> estrusDateColumn, breedingMethodBreedingAttemptColumn, sireUsedColumn, attemptDateColumn, attemptStatusColumn;
+    @FXML
+    private Label breedingAttemptIdLabel, sireNameLabel;
+    @FXML
+    private TextField attemptNumberTextField;
+    @FXML
+    private DatePicker estrusDatePicker, attemptDatePicker;
+    @FXML
+    private ComboBox<String> breedingMethodBreedingAttemptComboBox, attemptStatusComboBox;
+    @FXML
+    private TextArea notesTextArea;
+    @FXML
+    private Button modifyBreedingAttemptButton, updateBreedingAttemptButton, sireNameButton;
+    @FXML
+    private HBox estimatedGestationPeriodHBox;
+    @FXML
+    private Spinner<Integer> estimatedGestationPeriodSpinner;
     // SplitPane and Navigation Buttons
-    @FXML private SplitPane splitPaneOffSpringInfo, splitPaneCalveEvents, splitPaneBreedAttempts;
-    @FXML private Button leftArrowButtonOffSpringInfo, rightArrowButtonOffSpringInfo;
-    @FXML private Button leftArrowButtonCalveEvents, rightArrowButtonCalveEvents;
-    @FXML private Button leftArrowButtonBreedAttempts, rightArrowButtonBreedAttempts;
+    @FXML
+    private SplitPane splitPaneOffSpringInfo, splitPaneCalveEvents, splitPaneBreedAttempts;
+    @FXML
+    private Button leftArrowButtonOffSpringInfo, rightArrowButtonOffSpringInfo;
+    @FXML
+    private Button leftArrowButtonCalveEvents, rightArrowButtonCalveEvents;
+    @FXML
+    private Button leftArrowButtonBreedAttempts, rightArrowButtonBreedAttempts;
 
     // Other Fields
     private int selectedCattleId;
@@ -69,13 +105,22 @@ public class ProductivityReports {
     private final double minPosition = 0.1;
     private final double maxPosition = 0.7;
 
-    @FXML private void initialize() {
+    private static final int MATURITY_AGE_MONTHS = 14; // Assuming cattle maturity age of 14 months
+    private static final int POST_CALVING_INTERVAL = 45;
+    private final ReproductiveVariablesDAO reproductiveVariablesDAO = new ReproductiveVariablesDAO();
+    private final BooleanProperty addingReproductiveVariables = new SimpleBooleanProperty(false);
+
+    @FXML
+    private void initialize() {
         initializeButtons();
-        initializeSplitPlane(splitPaneOffSpringInfo,leftArrowButtonOffSpringInfo,rightArrowButtonOffSpringInfo);
-        initializeSplitPlane(splitPaneCalveEvents,leftArrowButtonCalveEvents,rightArrowButtonCalveEvents);
-        initializeSplitPlane(splitPaneBreedAttempts,leftArrowButtonBreedAttempts,rightArrowButtonBreedAttempts);
+        setDatePickerFormat(estrusDatePicker);
+        setDatePickerFormat(attemptDatePicker);
+        initializeSplitPlane(splitPaneOffSpringInfo, leftArrowButtonOffSpringInfo, rightArrowButtonOffSpringInfo);
+        initializeSplitPlane(splitPaneCalveEvents, leftArrowButtonCalveEvents, rightArrowButtonCalveEvents);
+        initializeSplitPlane(splitPaneBreedAttempts, leftArrowButtonBreedAttempts, rightArrowButtonBreedAttempts);
         initSelectedCattleListeners();
         initializeTableColumns();
+        initializeGestationPeriod();
         setupOffspringTableSelectionListener();
         setupCalvingEventTableSelectionListener();
         setupBreedingAttemptsTableSelectionListener();
@@ -86,7 +131,8 @@ public class ProductivityReports {
         breedingMethodBreedingAttemptComboBox.setItems(FXCollections.observableArrayList("Natural Mating", "Artificial Insemination", "Embryo Transfer"));
         attemptStatusComboBox.setItems(FXCollections.observableArrayList("Success", "Failure", "Unknown"));
     }
-    private void initializeButtons(){
+
+    private void initializeButtons() {
         modifyOffspringDetailsButton.setDisable(true);
         updateOffSpringDetailsButton.setDisable(true);
         modifyCalvingEventDetailsButton.setDisable(true);
@@ -94,12 +140,13 @@ public class ProductivityReports {
         modifyBreedingAttemptButton.setDisable(true);
         updateBreedingAttemptButton.setDisable(true);
     }
-    private void initializeSplitPlane(SplitPane splitpane,Button leftArrowButton,Button rightArrowButton) {
+
+    private void initializeSplitPlane(SplitPane splitpane, Button leftArrowButton, Button rightArrowButton) {
         SplitPaneDividerEnforcer dividerEnforcer = new SplitPaneDividerEnforcer(minPosition, maxPosition);
         dividerEnforcer.enforceConstraints(splitpane);
         com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.CattleController cattleController = new CattleController();
-        leftArrowButton.setOnAction(event -> cattleController.animateSplitPane(minPosition, splitpane,minPosition,maxPosition, leftArrowButton, rightArrowButton));
-        rightArrowButton.setOnAction(event -> cattleController.animateSplitPane(maxPosition, splitpane,minPosition,maxPosition, leftArrowButton, rightArrowButton));
+        leftArrowButton.setOnAction(event -> cattleController.animateSplitPane(minPosition, splitpane, minPosition, maxPosition, leftArrowButton, rightArrowButton));
+        rightArrowButton.setOnAction(event -> cattleController.animateSplitPane(maxPosition, splitpane, minPosition, maxPosition, leftArrowButton, rightArrowButton));
         splitpane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) -> cattleController.updateButtonsPosition(newPos.doubleValue(), splitpane, leftArrowButton, rightArrowButton));
 
     }
@@ -114,6 +161,7 @@ public class ProductivityReports {
                     loadOffspringData();
                     loadCalvingEventsData();
                     loadBreedingAttemptsData();
+
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
@@ -138,8 +186,9 @@ public class ProductivityReports {
         });
     }
 
-
-
+    private void setDatePickerFormat(DatePicker datePicker) {
+        DateUtil.datePickerFormat(datePicker);
+    }
     private void initializeTableColumns() {
         // Define all columns and their properties
         Object[][] columns = {
@@ -178,44 +227,54 @@ public class ProductivityReports {
         TableColumnUtils.centerAlignColumn(column);
     }
 
-//OFFSPRING DATA
-// Method to load Offspring data
-private void loadOffspringData() throws SQLException {
-    try {
-        List<Cattle> cattleList = CattleDAO.getProgenyByCattleId(selectedCattleId);
-        List<Offspring> offspringList = new ArrayList<>();
+    private void initializeGestationPeriod() {
+        int initialGestationDays = 283;
+        int minGestationDays = 265;
+        int maxGestationDays = 295;
+        estimatedGestationPeriodHBox.visibleProperty().bind(addingReproductiveVariables);
+        estimatedGestationPeriodSpinner.visibleProperty().bind(addingReproductiveVariables);
 
-        for (Cattle cattle : cattleList) {
-            if (OffspringDAO.hasOffspring(cattle.getCattleId())) {
-                Offspring offspring = OffspringDAO.getOffspringByCattleId(cattle.getCattleId());
-                if (offspring != null) {
-                    offspringList.add(offspring);
+        estimatedGestationPeriodSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(minGestationDays, maxGestationDays, initialGestationDays));
+    }
+
+    //OFFSPRING DATA
+// Method to load Offspring data
+    private void loadOffspringData() throws SQLException {
+        try {
+            List<Cattle> cattleList = CattleDAO.getProgenyByCattleId(selectedCattleId);
+            List<Offspring> offspringList = new ArrayList<>();
+
+            for (Cattle cattle : cattleList) {
+                if (OffspringDAO.hasOffspring(cattle.getCattleId())) {
+                    Offspring offspring = OffspringDAO.getOffspringByCattleId(cattle.getCattleId());
+                    if (offspring != null) {
+                        offspringList.add(offspring);
+                    }
                 }
             }
-        }
 
-        ObservableList<OffSpringTable> tableData = FXCollections.observableArrayList();
-        for (Offspring offspring : offspringList) {
-            OffSpringTable tableEntry = createOffSpringTableEntry(offspring);
-            tableData.add(tableEntry);
-        }
-
-        cattleTableView.setItems(tableData);
-
-        // Default to the first record if none is selected
-        if (tableData.isEmpty()) {
-            handleClearOffspringFields();
-        } else {
-            if (cattleTableView.getSelectionModel().isEmpty()) {
-                cattleTableView.getSelectionModel().selectFirst();
+            ObservableList<OffSpringTable> tableData = FXCollections.observableArrayList();
+            for (Offspring offspring : offspringList) {
+                OffSpringTable tableEntry = createOffSpringTableEntry(offspring);
+                tableData.add(tableEntry);
             }
-            populateFieldsWithSelectedOffspring();
+
+            cattleTableView.setItems(tableData);
+
+            // Default to the first record if none is selected
+            if (tableData.isEmpty()) {
+                handleClearOffspringFields();
+            } else {
+                if (cattleTableView.getSelectionModel().isEmpty()) {
+                    cattleTableView.getSelectionModel().selectFirst();
+                }
+                populateFieldsWithSelectedOffspring();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading offspring data.");
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
-        showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while loading offspring data.");
     }
-}
 
     // Method to create OffSpringTable entry
     private OffSpringTable createOffSpringTableEntry(Offspring offspring) {
@@ -561,7 +620,6 @@ private void loadOffspringData() throws SQLException {
     }
 
 
-
     //Validating and Checking Fields
     private boolean areFieldsValidForCalveEvent() {
         try {
@@ -623,24 +681,23 @@ private void loadOffspringData() throws SQLException {
     }
 
 
-
-//Clearing and Handling Events
+    //Clearing and Handling Events
 // Method to handle clearing fields for Calving Event
-private void handleClearFieldsForCalveEvent() {
-    calvingEventIdLabel.setText("N/A");  // Resetting to default text
-    cattleIdCalveEventsTextField.clear();
-    reproductiveVariableIdTextField.clear();
-    offspringIdTextField.clear();
-    numberOfCalvesBornTextField.clear();
-    calvesBornAliveTextField.clear();
-    stillbirthsTextField.clear();
-    assistanceRequiredTextArea.clear();
-    physicalConditionCalfTextArea.clear();
+    private void handleClearFieldsForCalveEvent() {
+        calvingEventIdLabel.setText("N/A");  // Resetting to default text
+        cattleIdCalveEventsTextField.clear();
+        reproductiveVariableIdTextField.clear();
+        offspringIdTextField.clear();
+        numberOfCalvesBornTextField.clear();
+        calvesBornAliveTextField.clear();
+        stillbirthsTextField.clear();
+        assistanceRequiredTextArea.clear();
+        physicalConditionCalfTextArea.clear();
 
-    initialValuesCalvingEvent.clear();
-    modifyCalvingEventDetailsButton.setDisable(true);
-    updateCalvingEventsDetailsButton.setDisable(true);
-}
+        initialValuesCalvingEvent.clear();
+        modifyCalvingEventDetailsButton.setDisable(true);
+        updateCalvingEventsDetailsButton.setDisable(true);
+    }
 
     // Method to handle the modification of Calving Event details
     @FXML
@@ -754,11 +811,6 @@ private void handleClearFieldsForCalveEvent() {
     }
 
 
-
-
-
-
-
     //BREEDING ATTEMPT
     // Loading and Populating Data
     private void loadBreedingAttemptsData() throws SQLException {
@@ -785,10 +837,14 @@ private void handleClearFieldsForCalveEvent() {
         if (selectedAttempt != null) {
             modifyBreedingAttemptButton.setDisable(false);
             updateBreedingAttemptButton.setDisable(true);
+            updateBreedingAttemptButton.setText("Update");
+            initializeEstrusDatePicker(estrusDatePicker, selectedCattleId, selectedAttempt);
+            initializeAttemptDatePicker(attemptDatePicker,selectedAttempt);
             updateBreedingAttemptDetails(selectedAttempt);
             updateSireDetails(selectedAttempt);
         }
     }
+
 
     private void updateBreedingAttemptDetails(BreedingAttempt attempt) {
         breedingAttemptIdLabel.setText(String.valueOf(attempt.getBreedingAttemptId()));
@@ -851,6 +907,8 @@ private void handleClearFieldsForCalveEvent() {
         sireNameButton.setText("Select Sire");
         modifyBreedingAttemptButton.setDisable(true);
         updateBreedingAttemptButton.setDisable(true);
+        updateBreedingAttemptButton.setText("Save");
+        initializeEstrusDatePickerForNewEntry(estrusDatePicker);
     }
 
     // Method to check for changes in Breeding Attempt details
@@ -924,52 +982,7 @@ private void handleClearFieldsForCalveEvent() {
         }
     }
 
-    // Method to handle updating a Breeding Attempt
-    @FXML
-    private void updateBreedingAttempt() {
-        BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
 
-        if (selectedAttempt == null) {
-            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a breeding attempt from the table.");
-            return;
-        }
-
-        if (!areFieldsValidForBreedingAttempt()) {
-            showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
-            return;
-        }
-
-        Optional<ButtonType> result = showConfirmationAlert("Update Record", "Are you sure you want to update the breeding attempt details?");
-        if (result.isPresent() && result.get() == ButtonType.OK) {
-            int sireId;
-            String sireText = sireNameLabel.getText();
-            if (sireText == null || sireText.equals("N/A") || sireText.isEmpty()) {
-                sireId = 0;
-            } else {
-                sireId = Integer.parseInt(sireText);
-            }
-
-            try {
-                BreedingAttempt updatedAttempt = new BreedingAttempt(
-                        selectedAttempt.getBreedingAttemptId(),
-                        selectedAttempt.getCattleId(),
-                        estrusDatePicker.getValue().toString(),
-                        breedingMethodBreedingAttemptComboBox.getValue(),
-                        sireId,
-                        notesTextArea.getText(),
-                        attemptDatePicker.getValue().toString(),
-                        attemptStatusComboBox.getValue()
-                );
-
-                BreedingAttemptDAO.updateBreedingAttempt(updatedAttempt);
-                loadBreedingAttemptsData();
-                showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding attempt details updated successfully.");
-            } catch (NumberFormatException | SQLException e) {
-                e.printStackTrace();
-                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating breeding attempt details.");
-            }
-        }
-    }
 
     // Method to handle deletion of a Breeding Attempt
     private void handleDeleteBreedingAttempt() {
@@ -1031,7 +1044,39 @@ private void handleClearFieldsForCalveEvent() {
     //Utility and Listener Setup:
     // Method to compute the attempt number
     private String computeAttempts() {
+        BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
+        if (selectedAttempt != null) {
+            int cattleId = selectedAttempt.getCattleId();
+            LocalDate estrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
+            LocalDate attemptDate = LocalDate.parse(selectedAttempt.getAttemptDate());
+
+            List<BreedingAttempt> breedingAttempts;
+            try {
+                breedingAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(cattleId, estrusDate);
+            } catch (SQLException e) {
+                throw new RuntimeException(e);
+            }
+
+            int attemptNumber = 0;
+            for (BreedingAttempt attempt : breedingAttempts) {
+                LocalDate currentAttemptDate = LocalDate.parse(attempt.getAttemptDate());
+                if (!currentAttemptDate.isAfter(attemptDate)) {
+                    attemptNumber++;
+                }
+            }
+
+            return ordinal(attemptNumber) + " Attempt";
+        }
         return "N/A";
+    }
+
+    private String ordinal(int number) {
+        String[] suffixes = {"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
+        if (number % 100 >= 11 && number % 100 <= 13) {
+            return number + "th";
+        } else {
+            return number + suffixes[number % 10];
+        }
     }
 
     // Method to set up table selection listener for Breeding Attempts
@@ -1051,6 +1096,139 @@ private void handleClearFieldsForCalveEvent() {
         notesTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
         attemptDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
         attemptStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+
+//review
+        estimatedGestationPeriodSpinner.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+    }
+
+
+
+
+
+
+
+
+
+    @FXML
+    private void updateBreedingAttempt() {
+
+        if (Objects.equals(updateBreedingAttemptButton.getText(), "Save")) {
+            showSaveDialog();
+            return;
+        }
+        if (Objects.equals(updateBreedingAttemptButton.getText(), "Update")) {
+            BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
+
+            if (selectedAttempt == null) {
+                showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a breeding attempt from the table.");
+                return;
+            }
+
+            if (areFieldsValidForBreedingAttempt()) {
+                showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
+                return;
+            }
+
+            Optional<ButtonType> result = showConfirmationAlert("Update Record", "Are you sure you want to update the breeding attempt details?");
+            if (result.isPresent() && result.get() == ButtonType.OK) {
+                int sireId;
+                String sireNameText = sireNameLabel.getText();
+                String sireTagText = sireNameButton.getText();
+                if (sireNameText == null || sireNameText.equals("N/A") || sireNameText.isEmpty()) {
+                    sireId = 0;
+                } else {
+                    try {
+                        Cattle cattle = CattleDAO.getCattleByTagAndName(sireTagText, sireNameText);
+                        sireId = Objects.requireNonNull(cattle).getCattleId();
+
+                    } catch (SQLException e) {
+                        throw new RuntimeException(e);
+                    }
+
+
+                }
+
+
+                try {
+                    BreedingAttempt updatedAttempt = new BreedingAttempt(
+                            selectedAttempt.getBreedingAttemptId(),
+                            selectedAttempt.getCattleId(),
+                            estrusDatePicker.getValue().toString(),
+                            breedingMethodBreedingAttemptComboBox.getValue(),
+                            sireId,
+                            notesTextArea.getText(),
+                            attemptDatePicker.getValue().toString(),
+                            attemptStatusComboBox.getValue()
+                    );
+
+                    BreedingAttemptDAO.updateBreedingAttempt(updatedAttempt);
+                    loadBreedingAttemptsData();
+                    showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding attempt details updated successfully.");
+                } catch (NumberFormatException | SQLException e) {
+                    e.printStackTrace();
+                    showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating breeding attempt details.");
+                }
+            }
+        }
+
+    }
+    private void showSaveDialog() {
+        Alert saveAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        saveAlert.setTitle("Save Breeding Attempt");
+        saveAlert.setHeaderText(null);
+        saveAlert.setContentText("Do you want to save the new breeding attempt details?");
+
+        ButtonType saveButton = new ButtonType("Save");
+        ButtonType clearButton = new ButtonType("Clear");
+        ButtonType cancelButton = new ButtonType("Cancel", ButtonBar.ButtonData.CANCEL_CLOSE);
+
+        saveAlert.getButtonTypes().setAll(saveButton, clearButton, cancelButton);
+
+        Optional<ButtonType> result = saveAlert.showAndWait();
+        if (result.isPresent()) {
+            if (result.get() == saveButton) {
+                saveBreedingAttempt();
+            } else if (result.get() == clearButton) {
+                handleClearFieldsForBreedingAttempt();
+            }
+        }
+    }
+
+    private void saveBreedingAttempt() {
+        if (areFieldsValidForBreedingAttempt()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
+            return;
+        }
+
+        try {
+            int sireId;
+            String sireNameText = sireNameLabel.getText();
+            String sireTagText = sireNameButton.getText();
+            if (sireNameText == null || sireNameText.equals("N/A") || sireNameText.isEmpty()) {
+                sireId = 0;
+            } else {
+                Cattle cattle = CattleDAO.getCattleByTagAndName(sireTagText, sireNameText);
+                sireId = Objects.requireNonNull(cattle).getCattleId();
+            }
+
+            BreedingAttempt newAttempt = new BreedingAttempt(
+                    0, // Assuming 0 or some logic to get a new ID
+                    selectedCattleId,
+                    estrusDatePicker.getValue().toString(),
+                    breedingMethodBreedingAttemptComboBox.getValue(),
+                    sireId,
+                    notesTextArea.getText(),
+                    attemptDatePicker.getValue().toString(),
+                    attemptStatusComboBox.getValue()
+            );
+
+            BreedingAttemptDAO.saveBreedingAttempt(newAttempt); // Ensure this method exists in DAO
+            loadBreedingAttemptsData();
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding attempt saved successfully.");
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while saving breeding attempt details.");
+        }
     }
 
 
@@ -1087,4 +1265,311 @@ private void handleClearFieldsForCalveEvent() {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
+
+
+    public void initializeEstrusDatePickerForNewEntry(DatePicker estrusDatePicker) {
+        try {
+            LocalDate currentDate = LocalDate.now();
+
+            // Fetch the cattle's birthdate and determine maturity date
+            Cattle cattle = CattleDAO.getCattleByID(selectedCattleId);
+            if (cattle == null) {
+                throw new SQLException("Cattle not found for ID: " + selectedCattleId);
+            }
+            LocalDate maturityDate = cattle.getDateOfBirth().plusMonths(MATURITY_AGE_MONTHS);
+
+
+            // Fetch existing estrus cycles and disable specific dates
+            List<LocalDate> disabledDateRanges = getDisabledDateRanges(selectedCattleId);
+
+            // Configure the date picker
+            configureDatePicker(estrusDatePicker, maturityDate, currentDate, disabledDateRanges);
+
+        } catch (SQLException e) {
+            e.printStackTrace(); // Log the exception
+            // Handle the error, e.g., show an error message to the user
+        }
+    }
+
+    private List<LocalDate> getDisabledDateRanges(int cattleId) throws SQLException {
+        List<LocalDate> disabledRanges = new ArrayList<>();
+
+        List<BreedingAttempt> breedingAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleId(cattleId);
+        for (BreedingAttempt attempt : breedingAttempts) {
+
+            if ("Success".equals(attempt.getAttemptStatus())) {
+                LocalDate breedingDate =LocalDate.parse(attempt.getAttemptDate());
+                LocalDate estrusDate = LocalDate.parse(attempt.getEstrusDate());
+
+                ReproductiveVariables reproductiveVariables = reproductiveVariablesDAO.getReproductiveVariableByCattleIdAndBreedingDate(cattleId, breedingDate);
+
+                if (reproductiveVariables == null) {
+                    handleMissingReproductiveVariables(cattleId, breedingDate);
+                }
+
+                if (Objects.requireNonNull(reproductiveVariables).getCalvingDate() != null) {
+                    LocalDate endDate = reproductiveVariables.getCalvingDate().plusDays(POST_CALVING_INTERVAL);
+                    disabledRanges.add(estrusDate);
+                    disabledRanges.add(endDate);
+                } else {
+                    LocalDate endDate = estrusDate.plusDays(24); // Default estrus cycle length
+                    disabledRanges.add(estrusDate);
+                    disabledRanges.add(endDate);
+                }
+
+            }
+        }
+
+        return disabledRanges;
+    }
+
+
+
+    private boolean isDateInDisabledRanges(LocalDate date, List<LocalDate> disabledRanges) {
+        for (int i = 0; i < disabledRanges.size(); i += 2) {
+            LocalDate start = disabledRanges.get(i);
+            LocalDate end = disabledRanges.get(i + 1);
+            if (!date.isBefore(start) && !date.isAfter(end)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    // Method to initialize DatePicker for an existing breeding attempt
+    public void initializeEstrusDatePicker(DatePicker estrusDatePicker, int cattleId, BreedingAttempt selectedAttempt) {
+        try {
+            LocalDate minDate = calculateMinimumEstrusDate(cattleId, selectedAttempt);
+            LocalDate maxDate = calculateMaximumDate(cattleId, selectedAttempt, minDate);
+            configureDatePicker(estrusDatePicker, minDate, maxDate);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+
+    public LocalDate calculateMinimumEstrusDate(int cattleId, BreedingAttempt selectedAttempt) throws SQLException {
+        LocalDate currentEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
+        
+        LocalDate previousEstrusDate = BreedingAttemptDAO.getPreviousEstrusDate(selectedCattleId, currentEstrusDate);
+
+        return calculateMinDateBasedOnPreviousEstrus(cattleId, previousEstrusDate);
+    }
+
+    private LocalDate calculateMinDateBasedOnPreviousEstrus(int cattleId, LocalDate previousEstrusDate) throws SQLException {
+        if (previousEstrusDate == null) {
+            return calculateMinDateForNoPreviousEstrus(cattleId);
+        }
+
+        List<BreedingAttempt> previousAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(cattleId, previousEstrusDate);
+        Optional<BreedingAttempt> successfulAttempt = previousAttempts.stream()
+                .filter(attempt -> "Success".equals(attempt.getAttemptStatus()))
+                .findFirst();
+
+        if (successfulAttempt.isPresent()) {
+            LocalDate breedingDate = LocalDate.parse(successfulAttempt.get().getAttemptDate());
+            return calculateMinDateBasedOnSuccessfulAttempt(cattleId, breedingDate);
+        } else {
+            return previousEstrusDate.plusDays(24); // Handle case where no successful breeding attempt found
+        }
+    }
+
+    private LocalDate calculateMinDateForNoPreviousEstrus(int cattleId) throws SQLException {
+        Cattle cattle = CattleDAO.getCattleByID(cattleId);
+        if (cattle == null) {
+            throw new SQLException("Cattle not found for ID: " + cattleId);
+        }
+        return cattle.getDateOfBirth().plusMonths(MATURITY_AGE_MONTHS);
+    }
+
+    private LocalDate calculateMinDateBasedOnSuccessfulAttempt(int cattleId, LocalDate breedingDate) throws SQLException {
+        ReproductiveVariables reproductiveVariables = reproductiveVariablesDAO.getReproductiveVariableByCattleIdAndBreedingDate(cattleId, breedingDate);
+
+        if (reproductiveVariables == null) {
+            handleMissingReproductiveVariables(cattleId, breedingDate);
+            //The time between heat cycles (called the estrous cycle) is usually around 21 days, but can range from 18 to 24 days.
+            return breedingDate.plusDays(24); // Use a default minimum based on previous estrus date successful attempt
+        }
+
+        if (reproductiveVariables.getCalvingDate() != null) {
+            return reproductiveVariables.getCalvingDate().plusDays(POST_CALVING_INTERVAL);
+        } else {
+            return calculateMinDateBasedOnNextAttemptOrEstimatedCalving(cattleId, breedingDate, reproductiveVariables);
+        }
+    }
+
+    private LocalDate calculateMinDateBasedOnNextAttemptOrEstimatedCalving(int cattleId, LocalDate breedingDate, ReproductiveVariables reproductiveVariables) throws SQLException {
+        ReproductiveVariables nextAttempt = reproductiveVariablesDAO.getNextBreedingAttempt(cattleId, breedingDate);
+        if (nextAttempt != null) {
+            //The time between heat cycles (called the estrous cycle) is usually around 21 days, but can range from 18 to 24 days.
+            return nextAttempt.getBreedingDate().minusDays(24);
+        } else {
+            LocalDate estimatedCalvingDate = breedingDate.plusDays(reproductiveVariables.getGestationPeriod());
+            return estimatedCalvingDate.plusDays(POST_CALVING_INTERVAL);
+        }
+    }
+
+
+    private void handleMissingReproductiveVariables(int cattleId, LocalDate breedingDate) {
+        // Add missing reproductive variables with default values
+        ReproductiveVariables missingReproductiveVariables = new ReproductiveVariables();
+        missingReproductiveVariables.setCattleID(cattleId);
+        int gestationPeriod = estimatedGestationPeriodSpinner.getValue();
+
+        addingReproductiveVariables.set(true);
+
+        missingReproductiveVariables.setBreedingDate(breedingDate);
+        missingReproductiveVariables.setGestationPeriod(gestationPeriod);
+        int reproductiveVariableId = reproductiveVariablesDAO.addReproductiveVariableAndGetId(missingReproductiveVariables);
+
+        if (reproductiveVariableId != -1) {
+            showAlert(Alert.AlertType.INFORMATION, "Success", "This missing Reproductive Data added successfully.");
+        } else {
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to add reproductive data.");
+        }
+        addingReproductiveVariables.set(false);
+    }
+
+
+    public LocalDate calculateMaximumDate(int cattleId, BreedingAttempt selectedAttempt, LocalDate minDate) throws SQLException {
+        LocalDate currentEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
+        LocalDate previousEstrusDate = BreedingAttemptDAO.getPreviousEstrusDate(cattleId, currentEstrusDate);
+
+        return calculateMaxDateBasedOnNextEstrus(cattleId, previousEstrusDate, minDate, currentEstrusDate);
+    }
+
+    private LocalDate calculateMaxDateBasedOnNextEstrus(int cattleId, LocalDate previousEstrusDate, LocalDate minDate, LocalDate currentEstrusDate) throws SQLException {
+        LocalDate nextEstrusDate = BreedingAttemptDAO.getSubsequentEstrusDate(cattleId, currentEstrusDate);
+
+
+            if(nextEstrusDate== null && previousEstrusDate == null){
+                int reasonableMonths = 6;  // Set this value based on your requirements
+                return minDate.plusMonths(reasonableMonths);
+            }else {
+                if (nextEstrusDate!= null) {
+                    return calculateMaxDateForBasedOnNextEstrus(cattleId, nextEstrusDate, minDate);
+                }else return minDate.plusMonths(6);
+            }
+
+
+    }
+
+    private LocalDate calculateMaxDateForBasedOnNextEstrus(int cattleId, LocalDate nextEstrusDate, LocalDate minDate) throws SQLException {
+
+        List<BreedingAttempt> nextAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(cattleId, nextEstrusDate);
+        Optional<BreedingAttempt> successfulAttempt = nextAttempts.stream()
+                .filter(attempt -> "Success".equals(attempt.getAttemptStatus()))
+                .findFirst();
+
+        return successfulAttempt.map(breedingAttempt -> LocalDate.parse(breedingAttempt.getEstrusDate())).orElseGet(() -> minDate.plusMonths(3));
+
+
+    }
+    // Private helper method to set the DayCellFactory for the DatePicker
+    private void configureDatePicker(DatePicker datePicker, LocalDate minDate, LocalDate maxDate) {
+        Callback<DatePicker, DateCell> dayCellFactory = dp -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+
+                if (item.isBefore(minDate) || item.isAfter(maxDate)) {
+                    setDisable(true);
+                    setStyle("-fx-background-color: #ffc0cb;");
+                    setTooltip(new Tooltip("Date outside the valid range"));
+                }
+            }
+        };
+
+        datePicker.setDayCellFactory(dayCellFactory);
+    }
+    private void configureDatePicker(DatePicker datePicker, LocalDate minDate, LocalDate maxDate, List<LocalDate> disabledDates) {
+        datePicker.setDayCellFactory(cellDatePicker -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate date, boolean empty) {
+                super.updateItem(date, empty);
+                boolean isDisabled = empty || date.isBefore(minDate) || date.isAfter(maxDate) || isDateInDisabledRanges(date, disabledDates);
+                setDisable(isDisabled);
+
+                if (isDisabled) {
+                    setStyle("-fx-background-color: #ffc0cb;"); // Pink color for disabled cells
+                } else {
+                    setStyle(""); // Reset style for enabled cells
+                }
+            }
+        });
+    }
+    public void initializeAttemptDatePicker(DatePicker attemptDatePicker, BreedingAttempt selectedAttempt) {
+        try {
+            // Fetch all existing breeding attempts for the specified cattle
+            List<BreedingAttempt> filteredAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(selectedCattleId, LocalDate.parse(selectedAttempt.getEstrusDate()));
+            LocalDate currentDate = LocalDate.now();
+            LocalDate selectedEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
+            LocalDate selectedAttemptDate = LocalDate.parse(selectedAttempt.getAttemptDate());
+
+            // Sort the filtered attempts by attemptDate in ascending order
+            filteredAttempts.sort(Comparator.comparing(attempt -> LocalDate.parse(attempt.getAttemptDate())));
+
+            // Initialize previous and subsequent attempts
+            BreedingAttempt previousAttempt = null;
+            BreedingAttempt subsequentAttempt = null;
+
+            // Find the index of the selected attempt
+            int selectedIndex = -1;
+            for (int i = 0; i < filteredAttempts.size(); i++) {
+                BreedingAttempt attempt = filteredAttempts.get(i);
+                LocalDate attemptDate = LocalDate.parse(attempt.getAttemptDate());
+
+                if (attemptDate.isEqual(selectedAttemptDate)) {
+                    selectedIndex = i;
+                    break;
+                }
+            }
+
+            // Determine the previous and subsequent attempts
+            if (selectedIndex != -1) {
+                if (selectedIndex > 0) {
+                    previousAttempt = filteredAttempts.get(selectedIndex - 1);
+                }
+
+                if (selectedIndex < filteredAttempts.size() - 1) {
+                    subsequentAttempt = filteredAttempts.get(selectedIndex + 1);
+                }
+            }
+
+            // Configure the DatePicker based on the positions of previous and subsequent attempts
+            if (filteredAttempts.size() == 1) {
+                configureDatePicker(attemptDatePicker, selectedEstrusDate, currentDate);
+            } else if (previousAttempt == null && subsequentAttempt != null) {
+                LocalDate subsequentAttemptDate = LocalDate.parse(subsequentAttempt.getAttemptDate());
+                configureDatePicker(attemptDatePicker, selectedEstrusDate, subsequentAttemptDate.minusDays(1));
+            } else if (previousAttempt != null && subsequentAttempt != null) {
+                LocalDate previousAttemptDate = LocalDate.parse(previousAttempt.getAttemptDate());
+                LocalDate subsequentAttemptDate = LocalDate.parse(subsequentAttempt.getAttemptDate());
+                configureDatePicker(attemptDatePicker, previousAttemptDate.plusDays(1), subsequentAttemptDate.minusDays(1));
+            } else if (previousAttempt != null) {
+                LocalDate previousAttemptDate = LocalDate.parse(previousAttempt.getAttemptDate());
+                LocalDate nextEstrusDate = findImmediateNextPossibleBreedDate(selectedAttempt, selectedEstrusDate);
+                configureDatePicker(attemptDatePicker, previousAttemptDate.plusDays(1),
+                        nextEstrusDate != null ? nextEstrusDate.minusDays(24) : currentDate);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while initializing the Attempt Date Picker.");
+        }
+    }
+    private LocalDate findImmediateNextPossibleBreedDate(BreedingAttempt selectedAttempt, LocalDate currentEstrusDate) throws SQLException {
+        BreedingAttemptDAO.getSubsequentEstrusDate(selectedCattleId,currentEstrusDate);
+         //code to determine possible latest breed date depending on whether
+        //selectedAttempt has a successful status if yes then we need to look into the reproductive Variables table to find this susccesful attemptDate was recorded as a breedingDate
+        //for the case where successful recorded then we find if there is an existing calving date or no
+        //if calving date exists, then
+
+        // more discussions here
+
+
+        return BreedingAttemptDAO.getSubsequentEstrusDate(selectedCattleId,currentEstrusDate);
+    }
+
 }

@@ -36,6 +36,30 @@ public class BreedingAttemptDAO {
         return breedingAttempts;
     }
 
+    // Fetch breeding attempts by cattle ID and estrus date
+    public static List<BreedingAttempt> getBreedingAttemptsByCattleIdAndEstrusDate(int cattleId, LocalDate estrusDate) throws SQLException {
+        String query = "SELECT * FROM breedingattempts WHERE cattleId = ? AND estrusDate = ?";
+        List<BreedingAttempt> breedingAttempts = new ArrayList<>();
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setDate(2, Date.valueOf(estrusDate));
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    breedingAttempts.add(mapResultSetToBreedingAttempt(resultSet));
+                }
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            throw e;
+        }
+
+        return breedingAttempts;
+    }
+
     // Update a specific breeding attempt
     public static void updateBreedingAttempt(BreedingAttempt breedingAttempt) throws SQLException {
         String query = "UPDATE breedingattempts SET estrusDate = ?, breedingMethod = ?, sireId = ?, notes = ?, attemptDate = ?, attemptStatus = ? " +
@@ -91,9 +115,73 @@ public class BreedingAttemptDAO {
                 resultSet.getString("attemptStatus")
         );
     }
+    // Fetch the previous breeding attempt date for a given cattle ID and current estrus date
+    private static LocalDate fetchEstrusDate(int cattleId, LocalDate currentEstrusDate, String query) throws SQLException {
+        LocalDate estrusDate = null;
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, cattleId);
+            preparedStatement.setDate(2, Date.valueOf(currentEstrusDate));
+
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    Date date = resultSet.getDate(1);
+                    if (date != null) {
+                        estrusDate = date.toLocalDate();
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            handleSQLException(e);
+            throw e;
+        }
+
+        return estrusDate;
+    }
+
+    // Fetch the previous estrus date for a given cattle ID and current estrus date
+    public static LocalDate getPreviousEstrusDate(int cattleId, LocalDate currentEstrusDate) throws SQLException {
+        String query = "SELECT MAX(estrusDate) FROM breedingattempts WHERE cattleId = ? AND estrusDate < ?";
+        return fetchEstrusDate(cattleId, currentEstrusDate, query);
+    }
+
+    // Fetch the subsequent estrus date for a given cattle ID and current estrus date
+    public static LocalDate getSubsequentEstrusDate(int cattleId, LocalDate currentEstrusDate) throws SQLException {
+        String query = "SELECT MIN(estrusDate) FROM breedingattempts WHERE cattleId = ? AND estrusDate > ?";
+        return fetchEstrusDate(cattleId, currentEstrusDate, query);
+    }
 
     // Handle SQL exceptions
     private static void handleSQLException(SQLException e) {
         AppLogger.error("SQLException occurred: " + e.getMessage());
     }
+
+
+    // Save a new breeding attempt
+    public static void saveBreedingAttempt(BreedingAttempt breedingAttempt) throws SQLException {
+        String query = "INSERT INTO breedingattempts (cattleId, estrusDate, breedingMethod, sireId, notes, attemptDate, attemptStatus) VALUES (?, ?, ?, ?, ?, ?, ?)";
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+
+            preparedStatement.setInt(1, breedingAttempt.getCattleId());
+            preparedStatement.setDate(2, Date.valueOf(breedingAttempt.getEstrusDate()));
+            preparedStatement.setString(3, breedingAttempt.getBreedingMethod());
+            preparedStatement.setInt(4, breedingAttempt.getSireId());
+            preparedStatement.setString(5, breedingAttempt.getNotes());
+            preparedStatement.setDate(6, Date.valueOf(breedingAttempt.getAttemptDate()));
+            preparedStatement.setString(7, breedingAttempt.getAttemptStatus());
+
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            handleSQLException(e);
+            throw e;
+        }
+    }
+
+
+
+
 }

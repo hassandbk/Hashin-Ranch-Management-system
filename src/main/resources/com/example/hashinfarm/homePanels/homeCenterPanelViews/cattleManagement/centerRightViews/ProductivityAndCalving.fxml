@@ -31,6 +31,7 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
+<?import org.kordamp.ikonli.javafx.FontIcon?>
 <ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.ProductivityAndCalving">
     <VBox spacing="10.0">
 
@@ -117,8 +118,17 @@
                         <rowConstraints>
                             <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
                         </rowConstraints>
-                        <DatePicker fx:id="lastBreedingDate" editable="false" onAction="#handleLastBreedingDateSelection" GridPane.columnIndex="1" />
                         <Label text="Breeding Date" />
+                        <HBox alignment="CENTER_LEFT" GridPane.columnIndex="1">
+                            <TextField fx:id="selectedBreedingDateTextField" editable="false" maxWidth="150.0" />
+                            <Button fx:id="breedingDateButton" mnemonicParsing="false" onAction="#handleBreedingDateButton">
+                                <graphic>
+                                    <FontIcon iconLiteral="fa-calendar" />
+                                </graphic>
+                            </Button>
+                        </HBox>
+
+
                     </GridPane>
                 </HBox>
 
@@ -660,7 +670,7 @@
                     </font>
                 </Label>
             </HBox>
-            <Button mnemonicParsing="false" fx:id="showChartButton" onAction="#showChart" text="Show Chart" GridPane.columnIndex="4" GridPane.rowIndex="2" />
+            <Button fx:id="showChartButton" mnemonicParsing="false" onAction="#showChart" text="Show Chart" GridPane.columnIndex="4" GridPane.rowIndex="2" />
 
             <columnConstraints>
                 <ColumnConstraints />

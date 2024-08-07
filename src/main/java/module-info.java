@@ -16,7 +16,8 @@ module com.example.hashinfarm {
     requires mysql.connector.j;
     requires com.jfoenix;
     requires commons.math3;
-
+    requires org.kordamp.ikonli.core;
+    requires org.kordamp.ikonli.fontawesome;
 
     opens com.example.hashinfarm to javafx.fxml;
     opens com.example.hashinfarm.controller to javafx.fxml;

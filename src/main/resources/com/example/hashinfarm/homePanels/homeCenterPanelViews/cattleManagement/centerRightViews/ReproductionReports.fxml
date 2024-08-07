@@ -10,6 +10,7 @@
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Slider?>
+<?import javafx.scene.control.Spinner?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TableColumn?>
 <?import javafx.scene.control.TableView?>
@@ -401,7 +402,7 @@
                                             </ComboBox>
 
                                             <VBox alignment="CENTER_LEFT" GridPane.columnIndex="2">
-                                                <Label text="Number of Attempts:" wrapText="true" />
+                                                <Label text="Attempt Number:" wrapText="true" />
                                             </VBox>
                                             <TextField fx:id="attemptNumberTextField" editable="false" maxWidth="150.0" promptText="Enter Number of Attempts" GridPane.columnIndex="3" />
 
@@ -429,21 +430,23 @@
                                                 <TextArea fx:id="notesTextArea" prefHeight="200.0" prefWidth="200.0" promptText="Notes" />
                                             </VBox>
 
-                                            <HBox alignment="CENTER" spacing="10.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="7" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                                            <HBox alignment="CENTER" spacing="10.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.rowIndex="6" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
                                                 <Button fx:id="modifyBreedingAttemptButton" mnemonicParsing="false" onAction="#modifyBreedingAttempt" text="Modify" />
                                                 <Button fx:id="updateBreedingAttemptButton" mnemonicParsing="false" onAction="#updateBreedingAttempt" text="Update" />
                                             </HBox>
                                  <Label fx:id="sireNameLabel" text="N/A" GridPane.columnIndex="3" GridPane.rowIndex="2" />
-                                 <HBox alignment="CENTER" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="3">
-                                    <children>
-      
-                                                  <Label text="NOTES">
-                                                      <font>
-                                                          <Font name="System Bold" size="16.0" />
-                                                      </font>
-                                                  </Label>
-                                    </children>
-                                 </HBox>
+                                            <HBox alignment="CENTER" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="3">
+                                                <Label text="NOTES">
+                                                    <font>
+                                                        <Font name="System Bold" size="16.0" />
+                                                    </font>
+                                                </Label>
+                                            </HBox>
+                                            <HBox fx:id="estimatedGestationPeriodHBox" alignment="CENTER_LEFT"
+                                                  GridPane.rowIndex="5">
+                                                <Label text="Gestation Period:"/>
+                                            </HBox>
+                                 <Spinner fx:id="estimatedGestationPeriodSpinner" GridPane.columnIndex="1" GridPane.rowIndex="5" />
 
                                             <columnConstraints>
                                                 <ColumnConstraints hgrow="ALWAYS" minWidth="150.0" />
@@ -457,10 +460,9 @@
                                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                                                 <RowConstraints maxHeight="42.59998168945312" minHeight="-Infinity" prefHeight="32.19998779296874" vgrow="ALWAYS" />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
-                                    <RowConstraints />
+                                    <RowConstraints maxHeight="35.19999694824219" minHeight="4.7999725341796875" prefHeight="35.19999694824219" />
+                                    <RowConstraints maxHeight="64.799951171875" minHeight="29.59995422363278" prefHeight="35.99996337890627" />
+                                    <RowConstraints maxHeight="28.79998779296875" minHeight="4.79998779296875" prefHeight="28.79998779296875" />
                                     <RowConstraints />
                                             </rowConstraints>
                                         </GridPane>
