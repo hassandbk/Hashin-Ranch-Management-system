@@ -22,7 +22,6 @@ import javafx.util.Callback;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.util.*;
-import java.util.stream.Collectors;
 
 
 @SuppressWarnings("CallToPrintStackTrace")
@@ -1499,10 +1498,13 @@ public class ProductivityReports {
             }
         });
     }
+
     public void initializeAttemptDatePicker(DatePicker attemptDatePicker, BreedingAttempt selectedAttempt) {
         try {
             // Fetch all existing breeding attempts for the specified cattle
-            List<BreedingAttempt> filteredAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(selectedCattleId, LocalDate.parse(selectedAttempt.getEstrusDate()));
+            List<BreedingAttempt> filteredAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(
+                    selectedCattleId, LocalDate.parse(selectedAttempt.getEstrusDate()));
+
             LocalDate currentDate = LocalDate.now();
             LocalDate selectedEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
             LocalDate selectedAttemptDate = LocalDate.parse(selectedAttempt.getAttemptDate());
@@ -1538,38 +1540,41 @@ public class ProductivityReports {
             }
 
             // Configure the DatePicker based on the positions of previous and subsequent attempts
+            LocalDate minDate;
+            LocalDate maxDate;
+
             if (filteredAttempts.size() == 1) {
-                configureDatePicker(attemptDatePicker, selectedEstrusDate, currentDate);
+                // Only one attempt
+                minDate = selectedEstrusDate;
+                maxDate = currentDate.isAfter(selectedEstrusDate.plusDays(23)) ? currentDate : selectedEstrusDate.plusDays(23);
             } else if (previousAttempt == null && subsequentAttempt != null) {
-                LocalDate subsequentAttemptDate = LocalDate.parse(subsequentAttempt.getAttemptDate());
-                configureDatePicker(attemptDatePicker, selectedEstrusDate, subsequentAttemptDate.minusDays(1));
+                // First attempt
+                minDate = selectedEstrusDate;
+                maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
             } else if (previousAttempt != null && subsequentAttempt != null) {
-                LocalDate previousAttemptDate = LocalDate.parse(previousAttempt.getAttemptDate());
-                LocalDate subsequentAttemptDate = LocalDate.parse(subsequentAttempt.getAttemptDate());
-                configureDatePicker(attemptDatePicker, previousAttemptDate.plusDays(1), subsequentAttemptDate.minusDays(1));
+                // Middle attempt
+                minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
+                maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
             } else if (previousAttempt != null) {
-                LocalDate previousAttemptDate = LocalDate.parse(previousAttempt.getAttemptDate());
-                LocalDate nextEstrusDate = findImmediateNextPossibleBreedDate(selectedAttempt, selectedEstrusDate);
-                configureDatePicker(attemptDatePicker, previousAttemptDate.plusDays(1),
-                        nextEstrusDate != null ? nextEstrusDate.minusDays(24) : currentDate);
+                // Last attempt
+                minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
+                maxDate = selectedEstrusDate.plusDays(23).isAfter(currentDate) ? currentDate : selectedEstrusDate.plusDays(23);
+            } else {
+                // Fallback case
+                minDate = selectedEstrusDate;
+                maxDate = currentDate;
             }
+
+            // Configure the DatePicker with the calculated min and max dates
+            configureDatePicker(attemptDatePicker, minDate, maxDate);
 
         } catch (SQLException e) {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while initializing the Attempt Date Picker.");
         }
     }
-    private LocalDate findImmediateNextPossibleBreedDate(BreedingAttempt selectedAttempt, LocalDate currentEstrusDate) throws SQLException {
-        BreedingAttemptDAO.getSubsequentEstrusDate(selectedCattleId,currentEstrusDate);
-         //code to determine possible latest breed date depending on whether
-        //selectedAttempt has a successful status if yes then we need to look into the reproductive Variables table to find this susccesful attemptDate was recorded as a breedingDate
-        //for the case where successful recorded then we find if there is an existing calving date or no
-        //if calving date exists, then
-
-        // more discussions here
 
 
-        return BreedingAttemptDAO.getSubsequentEstrusDate(selectedCattleId,currentEstrusDate);
-    }
+
 
 }
