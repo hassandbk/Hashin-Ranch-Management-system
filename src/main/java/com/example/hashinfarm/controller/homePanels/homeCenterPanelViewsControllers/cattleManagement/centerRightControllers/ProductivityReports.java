@@ -10,6 +10,7 @@ import com.example.hashinfarm.controller.utility.*;
 import com.example.hashinfarm.model.*;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
+import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -108,6 +109,7 @@ public class ProductivityReports {
     private static final int POST_CALVING_INTERVAL = 45;
     private final ReproductiveVariablesDAO reproductiveVariablesDAO = new ReproductiveVariablesDAO();
     private final BooleanProperty addingReproductiveVariables = new SimpleBooleanProperty(false);
+    private ChangeListener<LocalDate> estrusDateChangeListener;
 
     @FXML
     private void initialize() {
@@ -834,6 +836,10 @@ public class ProductivityReports {
     private void populateFieldsWithSelectedBreedingAttempt() {
         BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
         if (selectedAttempt != null) {
+            // Remove the listener if it exists
+            if (estrusDateChangeListener != null) {
+                estrusDatePicker.valueProperty().removeListener(estrusDateChangeListener);
+            }
             modifyBreedingAttemptButton.setDisable(false);
             updateBreedingAttemptButton.setDisable(true);
             updateBreedingAttemptButton.setText("Update");
@@ -881,16 +887,30 @@ public class ProductivityReports {
     // Method to validate fields for updating Breeding Attempts
     private boolean areFieldsValidForBreedingAttempt() {
         try {
-            return estrusDatePicker.getValue() != null &&
-                    !sireNameLabel.getText().isEmpty() &&
-                    breedingMethodBreedingAttemptComboBox.getValue() != null &&
-                    attemptDatePicker.getValue() != null &&
-                    attemptStatusComboBox.getValue() != null &&
-                    !notesTextArea.getText().isEmpty();
+            // Check for non-null values for all required fields
+            boolean isEstrusDateValid = estrusDatePicker.getValue() != null;
+            boolean isBreedingMethodValid = breedingMethodBreedingAttemptComboBox.getValue() != null;
+            boolean isAttemptDateValid = attemptDatePicker.getValue() != null;
+            boolean isAttemptStatusValid = attemptStatusComboBox.getValue() != null;
+
+            // Check if breeding method is Natural Mating
+            String currentBreedingMethod = breedingMethodBreedingAttemptComboBox.getValue();
+            boolean isNaturalMating = "Natural Mating".equals(currentBreedingMethod);
+
+            // Validate sireNameLabel based on breeding method
+            boolean isSireNameLabelValid = !isNaturalMating || !sireNameLabel.getText().isEmpty();
+
+            // Combine all validation checks
+            return isEstrusDateValid &&
+                    isSireNameLabelValid &&  // Only apply validation for sireNameLabel if Natural Mating
+                    isBreedingMethodValid &&
+                    isAttemptDateValid &&
+                    isAttemptStatusValid;
         } catch (NumberFormatException e) {
             return false;
         }
     }
+
 
     //Handling Fields
     // Method to handle clearing fields for Breeding Attempt
@@ -899,18 +919,39 @@ public class ProductivityReports {
         estrusDatePicker.setValue(null);
         sireNameLabel.setText("N/A");
         breedingMethodBreedingAttemptComboBox.setValue(null);
-        attemptNumberTextField.clear();
+        attemptNumberTextField.setText("N/A");
         attemptDatePicker.setValue(null);
         attemptStatusComboBox.setValue(null);
         notesTextArea.clear();
         sireNameButton.setText("Select Sire");
+        updateBreedingAttemptButton.setText("Save");
         modifyBreedingAttemptButton.setDisable(true);
         updateBreedingAttemptButton.setDisable(true);
-        updateBreedingAttemptButton.setText("Save");
-        initializeEstrusDatePickerForNewEntry(estrusDatePicker);
-    }
 
-    // Method to check for changes in Breeding Attempt details
+        initializeEstrusDatePickerForNewEntry(estrusDatePicker);
+        // Set selected attempt to null
+        breedingAttemptsTableView.getSelectionModel().clearSelection();
+
+        // Ensure the listener is defined and add it
+        if (estrusDateChangeListener == null) {
+            estrusDateChangeListener = (observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    attemptDatePicker.setDayCellFactory(null);
+                    updateAttemptDatePicker(attemptDatePicker, newValue);
+                }
+            };
+        }
+        estrusDatePicker.valueProperty().addListener(estrusDateChangeListener);
+
+
+    }
+    private void updateAttemptDatePicker(DatePicker attemptDatePicker, LocalDate newEstrusDate) {
+        LocalDate currentDate = LocalDate.now();
+        LocalDate maxDate = newEstrusDate.plusDays(23).isAfter(currentDate) ? currentDate : newEstrusDate.plusDays(23);
+
+        configureDatePicker(attemptDatePicker, newEstrusDate, maxDate);
+    }
+    // Method to check for changes or validate fields based on button text
     private void checkForBreedingAttemptDetailChanges() {
         String estrusDateValue = estrusDatePicker.getValue() != null ? estrusDatePicker.getValue().toString() : null;
         String sireUsedValue = sireNameLabel.getText() != null ? sireNameLabel.getText() : null;
@@ -934,7 +975,16 @@ public class ProductivityReports {
                         !Objects.equals(attemptStatusValue, selectedAttemptStatus) ||
                         !Objects.equals(notesValue, selectedNotes);
 
-        updateBreedingAttemptButton.setDisable(!hasChanges);
+        boolean areFieldsValid = areFieldsValidForBreedingAttempt();
+
+        String buttonText = updateBreedingAttemptButton.getText();
+        if ("Update".equals(buttonText)) {
+            // Enable the button if there are changes
+            updateBreedingAttemptButton.setDisable(!hasChanges);
+        } else if ("Save".equals(buttonText)) {
+            // Enable the button if all fields are valid
+            updateBreedingAttemptButton.setDisable(!areFieldsValid);
+        }
     }
 
     // Helper method to retrieve selected Breeding Attempt value based on property name
@@ -958,13 +1008,19 @@ public class ProductivityReports {
         BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
         if (selectedAttempt == null) return false;
 
+        String currentBreedingMethod = breedingMethodBreedingAttemptComboBox.getValue();
+        boolean isNaturalMating = "Natural Mating".equals(currentBreedingMethod);
+
+        boolean sireNameLabelChanged = !isNaturalMating || !sireNameLabel.getText().equals(getSireName(selectedAttempt.getSireId()));
+
         return !estrusDatePicker.getValue().toString().equals(selectedAttempt.getEstrusDate()) ||
-                !sireNameLabel.getText().equals(getSireName(selectedAttempt.getSireId())) ||
-                !breedingMethodBreedingAttemptComboBox.getValue().equals(selectedAttempt.getBreedingMethod()) ||
+                !sireNameLabelChanged ||  // Include sireNameLabel change check
+                !currentBreedingMethod.equals(selectedAttempt.getBreedingMethod()) ||
                 !attemptDatePicker.getValue().toString().equals(selectedAttempt.getAttemptDate()) ||
                 !attemptStatusComboBox.getValue().equals(selectedAttempt.getAttemptStatus()) ||
                 !notesTextArea.getText().equals(selectedAttempt.getNotes());
     }
+
 
     //Update and Delete Operations:
     // Method to handle the modification of a Breeding Attempt
@@ -978,6 +1034,8 @@ public class ProductivityReports {
             showActionDialog(alert, "Delete Record", this::handleClearFieldsForBreedingAttempt, this::handleDeleteBreedingAttempt);
         } else if (breedingAttemptFieldsHaveChanged()) {
             showActionDialog(alert, "Reset Fields", this::handleClearFieldsForBreedingAttempt, this::populateFieldsWithSelectedBreedingAttempt);
+        }else {
+            showAlert(Alert.AlertType.WARNING, "No Selection", "Please select a breeding attempt from the table.");
         }
     }
 
@@ -1089,16 +1147,22 @@ public class ProductivityReports {
 
     // Method to add field change listeners for Breeding Attempt
     private void addFieldChangeListenersForBreedingAttempt() {
-        estrusDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
+        estrusDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> {
+            // Check if attemptDatePicker is not null and clear its value if necessary
+            if (attemptDatePicker.getValue() != null) {
+                attemptDatePicker.setValue(null);
+            }
+            // Call the method to check for other breeding attempt detail changes
+            checkForBreedingAttemptDetailChanges();
+        });
         sireNameLabel.textProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
         breedingMethodBreedingAttemptComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
         notesTextArea.textProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
         attemptDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
         attemptStatusComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
-
-//review
         estimatedGestationPeriodSpinner.valueProperty().addListener((observable, oldValue, newValue) -> checkForBreedingAttemptDetailChanges());
     }
+
 
 
 
@@ -1194,8 +1258,8 @@ public class ProductivityReports {
     }
 
     private void saveBreedingAttempt() {
-        if (areFieldsValidForBreedingAttempt()) {
-            showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
+        if (!areFieldsValidForBreedingAttempt()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all Mandatory fields are correctly filled.");
             return;
         }
 
@@ -1211,7 +1275,7 @@ public class ProductivityReports {
             }
 
             BreedingAttempt newAttempt = new BreedingAttempt(
-                    0, // Assuming 0 or some logic to get a new ID
+                    0,
                     selectedCattleId,
                     estrusDatePicker.getValue().toString(),
                     breedingMethodBreedingAttemptComboBox.getValue(),
@@ -1221,7 +1285,7 @@ public class ProductivityReports {
                     attemptStatusComboBox.getValue()
             );
 
-            BreedingAttemptDAO.saveBreedingAttempt(newAttempt); // Ensure this method exists in DAO
+            BreedingAttemptDAO.saveBreedingAttempt(newAttempt);
             loadBreedingAttemptsData();
             showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding attempt saved successfully.");
         } catch (SQLException e) {
@@ -1500,79 +1564,86 @@ public class ProductivityReports {
     }
 
     public void initializeAttemptDatePicker(DatePicker attemptDatePicker, BreedingAttempt selectedAttempt) {
-        try {
-            // Fetch all existing breeding attempts for the specified cattle
-            List<BreedingAttempt> filteredAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(
-                    selectedCattleId, LocalDate.parse(selectedAttempt.getEstrusDate()));
 
-            LocalDate currentDate = LocalDate.now();
-            LocalDate selectedEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
-            LocalDate selectedAttemptDate = LocalDate.parse(selectedAttempt.getAttemptDate());
+            // Existing attempt, proceed with normal logic
+            try {
+                // Fetch all existing breeding attempts for the specified cattle
+                List<BreedingAttempt> filteredAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(
+                        selectedCattleId, LocalDate.parse(selectedAttempt.getEstrusDate()));
 
-            // Sort the filtered attempts by attemptDate in ascending order
-            filteredAttempts.sort(Comparator.comparing(attempt -> LocalDate.parse(attempt.getAttemptDate())));
+                LocalDate currentDate = LocalDate.now();
+                LocalDate selectedEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
+                LocalDate selectedAttemptDate = LocalDate.parse(selectedAttempt.getAttemptDate());
 
-            // Initialize previous and subsequent attempts
-            BreedingAttempt previousAttempt = null;
-            BreedingAttempt subsequentAttempt = null;
+                // Sort the filtered attempts by attemptDate in ascending order
+                filteredAttempts.sort(Comparator.comparing(attempt -> LocalDate.parse(attempt.getAttemptDate())));
 
-            // Find the index of the selected attempt
-            int selectedIndex = -1;
-            for (int i = 0; i < filteredAttempts.size(); i++) {
-                BreedingAttempt attempt = filteredAttempts.get(i);
-                LocalDate attemptDate = LocalDate.parse(attempt.getAttemptDate());
+                // Initialize previous and subsequent attempts
+                BreedingAttempt previousAttempt = null;
+                BreedingAttempt subsequentAttempt = null;
 
-                if (attemptDate.isEqual(selectedAttemptDate)) {
-                    selectedIndex = i;
-                    break;
-                }
-            }
+                // Find the index of the selected attempt
+                int selectedIndex = -1;
+                for (int i = 0; i < filteredAttempts.size(); i++) {
+                    BreedingAttempt attempt = filteredAttempts.get(i);
+                    LocalDate attemptDate = LocalDate.parse(attempt.getAttemptDate());
 
-            // Determine the previous and subsequent attempts
-            if (selectedIndex != -1) {
-                if (selectedIndex > 0) {
-                    previousAttempt = filteredAttempts.get(selectedIndex - 1);
+                    if (attemptDate.isEqual(selectedAttemptDate)) {
+                        selectedIndex = i;
+                        break;
+                    }
                 }
 
-                if (selectedIndex < filteredAttempts.size() - 1) {
-                    subsequentAttempt = filteredAttempts.get(selectedIndex + 1);
+                // Determine the previous and subsequent attempts
+                if (selectedIndex != -1) {
+                    if (selectedIndex > 0) {
+                        previousAttempt = filteredAttempts.get(selectedIndex - 1);
+                    }
+
+                    if (selectedIndex < filteredAttempts.size() - 1) {
+                        subsequentAttempt = filteredAttempts.get(selectedIndex + 1);
+                    }
                 }
+
+                // Configure the DatePicker based on the positions of previous and subsequent attempts
+                LocalDate minDate;
+                LocalDate maxDate;
+
+                if (filteredAttempts.size() == 1) {
+                    // Only one attempt
+                    minDate = selectedEstrusDate;
+                    maxDate = currentDate.isAfter(selectedEstrusDate.plusDays(23)) ? currentDate : selectedEstrusDate.plusDays(23);
+                } else if (previousAttempt == null && subsequentAttempt != null) {
+                    // First attempt
+                    minDate = selectedEstrusDate;
+                    maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
+                } else if (previousAttempt != null && subsequentAttempt != null) {
+                    // Middle attempt
+                    minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
+                    maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
+                } else if (previousAttempt != null) {
+                    // Last attempt
+                    minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
+                    maxDate = selectedEstrusDate.plusDays(23).isAfter(currentDate) ? currentDate : selectedEstrusDate.plusDays(23);
+                } else {
+                    // Fallback case
+                    minDate = selectedEstrusDate;
+                    maxDate = currentDate;
+                }
+
+                // Configure the DatePicker with the calculated min and max dates
+                configureDatePicker(attemptDatePicker, minDate, maxDate);
+
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while initializing the Attempt Date Picker.");
             }
 
-            // Configure the DatePicker based on the positions of previous and subsequent attempts
-            LocalDate minDate;
-            LocalDate maxDate;
-
-            if (filteredAttempts.size() == 1) {
-                // Only one attempt
-                minDate = selectedEstrusDate;
-                maxDate = currentDate.isAfter(selectedEstrusDate.plusDays(23)) ? currentDate : selectedEstrusDate.plusDays(23);
-            } else if (previousAttempt == null && subsequentAttempt != null) {
-                // First attempt
-                minDate = selectedEstrusDate;
-                maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
-            } else if (previousAttempt != null && subsequentAttempt != null) {
-                // Middle attempt
-                minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
-                maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
-            } else if (previousAttempt != null) {
-                // Last attempt
-                minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
-                maxDate = selectedEstrusDate.plusDays(23).isAfter(currentDate) ? currentDate : selectedEstrusDate.plusDays(23);
-            } else {
-                // Fallback case
-                minDate = selectedEstrusDate;
-                maxDate = currentDate;
-            }
-
-            // Configure the DatePicker with the calculated min and max dates
-            configureDatePicker(attemptDatePicker, minDate, maxDate);
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while initializing the Attempt Date Picker.");
-        }
     }
+
+
+
+
 
 
 
