@@ -174,5 +174,15 @@ public class ReproductiveVariablesDAO {
             throw e; // Re-throw the exception for proper handling
         }
     }
+    public static boolean updateGestationPeriod(int cattleId, int newGestationLength) throws SQLException {
+        String query = "UPDATE reproductivevariables SET GestationPeriod = ? WHERE CattleID = ?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, newGestationLength);
+            preparedStatement.setInt(2, cattleId);
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0; // return true if at least one row was updated
+        }
+    }
 
 }

@@ -147,8 +147,11 @@
                                             <TextField fx:id="sireIdOrDamIdTextField" editable="false" promptText="Enter Sire ID" GridPane.columnIndex="1" GridPane.rowIndex="3" />
 
                                             <Label text="Gestation Length (days):" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-                                            <TextField fx:id="gestationLengthTextField" promptText="Enter Gestation Length" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-
+                                             <Spinner fx:id="estimatedGestationSpinner" GridPane.columnIndex="3" GridPane.rowIndex="1">
+                                                <tooltip>
+                                                    <Tooltip text="Gestation period: 265-295 days" wrapText="true" />
+                                                </tooltip>
+                                            </Spinner>
                                             <Label text="Measured Weight (kg):" GridPane.columnIndex="2" GridPane.rowIndex="2" />
                                             <TextField fx:id="measuredWeightTextField" promptText="Enter Measured Weight" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
@@ -215,7 +218,7 @@
 
                                     <VBox prefHeight="230.0" spacing="5">
 
-                                        <TableView fx:id="cattleTableView" prefHeight="200.0">
+                                        <TableView fx:id="cattleTableView">
                                             <columns>
                                                 <TableColumn fx:id="offspringIdColumn" minWidth="50.0" prefWidth="100.0" text="Offspring ID" />
                                                 <TableColumn fx:id="cattleIdColumn" minWidth="100.0" prefWidth="100.0" text="Cattle ID" />

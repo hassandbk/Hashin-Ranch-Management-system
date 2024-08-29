@@ -29,6 +29,7 @@ import java.util.*;
 public class ProductivityReports {
 
 
+    
     // FXML elements for Cattle Information
     @FXML
     private Label selectedCattleIdLabel, offspringIdLabel, sireIdOrDamIdLabel;
@@ -39,7 +40,7 @@ public class ProductivityReports {
     @FXML
     private Slider easeOfCalvingSlider;
     @FXML
-    private TextField sireIdOrDamIdTextField, gestationLengthTextField, measuredWeightTextField, sireNameTextField, damNameTextField;
+    private TextField sireIdOrDamIdTextField, measuredWeightTextField, sireNameTextField, damNameTextField;
     @FXML
     private DatePicker lastDateWeightTakenDatePicker;
     @FXML
@@ -48,6 +49,7 @@ public class ProductivityReports {
     private TableColumn<OffSpringTable, String> offspringIdColumn, cattleIdColumn, cattleNameColumn, genderColumn, breedingMethodColumn;
     @FXML
     private Button modifyOffspringDetailsButton, updateOffSpringDetailsButton;
+    @FXML private Spinner<Integer> estimatedGestationSpinner;
 
     // FXML elements for Calving Events
     @FXML
@@ -236,6 +238,7 @@ public class ProductivityReports {
         estimatedGestationPeriodSpinner.visibleProperty().bind(addingReproductiveVariables);
 
         estimatedGestationPeriodSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(minGestationDays, maxGestationDays, initialGestationDays));
+        estimatedGestationSpinner.setValueFactory(new SpinnerValueFactory.IntegerSpinnerValueFactory(minGestationDays, maxGestationDays, initialGestationDays));
     }
 
     //OFFSPRING DATA
@@ -251,6 +254,23 @@ public class ProductivityReports {
                     if (offspring != null) {
                         offspringList.add(offspring);
                     }
+                }else {
+                    // Cattle doesn't have offspring entry, so add a new entry
+                    Offspring newOffspring = new Offspring(
+                            0,                 // offspringId
+                            0.0,               // birthWeight
+                            1,                 // easeOfCalving
+                            283,                 // gestationLength
+                            0.0,               // measuredWeight
+                            null,              // lastDateWeightTaken
+                            "",                // intendedUse
+                            String.valueOf(cattle.getCattleId()), // cattleId
+                            ""                 // breedingMethod
+                    );
+
+                    // Add the new offspring to the database
+                    OffspringDAO.insertOffspring(newOffspring);
+                    offspringList.add(newOffspring); // Also add it to the list for the table
                 }
             }
 
@@ -346,7 +366,7 @@ public class ProductivityReports {
         birthWeightTextField.setText(getStringValue(offspring.getBirthWeight()));
         easeOfCalvingSlider.setValue(getSliderValue(offspring.getEaseOfCalving()));
         sireIdOrDamIdTextField.setText(getStringValue(offspring.getSireId()));
-        gestationLengthTextField.setText(getStringValue(offspring.getGestationLength()));
+        estimatedGestationSpinner.getValueFactory().setValue(offspring.getGestationLength());
         measuredWeightTextField.setText(getStringValue(offspring.getMeasuredWeight()));
         lastDateWeightTakenDatePicker.setValue(offspring.getLastDateWeightTaken());
         intendedUseComboBox.setValue(getStringValue(offspring.getIntendedUse()));
@@ -388,7 +408,7 @@ public class ProductivityReports {
     private void checkForOffspringDetailChanges() {
         boolean hasChanges = !birthWeightTextField.getText().equals(initialValuesOffspring.get("birthWeight")) ||
                 easeOfCalvingSlider.getValue() != Double.parseDouble(initialValuesOffspring.get("easeOfCalving")) ||
-                !gestationLengthTextField.getText().equals(initialValuesOffspring.get("gestationLength")) ||
+                estimatedGestationSpinner.getValue() != Integer.parseInt(initialValuesOffspring.get("gestationLength")) ||
                 !measuredWeightTextField.getText().equals(initialValuesOffspring.get("measuredWeight")) ||
                 (lastDateWeightTakenDatePicker.getValue() != null && !lastDateWeightTakenDatePicker.getValue().toString().equals(initialValuesOffspring.get("lastDateWeightTaken"))) ||
                 (intendedUseComboBox.getValue() != null && !intendedUseComboBox.getValue().equals(initialValuesOffspring.get("intendedUse"))) ||
@@ -403,7 +423,7 @@ public class ProductivityReports {
         OffSpringTable selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
         return !birthWeightTextField.getText().equals(String.valueOf(selectedOffspring.getBirthWeight())) ||
                 easeOfCalvingSlider.getValue() != selectedOffspring.getEaseOfCalving() ||
-                !gestationLengthTextField.getText().equals(String.valueOf(selectedOffspring.getGestationLength())) ||
+                !Objects.equals(estimatedGestationSpinner.getValue(), selectedOffspring.getGestationLength()) ||
                 !measuredWeightTextField.getText().equals(String.valueOf(selectedOffspring.getMeasuredWeight())) ||
                 (lastDateWeightTakenDatePicker.getValue() != null && !lastDateWeightTakenDatePicker.getValue().equals(selectedOffspring.getLastDateWeightTaken())) ||
                 (intendedUseComboBox.getValue() != null && !intendedUseComboBox.getValue().equals(selectedOffspring.getIntendedUse())) ||
@@ -416,7 +436,7 @@ public class ProductivityReports {
         OffSpringTable selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
         return birthWeightTextField.getText().equals(String.valueOf(selectedOffspring.getBirthWeight())) &&
                 easeOfCalvingSlider.getValue() == selectedOffspring.getEaseOfCalving() &&
-                gestationLengthTextField.getText().equals(String.valueOf(selectedOffspring.getGestationLength())) &&
+                Objects.equals(estimatedGestationSpinner.getValue(), selectedOffspring.getGestationLength()) &&
                 measuredWeightTextField.getText().equals(String.valueOf(selectedOffspring.getMeasuredWeight())) &&
                 (lastDateWeightTakenDatePicker.getValue() != null && lastDateWeightTakenDatePicker.getValue().equals(selectedOffspring.getLastDateWeightTaken())) &&
                 (intendedUseComboBox.getValue() != null && intendedUseComboBox.getValue().equals(selectedOffspring.getIntendedUse())) &&
@@ -429,12 +449,11 @@ public class ProductivityReports {
         try {
             // Check if all fields are filled and valid
             Double.parseDouble(birthWeightTextField.getText());
-            Integer.parseInt(gestationLengthTextField.getText());
+            estimatedGestationSpinner.getValue();
             Double.parseDouble(measuredWeightTextField.getText());
 
             // Additional validation can be added as needed
             return !birthWeightTextField.getText().isEmpty() &&
-                    !gestationLengthTextField.getText().isEmpty() &&
                     !measuredWeightTextField.getText().isEmpty() &&
                     lastDateWeightTakenDatePicker.getValue() != null &&
                     intendedUseComboBox.getValue() != null &&
@@ -471,33 +490,99 @@ public class ProductivityReports {
             return;
         }
 
-        try {
-            if (!areFieldsValidForOffspring()) {
-                showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
-                return;
+        if (!areFieldsValidForOffspring()) {
+            showAlert(Alert.AlertType.WARNING, "Invalid Input", "Please ensure all fields are correctly filled.");
+            return;
+        }
+
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Confirm Update");
+        confirmationAlert.setHeaderText("You are about to update the offspring details.");
+        confirmationAlert.setContentText("Do you want to proceed with the update?");
+
+        ButtonType confirmButton = new ButtonType("Yes");
+        ButtonType cancelButton = new ButtonType("No");
+        confirmationAlert.getButtonTypes().setAll(confirmButton, cancelButton);
+
+        Optional<ButtonType> result = confirmationAlert.showAndWait();
+        if (result.isPresent() && result.get() == confirmButton) {
+            // Proceed with update if user confirms
+            try {
+                // Create updated Offspring object with the current field values
+                Offspring updatedOffspring = new Offspring(
+                        selectedOffspringTable.getOffspringId(),
+                        Double.parseDouble(birthWeightTextField.getText()),
+                        (int) easeOfCalvingSlider.getValue(),
+                        estimatedGestationSpinner.getValue(),
+                        Double.parseDouble(measuredWeightTextField.getText()),
+                        lastDateWeightTakenDatePicker.getValue(),
+                        intendedUseComboBox.getValue(),
+                        selectedOffspringTable.getCattleId(),
+                        breedingMethodComboBox.getValue()
+                );
+
+                // Check if the gender or gestation length has changed
+                boolean genderChanged = !offspringGenderComboBox.getValue().equals(initialValuesOffspring.get("gender"));
+                boolean gestationLengthChanged = !estimatedGestationSpinner.getValue().toString().equals(initialValuesOffspring.get("gestationLength"));
+
+                // Update the database tables if necessary
+                if (genderChanged) {
+                    if (!updateCattleTableGender(Integer.parseInt(selectedOffspringTable.getCattleId()), offspringGenderComboBox.getValue())) {
+                        return; // Early return if updating gender failed
+                    }
+                }
+
+                if (gestationLengthChanged) {
+                    if (!updateReproductiveVariablesTable(Integer.parseInt(selectedOffspringTable.getCattleId()), estimatedGestationSpinner.getValue())) {
+                        return; // Early return if updating gestation length failed
+                    }
+                }
+
+                // Update offspring details in the Offspring table
+                OffspringDAO.updateOffspring(updatedOffspring);
+
+                // Reload data to reflect changes
+                loadOffspringData();
+                showAlert(Alert.AlertType.INFORMATION, "Success", "Offspring details updated successfully.");
+            } catch (NumberFormatException | SQLException e) {
+                e.printStackTrace();
+                showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating the offspring details.");
             }
-
-            Offspring updatedOffspring = new Offspring(
-                    selectedOffspringTable.getOffspringId(),
-                    Double.parseDouble(birthWeightTextField.getText()),
-                    (int) easeOfCalvingSlider.getValue(),
-                    Integer.parseInt(gestationLengthTextField.getText()),
-                    Double.parseDouble(measuredWeightTextField.getText()),
-                    lastDateWeightTakenDatePicker.getValue(),
-                    intendedUseComboBox.getValue(),
-                    selectedOffspringTable.getCattleId(),
-                    breedingMethodComboBox.getValue()
-            );
-
-            OffspringDAO.updateOffspring(updatedOffspring);
-
-            loadOffspringData();
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Offspring details updated successfully.");
-        } catch (NumberFormatException | SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating the offspring details.");
+        } else {
+            // User chose not to update
+            showAlert(Alert.AlertType.INFORMATION, "Cancelled", "Update cancelled by the user.");
         }
     }
+
+
+    private boolean updateCattleTableGender(int cattleId, String newGender) {
+        try {
+            boolean success = CattleDAO.updateCattleGender(cattleId, newGender);
+            if (!success) {
+                showAlert(Alert.AlertType.WARNING, "Warning", "Failed to update cattle gender. Please check if the cattle ID is correct.");
+            }
+            return success;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating the cattle gender.");
+            return false;
+        }
+    }
+
+    private boolean updateReproductiveVariablesTable(int cattleId, int newGestationLength) {
+        try {
+            boolean success = ReproductiveVariablesDAO.updateGestationPeriod(cattleId, newGestationLength);
+            if (!success) {
+                showAlert(Alert.AlertType.WARNING, "Warning", "Failed to update gestation period. Please check if the cattle ID is correct.");
+            }
+            return success;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating the gestation period.");
+            return false;
+        }
+    }
+
 
     // Method to handle deletion of Offspring
     private void handleDeleteOffspring() {
@@ -542,7 +627,7 @@ public class ProductivityReports {
     private void addFieldChangeListenersForOffspring() {
         birthWeightTextField.textProperty().addListener((observable, oldValue, newValue) -> checkForOffspringDetailChanges());
         easeOfCalvingSlider.valueProperty().addListener((observable, oldValue, newValue) -> checkForOffspringDetailChanges());
-        gestationLengthTextField.textProperty().addListener((observable, oldValue, newValue) -> checkForOffspringDetailChanges());
+        estimatedGestationSpinner.valueProperty().addListener((observable, oldValue, newValue) -> checkForOffspringDetailChanges());
         measuredWeightTextField.textProperty().addListener((observable, oldValue, newValue) -> checkForOffspringDetailChanges());
         lastDateWeightTakenDatePicker.valueProperty().addListener((observable, oldValue, newValue) -> checkForOffspringDetailChanges());
         intendedUseComboBox.valueProperty().addListener((observable, oldValue, newValue) -> checkForOffspringDetailChanges());
@@ -554,7 +639,7 @@ public class ProductivityReports {
     private void handleClearOffspringFields() {
         birthWeightTextField.clear();
         easeOfCalvingSlider.setValue(0);
-        gestationLengthTextField.clear();
+        estimatedGestationSpinner.getValueFactory().setValue(283);
         measuredWeightTextField.clear();
         lastDateWeightTakenDatePicker.setValue(null);
         intendedUseComboBox.setValue(null);

@@ -102,4 +102,20 @@ public class OffspringDAO {
         }
         return false; // No offspring found by default
     }
+
+
+    public static void insertOffspring(Offspring offspring) throws SQLException {
+        String query = "INSERT INTO offspring (BirthWeight, EaseOfCalving, GestationLength, MeasuredWeight, " +
+                "LastDateWeightTaken, IntendedUse, CattleID, BreedingMethod) VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            setOffspringPreparedStatementValues(preparedStatement, offspring);
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            AppLogger.error("Error inserting offspring with CattleID: " + offspring.getCattleId(), e);
+            e.printStackTrace();
+            throw e; // Re-throw the exception for higher-level handling
+        }
+    }
+
 }

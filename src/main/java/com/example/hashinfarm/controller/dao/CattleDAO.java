@@ -429,5 +429,15 @@ public class CattleDAO {
         }
         return progenyList;
     }
+    public static boolean updateCattleGender(int cattleId, String newGender) throws SQLException {
+        String query = "UPDATE cattle SET Gender = ? WHERE CattleID = ?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setString(1, newGender);
+            preparedStatement.setInt(2, cattleId);
+            int rowsAffected = preparedStatement.executeUpdate();
+            return rowsAffected > 0; // return true if at least one row was updated
+        }
+    }
 
 }
