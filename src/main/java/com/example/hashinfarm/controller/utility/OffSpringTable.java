@@ -13,15 +13,17 @@ public class OffSpringTable {
     private Integer gestationLength;
     private Double measuredWeight;
     private LocalDate lastDateWeightTaken;
+    private String dateOfBirth;
     private String intendedUse;
     private String sireId;
 
     // Updated Constructor
-    public OffSpringTable(int offspringId, String cattleId, String cattleName, String gender, String breedingMethod,
+    public OffSpringTable(int offspringId, String cattleId,String dateOfBirth, String cattleName, String gender, String breedingMethod,
                           Double birthWeight, Integer easeOfCalving, Integer gestationLength, Double measuredWeight,
                           LocalDate lastDateWeightTaken, String intendedUse, String sireId) {
         this.offspringId = offspringId;
         this.cattleId = cattleId;
+        this.dateOfBirth= dateOfBirth;
         this.cattleName = cattleName;
         this.gender = gender;
         this.breedingMethod = breedingMethod;
@@ -40,6 +42,9 @@ public class OffSpringTable {
 
     public String getCattleId() { return cattleId; }
     public void setCattleId(String cattleId) { this.cattleId = cattleId; }
+
+    public String getDateOfBirth() { return dateOfBirth; }
+    public void setDateOfBirth(String dateOfBirth) { this.dateOfBirth = dateOfBirth; }
 
     public String getCattleName() { return cattleName; }
     public void setCattleName(String cattleName) { this.cattleName = cattleName; }

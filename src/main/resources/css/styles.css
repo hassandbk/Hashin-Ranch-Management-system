@@ -516,4 +516,67 @@
 }
 
 
+/* Unified styles for ComboBox, TextField, and ImageView */
 
+/* ComboBox, TextField and RestOfNumber styling */
+#countryComboBox, #countryTextField, #restOfNumber {
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 1;
+    -fx-border-color: #d1d1d1;
+    -fx-font-size: 12px;
+    -fx-padding: 5 10 5 10;
+    -fx-background-color: #ffffff;
+    -fx-text-fill: #333333;
+}
+
+/* ImageView styling to blend it as part of the unified control */
+#imageView {
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+    -fx-border-width: 1 0 1 1; /* Right border to match the next element */
+    -fx-background-color: #f5f5f5;
+    -fx-padding: 0 0 0 0;
+    -fx-alignment: CENTER_LEFT;
+}
+
+/* ComboBox styling */
+#countryComboBox {
+    -fx-border-width: 1 0 1 1; /* Left border only */
+    -fx-background-color: #f5f5f5;
+}
+
+#countryComboBox:hover {
+    -fx-background-color: #44dcea;
+}
+
+#countryComboBox .arrow {
+    -fx-background-color: #2a2323; /* Style for the drop-down arrow */
+}
+
+/* First TextField styling */
+#countryTextField {
+    -fx-border-width: 1 0 1 0; /* No left and right border */
+    -fx-background-color: #f9f9f9;
+}
+
+#countryTextField:hover {
+    -fx-background-color: #44dcea;
+}
+
+/* Second TextField styling */
+#restOfNumber {
+    -fx-border-width: 1 1 1 0; /* Right border only */
+    -fx-background-color: #ffffff;
+}
+
+#restOfNumber:hover {
+    -fx-background-color: #44dcea;
+}
+
+/* Focused state */
+#countryComboBox:focused, #countryTextField:focused, #restOfNumber:focused {
+    -fx-border-color: #5a9bff;
+    -fx-background-color: #ffffff;
+    -fx-effect: dropshadow(three-pass-box, rgba(90, 155, 255, 0.3), 5, 0, 0, 0);
+}

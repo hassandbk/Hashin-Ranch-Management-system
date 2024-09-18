@@ -3,7 +3,9 @@
 <?import java.lang.String?>
 <?import javafx.collections.FXCollections?>
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Accordion?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.CheckBox?>
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.DatePicker?>
@@ -11,9 +13,13 @@
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
 <?import javafx.scene.control.TextArea?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.control.Tooltip?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -21,47 +27,91 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" prefHeight="796.0" prefWidth="888.0" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx"
-            xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.MedicalHistory">
-    <VBox prefHeight="619.0" prefWidth="711.0">
-        <!-- Header or other elements can be added here -->
+<ScrollPane fitToWidth="true" prefHeight="796.0" prefWidth="1064.0" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.MedicalHistory">
+    <VBox prefHeight="794.0" prefWidth="1049.0">
 
-        <Label text="Identification Information" />
-        <!-- Identification Information -->
-        <GridPane prefHeight="60.0" prefWidth="596.0">
-            <Label text="Unique ID" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-            <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+            <GridPane alignment="CENTER" minWidth="-Infinity" prefHeight="66.0" prefWidth="1002.0" HBox.hgrow="ALWAYS">
 
-            <Label text="Date of Birth" GridPane.columnIndex="2" />
-            <DatePicker GridPane.columnIndex="3" />
 
-            <Label text="Breed" GridPane.rowIndex="1" />
-            <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                <!-- Cattle Name -->
+                <HBox alignment="CENTER" minWidth="-Infinity" spacing="10" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                    <Label prefHeight="20.0" prefWidth="109.0" style="-fx-font-size: 14; -fx-text-fill: #336699;" text="Cattle Name:">
+                        <HBox.margin>
+                            <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                        </HBox.margin>
+                    </Label>
+                    <TextField fx:id="cattleNameTextField" promptText="Enter Cattle Name">
+                        <HBox.margin>
+                            <Insets bottom="10.0" left="15.0" right="10.0" top="10.0" />
+                        </HBox.margin>
+                        <tooltip>
+                            <Tooltip text="Enter the name of the cattle" />
+                        </tooltip>
+                        <cursor>
+                            <Cursor fx:constant="TEXT" />
+                        </cursor>
 
-            <Label text="Gender" GridPane.columnIndex="2" GridPane.rowIndex="1" />
-            <ComboBox maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+                    </TextField>
+                </HBox>
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints maxHeight="38.39999694824219" minHeight="16.79999656677246" prefHeight="19.199998092651366" />
+                </rowConstraints>
+                <opaqueInsets>
+                    <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
+                </opaqueInsets>
+            </GridPane>
+        <GridPane prefHeight="156.0" prefWidth="1028.0">
+            <columnConstraints>
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+            </columnConstraints>
+            <rowConstraints>
+                <RowConstraints maxHeight="39.800007057189944" minHeight="7.999988937377935" prefHeight="39.800007057189944" vgrow="SOMETIMES" />
+                <RowConstraints maxHeight="139.9999858856201" minHeight="10.0" prefHeight="93.39999294281004" vgrow="SOMETIMES" />
+            </rowConstraints>
+
+                     <ListView prefHeight="169.0" prefWidth="502.0" GridPane.rowIndex="1">
                 <items>
                     <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Male" />
-                        <String fx:value="Female" />
-                    </FXCollections>
+                        <String fx:value="Unusual Milk Production Pattern" />
+                        <String fx:value="Signs of Mastitis" />
+                        <String fx:value="Abnormal Udder Swelling" />
+
+                             </FXCollections>
                 </items>
-            </ComboBox>
+            </ListView>
+            <TextArea fx:id="healthNotesTextArea" promptText="Enter health-related notes or comments" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
-            <!-- Add more rows and fields as needed for Identification Information -->
+                     <Label text="Health Notes" GridPane.columnIndex="1">
+                <font>
+                    <Font name="System Bold" size="14.0" />
+                </font>
+            </Label>
 
-            <columnConstraints>
-                <ColumnConstraints hgrow="NEVER" maxWidth="-Infinity" minWidth="-Infinity" />
-                <ColumnConstraints hgrow="ALWAYS" />
-                <ColumnConstraints hgrow="ALWAYS" maxWidth="-Infinity" minWidth="-Infinity" prefWidth="100.0" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
-            </columnConstraints>
-
-            <rowConstraints>
-                <RowConstraints vgrow="NEVER" />
-                <RowConstraints vgrow="ALWAYS" />
-            </rowConstraints>
+         
+         
+                     <Label text="Health Alerts">
+                <font>
+                    <Font name="System Bold" size="15.0" />
+                </font>
+            </Label>
         </GridPane>
+
+        <HBox alignment="CENTER" minWidth="-Infinity" spacing="10.0" styleClass="button-box">
+            <Button  fx:id="viewDewormingHistory" mnemonicParsing="false" onAction="#handleButtonAction" styleClass="custom-button" text="Deworming History" />
+            <Button fx:id="vaccinationHistory" mnemonicParsing="false" onAction="#handleButtonAction" styleClass="custom-button" text="Medication History" />
+            <Button fx:id="healthInfoHistory" mnemonicParsing="false" onAction="#handleButtonAction" styleClass="custom-button" text="Health Info History" />
+         <Button fx:id="viewInjuriesHistory" mnemonicParsing="false" onAction="#handleButtonAction" styleClass="custom-button" text="Injuries History" />
+         <Button fx:id="viewSurgicalHistory" mnemonicParsing="false" onAction="#handleButtonAction" styleClass="custom-button" text="Surgical History" />
+            <VBox.margin>
+                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+            </VBox.margin>
+        </HBox>
+         <Separator prefWidth="200.0" />
+
 
 
 
@@ -73,141 +123,179 @@
                     <GridPane prefHeight="263.0" prefWidth="594.0">
 
                         <!-- Dewormer Type -->
-                        <Label text="Dewormer Type" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <ComboBox maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="144.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
-                            <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Type A" />
-                                    <String fx:value="Type B" />
-                                    <!-- Add more dewormer types as needed -->
-                                </FXCollections>
-                            </items>
-                        </ComboBox>
-
-                        <!-- Manufacturer Details -->
-                        <Label text="Manufacturer Details" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS" />
-                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS" />
-
-                        <!-- Date of Deworming -->
-                        <Label text="Date of Deworming" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-                        <DatePicker maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="142.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                        <!-- Time of Day for Deworming -->
-                        <Label text="Time of Day" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-                        <ComboBox maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="134.0" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
-                            <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Morning" />
-                                    <String fx:value="Afternoon" />
-                                    <String fx:value="Evening" />
-                                    <!-- Add more time options as needed -->
-                                </FXCollections>
-                            </items>
-                        </ComboBox>
+                        <Label text="Dewormer Type" wrapText="true" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <DatePicker fx:id="dewormingDatePicker" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="142.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
                         <!-- Dosage -->
                         <Label text="Dosage" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
-                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
-
-                        <!-- Weight at the Time of Deworming -->
-                        <Label text="Weight at the Time" GridPane.columnIndex="2" GridPane.rowIndex="2" />
-                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <TextField fx:id="dosageTextField" maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.vgrow="ALWAYS" />
+                        <TextField fx:id="weightAtTimeTextField" maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="3" GridPane.rowIndex="2" />
 
                         <!-- Administered by -->
                         <Label text="Administered by" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
-                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
-
-                        <!-- Route of Administration -->
-                        <Label text="Route of Administration" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS" />
-                        <ComboBox maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="143.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
+                        <TextField fx:id="administeredByTextField" maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
+                        <ComboBox fx:id="routeOfAdministrationCombo" maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Oral" />
-                                    <String fx:value="Injection" />
-                                    <!-- Add more route options as needed -->
+                                    <String fx:value="Oral (by mouth)" />
+                                    <String fx:value="Injectable" />
+                                    <String fx:value="Topical (pour-on or spot-on)" />
+                                    <String fx:value="Intra-ruminal (inserted in rumen)" />
+                                    <String fx:value="Trans-dermal (through the skin)" />
                                 </FXCollections>
                             </items>
                         </ComboBox>
 
-                        <!-- Previous Illnesses and Treatments -->
-                        <Label text="Previous Illnesses and Treatments" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS" />
-                        <TextArea minWidth="-Infinity" prefHeight="80" prefWidth="150" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS" />
+                        <VBox alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                            <Label text="Route of Administration" wrapText="true" />
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                            <Label text="Weight at the Time" wrapText="true" />
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" GridPane.rowIndex="1">
+                            <Label text="Date of Deworming" wrapText="true" />
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" GridPane.columnIndex="2">
+                            <Label text="Manufacturer Details" wrapText="true" />
+                        </VBox>
+
+                        <TextArea fx:id="manufacturerDetailsTextArea" prefHeight="150.0" prefWidth="300.0" GridPane.columnIndex="3" />
+                        <TextArea fx:id="dewormerTypeTextArea" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="300.0" GridPane.columnIndex="1" />
+                        <Label text="Contact Details" GridPane.columnIndex="2" GridPane.rowIndex="3" />
+                        
+                        <VBox alignment="CENTER" spacing="10" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                            <HBox fx:id="inputContainer" alignment="CENTER_LEFT">
+                                <ImageView fx:id="imageView" fitHeight="30" fitWidth="50.0" preserveRatio="true" />
+                                <ComboBox fx:id="countryComboBox" maxHeight="30.0" minHeight="30.0" minWidth="10" prefHeight="30" prefWidth="35.0" />
+                                <TextField fx:id="countryTextField" minWidth="30.0" prefHeight="30" prefWidth="60.0" promptText="Search" />
+                                <TextField fx:id="restOfNumber" prefHeight="30" prefWidth="120.0" promptText="Rest of number" />
+                            </HBox>
+                        </VBox>
+                        <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnSpan="4" GridPane.rowIndex="4">
+                            <Button mnemonicParsing="false" onAction="#saveDewormingDetails" text="Save Details" />
+                        </HBox>
 
                         <!-- Add more rows and fields as needed for Deworming History -->
 
                         <columnConstraints>
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="-Infinity" minWidth="-Infinity" />
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="-Infinity" minWidth="-Infinity" />
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="-Infinity" minWidth="-Infinity" />
-                            <ColumnConstraints hgrow="ALWAYS" />
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
+                            <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
                         </columnConstraints>
 
                         <rowConstraints>
-                            <RowConstraints vgrow="ALWAYS" />
-                            <RowConstraints vgrow="ALWAYS" />
-                            <RowConstraints vgrow="ALWAYS" />
-                            <RowConstraints vgrow="ALWAYS" />
+                            <RowConstraints minHeight="100.0" vgrow="ALWAYS" />
+                            <RowConstraints minHeight="40.0" vgrow="ALWAYS" />
+                            <RowConstraints minHeight="40.0" vgrow="ALWAYS" />
+                            <RowConstraints minHeight="40.0" vgrow="ALWAYS" />
+                     <RowConstraints minHeight="40.0" prefHeight="30.0" vgrow="ALWAYS" />
                             <RowConstraints />
                             <!-- Add more row constraints as needed -->
                         </rowConstraints>
                     </GridPane>
                 </TitledPane>
+
                 <!-- Medication Records -->
                 <TitledPane text="Medication Records">
-                    <GridPane prefHeight="283.0" prefWidth="871.0" vgap="10.0">
-
-                        <!-- Medication Type -->
-                        <Label text="Medication Type" GridPane.columnIndex="0" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS" />
-                        <ComboBox maxWidth="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="150.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="0" GridPane.vgrow="ALWAYS">
-                            <items>
-                                <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Type X" />
-                                    <String fx:value="Type Y" />
-                                    <!-- Add more medication types as needed -->
-                                </FXCollections>
-                            </items>
-                        </ComboBox>
+                    <GridPane vgap="10.0">
 
                         <!-- Dosage -->
-                        <Label text="Dosage" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
-                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.vgrow="ALWAYS" />
+                        <Label text="Dosage" wrapText="true" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
+                        <TextField maxWidth="140.0" minWidth="140.0" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
 
                         <!-- Frequency -->
-                        <Label text="Frequency" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="3" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-
-                        <!-- Duration -->
-                        <Label text="Duration" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.vgrow="ALWAYS" />
-
-                        <!-- Response to Medication -->
-                        <Label text="Response to Medication" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
-
-                        <!-- Medication History -->
-                        <Label text="Medication History" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS" />
-                        <TextArea GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="3" GridPane.vgrow="ALWAYS" />
-                  <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.vgrow="ALWAYS">
+                        <Label text="Frequency" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
+                        <TextField maxWidth="140.0" minWidth="140.0" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.vgrow="ALWAYS" />
+                        <VBox alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.rowIndex="3">
+                            <Label text="Response to Medication" wrapText="true" />
+                        </VBox>
+                  <DatePicker minWidth="140.0" prefWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <VBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
+                            <Label text="Date Taken" textAlignment="CENTER" wrapText="true" />
+                        </VBox>
+                        <VBox alignment="CENTER_LEFT" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                            <Label text="Next Schedule" />
+                        </VBox>
+                  <DatePicker maxWidth="140.0" minWidth="140.0" GridPane.columnIndex="3" GridPane.rowIndex="2" />
+                        <VBox alignment="CENTER_LEFT" GridPane.rowIndex="1">
+                            <Label text="Type" />
+                        </VBox>
+                  <TextField maxWidth="140.0" minWidth="140.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <HBox alignment="CENTER" spacing="100.0" GridPane.columnSpan="4">
+                            <Label text="Category" />
+                            <ComboBox maxWidth="-Infinity" minWidth="-Infinity">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Vaccination" />
+                                        <String fx:value="Medication" />
+                                        <!-- Add more medication types as needed -->
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </HBox>
+                        <HBox alignment="CENTER" layoutX="660.0" layoutY="96.0" GridPane.columnIndex="3" GridPane.rowIndex="3">
+                            <CheckBox text="Negative" />
+                            <CheckBox text="Positive" />
+                        </HBox>
+                        <VBox alignment="CENTER" GridPane.columnIndex="5">
+                            <Label text="Previous Illnesses and Treatments" wrapText="true" />
+                        </VBox>
+                  <TableView prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="5" GridPane.rowIndex="1" GridPane.rowSpan="5">
+                     <columns>
+                        <TableColumn prefWidth="75.0" text="C1" />
+                        <TableColumn prefWidth="75.0" text="C2" />
+                     </columns>
+                  </TableView>
+                  <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="4" GridPane.rowIndex="1" GridPane.rowSpan="3" />
+                  <HBox alignment="CENTER_LEFT" GridPane.rowIndex="5">
                      <children>
-                              <CheckBox text="Negative" />
-                              <CheckBox text="Positive" />
+                        <Label text="Name" />
                      </children>
                   </HBox>
+                  <HBox alignment="CENTER" prefWidth="120.0" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                     <children>
+                        <Label text="Administered BY:" />
+                     </children>
+                  </HBox>
+                  <TextField GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2"
+                              GridPane.columnSpan="2" GridPane.rowIndex="5">
+                            <Label minWidth="50.0" text="Tel No."/>
+                            <HBox fx:id="inputContainer1" alignment="CENTER">
+                                <ImageView fx:id="imageView1" fitHeight="30" fitWidth="50.0" preserveRatio="true"/>
+                                <ComboBox fx:id="countryComboBox1" maxHeight="30.0" minHeight="30.0" minWidth="10"
+                                          prefHeight="30" prefWidth="35.0"/>
+                                <TextField fx:id="countryTextField1" minWidth="30.0" prefHeight="30"
+                                           prefWidth="60.0" promptText="Search"/>
+                                <TextField fx:id="restOfNumber1" prefHeight="30" prefWidth="120.0"
+                                           promptText="Rest of number"/>
+                            </HBox>
+                        </HBox>
+                        <HBox GridPane.columnIndex="1" GridPane.columnSpan="2" GridPane.rowIndex="6">
+                            <Button mnemonicParsing="false" text="Save"/>
+                        </HBox>
 
                         <!-- Add more rows and fields as needed for Medication Records -->
 
                         <columnConstraints>
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="-Infinity" minWidth="-Infinity" />
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="363.9999755859375" minWidth="-Infinity" prefWidth="363.9999755859375" />
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="187.20001220703125" minWidth="-Infinity" prefWidth="118.4000244140625" />
-                            <ColumnConstraints hgrow="ALWAYS" maxWidth="272.0" minWidth="228.79998779296875" prefWidth="264.79998779296875" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                            <ColumnConstraints hgrow="ALWAYS" />
+                     <ColumnConstraints hgrow="ALWAYS" />
+                     <ColumnConstraints hgrow="ALWAYS" />
+                     <ColumnConstraints hgrow="ALWAYS" />
+                     <ColumnConstraints hgrow="ALWAYS" minWidth="400.0" />
                         </columnConstraints>
 
                         <rowConstraints>
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
                             <RowConstraints vgrow="ALWAYS" />
-                            <RowConstraints vgrow="ALWAYS" />
-                            <RowConstraints vgrow="ALWAYS" />
-                            <RowConstraints vgrow="ALWAYS" />
-                            <RowConstraints />
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                     <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                            <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="ALWAYS" />
+                     <RowConstraints maxHeight="30.0" minHeight="30.0" prefHeight="30.0" vgrow="ALWAYS" />
+                     <RowConstraints maxHeight="0.0" minHeight="0.0" prefHeight="0.0" />
                             <!-- Add more row constraints as needed -->
                         </rowConstraints>
                     </GridPane>
@@ -350,28 +438,26 @@
                         <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                      </GridPane.margin></ListView>
                         <VBox alignment="CENTER" prefHeight="27.0" prefWidth="127.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="6" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
-                            <children>
-                                <ComboBox prefHeight="26.0" prefWidth="128.0" VBox.vgrow="ALWAYS">
-                                    <items>
-                                        <FXCollections fx:factory="observableArrayList">
-                                            <String fx:value="Normal" />
-                                            <String fx:value="Abnormal" />
-                                            <!-- Add more findings as needed -->
-                                        </FXCollections>
-                                    </items>
-                                    <VBox.margin>
-                                        <Insets bottom="10.0" left="10.0" right="10.0" />
-                                    </VBox.margin>
-                                </ComboBox>
-                                <TextField maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" promptText="Severity Rating">
-                                    <VBox.margin>
-                                        <Insets top="10.0" />
-                                    </VBox.margin>
-                                </TextField>
-                            </children>
-                     <GridPane.margin>
-                        <Insets left="10.0" />
-                     </GridPane.margin>
+                            <GridPane.margin>
+                                <Insets left="10.0" />
+                            </GridPane.margin>
+                            <ComboBox prefHeight="26.0" prefWidth="128.0" VBox.vgrow="ALWAYS">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Normal" />
+                                        <String fx:value="Abnormal" />
+                                        <!-- Add more findings as needed -->
+                                    </FXCollections>
+                                </items>
+                                <VBox.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" />
+                                </VBox.margin>
+                            </ComboBox>
+                            <TextField maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" promptText="Severity Rating">
+                                <VBox.margin>
+                                    <Insets top="10.0" />
+                                </VBox.margin>
+                            </TextField>
                         </VBox>
                   <Separator prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.valignment="BOTTOM" />
                   <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="4" GridPane.rowIndex="1" GridPane.rowSpan="10" />
@@ -423,28 +509,26 @@
                                 <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
                                 <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
                             </rowConstraints>
-                            <children>
-
-                                <Label text="Date and Time of Occurrence" wrapText="true" />
-                                <DatePicker GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-                                <!--                        <TimePicker GridPane.columnIndex="2" GridPane.rowIndex="1" />-->
-
-                                <Label text="Cause of Injury" wrapText="true" GridPane.rowIndex="1" />
-
-                                <!-- Injury Details -->
-                                <Label text="Type of Injury" wrapText="true" GridPane.rowIndex="2" />
-
-                                <Label text="Specific Body Part Affected" wrapText="true" GridPane.rowIndex="3" />
-                                <ComboBox prefWidth="142.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-                                <ComboBox prefWidth="142.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-
-                                <Label text="Severity" wrapText="true" GridPane.rowIndex="4" />
-                                <ComboBox prefWidth="142.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-                                <TextField GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-                            </children>
                             <GridPane.margin>
                                 <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                             </GridPane.margin>
+
+                            <Label text="Date and Time of Occurrence" wrapText="true" />
+                            <DatePicker GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                            <!--                        <TimePicker GridPane.columnIndex="2" GridPane.rowIndex="1" />-->
+
+                            <Label text="Cause of Injury" wrapText="true" GridPane.rowIndex="1" />
+
+                            <!-- Injury Details -->
+                            <Label text="Type of Injury" wrapText="true" GridPane.rowIndex="2" />
+
+                            <Label text="Specific Body Part Affected" wrapText="true" GridPane.rowIndex="3" />
+                            <ComboBox prefWidth="142.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                            <ComboBox prefWidth="142.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="3" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+
+                            <Label text="Severity" wrapText="true" GridPane.rowIndex="4" />
+                            <ComboBox prefWidth="142.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="4" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                            <TextField GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
                         </GridPane>
                         <Label text="INJURY DETAILS" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
                      <GridPane.margin>
@@ -455,153 +539,129 @@
                         <Insets bottom="10.0" />
                      </GridPane.margin></Label>
                         <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="3" GridPane.rowSpan="3">
-                            <children>
-                                <Label alignment="CENTER" text="Medications Administered" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
-                                <GridPane prefHeight="102.0">
-                                    <columnConstraints>
-                                        <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
-                                        <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
-                                    </columnConstraints>
-                                    <rowConstraints>
-                                        <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
-                                        <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
-                                        <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
-                                    </rowConstraints>
-                                    <children>
-
-                                        <!-- Medications Administered -->
-                                        <Label text="Type of Medication" wrapText="true" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-                                        <ComboBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="147.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-
-                                        <Label text="Dosage" GridPane.rowIndex="1" />
-                                        <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                                        <Label text="Frequency" GridPane.rowIndex="2" />
-                                        <TextField maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                                    </children>
-                                </GridPane>
-                            </children>
                             <padding>
                                 <Insets left="10.0" right="10.0" />
                             </padding>
+                            <Label alignment="CENTER" text="Medications Administered" textAlignment="CENTER" VBox.vgrow="ALWAYS" />
+                            <GridPane prefHeight="102.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints minHeight="-Infinity" valignment="CENTER" vgrow="ALWAYS" />
+                                </rowConstraints>
+                                <Label text="Type of Medication" wrapText="true" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                                <ComboBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="26.0" prefWidth="147.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+
+                                <Label text="Dosage" GridPane.rowIndex="1" />
+                                <TextField maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+
+                                <Label text="Frequency" GridPane.rowIndex="2" />
+                                <TextField maxHeight="-Infinity" maxWidth="-Infinity" minWidth="-Infinity" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                            </GridPane>
                         </VBox>
                         <VBox alignment="TOP_CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.rowIndex="6" GridPane.rowSpan="2">
-                            <children>
-
-                                <Label text="Veterinary Information" VBox.vgrow="ALWAYS" />
-                                <GridPane prefHeight="134.0" prefWidth="212.0">
-                                    <columnConstraints>
-                                        <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" prefWidth="100.0" />
-                                        <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" prefWidth="100.0" />
-                                    </columnConstraints>
-                                    <rowConstraints>
-                                        <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
-                                        <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
-                                    </rowConstraints>
-                                    <children>
-                                        <TextField promptText="Name" GridPane.hgrow="ALWAYS">
-                                 <GridPane.margin>
-                                    <Insets right="10.0" />
-                                 </GridPane.margin></TextField>
-                                        <TextField promptText="Address" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
-                                 <GridPane.margin>
-                                    <Insets right="10.0" />
-                                 </GridPane.margin></TextField>
-                                        <TextField promptText="Contact" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS">
-                                 <GridPane.margin>
-                                    <Insets left="10.0" />
-                                 </GridPane.margin></TextField>
-                                        <TextField promptText="Cost" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
-                                 <GridPane.margin>
-                                    <Insets left="10.0" />
-                                 </GridPane.margin></TextField>
-                                    </children>
-                                </GridPane>
-                            </children>
                             <GridPane.margin>
                                 <Insets bottom="10.0" left="10.0" right="10.0" />
                             </GridPane.margin>
+
+                            <Label text="Veterinary Information" VBox.vgrow="ALWAYS" />
+                            <GridPane prefHeight="134.0" prefWidth="212.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                <TextField promptText="Name" GridPane.hgrow="ALWAYS">
+                                    <GridPane.margin>
+                                        <Insets right="10.0" />
+                                    </GridPane.margin>
+                                </TextField>
+                                <TextField promptText="Address" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+                                    <GridPane.margin>
+                                        <Insets right="10.0" />
+                                    </GridPane.margin>
+                                </TextField>
+                                <TextField promptText="Contact" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS">
+                                    <GridPane.margin>
+                                        <Insets left="10.0" />
+                                    </GridPane.margin>
+                                </TextField>
+                                <TextField promptText="Cost" GridPane.columnIndex="1" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1">
+                                    <GridPane.margin>
+                                        <Insets left="10.0" />
+                                    </GridPane.margin>
+                                </TextField>
+                            </GridPane>
                         </VBox>
                         <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="2" GridPane.hgrow="ALWAYS" GridPane.rowSpan="8" GridPane.vgrow="ALWAYS" />
                         <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
-                            <children>
+                            <GridPane.margin>
+                                <Insets left="10.0" />
+                            </GridPane.margin>
 
-                                <!-- Additional Injury Details as needed -->
+                            <Label text="Initial First Aid Measures" wrapText="true" />
+                            <TextArea prefWidth="192.0" HBox.hgrow="ALWAYS">
+                                <HBox.margin>
+                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                </HBox.margin>
+                            </TextArea>
 
-                                <!-- Treatment Information -->
-                                <Label text="Initial First Aid Measures" wrapText="true" />
-                                <TextArea prefWidth="192.0" HBox.hgrow="ALWAYS">
-                                    <HBox.margin>
-                                        <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                    </HBox.margin>
-                                </TextArea>
-
-                            </children>
-                     <GridPane.margin>
-                        <Insets left="10.0" />
-                     </GridPane.margin>
                         </HBox>
-                        <Label text="FOLLOW-UP TEATMENT PLAN" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER">
+                        <Label text="FOLLOW-UP TREATMENT PLAN" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER">
                      <GridPane.margin>
                         <Insets bottom="10.0" />
                      </GridPane.margin></Label>
                         <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnIndex="4" GridPane.columnSpan="2" GridPane.rowIndex="1" GridPane.rowSpan="7">
-                            <children>
-                                <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="194.0" VBox.vgrow="ALWAYS">
-                                    <children>
+                            <HBox alignment="CENTER_LEFT" prefHeight="54.0" prefWidth="194.0" VBox.vgrow="ALWAYS">
+                                <Label maxWidth="-Infinity" text="Follow-up Treatment Type" wrapText="true" HBox.hgrow="ALWAYS">
+                                    <HBox.margin>
+                                        <Insets left="10.0" />
+                                    </HBox.margin>
+                                </Label>
+                                <ComboBox fx:id="followUpTreatmentTypeComboBox" HBox.hgrow="ALWAYS">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Regular Checkup" />
+                                            <String fx:value="Medication Adjustment" />
+                                            <String fx:value="Rehabilitation Session" />
+                                            <String fx:value="Additional Diagnostic Tests" />
+                                            <String fx:value="Other" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+                                <VBox.margin>
+                                    <Insets bottom="10.0" left="10.0" top="10.0" />
+                                </VBox.margin>
 
-                                        <!-- Follow-up Treatment Type -->
-                                        <Label maxWidth="-Infinity" text="Follow-up Treatment Type" wrapText="true" HBox.hgrow="ALWAYS">
-                                 <HBox.margin>
+
+                                <Label text="Monitoring Instructions" wrapText="true" />
+                                <TextArea fx:id="monitoringInstructionsTextArea" prefWidth="150.0" HBox.hgrow="ALWAYS" />
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+                                <VBox.margin>
                                     <Insets left="10.0" />
-                                 </HBox.margin></Label>
-                                        <ComboBox fx:id="followUpTreatmentTypeComboBox" HBox.hgrow="ALWAYS">
-                                            <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                    <String fx:value="Regular Checkup" />
-                                                    <String fx:value="Medication Adjustment" />
-                                                    <String fx:value="Rehabilitation Session" />
-                                                    <String fx:value="Additional Diagnostic Tests" />
-                                                    <String fx:value="Other" />
-                                                </FXCollections>
-                                            </items>
-                                        </ComboBox>
-                                    </children>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
-                                    <children>
+                                </VBox.margin>
 
-                                        <!-- Monitoring Instructions -->
-                                        <Label text="Monitoring Instructions" wrapText="true" />
-                                        <TextArea fx:id="monitoringInstructionsTextArea" prefWidth="150.0" HBox.hgrow="ALWAYS" />
-                                    </children>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" top="10.0" />
-                           </VBox.margin>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
-                                    <children>
+                                <Label prefHeight="26.0" prefWidth="129.0" text="Scheduled Procedures" wrapText="true" HBox.hgrow="ALWAYS" />
+                                <TextField fx:id="scheduledProceduresTextField" prefHeight="26.0" prefWidth="126.0" HBox.hgrow="ALWAYS" />
+                            </HBox>
+                            <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
+                                <VBox.margin>
+                                    <Insets bottom="10.0" left="10.0" top="10.0" />
+                                </VBox.margin>
 
-                                        <!-- Scheduled Procedures -->
-                                        <Label prefHeight="26.0" prefWidth="129.0" text="Scheduled Procedures" wrapText="true" HBox.hgrow="ALWAYS" />
-                                        <TextField fx:id="scheduledProceduresTextField" prefHeight="26.0" prefWidth="126.0" HBox.hgrow="ALWAYS" />
-                                    </children>
-                           <VBox.margin>
-                              <Insets left="10.0" />
-                           </VBox.margin>
-                                </HBox>
-                                <HBox alignment="CENTER_LEFT" VBox.vgrow="ALWAYS">
-                                    <children>
-
-                                        <!-- Follow-up Medications -->
-                                        <Label alignment="CENTER" text="Follow-up Medications" wrapText="true" HBox.hgrow="ALWAYS" />
-                                        <TextArea fx:id="followUpMedicationsTextArea" prefWidth="150.0" HBox.hgrow="ALWAYS" />
-                                    </children>
-                           <VBox.margin>
-                              <Insets bottom="10.0" left="10.0" top="10.0" />
-                           </VBox.margin>
-                                </HBox>
-                            </children>
+                                <Label alignment="CENTER" text="Follow-up Medications" wrapText="true" HBox.hgrow="ALWAYS" />
+                                <TextArea fx:id="followUpMedicationsTextArea" prefWidth="150.0" HBox.hgrow="ALWAYS" />
+                            </HBox>
                         </VBox>
                   <Separator orientation="VERTICAL" prefHeight="200.0" GridPane.columnIndex="4" GridPane.rowSpan="8" />
                   <Separator prefWidth="200.0" GridPane.columnSpan="2" GridPane.hgrow="ALWAYS" GridPane.valignment="BOTTOM" />
@@ -647,83 +707,71 @@
                         <VBox HBox.hgrow="ALWAYS">
                      <Label text="SURGICAL DETAILS" />
                      <Separator prefWidth="200.0" />
-                     <GridPane prefHeight="486.0" prefWidth="226.0" VBox.vgrow="ALWAYS">
-                       <columnConstraints>
-                         <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
-                         <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
-                       </columnConstraints>
-                       <rowConstraints>
-                           <RowConstraints maxHeight="232.8000244140625" minHeight="-Infinity" prefHeight="232.8000244140625" valignment="CENTER" vgrow="ALWAYS" />
-                         <RowConstraints maxHeight="67.79999389648438" minHeight="-Infinity" prefHeight="35.99999389648437" valignment="CENTER" vgrow="ALWAYS" />
-                         <RowConstraints maxHeight="75.99999999999997" minHeight="11.0" prefHeight="26.399981689453114" valignment="CENTER" vgrow="ALWAYS" />
-                         <RowConstraints maxHeight="110.60000000000002" minHeight="-Infinity" prefHeight="25.600018310546886" valignment="CENTER" vgrow="ALWAYS" />
-                           <RowConstraints maxHeight="121.60003051757815" minHeight="-Infinity" prefHeight="36.80001220703127" valignment="CENTER" vgrow="ALWAYS" />
-                           <RowConstraints maxHeight="132.79998168945315" minHeight="-Infinity" prefHeight="44.00001220703126" valignment="CENTER" vgrow="ALWAYS" />
-                       </rowConstraints>
-                        <children>
-      
-                                  <!-- Surgeon Information -->
-                                  <Label text="Surgeon Information" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
-                                  <Label text="Name" GridPane.rowIndex="3" />
-                                  <TextField fx:id="surgeonNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                                  <Label text="Contact" GridPane.rowIndex="4" />
-                                  <TextField fx:id="surgeonContactTextField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-      
-                                  <!-- Anesthesia Used -->
-                                  <Label text="Anesthesia Used" GridPane.rowIndex="5" />
-                                  <ComboBox fx:id="anesthesiaTypeComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5">
-                                      <items>
-                                          <FXCollections fx:factory="observableArrayList">
-                                              <String fx:value="General Anesthesia" />
-                                              <String fx:value="Local Anesthesia" />
-                                              <String fx:value="Epidural Anesthesia" />
-                                              <String fx:value="Other" />
-                                          </FXCollections>
-                                      </items>
-                                  </ComboBox>
-                           <GridPane GridPane.columnSpan="2">
-                             <columnConstraints>
-                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                               <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                             </columnConstraints>
-                             <rowConstraints>
-                               <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
-                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                               <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                                 <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                             </rowConstraints>
-                              <children>
-                                        <!-- Type of Surgery -->
-                                        <Label text="Type of Surgery" wrapText="true" />
-                                        <ComboBox fx:id="typeOfSurgeryComboBox" GridPane.rowIndex="1">
-                                            <items>
-                                                <FXCollections fx:factory="observableArrayList">
-                                                    <String fx:value="Orthopedic Surgery" />
-                                                    <String fx:value="Soft Tissue Surgery" />
-                                                    <String fx:value="Internal Surgery" />
-                                                    <String fx:value="Other" />
-                                                </FXCollections>
-                                            </items>
-                                        </ComboBox>
-            
-                                                    <!-- Date and Time of Surgery -->
-                                        <Label text="Date and Time of Surgery" wrapText="true" GridPane.columnIndex="1" />
-                                        <DatePicker fx:id="dateOfSurgeryDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                 <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
-                                    <children>
-                                              <!--                                <TimePicker fx:id="timeOfSurgeryTimePicker" />-->
-                  
-                                                          <!-- Surgical Procedure Details -->
-                                              <Label text="Surgical Procedure Details" wrapText="true" />
-                                              <TextArea fx:id="surgicalProcedureDetailsTextArea" prefHeight="170.0" prefWidth="332.0" />
-                                    </children>
-                                 </VBox>
-                              </children>
-                           </GridPane>
-                                  <TextField fx:id="anesthesiaDosageTextField" prefHeight="26.0" prefWidth="191.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                  <Label text="Dosage" GridPane.rowIndex="1" />
-                        </children>
-                     </GridPane>
+                            <GridPane prefHeight="486.0" prefWidth="226.0" VBox.vgrow="ALWAYS">
+                                <columnConstraints>
+                                    <ColumnConstraints halignment="LEFT" hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="ALWAYS" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints maxHeight="232.8000244140625" minHeight="-Infinity" prefHeight="232.8000244140625" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="67.79999389648438" minHeight="-Infinity" prefHeight="35.99999389648437" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="75.99999999999997" minHeight="11.0" prefHeight="26.399981689453114" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="110.60000000000002" minHeight="-Infinity" prefHeight="25.600018310546886" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="121.60003051757815" minHeight="-Infinity" prefHeight="36.80001220703127" valignment="CENTER" vgrow="ALWAYS" />
+                                    <RowConstraints maxHeight="132.79998168945315" minHeight="-Infinity" prefHeight="44.00001220703126" valignment="CENTER" vgrow="ALWAYS" />
+                                </rowConstraints>
+                                <Label text="Surgeon Information" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                                <Label text="Name" GridPane.rowIndex="3" />
+                                <TextField fx:id="surgeonNameTextField" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                                <Label text="Contact" GridPane.rowIndex="4" />
+                                <TextField fx:id="surgeonContactTextField" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+
+                                <!-- Anesthesia Used -->
+                                <Label text="Anesthesia Used" GridPane.rowIndex="5" />
+                                <ComboBox fx:id="anesthesiaTypeComboBox" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="General Anesthesia" />
+                                            <String fx:value="Local Anesthesia" />
+                                            <String fx:value="Epidural Anesthesia" />
+                                            <String fx:value="Other" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                                <GridPane GridPane.columnSpan="2">
+                                    <columnConstraints>
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                        <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    </columnConstraints>
+                                    <rowConstraints>
+                                        <RowConstraints minHeight="-Infinity" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                        <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                    </rowConstraints>
+                                    <Label text="Type of Surgery" wrapText="true" />
+                                    <ComboBox fx:id="typeOfSurgeryComboBox" GridPane.rowIndex="1">
+                                        <items>
+                                            <FXCollections fx:factory="observableArrayList">
+                                                <String fx:value="Orthopedic Surgery" />
+                                                <String fx:value="Soft Tissue Surgery" />
+                                                <String fx:value="Internal Surgery" />
+                                                <String fx:value="Other" />
+                                            </FXCollections>
+                                        </items>
+                                    </ComboBox>
+
+                                    <!-- Date and Time of Surgery -->
+                                    <Label text="Date and Time of Surgery" wrapText="true" GridPane.columnIndex="1" />
+                                    <DatePicker fx:id="dateOfSurgeryDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                    <VBox prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.rowIndex="2" GridPane.rowSpan="2">
+                                        <Label text="Surgical Procedure Details" wrapText="true" />
+                                        <TextArea fx:id="surgicalProcedureDetailsTextArea" prefHeight="170.0" prefWidth="332.0" />
+                                    </VBox>
+                                </GridPane>
+                                <TextField fx:id="anesthesiaDosageTextField" prefHeight="26.0" prefWidth="191.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label text="Dosage" GridPane.rowIndex="1" />
+                            </GridPane>
                      <HBox.margin>
                         <Insets left="10.0" right="10.0" />
                      </HBox.margin>
@@ -734,83 +782,71 @@
                             <!-- Post-Surgery Care -->
                             <Label text="POST-SURGERY CARE" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
                      <Separator prefWidth="200.0" />
-                     <GridPane prefHeight="146.0" prefWidth="358.0">
-                       <columnConstraints>
-                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                       </columnConstraints>
-                       <rowConstraints>
-                         <RowConstraints maxHeight="35.60001220703125" minHeight="10.0" prefHeight="29.00002326965332" vgrow="SOMETIMES" />
-                         <RowConstraints maxHeight="62.80001106262207" minHeight="10.0" prefHeight="30.99998168945313" vgrow="SOMETIMES" />
-                         <RowConstraints maxHeight="71.00001373291016" minHeight="10.0" prefHeight="25.40001831054687" vgrow="SOMETIMES" />
-                           <RowConstraints maxHeight="75.39997711181641" minHeight="10.0" prefHeight="34.199974060058594" vgrow="SOMETIMES" />
-                           <RowConstraints maxHeight="79.79998626708985" minHeight="10.0" prefHeight="28.600027465820318" vgrow="SOMETIMES" />
-                       </rowConstraints>
-                        <children>
-                                  <Label text="Type" />
-                                  <ComboBox fx:id="postSurgeryMedicationTypeComboBox" GridPane.columnIndex="1">
-                                      <items>
-                                          <FXCollections fx:factory="observableArrayList">
-                                              <String fx:value="Pain Medication" />
-                                              <String fx:value="Antibiotics" />
-                                              <String fx:value="Anti-inflammatory" />
-                                              <String fx:value="Other" />
-                                          </FXCollections>
-                                      </items>
-                                  </ComboBox>
-                                  <TextField fx:id="postSurgeryMedicationDosageTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                                  <Label text="Dosage" GridPane.rowIndex="1" />
-                                  <Label text="Frequency" GridPane.rowIndex="2" />
-                                  <TextField fx:id="postSurgeryMedicationFrequencyTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-      
-                                  <!-- Follow-up Appointments Schedule -->
-                                  <Label text="Follow-up Appointments Schedule" GridPane.rowIndex="3" />
-                                  <DatePicker fx:id="followUpAppointmentsDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-      
-                                  <!-- Physical Activity Restrictions -->
-                                  <Label text="Physical Activity Restrictions" GridPane.rowIndex="4" />
-                                  <ComboBox fx:id="physicalActivityRestrictionsComboBox" GridPane.columnIndex="1" GridPane.rowIndex="4">
-                                      <items>
-                                          <FXCollections fx:factory="observableArrayList">
-                                              <String fx:value="Restricted Movement" />
-                                              <String fx:value="Limited Exercise" />
-                                              <String fx:value="No Physical Activity" />
-                                              <String fx:value="Other" />
-                                          </FXCollections>
-                                      </items>
-                                  </ComboBox>
-                        </children>
-                     </GridPane>
-                     <GridPane prefHeight="264.0" prefWidth="358.0">
-                       <columnConstraints>
-                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                         <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                       </columnConstraints>
-                       <rowConstraints>
-                         <RowConstraints maxHeight="65.20001220703125" minHeight="-Infinity" prefHeight="64.39999389648438" vgrow="SOMETIMES" />
-                         <RowConstraints maxHeight="73.79998779296875" minHeight="-Infinity" prefHeight="47.399993896484375" vgrow="SOMETIMES" />
-                         <RowConstraints maxHeight="74.60001220703126" minHeight="-Infinity" prefHeight="54.600012207031256" vgrow="SOMETIMES" />
-                           <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                       </rowConstraints>
-                        <children>
-                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
-                              <children>
-            
-                                        <!-- Wound Care Instructions -->
-                                        <Label text="Wound Care Instructions" wrapText="true" />
-                                        <TextArea fx:id="woundCareInstructionsTextArea" prefHeight="186.0" prefWidth="358.0" />
-                              </children>
-                           </VBox>
-                           <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
-                              <children>
-            
-                                        <!-- Rehabilitation Plan -->
-                                        <Label text="Rehabilitation Plan" wrapText="true" />
-                                        <TextArea fx:id="rehabilitationPlanTextArea" prefHeight="148.0" prefWidth="358.0" />
-                              </children>
-                           </VBox>
-                        </children>
-                     </GridPane>
+                            <GridPane prefHeight="146.0" prefWidth="358.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints maxHeight="35.60001220703125" minHeight="10.0" prefHeight="29.00002326965332" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="62.80001106262207" minHeight="10.0" prefHeight="30.99998168945313" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="71.00001373291016" minHeight="10.0" prefHeight="25.40001831054687" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="75.39997711181641" minHeight="10.0" prefHeight="34.199974060058594" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="79.79998626708985" minHeight="10.0" prefHeight="28.600027465820318" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                <Label text="Type" />
+                                <ComboBox fx:id="postSurgeryMedicationTypeComboBox" GridPane.columnIndex="1">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Pain Medication" />
+                                            <String fx:value="Antibiotics" />
+                                            <String fx:value="Anti-inflammatory" />
+                                            <String fx:value="Other" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                                <TextField fx:id="postSurgeryMedicationDosageTextField" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <Label text="Dosage" GridPane.rowIndex="1" />
+                                <Label text="Frequency" GridPane.rowIndex="2" />
+                                <TextField fx:id="postSurgeryMedicationFrequencyTextField" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+
+                                <!-- Follow-up Appointments Schedule -->
+                                <Label text="Follow-up Appointments Schedule" GridPane.rowIndex="3" />
+                                <DatePicker fx:id="followUpAppointmentsDatePicker" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+
+                                <!-- Physical Activity Restrictions -->
+                                <Label text="Physical Activity Restrictions" GridPane.rowIndex="4" />
+                                <ComboBox fx:id="physicalActivityRestrictionsComboBox" GridPane.columnIndex="1" GridPane.rowIndex="4">
+                                    <items>
+                                        <FXCollections fx:factory="observableArrayList">
+                                            <String fx:value="Restricted Movement" />
+                                            <String fx:value="Limited Exercise" />
+                                            <String fx:value="No Physical Activity" />
+                                            <String fx:value="Other" />
+                                        </FXCollections>
+                                    </items>
+                                </ComboBox>
+                            </GridPane>
+                            <GridPane prefHeight="264.0" prefWidth="358.0">
+                                <columnConstraints>
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                    <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                                </columnConstraints>
+                                <rowConstraints>
+                                    <RowConstraints maxHeight="65.20001220703125" minHeight="-Infinity" prefHeight="64.39999389648438" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="73.79998779296875" minHeight="-Infinity" prefHeight="47.399993896484375" vgrow="SOMETIMES" />
+                                    <RowConstraints maxHeight="74.60001220703126" minHeight="-Infinity" prefHeight="54.600012207031256" vgrow="SOMETIMES" />
+                                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
+                                </rowConstraints>
+                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                                    <Label text="Wound Care Instructions" wrapText="true" />
+                                    <TextArea fx:id="woundCareInstructionsTextArea" prefHeight="186.0" prefWidth="358.0" />
+                                </VBox>
+                                <VBox alignment="CENTER" prefHeight="200.0" prefWidth="100.0" GridPane.columnSpan="2" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                                    <Label text="Rehabilitation Plan" wrapText="true" />
+                                    <TextArea fx:id="rehabilitationPlanTextArea" prefHeight="148.0" prefWidth="358.0" />
+                                </VBox>
+                            </GridPane>
                      <HBox.margin>
                         <Insets left="10.0" right="10.0" />
                      </HBox.margin>
@@ -823,37 +859,17 @@
 
 
 
-                <!-- Complications -->
-                <!-- Add controls for complications similar to the above categories -->
 
-                <!-- Recovery Progress -->
-                <!-- Add controls for recovery progress similar to the above categories -->
-
-                <!-- Diagnostic Tests -->
-                <!-- Add controls for diagnostic tests similar to the above categories -->
-
-                <!-- Images and Documentation -->
-                <!-- Add controls for images and documentation similar to the above categories -->
-
-                <!-- Follow-up Recommendations -->
-                <!-- Add controls for follow-up recommendations similar to the above categories -->
-
-                <!-- Notes and Comments -->
-                <!-- Add controls for notes and comments similar to the above categories -->
 
             </panes>
 
 
         </Accordion>
+        <padding>
+            <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
+        </padding>
 
-        <!-- Notes and Comments -->
-        <!--                <GridPane>-->
-        <!--                    <Label text="Notes" GridPane.columnIndex="0" GridPane.rowIndex="0"/>-->
-        <!--                    <TextArea GridPane.columnIndex="1" GridPane.rowIndex="0" prefHeight="100"/>-->
 
-        <!--                    &lt;!&ndash; Add more rows as needed for Notes and Comments &ndash;&gt;-->
-
-        <!--                </GridPane>-->
 
     </VBox>
 

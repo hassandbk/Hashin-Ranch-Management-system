@@ -66,11 +66,20 @@ public class OffspringDAO {
         preparedStatement.setInt(2, offspring.getEaseOfCalving());
         preparedStatement.setInt(3, offspring.getGestationLength());
         preparedStatement.setDouble(4, offspring.getMeasuredWeight());
-        preparedStatement.setDate(5, Date.valueOf(offspring.getLastDateWeightTaken()));
+
+        // Handle potential null value for date
+        LocalDate lastDateWeightTaken = offspring.getLastDateWeightTaken();
+        if (lastDateWeightTaken != null) {
+            preparedStatement.setDate(5, java.sql.Date.valueOf(lastDateWeightTaken));
+        } else {
+            preparedStatement.setNull(5, java.sql.Types.DATE);
+        }
+
         preparedStatement.setString(6, offspring.getIntendedUse());
         preparedStatement.setString(7, offspring.getCattleId());
         preparedStatement.setString(8, offspring.getBreedingMethod());
     }
+
 
     private static Offspring mapResultSetToOffspring(ResultSet resultSet) throws SQLException {
         int offspringId = resultSet.getInt("OffspringID");

@@ -8,39 +8,21 @@
     <TabPane fx:id="mainTabPane">
 
         <Tab text="Animal Details">
+            <fx:include source="centerRightViews/Characteristics.fxml"/>
 
-            <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
-
-                <Tab text="Characteristics">
-                    <fx:include source="centerRightViews/Characteristics.fxml"/>
-                </Tab>
-                <Tab text="Detailed Information">
-                    <fx:include source="centerRightViews/DetailedInformation.fxml"/>
-                </Tab>
-
-
-            </TabPane>
         </Tab>
 
 
 
-        <Tab text="Reproduction And Breeding">
-
-            <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
-                <Tab text="Reproduction Reports">
-                    <fx:include source="centerRightViews/ReproductionReports.fxml"/>
-                </Tab>
-                <Tab text="Mating and Breeding Details">
-                    <fx:include source="centerRightViews/MatingAndBreedingDetails.fxml"/>
-                </Tab>
-            </TabPane>
+        <Tab text="Breeding">
+           <fx:include source="centerRightViews/MatingAndBreedingDetails.fxml"/>
         </Tab>
 
-        <Tab text="Productivity and Calving" fx:id="productivityAndCalvingTab">
+        <Tab text="Productivity" fx:id="productivityAndCalvingTab">
             <fx:include source="centerRightViews/ProductivityAndCalving.fxml"/>
         </Tab>
 
-        <Tab text="Detailed Health Records">
+        <Tab text="Health Records">
             <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Medical History">
                     <fx:include source="centerRightViews/MedicalHistory.fxml"/>
@@ -55,7 +37,7 @@
         </Tab>
 
 
-        <Tab text="Feeding And Nutrition">
+        <Tab text="Feeding">
             <TabPane side="BOTTOM" tabClosingPolicy="UNAVAILABLE">
                 <Tab text="Feed Consumption">
                     <fx:include source="centerRightViews/FeedConsumption.fxml"/>
