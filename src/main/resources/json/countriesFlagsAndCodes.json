@@ -1,0 +1,1484 @@
+[
+    {
+        "name": "Afghanistan",
+        "alpha2": "AF",
+        "callingCode": "+93",
+        "flagName": "af.png"
+    },
+    {
+        "name": "Aland Islands",
+        "alpha2": "AX",
+        "callingCode": "+35818",
+        "flagName": "ax.png"
+    },
+    {
+        "name": "Albania",
+        "alpha2": "AL",
+        "callingCode": "+355",
+        "flagName": "al.png"
+    },
+    {
+        "name": "Algeria",
+        "alpha2": "DZ",
+        "callingCode": "+213",
+        "flagName": "dz.png"
+    },
+    {
+        "name": "American Samoa",
+        "alpha2": "AS",
+        "callingCode": "+1684",
+        "flagName": "as.png"
+    },
+    {
+        "name": "Andorra",
+        "alpha2": "AD",
+        "callingCode": "+376",
+        "flagName": "ad.png"
+    },
+    {
+        "name": "Angola",
+        "alpha2": "AO",
+        "callingCode": "+244",
+        "flagName": "ao.png"
+    },
+    {
+        "name": "Anguilla",
+        "alpha2": "AI",
+        "callingCode": "+1264",
+        "flagName": "ai.png"
+    },
+    {
+        "name": "Antigua and Barbuda",
+        "alpha2": "AG",
+        "callingCode": "+1268",
+        "flagName": "ag.png"
+    },
+    {
+        "name": "Argentina",
+        "alpha2": "AR",
+        "callingCode": "+54",
+        "flagName": "ar.png"
+    },
+    {
+        "name": "Armenia",
+        "alpha2": "AM",
+        "callingCode": "+374",
+        "flagName": "am.png"
+    },
+    {
+        "name": "Aruba",
+        "alpha2": "AW",
+        "callingCode": "+297",
+        "flagName": "aw.png"
+    },
+    {
+        "name": "Australia",
+        "alpha2": "AU",
+        "callingCode": "+61",
+        "flagName": "au.png"
+    },
+    {
+        "name": "Austria",
+        "alpha2": "AT",
+        "callingCode": "+43",
+        "flagName": "at.png"
+    },
+    {
+        "name": "Azerbaijan",
+        "alpha2": "AZ",
+        "callingCode": "+994",
+        "flagName": "az.png"
+    },
+    {
+        "name": "Bahamas",
+        "alpha2": "BS",
+        "callingCode": "+1242",
+        "flagName": "bs.png"
+    },
+    {
+        "name": "Bahrain",
+        "alpha2": "BH",
+        "callingCode": "+973",
+        "flagName": "bh.png"
+    },
+    {
+        "name": "Bangladesh",
+        "alpha2": "BD",
+        "callingCode": "+880",
+        "flagName": "bd.png"
+    },
+    {
+        "name": "Barbados",
+        "alpha2": "BB",
+        "callingCode": "+1246",
+        "flagName": "bb.png"
+    },
+    {
+        "name": "Belarus",
+        "alpha2": "BY",
+        "callingCode": "+375",
+        "flagName": "by.png"
+    },
+    {
+        "name": "Belgium",
+        "alpha2": "BE",
+        "callingCode": "+32",
+        "flagName": "be.png"
+    },
+    {
+        "name": "Belize",
+        "alpha2": "BZ",
+        "callingCode": "+501",
+        "flagName": "bz.png"
+    },
+    {
+        "name": "Benin",
+        "alpha2": "BJ",
+        "callingCode": "+229",
+        "flagName": "bj.png"
+    },
+    {
+        "name": "Bermuda",
+        "alpha2": "BM",
+        "callingCode": "+1441",
+        "flagName": "bm.png"
+    },
+    {
+        "name": "Bhutan",
+        "alpha2": "BT",
+        "callingCode": "+975",
+        "flagName": "bt.png"
+    },
+    {
+        "name": "Bolivia (Plurinational State of)",
+        "alpha2": "BO",
+        "callingCode": "+591",
+        "flagName": "bo.png"
+    },
+    {
+        "name": "Bonaire, Sint Eustatius and Saba",
+        "alpha2": "BQ",
+        "callingCode": "+599",
+        "flagName": "bq.png"
+    },
+    {
+        "name": "Bosnia and Herzegovina",
+        "alpha2": "BA",
+        "callingCode": "+387",
+        "flagName": "ba.png"
+    },
+    {
+        "name": "Botswana",
+        "alpha2": "BW",
+        "callingCode": "+267",
+        "flagName": "bw.png"
+    },
+    {
+        "name": "Bouvet Island",
+        "alpha2": "BV",
+        "callingCode": "+47",
+        "flagName": "bv.png"
+    },
+    {
+        "name": "Brazil",
+        "alpha2": "BR",
+        "callingCode": "+55",
+        "flagName": "br.png"
+    },
+    {
+        "name": "British Indian Ocean Territory",
+        "alpha2": "IO",
+        "callingCode": "+246",
+        "flagName": "io.png"
+    },
+    {
+        "name": "Brunei Darussalam",
+        "alpha2": "BN",
+        "callingCode": "+673",
+        "flagName": "bn.png"
+    },
+    {
+        "name": "Bulgaria",
+        "alpha2": "BG",
+        "callingCode": "+359",
+        "flagName": "bg.png"
+    },
+    {
+        "name": "Burkina Faso",
+        "alpha2": "BF",
+        "callingCode": "+226",
+        "flagName": "bf.png"
+    },
+    {
+        "name": "Burundi",
+        "alpha2": "BI",
+        "callingCode": "+257",
+        "flagName": "bi.png"
+    },
+    {
+        "name": "Cabo Verde",
+        "alpha2": "CV",
+        "callingCode": "+238",
+        "flagName": "cv.png"
+    },
+    {
+        "name": "Cambodia",
+        "alpha2": "KH",
+        "callingCode": "+855",
+        "flagName": "kh.png"
+    },
+    {
+        "name": "Cameroon",
+        "alpha2": "CM",
+        "callingCode": "+237",
+        "flagName": "cm.png"
+    },
+    {
+        "name": "Canada",
+        "alpha2": "CA",
+        "callingCode": "+1",
+        "flagName": "ca.png"
+    },
+    {
+        "name": "Cayman Islands",
+        "alpha2": "KY",
+        "callingCode": "+1345",
+        "flagName": "ky.png"
+    },
+    {
+        "name": "Central African Republic",
+        "alpha2": "CF",
+        "callingCode": "+236",
+        "flagName": "cf.png"
+    },
+    {
+        "name": "Chad",
+        "alpha2": "TD",
+        "callingCode": "+235",
+        "flagName": "td.png"
+    },
+    {
+        "name": "Chile",
+        "alpha2": "CL",
+        "callingCode": "+56",
+        "flagName": "cl.png"
+    },
+    {
+        "name": "China",
+        "alpha2": "CN",
+        "callingCode": "+86",
+        "flagName": "cn.png"
+    },
+    {
+        "name": "Christmas Island",
+        "alpha2": "CX",
+        "callingCode": "+61",
+        "flagName": "cx.png"
+    },
+    {
+        "name": "Cocos (Keeling) Islands",
+        "alpha2": "CC",
+        "callingCode": "+61",
+        "flagName": "cc.png"
+    },
+    {
+        "name": "Colombia",
+        "alpha2": "CO",
+        "callingCode": "+57",
+        "flagName": "co.png"
+    },
+    {
+        "name": "Comoros",
+        "alpha2": "KM",
+        "callingCode": "+269",
+        "flagName": "km.png"
+    },
+    {
+        "name": "Congo",
+        "alpha2": "CG",
+        "callingCode": "+242",
+        "flagName": "cg.png"
+    },
+    {
+        "name": "Congo (Democratic Republic of the)",
+        "alpha2": "CD",
+        "callingCode": "+243",
+        "flagName": "cd.png"
+    },
+    {
+        "name": "Cook Islands",
+        "alpha2": "CK",
+        "callingCode": "+682",
+        "flagName": "ck.png"
+    },
+    {
+        "name": "Costa Rica",
+        "alpha2": "CR",
+        "callingCode": "+506",
+        "flagName": "cr.png"
+    },
+    {
+        "name": "Cote d'Ivoire",
+        "alpha2": "CI",
+        "callingCode": "+225",
+        "flagName": "ci.png"
+    },
+    {
+        "name": "Croatia",
+        "alpha2": "HR",
+        "callingCode": "+385",
+        "flagName": "hr.png"
+    },
+    {
+        "name": "Cuba",
+        "alpha2": "CU",
+        "callingCode": "+53",
+        "flagName": "cu.png"
+    },
+    {
+        "name": "Curacao",
+        "alpha2": "CW",
+        "callingCode": "+599",
+        "flagName": "cw.png"
+    },
+    {
+        "name": "Cyprus",
+        "alpha2": "CY",
+        "callingCode": "+357",
+        "flagName": "cy.png"
+    },
+    {
+        "name": "Czechia",
+        "alpha2": "CZ",
+        "callingCode": "+420",
+        "flagName": "cz.png"
+    },
+    {
+        "name": "Denmark",
+        "alpha2": "DK",
+        "callingCode": "+45",
+        "flagName": "dk.png"
+    },
+    {
+        "name": "Djibouti",
+        "alpha2": "DJ",
+        "callingCode": "+253",
+        "flagName": "dj.png"
+    },
+    {
+        "name": "Dominica",
+        "alpha2": "DM",
+        "callingCode": "+1767",
+        "flagName": "dm.png"
+    },
+    {
+        "name": "Dominican Republic",
+        "alpha2": "DO",
+        "callingCode": "+1809",
+        "flagName": "do.png"
+    },
+    {
+        "name": "Ecuador",
+        "alpha2": "EC",
+        "callingCode": "+593",
+        "flagName": "ec.png"
+    },
+    {
+        "name": "Egypt",
+        "alpha2": "EG",
+        "callingCode": "+20",
+        "flagName": "eg.png"
+    },
+    {
+        "name": "El Salvador",
+        "alpha2": "SV",
+        "callingCode": "+503",
+        "flagName": "sv.png"
+    },
+    {
+        "name": "Equatorial Guinea",
+        "alpha2": "GQ",
+        "callingCode": "+240",
+        "flagName": "gq.png"
+    },
+    {
+        "name": "Eritrea",
+        "alpha2": "ER",
+        "callingCode": "+291",
+        "flagName": "er.png"
+    },
+    {
+        "name": "Estonia",
+        "alpha2": "EE",
+        "callingCode": "+372",
+        "flagName": "ee.png"
+    },
+    {
+        "name": "Ethiopia",
+        "alpha2": "ET",
+        "callingCode": "+251",
+        "flagName": "et.png"
+    },
+    {
+        "name": "Eswatini",
+        "alpha2": "SZ",
+        "callingCode": "+268",
+        "flagName": "sz.png"
+    },
+    {
+        "name": "Falkland Islands (Malvinas)",
+        "alpha2": "FK",
+        "callingCode": "+500",
+        "flagName": "fk.png"
+    },
+    {
+        "name": "Faroe Islands",
+        "alpha2": "FO",
+        "callingCode": "+298",
+        "flagName": "fo.png"
+    },
+    {
+        "name": "Fiji",
+        "alpha2": "FJ",
+        "callingCode": "+679",
+        "flagName": "fj.png"
+    },
+    {
+        "name": "Finland",
+        "alpha2": "FI",
+        "callingCode": "+358",
+        "flagName": "fi.png"
+    },
+    {
+        "name": "France",
+        "alpha2": "FR",
+        "callingCode": "+33",
+        "flagName": "fr.png"
+    },
+    {
+        "name": "French Guiana",
+        "alpha2": "GF",
+        "callingCode": "+594",
+        "flagName": "gf.png"
+    },
+    {
+        "name": "French Polynesia",
+        "alpha2": "PF",
+        "callingCode": "+689",
+        "flagName": "pf.png"
+    },
+    {
+        "name": "French Southern Territories",
+        "alpha2": "TF",
+        "callingCode": "+262",
+        "flagName": "tf.png"
+    },
+    {
+        "name": "Gabon",
+        "alpha2": "GA",
+        "callingCode": "+241",
+        "flagName": "ga.png"
+    },
+    {
+        "name": "Gambia",
+        "alpha2": "GM",
+        "callingCode": "+220",
+        "flagName": "gm.png"
+    },
+    {
+        "name": "Georgia",
+        "alpha2": "GE",
+        "callingCode": "+995",
+        "flagName": "ge.png"
+    },
+    {
+        "name": "Germany",
+        "alpha2": "DE",
+        "callingCode": "+49",
+        "flagName": "de.png"
+    },
+    {
+        "name": "Ghana",
+        "alpha2": "GH",
+        "callingCode": "+233",
+        "flagName": "gh.png"
+    },
+    {
+        "name": "Gibraltar",
+        "alpha2": "GI",
+        "callingCode": "+350",
+        "flagName": "gi.png"
+    },
+    {
+        "name": "Greece",
+        "alpha2": "GR",
+        "callingCode": "+30",
+        "flagName": "gr.png"
+    },
+    {
+        "name": "Greenland",
+        "alpha2": "GL",
+        "callingCode": "+299",
+        "flagName": "gl.png"
+    },
+    {
+        "name": "Grenada",
+        "alpha2": "GD",
+        "callingCode": "+1473",
+        "flagName": "gd.png"
+    },
+    {
+        "name": "Guadeloupe",
+        "alpha2": "GP",
+        "callingCode": "+590",
+        "flagName": "gp.png"
+    },
+    {
+        "name": "Guam",
+        "alpha2": "GU",
+        "callingCode": "+1671",
+        "flagName": "gu.png"
+    },
+    {
+        "name": "Guatemala",
+        "alpha2": "GT",
+        "callingCode": "+502",
+        "flagName": "gt.png"
+    },
+    {
+        "name": "Guernsey",
+        "alpha2": "GG",
+        "callingCode": "+44",
+        "flagName": "gg.png"
+    },
+    {
+        "name": "Guinea",
+        "alpha2": "GN",
+        "callingCode": "+224",
+        "flagName": "gn.png"
+    },
+    {
+        "name": "Guinea-Bissau",
+        "alpha2": "GW",
+        "callingCode": "+245",
+        "flagName": "gw.png"
+    },
+    {
+        "name": "Guyana",
+        "alpha2": "GY",
+        "callingCode": "+592",
+        "flagName": "gy.png"
+    },
+    {
+        "name": "Haiti",
+        "alpha2": "HT",
+        "callingCode": "+509",
+        "flagName": "ht.png"
+    },
+    {
+        "name": "Holy See",
+        "alpha2": "VA",
+        "callingCode": "+3906698",
+        "flagName": "va.png"
+    },
+    {
+        "name": "Honduras",
+        "alpha2": "HN",
+        "callingCode": "+504",
+        "flagName": "hn.png"
+    },
+    {
+        "name": "Hong Kong",
+        "alpha2": "HK",
+        "callingCode": "+852",
+        "flagName": "hk.png"
+    },
+    {
+        "name": "Hungary",
+        "alpha2": "HU",
+        "callingCode": "+36",
+        "flagName": "hu.png"
+    },
+    {
+        "name": "Iceland",
+        "alpha2": "IS",
+        "callingCode": "+354",
+        "flagName": "is.png"
+    },
+    {
+        "name": "India",
+        "alpha2": "IN",
+        "callingCode": "+91",
+        "flagName": "in.png"
+    },
+    {
+        "name": "Indonesia",
+        "alpha2": "ID",
+        "callingCode": "+62",
+        "flagName": "id.png"
+    },
+    {
+        "name": "Iran (Islamic Republic of)",
+        "alpha2": "IR",
+        "callingCode": "+98",
+        "flagName": "ir.png"
+    },
+    {
+        "name": "Iraq",
+        "alpha2": "IQ",
+        "callingCode": "+964",
+        "flagName": "iq.png"
+    },
+    {
+        "name": "Ireland",
+        "alpha2": "IE",
+        "callingCode": "+353",
+        "flagName": "ie.png"
+    },
+    {
+        "name": "Isle of Man",
+        "alpha2": "IM",
+        "callingCode": "+44",
+        "flagName": "im.png"
+    },
+    {
+        "name": "Israel",
+        "alpha2": "IL",
+        "callingCode": "+972",
+        "flagName": "il.png"
+    },
+    {
+        "name": "Italy",
+        "alpha2": "IT",
+        "callingCode": "+39",
+        "flagName": "it.png"
+    },
+    {
+        "name": "Jamaica",
+        "alpha2": "JM",
+        "callingCode": "+1876",
+        "flagName": "jm.png"
+    },
+    {
+        "name": "Japan",
+        "alpha2": "JP",
+        "callingCode": "+81",
+        "flagName": "jp.png"
+    },
+    {
+        "name": "Jersey",
+        "alpha2": "JE",
+        "callingCode": "+44",
+        "flagName": "je.png"
+    },
+    {
+        "name": "Jordan",
+        "alpha2": "JO",
+        "callingCode": "+962",
+        "flagName": "jo.png"
+    },
+    {
+        "name": "Kazakhstan",
+        "alpha2": "KZ",
+        "callingCode": "+76",
+        "flagName": "kz.png"
+    },
+    {
+        "name": "Kenya",
+        "alpha2": "KE",
+        "callingCode": "+254",
+        "flagName": "ke.png"
+    },
+    {
+        "name": "Kiribati",
+        "alpha2": "KI",
+        "callingCode": "+686",
+        "flagName": "ki.png"
+    },
+    {
+        "name": "Korea (Democratic People's Republic of)",
+        "alpha2": "KP",
+        "callingCode": "+850",
+        "flagName": "kp.png"
+    },
+    {
+        "name": "Korea (Republic of)",
+        "alpha2": "KR",
+        "callingCode": "+82",
+        "flagName": "kr.png"
+    },
+    {
+        "name": "Kuwait",
+        "alpha2": "KW",
+        "callingCode": "+965",
+        "flagName": "kw.png"
+    },
+    {
+        "name": "Kyrgyzstan",
+        "alpha2": "KG",
+        "callingCode": "+996",
+        "flagName": "kg.png"
+    },
+    {
+        "name": "Lao People's Democratic Republic",
+        "alpha2": "LA",
+        "callingCode": "+856",
+        "flagName": "la.png"
+    },
+    {
+        "name": "Latvia",
+        "alpha2": "LV",
+        "callingCode": "+371",
+        "flagName": "lv.png"
+    },
+    {
+        "name": "Lebanon",
+        "alpha2": "LB",
+        "callingCode": "+961",
+        "flagName": "lb.png"
+    },
+    {
+        "name": "Lesotho",
+        "alpha2": "LS",
+        "callingCode": "+266",
+        "flagName": "ls.png"
+    },
+    {
+        "name": "Liberia",
+        "alpha2": "LR",
+        "callingCode": "+231",
+        "flagName": "lr.png"
+    },
+    {
+        "name": "Libya",
+        "alpha2": "LY",
+        "callingCode": "+218",
+        "flagName": "ly.png"
+    },
+    {
+        "name": "Liechtenstein",
+        "alpha2": "LI",
+        "callingCode": "+423",
+        "flagName": "li.png"
+    },
+    {
+        "name": "Lithuania",
+        "alpha2": "LT",
+        "callingCode": "+370",
+        "flagName": "lt.png"
+    },
+    {
+        "name": "Luxembourg",
+        "alpha2": "LU",
+        "callingCode": "+352",
+        "flagName": "lu.png"
+    },
+    {
+        "name": "Macao",
+        "alpha2": "MO",
+        "callingCode": "+853",
+        "flagName": "mo.png"
+    },
+    {
+        "name": "North Macedonia",
+        "alpha2": "MK",
+        "callingCode": "+389",
+        "flagName": "mk.png"
+    },
+    {
+        "name": "Madagascar",
+        "alpha2": "MG",
+        "callingCode": "+261",
+        "flagName": "mg.png"
+    },
+    {
+        "name": "Malawi",
+        "alpha2": "MW",
+        "callingCode": "+265",
+        "flagName": "mw.png"
+    },
+    {
+        "name": "Malaysia",
+        "alpha2": "MY",
+        "callingCode": "+60",
+        "flagName": "my.png"
+    },
+    {
+        "name": "Maldives",
+        "alpha2": "MV",
+        "callingCode": "+960",
+        "flagName": "mv.png"
+    },
+    {
+        "name": "Mali",
+        "alpha2": "ML",
+        "callingCode": "+223",
+        "flagName": "ml.png"
+    },
+    {
+        "name": "Malta",
+        "alpha2": "MT",
+        "callingCode": "+356",
+        "flagName": "mt.png"
+    },
+    {
+        "name": "Marshall Islands",
+        "alpha2": "MH",
+        "callingCode": "+692",
+        "flagName": "mh.png"
+    },
+    {
+        "name": "Martinique",
+        "alpha2": "MQ",
+        "callingCode": "+596",
+        "flagName": "mq.png"
+    },
+    {
+        "name": "Mauritania",
+        "alpha2": "MR",
+        "callingCode": "+222",
+        "flagName": "mr.png"
+    },
+    {
+        "name": "Mauritius",
+        "alpha2": "MU",
+        "callingCode": "+230",
+        "flagName": "mu.png"
+    },
+    {
+        "name": "Mayotte",
+        "alpha2": "YT",
+        "callingCode": "+262",
+        "flagName": "yt.png"
+    },
+    {
+        "name": "Mexico",
+        "alpha2": "MX",
+        "callingCode": "+52",
+        "flagName": "mx.png"
+    },
+    {
+        "name": "Micronesia (Federated States of)",
+        "alpha2": "FM",
+        "callingCode": "+691",
+        "flagName": "fm.png"
+    },
+    {
+        "name": "Moldova (Republic of)",
+        "alpha2": "MD",
+        "callingCode": "+373",
+        "flagName": "md.png"
+    },
+    {
+        "name": "Monaco",
+        "alpha2": "MC",
+        "callingCode": "+377",
+        "flagName": "mc.png"
+    },
+    {
+        "name": "Mongolia",
+        "alpha2": "MN",
+        "callingCode": "+976",
+        "flagName": "mn.png"
+    },
+    {
+        "name": "Montenegro",
+        "alpha2": "ME",
+        "callingCode": "+382",
+        "flagName": "me.png"
+    },
+    {
+        "name": "Montserrat",
+        "alpha2": "MS",
+        "callingCode": "+1664",
+        "flagName": "ms.png"
+    },
+    {
+        "name": "Morocco",
+        "alpha2": "MA",
+        "callingCode": "+212",
+        "flagName": "ma.png"
+    },
+    {
+        "name": "Mozambique",
+        "alpha2": "MZ",
+        "callingCode": "+258",
+        "flagName": "mz.png"
+    },
+    {
+        "name": "Myanmar",
+        "alpha2": "MM",
+        "callingCode": "+95",
+        "flagName": "mm.png"
+    },
+    {
+        "name": "Namibia",
+        "alpha2": "NA",
+        "callingCode": "+264",
+        "flagName": "na.png"
+    },
+    {
+        "name": "Nauru",
+        "alpha2": "NR",
+        "callingCode": "+674",
+        "flagName": "nr.png"
+    },
+    {
+        "name": "Nepal",
+        "alpha2": "NP",
+        "callingCode": "+977",
+        "flagName": "np.png"
+    },
+    {
+        "name": "Netherlands",
+        "alpha2": "NL",
+        "callingCode": "+31",
+        "flagName": "nl.png"
+    },
+    {
+        "name": "New Caledonia",
+        "alpha2": "NC",
+        "callingCode": "+687",
+        "flagName": "nc.png"
+    },
+    {
+        "name": "New Zealand",
+        "alpha2": "NZ",
+        "callingCode": "+64",
+        "flagName": "nz.png"
+    },
+    {
+        "name": "Nicaragua",
+        "alpha2": "NI",
+        "callingCode": "+505",
+        "flagName": "ni.png"
+    },
+    {
+        "name": "Niger",
+        "alpha2": "NE",
+        "callingCode": "+227",
+        "flagName": "ne.png"
+    },
+    {
+        "name": "Nigeria",
+        "alpha2": "NG",
+        "callingCode": "+234",
+        "flagName": "ng.png"
+    },
+    {
+        "name": "Niue",
+        "alpha2": "NU",
+        "callingCode": "+683",
+        "flagName": "nu.png"
+    },
+    {
+        "name": "Norfolk Island",
+        "alpha2": "NF",
+        "callingCode": "+672",
+        "flagName": "nf.png"
+    },
+    {
+        "name": "Northern Mariana Islands",
+        "alpha2": "MP",
+        "callingCode": "+1670",
+        "flagName": "mp.png"
+    },
+    {
+        "name": "Norway",
+        "alpha2": "NO",
+        "callingCode": "+47",
+        "flagName": "no.png"
+    },
+    {
+        "name": "Oman",
+        "alpha2": "OM",
+        "callingCode": "+968",
+        "flagName": "om.png"
+    },
+    {
+        "name": "Pakistan",
+        "alpha2": "PK",
+        "callingCode": "+92",
+        "flagName": "pk.png"
+    },
+    {
+        "name": "Palau",
+        "alpha2": "PW",
+        "callingCode": "+680",
+        "flagName": "pw.png"
+    },
+    {
+        "name": "Palestine, State of",
+        "alpha2": "PS",
+        "callingCode": "+970",
+        "flagName": "ps.png"
+    },
+    {
+        "name": "Panama",
+        "alpha2": "PA",
+        "callingCode": "+507",
+        "flagName": "pa.png"
+    },
+    {
+        "name": "Papua New Guinea",
+        "alpha2": "PG",
+        "callingCode": "+675",
+        "flagName": "pg.png"
+    },
+    {
+        "name": "Paraguay",
+        "alpha2": "PY",
+        "callingCode": "+595",
+        "flagName": "py.png"
+    },
+    {
+        "name": "Peru",
+        "alpha2": "PE",
+        "callingCode": "+51",
+        "flagName": "pe.png"
+    },
+    {
+        "name": "Philippines",
+        "alpha2": "PH",
+        "callingCode": "+63",
+        "flagName": "ph.png"
+    },
+    {
+        "name": "Pitcairn",
+        "alpha2": "PN",
+        "callingCode": "+64",
+        "flagName": "pn.png"
+    },
+    {
+        "name": "Poland",
+        "alpha2": "PL",
+        "callingCode": "+48",
+        "flagName": "pl.png"
+    },
+    {
+        "name": "Portugal",
+        "alpha2": "PT",
+        "callingCode": "+351",
+        "flagName": "pt.png"
+    },
+    {
+        "name": "Puerto Rico",
+        "alpha2": "PR",
+        "callingCode": "+1787",
+        "flagName": "pr.png"
+    },
+    {
+        "name": "Qatar",
+        "alpha2": "QA",
+        "callingCode": "+974",
+        "flagName": "qa.png"
+    },
+    {
+        "name": "Reunion",
+        "alpha2": "RE",
+        "callingCode": "+262",
+        "flagName": "re.png"
+    },
+    {
+        "name": "Romania",
+        "alpha2": "RO",
+        "callingCode": "+40",
+        "flagName": "ro.png"
+    },
+    {
+        "name": "Russian Federation",
+        "alpha2": "RU",
+        "callingCode": "+73",
+        "flagName": "ru.png"
+    },
+    {
+        "name": "Rwanda",
+        "alpha2": "RW",
+        "callingCode": "+250",
+        "flagName": "rw.png"
+    },
+    {
+        "name": "Guadeloupe",
+        "alpha2": "BL",
+        "callingCode": "+590",
+        "flagName": "bl.png"
+    },
+    {
+        "name": "Saint Helena, Ascension and Tristan da Cunha",
+        "alpha2": "SH",
+        "callingCode": "+290",
+        "flagName": "sh.png"
+    },
+    {
+        "name": "Saint Kitts and Nevis",
+        "alpha2": "KN",
+        "callingCode": "+1869",
+        "flagName": "kn.png"
+    },
+    {
+        "name": "Saint Lucia",
+        "alpha2": "LC",
+        "callingCode": "+1758",
+        "flagName": "lc.png"
+    },
+    {
+        "name": "Saint Martin (French part)",
+        "alpha2": "MF",
+        "callingCode": "+590",
+        "flagName": "mf.png"
+    },
+    {
+        "name": "Saint Pierre and Miquelon",
+        "alpha2": "PM",
+        "callingCode": "+508",
+        "flagName": "pm.png"
+    },
+    {
+        "name": "Saint Vincent and the Grenadines",
+        "alpha2": "VC",
+        "callingCode": "+1784",
+        "flagName": "vc.png"
+    },
+    {
+        "name": "Samoa",
+        "alpha2": "WS",
+        "callingCode": "+685",
+        "flagName": "ws.png"
+    },
+    {
+        "name": "San Marino",
+        "alpha2": "SM",
+        "callingCode": "+378",
+        "flagName": "sm.png"
+    },
+    {
+        "name": "Sao Tome and Principe",
+        "alpha2": "ST",
+        "callingCode": "+239",
+        "flagName": "st.png"
+    },
+    {
+        "name": "Saudi Arabia",
+        "alpha2": "SA",
+        "callingCode": "+966",
+        "flagName": "sa.png"
+    },
+    {
+        "name": "Senegal",
+        "alpha2": "SN",
+        "callingCode": "+221",
+        "flagName": "sn.png"
+    },
+    {
+        "name": "Serbia",
+        "alpha2": "RS",
+        "callingCode": "+381",
+        "flagName": "rs.png"
+    },
+    {
+        "name": "Seychelles",
+        "alpha2": "SC",
+        "callingCode": "+248",
+        "flagName": "sc.png"
+    },
+    {
+        "name": "Sierra Leone",
+        "alpha2": "SL",
+        "callingCode": "+232",
+        "flagName": "sl.png"
+    },
+    {
+        "name": "Singapore",
+        "alpha2": "SG",
+        "callingCode": "+65",
+        "flagName": "sg.png"
+    },
+    {
+        "name": "Sint Maarten (Dutch part)",
+        "alpha2": "SX",
+        "callingCode": "+1721",
+        "flagName": "sx.png"
+    },
+    {
+        "name": "Slovakia",
+        "alpha2": "SK",
+        "callingCode": "+421",
+        "flagName": "sk.png"
+    },
+    {
+        "name": "Slovenia",
+        "alpha2": "SI",
+        "callingCode": "+386",
+        "flagName": "si.png"
+    },
+    {
+        "name": "Solomon Islands",
+        "alpha2": "SB",
+        "callingCode": "+677",
+        "flagName": "sb.png"
+    },
+    {
+        "name": "Somalia",
+        "alpha2": "SO",
+        "callingCode": "+252",
+        "flagName": "so.png"
+    },
+    {
+        "name": "South Africa",
+        "alpha2": "ZA",
+        "callingCode": "+27",
+        "flagName": "za.png"
+    },
+    {
+        "name": "South Georgia and the South Sandwich Islands",
+        "alpha2": "GS",
+        "callingCode": "+500",
+        "flagName": "gs.png"
+    },
+    {
+        "name": "South Sudan",
+        "alpha2": "SS",
+        "callingCode": "+211",
+        "flagName": "ss.png"
+    },
+    {
+        "name": "Spain",
+        "alpha2": "ES",
+        "callingCode": "+34",
+        "flagName": "es.png"
+    },
+    {
+        "name": "Sri Lanka",
+        "alpha2": "LK",
+        "callingCode": "+94",
+        "flagName": "lk.png"
+    },
+    {
+        "name": "Sudan",
+        "alpha2": "SD",
+        "callingCode": "+249",
+        "flagName": "sd.png"
+    },
+    {
+        "name": "Suriname",
+        "alpha2": "SR",
+        "callingCode": "+597",
+        "flagName": "sr.png"
+    },
+    {
+        "name": "Svalbard and Jan Mayen",
+        "alpha2": "SJ",
+        "callingCode": "+4779",
+        "flagName": "sj.png"
+    },
+    {
+        "name": "Sweden",
+        "alpha2": "SE",
+        "callingCode": "+46",
+        "flagName": "se.png"
+    },
+    {
+        "name": "Switzerland",
+        "alpha2": "CH",
+        "callingCode": "+41",
+        "flagName": "ch.png"
+    },
+    {
+        "name": "Syrian Arab Republic",
+        "alpha2": "SY",
+        "callingCode": "+963",
+        "flagName": "sy.png"
+    },
+    {
+        "name": "Taiwan (Province of China)",
+        "alpha2": "TW",
+        "callingCode": "+886",
+        "flagName": "tw.png"
+    },
+    {
+        "name": "Tajikistan",
+        "alpha2": "TJ",
+        "callingCode": "+992",
+        "flagName": "tj.png"
+    },
+    {
+        "name": "Tanzania, United Republic of",
+        "alpha2": "TZ",
+        "callingCode": "+255",
+        "flagName": "tz.png"
+    },
+    {
+        "name": "Thailand",
+        "alpha2": "TH",
+        "callingCode": "+66",
+        "flagName": "th.png"
+    },
+    {
+        "name": "Timor-Leste",
+        "alpha2": "TL",
+        "callingCode": "+670",
+        "flagName": "tl.png"
+    },
+    {
+        "name": "Togo",
+        "alpha2": "TG",
+        "callingCode": "+228",
+        "flagName": "tg.png"
+    },
+    {
+        "name": "Tokelau",
+        "alpha2": "TK",
+        "callingCode": "+690",
+        "flagName": "tk.png"
+    },
+    {
+        "name": "Tonga",
+        "alpha2": "TO",
+        "callingCode": "+676",
+        "flagName": "to.png"
+    },
+    {
+        "name": "Trinidad and Tobago",
+        "alpha2": "TT",
+        "callingCode": "+1868",
+        "flagName": "tt.png"
+    },
+    {
+        "name": "Tunisia",
+        "alpha2": "TN",
+        "callingCode": "+216",
+        "flagName": "tn.png"
+    },
+    {
+        "name": "Turkey",
+        "alpha2": "TR",
+        "callingCode": "+90",
+        "flagName": "tr.png"
+    },
+    {
+        "name": "Turkmenistan",
+        "alpha2": "TM",
+        "callingCode": "+993",
+        "flagName": "tm.png"
+    },
+    {
+        "name": "Turks and Caicos Islands",
+        "alpha2": "TC",
+        "callingCode": "+1649",
+        "flagName": "tc.png"
+    },
+    {
+        "name": "Tuvalu",
+        "alpha2": "TV",
+        "callingCode": "+688",
+        "flagName": "tv.png"
+    },
+    {
+        "name": "Uganda",
+        "alpha2": "UG",
+        "callingCode": "+256",
+        "flagName": "ug.png"
+    },
+    {
+        "name": "Ukraine",
+        "alpha2": "UA",
+        "callingCode": "+380",
+        "flagName": "ua.png"
+    },
+    {
+        "name": "United Arab Emirates",
+        "alpha2": "AE",
+        "callingCode": "+971",
+        "flagName": "ae.png"
+    },
+    {
+        "name": "United Kingdom of Great Britain and Northern Ireland",
+        "alpha2": "GB",
+        "callingCode": "+44",
+        "flagName": "gb.png"
+    },
+    {
+        "name": "United States of America",
+        "alpha2": "US",
+        "callingCode": "+1201",
+        "flagName": "us.png"
+    },
+    {
+        "name": "United States Minor Outlying Islands",
+        "alpha2": "UM",
+        "callingCode": "+268",
+        "flagName": "um.png"
+    },
+    {
+        "name": "Uruguay",
+        "alpha2": "UY",
+        "callingCode": "+598",
+        "flagName": "uy.png"
+    },
+    {
+        "name": "Uzbekistan",
+        "alpha2": "UZ",
+        "callingCode": "+998",
+        "flagName": "uz.png"
+    },
+    {
+        "name": "Vanuatu",
+        "alpha2": "VU",
+        "callingCode": "+678",
+        "flagName": "vu.png"
+    },
+    {
+        "name": "Venezuela (Bolivarian Republic of)",
+        "alpha2": "VE",
+        "callingCode": "+58",
+        "flagName": "ve.png"
+    },
+    {
+        "name": "Viet Nam",
+        "alpha2": "VN",
+        "callingCode": "+84",
+        "flagName": "vn.png"
+    },
+    {
+        "name": "Virgin Islands (British)",
+        "alpha2": "VG",
+        "callingCode": "+1284",
+        "flagName": "vg.png"
+    },
+    {
+        "name": "Virgin Islands (U.S.)",
+        "alpha2": "VI",
+        "callingCode": "+1340",
+        "flagName": "vi.png"
+    },
+    {
+        "name": "Wallis and Futuna",
+        "alpha2": "WF",
+        "callingCode": "+681",
+        "flagName": "wf.png"
+    },
+    {
+        "name": "Western Sahara",
+        "alpha2": "EH",
+        "callingCode": "+2125288",
+        "flagName": "eh.png"
+    },
+    {
+        "name": "Yemen",
+        "alpha2": "YE",
+        "callingCode": "+967",
+        "flagName": "ye.png"
+    },
+    {
+        "name": "Zambia",
+        "alpha2": "ZM",
+        "callingCode": "+260",
+        "flagName": "zm.png"
+    },
+    {
+        "name": "Zimbabwe",
+        "alpha2": "ZW",
+        "callingCode": "+263",
+        "flagName": "zw.png"
+    }
+]
