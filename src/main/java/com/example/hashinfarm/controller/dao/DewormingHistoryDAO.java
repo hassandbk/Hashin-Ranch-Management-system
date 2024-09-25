@@ -16,6 +16,10 @@ public class DewormingHistoryDAO {
         List<DewormingHistory> dewormingHistoryList = getDewormingHistoryByQuery(query, id);
         return dewormingHistoryList.isEmpty() ? null : dewormingHistoryList.getFirst();
     }
+    public static List<DewormingHistory> getDewormingHistoriesByCattleId(int cattleId) throws SQLException {
+        String query = "SELECT * FROM deworminghistory WHERE cattleId = ?";
+        return getDewormingHistoryByQuery(query, cattleId);
+    }
 
     private static List<DewormingHistory> getDewormingHistoryByQuery(String query, Object parameter) throws SQLException {
         List<DewormingHistory> dewormingHistoryList = new ArrayList<>();
@@ -52,14 +56,24 @@ public class DewormingHistoryDAO {
         }
     }
 
-    public static void deleteDewormingHistoryById(int id) throws SQLException {
-        String query = "DELETE FROM deworminghistory WHERE id = ?";
+    public static void deleteDewormingHistoryByCattleIdAndId(int cattleId, int id) throws SQLException {
+        String query = "DELETE FROM deworminghistory WHERE id = ? AND cattleId = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, id);
-            preparedStatement.executeUpdate();
+            preparedStatement.setInt(2, cattleId);
+            int rowsAffected = preparedStatement.executeUpdate();
+
+            if (rowsAffected == 0) {
+                throw new SQLException("No deworming history found for cattleId: " + cattleId + " and id: " + id);
+            }
+        } catch (SQLException e) {
+            AppLogger.error("Error deleting deworming history for cattleId: " + cattleId + " and id: " + id, e);
+            e.printStackTrace();
+            throw e; // Re-throw the exception for higher-level handling
         }
     }
+
 
     private static void setDewormingHistoryPreparedStatementValues(PreparedStatement preparedStatement, DewormingHistory dewormingHistory) throws SQLException {
         preparedStatement.setObject(1, dewormingHistory.getCattleId(), Types.INTEGER);

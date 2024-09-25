@@ -15,7 +15,6 @@ public class ActionHandlerFactory {
             case "healthInfoUpdate" -> new HealthInfoUpdateHandler();
             case "viewCalvingHistory" -> new ViewCalvingHistoryHandler();
             case "saveCalvingChanges" -> new SaveCalvingChangesHandler();
-            case "viewDewormingHistory" -> new ViewDewormingHistoryHandler();
             case "viewInjuriesHistory" -> new ViewInjuriesHistoryHandler();
             case "viewSurgicalHistory" -> new ViewSurgicalHistoryHandler();
             case "saveDewormingChanges" -> new SaveDewormingChangesHandler();
