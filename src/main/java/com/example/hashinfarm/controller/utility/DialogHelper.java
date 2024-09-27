@@ -20,6 +20,12 @@ public class DialogHelper {
         alert.setContentText(contentText);
         alert.getButtonTypes().setAll(buttonTypes);
 
+        // Handle the close request for the "X" button
+        alert.setOnCloseRequest(event -> {
+            // Automatically close the dialog without executing any actions
+            alert.close();
+        });
+
         Optional<ButtonType> result = alert.showAndWait();
 
         if (result.isPresent()) {
@@ -27,7 +33,7 @@ public class DialogHelper {
             if (index >= 0 && index < actions.size()) {
                 Consumer<Void> action = actions.get(index);
                 if (action != null) {
-                    action.accept(null);
+                    action.accept(null); // Execute the action associated with the clicked button
                 }
             }
         }
@@ -50,7 +56,7 @@ public class DialogHelper {
         if (!isModified) {
             buttonTypes.add(new ButtonType("New Record"));
         }
-        buttonTypes.add(new ButtonType("Cancel"));
+        buttonTypes.add(ButtonType.CANCEL); // Using predefined CANCEL button
 
         List<Consumer<Void>> actions = new ArrayList<>();
         if (isModified) {

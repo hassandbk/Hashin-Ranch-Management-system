@@ -21,6 +21,7 @@ import com.example.hashinfarm.model.MedicationHistory;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -30,6 +31,7 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import com.example.hashinfarm.controller.utility.CountryCodePickerHelper;
+
 
 
 public class MedicalHistory {
@@ -52,24 +54,22 @@ public class MedicalHistory {
     @FXML private ComboBox<Country> countryComboBoxOfDewormingHistory, countryComboBoxOfMedication;
     @FXML private TextField restOfNumberOfDewormingHistoryTextField, countryCodeOfDewormingHistoryTextField,countryCodeTextFieldOfMedication, restOfNumberTextFieldOfMedication;
 
+    // DEWORMING PART
+    @FXML private TableView<DewormingRecord> dewormingHistoryTableView;
+    @FXML private TableColumn<DewormingRecord, LocalDate> dewormingHistoryDateColumn;
+    @FXML private TableColumn<DewormingRecord, String> dewormerTypeColumn, dosageColumn, administeredByColumn, routeOfAdministrationColumn, weightAtTimeColumn, contactDetailsColumn;
 
     @FXML private TextField cattleNameTextField, dosageOfDewormingTextField, weightAtTimeOfDewormingTextField, administerOfDewormingTextField;
     @FXML private TextArea dewormerTypeTextArea,manufacturerDetailsTextArea;
     @FXML private ComboBox<String>  routeOfAdministrationCombo;
     @FXML private DatePicker  dewormingDatePicker;
 
-    @FXML private TableView<DewormingRecord> dewormingHistoryTableView;
-    @FXML private TableColumn<DewormingRecord, LocalDate> dewormingHistoryDateColumn;
-    @FXML private TableColumn<DewormingRecord, String> dewormerTypeColumn, dosageColumn, administeredByColumn, routeOfAdministrationColumn, weightAtTimeColumn, contactDetailsColumn;
 
-
-
-    // Table View and its columns
+    // MEDICATION PART
     @FXML private TableView<MedicationRecord> medicationHistoryTableView;
     @FXML private TableColumn<MedicationRecord, LocalDate> dateTakenOfMedicationColumn,nextScheduleOfMedicationColumn;
     @FXML private TableColumn<MedicationRecord, String> dosageOfMedicationColumn, frequencyOfMedicationColumn, typeOfMedicationColumn, administerOfMedicationColumn, telNoOfMedicationColumn, categoryOfMedicationColumn;
 
-    // Input fields
     @FXML private TextField dosageOfMedicationTextField, frequencyOfMedicationTextField, typeOfMedicationTextField, administerOfMedicationTextField;
     @FXML private DatePicker dateTakenOfMedicationDatePicker, nextScheduleOfMedicationTextField;
     @FXML private ComboBox<String> categoryOfMedicationComboBox;
@@ -87,7 +87,6 @@ public class MedicalHistory {
         initializeTextFields();
         initializeSelectionListener();
         setupDewormingChangeListeners();
-
 
         setupMedicationTableColumns();
         setupMedicationChangeListeners();
@@ -109,9 +108,9 @@ public class MedicalHistory {
             if (newValue == null || newValue.intValue() == 0) return;
             selectedCattleId = newValue.intValue();
             loadDewormingDataIntoTableView();
+            loadMedicationDataIntoTableView();
         });
     }
-
 
 
     private void initializeImageView() {
@@ -160,24 +159,13 @@ public class MedicalHistory {
 
 
 
-    private boolean validateDewormingInputFields() throws ValidationException {
-        // Validate all fields and apply error effects as needed
-        InputFieldsValidationHelper.validateField(selectedCattleId == 0, "Select a Cattle from the Herds table", null);
-        InputFieldsValidationHelper.validateField(dewormerTypeTextArea.getText().trim().isEmpty(), "Dewormer Type is required.", dewormerTypeTextArea);
-        InputFieldsValidationHelper.validateField(dosageOfDewormingTextField.getText().trim().isEmpty(), "Dosage is required.", dosageOfDewormingTextField);
-        InputFieldsValidationHelper.validateField(dewormingDatePicker.getValue() == null, "Date of Deworming is required.", dewormingDatePicker);
-        InputFieldsValidationHelper.validateField(routeOfAdministrationCombo.getValue() == null, "Route of Administration is required.", routeOfAdministrationCombo);
-
-        // Validate and format phone number (assuming it's implemented)
-        CountryCodePickerHelper.validateAndFormatContact(restOfNumberOfDewormingHistoryTextField.getText().trim());
-
-        // If no exception was thrown, return true (indicating all fields are valid)
-        return true;
-    }
 
 
 
+    //DEWORMING HISTORY
     private void loadDewormingDataIntoTableView() {
+        clearAllDewormingFields();
+
         if (selectedCattleId == 0) {  // Make sure you have a valid selectedCattleId
             // Show an alert if no cattle is selected
             showAlert(AlertType.WARNING, "No Cattle Selected", "Please select a cattle before proceeding.");
@@ -229,8 +217,96 @@ public class MedicalHistory {
         weightAtTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().weightAtTime()));
         contactDetailsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().contactDetails()));
     }
+
+    // Populate input fields with selected DewormingRecord's values
+    private void populateDewormingHistoryFields(DewormingRecord record) {
+        clearAllDewormingFields();
+
+        // Populate fields with record's values
+        dewormingDatePicker.setValue(record.dewormingDate());
+        dewormerTypeTextArea.setText(record.dewormerType());
+        dosageOfDewormingTextField.setText(record.dosage());
+        administerOfDewormingTextField.setText(record.administeredBy());
+        routeOfAdministrationCombo.setValue(record.routeOfAdministration());
+        weightAtTimeOfDewormingTextField.setText(record.weightAtTime());
+        manufacturerDetailsTextArea.setText(record.manufacturerDetails());
+
+        // Process contact details
+        String contactDetails = record.contactDetails();
+        String[] contactInfo = processDewormingContactDetails(contactDetails);
+
+        // Populate the original values map with record and contact details
+        populateOriginalDewormingValuesMap(record, contactInfo[0], contactInfo[1]);
+
+        // Reset the modification state
+        isModifiedDeworming = false;
+    }
+
+    // Extract and process contact details from the record
+    private String[] processDewormingContactDetails(String contactDetails) {
+        return dewormingCountryCodePickerHelper.processContactDetails(contactDetails,
+                countryCodeOfDewormingHistoryTextField,
+                restOfNumberOfDewormingHistoryTextField,
+                countryComboBoxOfDewormingHistory);
+    }
+
+
+    private boolean validateDewormingInputFields() throws ValidationException {
+        // Validate all fields and apply error effects as needed
+        InputFieldsValidationHelper.validateField(selectedCattleId == 0, "Select a Cattle from the Herds table", null);
+        InputFieldsValidationHelper.validateField(dewormerTypeTextArea.getText().trim().isEmpty(), "Dewormer Type is required.", dewormerTypeTextArea);
+        InputFieldsValidationHelper.validateField(dosageOfDewormingTextField.getText().trim().isEmpty(), "Dosage is required.", dosageOfDewormingTextField);
+        InputFieldsValidationHelper.validateField(dewormingDatePicker.getValue() == null, "Date of Deworming is required.", dewormingDatePicker);
+        InputFieldsValidationHelper.validateField(routeOfAdministrationCombo.getValue() == null, "Route of Administration is required.", routeOfAdministrationCombo);
+
+        // Validate and format phone number (assuming it's implemented)
+        CountryCodePickerHelper.validateAndFormatContact(restOfNumberOfDewormingHistoryTextField.getText().trim());
+
+        // If no exception was thrown, return true (indicating all fields are valid)
+        return true;
+    }
+
+    // Populate original values map for change tracking
+    private void populateOriginalDewormingValuesMap(DewormingRecord record, String callingCode, String restOfNumber) {
+        originalDewormingValuesMap.put("id", String.valueOf(record.id()));
+        originalDewormingValuesMap.put("dewormingDate", record.dewormingDate().toString());
+        originalDewormingValuesMap.put("dewormerType", record.dewormerType());
+        originalDewormingValuesMap.put("dosage", record.dosage()); // Store the dosage
+        originalDewormingValuesMap.put("administeredBy", record.administeredBy());
+        originalDewormingValuesMap.put("routeOfAdministration", record.routeOfAdministration());
+        originalDewormingValuesMap.put("weightAtTime", record.weightAtTime());
+        originalDewormingValuesMap.put("manufacturerDetails", record.manufacturerDetails());
+        originalDewormingValuesMap.put("callingCode", callingCode);
+        originalDewormingValuesMap.put("restOfNumber", restOfNumber);
+    }
+
+    // Set up listeners for changes in input fields
+    private void setupDewormingChangeListeners() {
+        dewormingDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("dewormingDate", newValue != null ? newValue.toString() : null));
+        dewormerTypeTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("dewormerType", newValue != null ? newValue : ""));
+        dosageOfDewormingTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("dosage", newValue != null ? newValue : ""));
+        administerOfDewormingTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("administeredBy", newValue != null ? newValue : ""));
+        routeOfAdministrationCombo.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("routeOfAdministration", newValue != null ? newValue : ""));
+        weightAtTimeOfDewormingTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("weightAtTime", newValue != null ? newValue : ""));
+        manufacturerDetailsTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("manufacturerDetails", newValue != null ? newValue : ""));
+
+        countryCodeOfDewormingHistoryTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("callingCode", newValue != null ? newValue : ""));
+        restOfNumberOfDewormingHistoryTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("restOfNumber", newValue != null ? newValue : ""));
+    }
+
+    // Check for changes in deworming data and update modification state
+    private void checkForChangesInDewormingData(String fieldName, String newValue) {
+        String originalValue = originalDewormingValuesMap.get(fieldName);
+
+        if (originalValue != null && !originalValue.equals(newValue)) {
+            isModifiedDeworming = true; // Mark changes if value differs
+        } else if (originalValue != null) {
+            isModifiedDeworming = false; // Reset modification flag if values match
+        }
+    }
+
+    //MODIFY DETAILS BUTTON
     @FXML
-// Action for Modify button
     public void modifyDewormingRecord() {
         selectedDewormingRecord = dewormingHistoryTableView.getSelectionModel().getSelectedItem();
         if (selectedDewormingRecord == null) {
@@ -264,16 +340,65 @@ public class MedicalHistory {
                 v -> updateDewormingRecord(),
                 v -> restoreOriginalDewormingData(),
                 v -> deleteDewormingRecord(),
-                v -> clearAllDewormingFields()
+                v -> {}
         );
     }
 
 
+    // SAVE DEWORMING RECORD
+    private void saveNewDewormingRecord() {
+        try {
+            if (!validateDewormingInputFields()) return;
+
+            DewormingHistory dewormingHistory = createDewormingHistory();
+            saveDewormingHistoryToDatabase(dewormingHistory);
+            loadDewormingDataIntoTableView();
+            showAlert(AlertType.INFORMATION, "Success", "Deworming details saved successfully.");
+        } catch (ValidationException e) {
+            showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (DatabaseException e) {
+            showAlert(AlertType.ERROR, "Database Error", e.getMessage());
+        }
+    }
+
+    // Create DewormingHistory object from input fields
+    private DewormingHistory createDewormingHistory() throws ValidationException {
+        String dewormerType = dewormerTypeTextArea.getText().trim();
+        double dosage = CountryCodePickerHelper.parseNumericValue(dosageOfDewormingTextField.getText().trim(), UnitsTextField.ML_SUFFIX);
+        double weightAtTime = CountryCodePickerHelper.parseNumericValue(weightAtTimeOfDewormingTextField.getText().trim(), UnitsTextField.KG_SUFFIX);
+        String administeredBy = administerOfDewormingTextField.getText().trim();
+        LocalDate dateOfDeworming = dewormingDatePicker.getValue();
+        String manufacturerDetails = manufacturerDetailsTextArea.getText().trim();
+        String contactDetails = CountryCodePickerHelper.validateAndFormatContact(restOfNumberOfDewormingHistoryTextField.getText().trim());
+        String routeOfAdministration = routeOfAdministrationCombo.getValue();
+
+        return new DewormingHistory(
+                0, // ID will be generated by the database
+                selectedCattleId,
+                dewormerType,
+                dosage,
+                weightAtTime,
+                administeredBy,
+                routeOfAdministration,
+                dateOfDeworming,
+                manufacturerDetails,
+                contactDetails
+        );
+    }
+
+    // Save DewormingHistory to the database
+    private void saveDewormingHistoryToDatabase(DewormingHistory dewormingHistory) throws DatabaseException {
+        try {
+            // Insert details into the database
+            DewormingHistoryDAO.insertDewormingHistory(dewormingHistory);
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to save deworming details: " + e.getMessage(), e);
+        }
+    }
 
 
 
-
-    // Action for updating an existing record
+    // UPDATE DEWORMING RECORD
     private void updateDewormingRecord() {
         try {
             // Validate the input fields; exception will be thrown if validation fails
@@ -310,6 +435,51 @@ public class MedicalHistory {
     }
 
 
+
+    //DELETE DEWORMING RECORD
+
+    // Action for deleting a selected deworming record
+    private void deleteDewormingRecord() {
+        selectedDewormingRecord = dewormingHistoryTableView.getSelectionModel().getSelectedItem();
+        if (selectedDewormingRecord == null) {
+            return; // No record selected
+        }
+
+        if (!confirmDewormingRecordDeletion("Record ID: " + selectedDewormingRecord.id())) {
+            return; // User canceled deletion
+        }
+
+        try {
+            deleteDewormingRecord(selectedDewormingRecord);
+            showAlert(Alert.AlertType.INFORMATION, "Record Deleted", "The selected deworming record has been successfully deleted.");
+        } finally {
+            loadDewormingDataIntoTableView(); // Refresh table after deletion attempt
+        }
+    }
+
+    // Show a confirmation dialog before deleting a record
+    private boolean confirmDewormingRecordDeletion(String contentText) {
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Delete Confirmation");
+        confirmationAlert.setHeaderText("Are you sure you want to delete this record?");
+        confirmationAlert.setContentText(contentText + "\nThis action cannot be undone.");
+        Optional<ButtonType> confirmationResult = confirmationAlert.showAndWait();
+        return confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK;
+    }
+
+    // Delete the deworming record from the database
+    private void deleteDewormingRecord(DewormingRecord record) {
+        int cattleId = selectedCattleId;
+        int recordId = record.id();
+        try {
+            DewormingHistoryDAO.deleteDewormingHistoryByCattleIdAndId(cattleId, recordId);
+        } catch (SQLException e) {
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to delete the deworming record. Please try again.");
+        }
+    }
+
+
+    //RESTORE DEWORMING DETAILS
     private void restoreOriginalDewormingData() {
         // Restore original data to fields
         dewormingDatePicker.setValue(LocalDate.parse(originalDewormingValuesMap.get("dewormingDate")));
@@ -331,191 +501,25 @@ public class MedicalHistory {
         isModifiedDeworming = false; // Resetting the modification state since a new record is loaded
     }
 
-    // Action for saving a new record
-    private void saveNewDewormingRecord() {
-        try {
-            if (!validateDewormingInputFields()) return;
-
-            DewormingHistory dewormingHistory = createDewormingHistory();
-            saveDewormingHistoryToDatabase(dewormingHistory);
-            loadDewormingDataIntoTableView();
-            showAlert(AlertType.INFORMATION, "Success", "Deworming details saved successfully.");
-        } catch (ValidationException e) {
-            showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
-        } catch (DatabaseException e) {
-            showAlert(AlertType.ERROR, "Database Error", e.getMessage());
-        }
-    }
-
-    private DewormingHistory createDewormingHistory() throws ValidationException {
-        String dewormerType = dewormerTypeTextArea.getText().trim();
-        double dosage = CountryCodePickerHelper.parseNumericValue(dosageOfDewormingTextField.getText().trim(), UnitsTextField.ML_SUFFIX);
-        double weightAtTime = CountryCodePickerHelper.parseNumericValue(weightAtTimeOfDewormingTextField.getText().trim(), UnitsTextField.KG_SUFFIX);
-        String administeredBy = administerOfDewormingTextField.getText().trim();
-        LocalDate dateOfDeworming = dewormingDatePicker.getValue();
-        String manufacturerDetails = manufacturerDetailsTextArea.getText().trim();
-        String contactDetails = CountryCodePickerHelper.validateAndFormatContact(restOfNumberOfDewormingHistoryTextField.getText().trim());
-        String routeOfAdministration = routeOfAdministrationCombo.getValue();
-
-        return new DewormingHistory(
-                0, // ID will be generated by the database
-                selectedCattleId,
-                dewormerType,
-                dosage,
-                weightAtTime,
-                administeredBy,
-                routeOfAdministration,
-                dateOfDeworming,
-                manufacturerDetails,
-                contactDetails
-        );
-    }
-
-    private void saveDewormingHistoryToDatabase(DewormingHistory dewormingHistory) throws DatabaseException {
-        try {
-            // Insert details into the database
-            DewormingHistoryDAO.insertDewormingHistory(dewormingHistory);
-        } catch (SQLException e) {
-            throw new DatabaseException("Failed to save deworming details: " + e.getMessage(), e);
-        }
-    }
-
-    // Action for deleting a selected record
-    private void deleteDewormingRecord() {
-        selectedDewormingRecord = dewormingHistoryTableView.getSelectionModel().getSelectedItem();
-        if (selectedDewormingRecord == null) {
-            return; // No record selected, nothing to do
-        }
-
-        if (!confirmDewormingRecordDeletion("Record ID: " + selectedDewormingRecord.id())) {
-            return; // User canceled deletion
-        }
-
-        try {
-            deleteDewormingRecord(selectedDewormingRecord);
-            showAlert(Alert.AlertType.INFORMATION, "Record Deleted", "The selected deworming record has been successfully deleted.");
-        } finally {
-            loadDewormingDataIntoTableView(); // Refresh table after deletion attempt (success or failure)
-        }
-    }
-
-    private boolean confirmDewormingRecordDeletion(String contentText) {
-        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
-        confirmationAlert.setTitle("Delete Confirmation");
-        confirmationAlert.setHeaderText("Are you sure you want to delete this record?");
-        confirmationAlert.setContentText(contentText + "\nThis action cannot be undone.");
-        Optional<ButtonType> confirmationResult = confirmationAlert.showAndWait();
-        return confirmationResult.isPresent() && confirmationResult.get() == ButtonType.OK;
-    }
-
-    private void deleteDewormingRecord(DewormingRecord record) {
-        int cattleId = selectedCattleId; // Assuming selectedCattleId is set elsewhere in your controller
-        int recordId = record.id();
-        try {
-            DewormingHistoryDAO.deleteDewormingHistoryByCattleIdAndId(cattleId, recordId);
-        } catch (SQLException e) {
-            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to delete the deworming record. Please try again.");
-        }
-    }
-
-    private void populateDewormingHistoryFields(DewormingRecord record) {
-        // Clear the original values map before populating with new record values
-        originalDewormingValuesMap.clear();
-
-        // Populate fields with the record's current values
-        dewormingDatePicker.setValue(record.dewormingDate());
-        dewormerTypeTextArea.setText(record.dewormerType());
-        dosageOfDewormingTextField.setText(record.dosage());
-        administerOfDewormingTextField.setText(record.administeredBy());
-        routeOfAdministrationCombo.setValue(record.routeOfAdministration());
-        weightAtTimeOfDewormingTextField.setText(record.weightAtTime());
-        manufacturerDetailsTextArea.setText(record.manufacturerDetails());
-
-        // Extract and process contact details
-        String contactDetails = record.contactDetails();
-        String[] contactInfo = processDewormingContactDetails(contactDetails);
-
-        // Call the method to populate the original values map with the record and contact details
-        populateOriginalDewormingValuesMap(record, contactInfo[0], contactInfo[1]);
-
-        // Reset the modification state
-        isModifiedDeworming = false; // Resetting the modification state since a new record is loaded
-    }
 
 
-    private String[] processDewormingContactDetails(String contactDetails) {
-        return dewormingCountryCodePickerHelper.processContactDetails(contactDetails,
-                countryCodeOfDewormingHistoryTextField,
-                restOfNumberOfDewormingHistoryTextField,
-                countryComboBoxOfDewormingHistory);
-    }
-
-
-    private void populateOriginalDewormingValuesMap(DewormingRecord record, String callingCode, String restOfNumber) {
-        // Store original values in the map
-        originalDewormingValuesMap.put("id", String.valueOf(record.id())); // Store the id
-        originalDewormingValuesMap.put("dewormingDate", record.dewormingDate().toString());
-        originalDewormingValuesMap.put("dewormerType", record.dewormerType());
-        originalDewormingValuesMap.put("dosage", record.dosage());
-        originalDewormingValuesMap.put("administeredBy", record.administeredBy());
-        originalDewormingValuesMap.put("routeOfAdministration", record.routeOfAdministration());
-        originalDewormingValuesMap.put("weightAtTime", record.weightAtTime());
-        originalDewormingValuesMap.put("manufacturerDetails", record.manufacturerDetails());
-        originalDewormingValuesMap.put("callingCode", callingCode); // Store calling code
-        originalDewormingValuesMap.put("restOfNumber", restOfNumber); // Store rest of number
-    }
-
-    private void setupDewormingChangeListeners() {
-        dewormingDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("dewormingDate", newValue.toString()));
-        dewormerTypeTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("dewormerType", newValue));
-        dosageOfDewormingTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("dosage", newValue));
-        administerOfDewormingTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("administeredBy", newValue));
-        routeOfAdministrationCombo.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("routeOfAdministration", newValue));
-        weightAtTimeOfDewormingTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("weightAtTime", newValue));
-        manufacturerDetailsTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("manufacturerDetails", newValue));
-
-        // Add listeners for calling code and rest of number fields
-        countryCodeOfDewormingHistoryTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("callingCode", newValue));
-        restOfNumberOfDewormingHistoryTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInDewormingData("restOfNumber", newValue));
-    }
-
-    private void checkForChangesInDewormingData(String fieldName, String newValue) {
-        // Get the original value from the map
-        String originalValue = originalDewormingValuesMap.get(fieldName);
-
-        // Compare the new value to the original value
-        if (originalValue != null && !originalValue.equals(newValue)) {
-            // Mark that a change has occurred only if the value differs from the original
-            isModifiedDeworming = true;
-        } else if (originalValue != null) {
-            // Reset the modified state if the current value matches the original
-            isModifiedDeworming = false;
-        }
-    }
-
-
-
-
+    // CLEAR DEWORMING DETAILS
     @FXML
     private void clearAllDewormingDetails() {
         clearAllDewormingFields();
     }
 
-    // Clear all input fields
+    // Clear all deworming fields, deselect table view, and reset flags
     private void clearAllDewormingFields() {
-        // Deselect any currently selected item in the table
         dewormingHistoryTableView.getSelectionModel().clearSelection();
+        selectedDewormingRecord = null; // Deselect currently selected record
 
-        // Set the selected record to null
-        selectedDewormingRecord = null; // Assuming selectedRecord is the variable that tracks the currently selected record
-
-        // Check if the originalMedicationValuesMap is not empty
+        // Clear the map if it's not empty
         if (!originalDewormingValuesMap.isEmpty()) {
-            // Clear the entire map
             originalDewormingValuesMap.clear();
         }
 
-        // Clear all other input fields
+        // Clear all input fields
         dewormingDatePicker.setValue(null);
         dewormerTypeTextArea.clear();
         dosageOfDewormingTextField.clear();
@@ -523,22 +527,20 @@ public class MedicalHistory {
         routeOfAdministrationCombo.setValue(null);
         weightAtTimeOfDewormingTextField.clear();
         manufacturerDetailsTextArea.clear();
-        dewormingCountryCodePickerHelper.clearPhoneNumberFields();        // Reset the modified flag
+        dewormingCountryCodePickerHelper.clearPhoneNumberFields();
+
+        // Reset modification flag
         isModifiedDeworming = false;
     }
 
 
 
-
-
-
-
-
-
-
-
+//MEDICATION HISTORY
 
     private void loadMedicationDataIntoTableView() {
+
+        clearAllMedicationFields();
+
         if (selectedCattleId == 0) {  // Ensure a valid selectedCattleId
             // Show an alert if no cattle is selected
             showAlert(AlertType.WARNING, "No Cattle Selected", "Please select a cattle before proceeding.");
@@ -556,6 +558,7 @@ public class MedicalHistory {
         ObservableList<MedicationRecord> records = getMedicationRecords(medicationHistories);
         medicationHistoryTableView.setItems(records);
     }
+
 
     private ObservableList<MedicationRecord> getMedicationRecords(List<MedicationHistory> medicationHistories) {
         ObservableList<MedicationRecord> records = FXCollections.observableArrayList();
@@ -589,8 +592,8 @@ public class MedicalHistory {
     }
 
     private void populateMedicationHistoryFields(MedicationRecord record) {
-        // Clear the original values map before populating with new record values
-        originalMedicationValuesMap.clear();
+
+        clearAllMedicationFields();
 
         // Populate the fields with values from the MedicationRecord
         dateTakenOfMedicationDatePicker.setValue(record.dateTaken()); // Set date taken
@@ -625,20 +628,6 @@ public class MedicalHistory {
     }
 
 
-    private void populateOriginalMedicationValuesMap(MedicationRecord record, String callingCode, String restOfNumber) {
-        // Store original values in the map
-        originalMedicationValuesMap.put("id", String.valueOf(record.id())); // Store the ID
-        originalMedicationValuesMap.put("dateTaken", record.dateTaken().toString()); // Store the date the medication was taken
-        originalMedicationValuesMap.put("nextSchedule", record.nextSchedule().toString()); // Store the next schedule date
-        originalMedicationValuesMap.put("dosage", record.dosage()); // Store the dosage
-        originalMedicationValuesMap.put("frequency", record.frequency()); // Store the frequency
-        originalMedicationValuesMap.put("administeredBy", record.administeredBy()); // Store the administrator's name
-        originalMedicationValuesMap.put("type", record.type()); // Store the type of medication
-        originalMedicationValuesMap.put("category", record.category()); // Store the category of medication
-        originalMedicationValuesMap.put("callingCode", callingCode); // Store the calling code from the contact details
-        originalMedicationValuesMap.put("restOfNumber", restOfNumber); // Store the rest of the phone number from the contact details
-    }
-
     private boolean validateMedicationInputFields() throws ValidationException {
         // Validate all fields directly using the input field IDs
         InputFieldsValidationHelper.validateField(selectedCattleId == 0, "Select a Cattle from the Herds table", null);
@@ -654,15 +643,78 @@ public class MedicalHistory {
         // Validate and format phone number (assuming it's implemented in another method)
         CountryCodePickerHelper.validateAndFormatContact(restOfNumberTextFieldOfMedication.getText().trim());
 
+
         // If no exception was thrown, return true (indicating all fields are valid)
         return true;
     }
 
 
 
+    private void populateOriginalMedicationValuesMap(MedicationRecord record, String callingCode, String restOfNumber) {
+        // Store original values in the map
+        originalMedicationValuesMap.put("id", String.valueOf(record.id())); // Store the ID
+        originalMedicationValuesMap.put("dateTaken", record.dateTaken().toString()); // Store the date taken
+        originalMedicationValuesMap.put("nextSchedule", record.nextSchedule().toString()); // Store the next schedule
+        originalMedicationValuesMap.put("dosage", record.dosage()); // Store the dosage
+        originalMedicationValuesMap.put("frequency", record.frequency()); // Store the frequency
+        originalMedicationValuesMap.put("administeredBy", record.administeredBy()); // Store the name of the administrator
+        originalMedicationValuesMap.put("type", record.type()); // Store the type of medication
+        originalMedicationValuesMap.put("category", record.category()); // Store the category of medication
+        originalMedicationValuesMap.put("callingCode", callingCode); // Store the calling code
+        originalMedicationValuesMap.put("restOfNumber", restOfNumber); // Store the rest of the number
+        originalMedicationValuesMap.put("responseType", getSelectedCheckBoxResponse()); // Store the response type
 
+    }
+
+
+    private void setupMedicationChangeListeners() {
+        dateTakenOfMedicationDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dateTaken", newValue != null ? newValue.toString() : null));
+        nextScheduleOfMedicationTextField.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("nextSchedule", newValue != null ? newValue.toString() : null));
+        typeOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("type", newValue != null ? newValue : ""));
+        dosageOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dosage", newValue != null ? newValue : ""));
+        administerOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("administeredBy", newValue != null ? newValue : ""));
+        frequencyOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("frequency", newValue != null ? newValue : ""));
+        categoryOfMedicationComboBox.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("category", newValue));
+        countryCodeTextFieldOfMedication.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("callingCode", newValue != null ? newValue : ""));
+        restOfNumberTextFieldOfMedication.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("restOfNumber", newValue != null ? newValue : ""));
+        countryComboBoxOfMedication.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("countryCode", newValue != null ? newValue.toString() : ""));
+
+        // Unified listener for negative and positive checkboxes
+        ChangeListener<Boolean> mutualExclusiveListener = (observable, oldValue, newValue) -> {
+            if (newValue) {
+                if (observable == negativeCheckBox.selectedProperty()) {
+                    positiveCheckBox.setSelected(false);
+                    checkForChangesInMedicationData("responseType", "Negative");
+                } else {
+                    negativeCheckBox.setSelected(false);
+                    checkForChangesInMedicationData("responseType", "Positive");
+                }
+            }
+        };
+
+        // Add the listener to both checkboxes
+        negativeCheckBox.selectedProperty().addListener(mutualExclusiveListener);
+        positiveCheckBox.selectedProperty().addListener(mutualExclusiveListener);
+    }
+
+
+    private void checkForChangesInMedicationData(String fieldName, String newValue) {
+        // Get the original value from the map
+        String originalValue = originalMedicationValuesMap.get(fieldName);
+
+        // Compare the new value to the original value
+        if (originalValue != null && !originalValue.equals(newValue)) {
+            // Mark that a change has occurred only if the value differs from the original
+            isModifiedMedication = true;
+        } else if (originalValue != null) {
+            // Reset the modified state if the current value matches the original
+            isModifiedMedication = false;
+        }
+    }
+
+
+    //MODIFY MEDICATION RECORD BUTTON
     @FXML
-// Action for Modify button
     public void modifyMedicationRecord() {
         selectedMedicationRecord = medicationHistoryTableView.getSelectionModel().getSelectedItem();
         if (selectedMedicationRecord == null) {
@@ -695,11 +747,82 @@ public class MedicalHistory {
                 v -> updateMedicationRecord(),
                 v -> restoreOriginalMedicationData(),
                 v -> deleteMedicationRecord(),
-                v -> clearAllMedicationFields()
+                v -> {}
         );
     }
 
-    // Action for updating an existing record
+
+
+    // SAVE MEDICATION DETAILS
+    private void saveNewMedicationRecord() {
+        try {
+            if (!validateMedicationInputFields()) return;
+
+            MedicationHistory medicationHistory = createMedicationHistory();
+            saveMedicationHistoryToDatabase(medicationHistory);
+            loadMedicationDataIntoTableView();
+            showAlert(AlertType.INFORMATION, "Success", "Medication details saved successfully.");
+        } catch (ValidationException e) {
+            showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (DatabaseException e) {
+            showAlert(AlertType.ERROR, "Database Error", e.getMessage());
+        }
+    }
+
+    private MedicationHistory createMedicationHistory() throws ValidationException {
+        String dosage = dosageOfMedicationTextField.getText().trim();
+        String frequency = frequencyOfMedicationTextField.getText().trim();
+        String administeredBy = administerOfMedicationTextField.getText().trim();
+        LocalDate dateTaken = dateTakenOfMedicationDatePicker.getValue();
+        LocalDate nextSchedule = nextScheduleOfMedicationTextField.getValue();
+        String type = typeOfMedicationTextField.getText().trim();
+        String telNo = CountryCodePickerHelper.validateAndFormatContact(restOfNumberTextFieldOfMedication.getText().trim());
+        String category = categoryOfMedicationComboBox.getValue(); // Assuming it's a ComboBox
+
+        // Get the selected response from checkboxes directly
+        String responseType = getSelectedCheckBoxResponse();
+
+        return new MedicationHistory(
+                0, // ID will be generated by the database
+                selectedCattleId,
+                dosage,
+                frequency,
+                dateTaken,
+                nextSchedule,
+                type,
+                administeredBy,
+                telNo,
+                category,
+                responseType
+        );
+    }
+
+    private String getSelectedCheckBoxResponse() {
+        boolean isNegativeResponse = negativeCheckBox.isSelected();
+        boolean isPositiveResponse = positiveCheckBox.isSelected();
+
+        if (isNegativeResponse) {
+            return "Negative";
+        } else if (isPositiveResponse) {
+            return "Positive";
+        } else {
+            return null; // Return null if none is selected
+        }
+    }
+
+
+
+    private void saveMedicationHistoryToDatabase(MedicationHistory medicationHistory) throws DatabaseException {
+        try {
+            // Insert details into the database
+            MedicationHistoryDAO.insertMedicationHistory(medicationHistory);
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to save medication details: " + e.getMessage(), e);
+        }
+    }
+
+
+    // UPDATE MEDICATION RECORD DETAILS
     private void updateMedicationRecord() {
         try {
             // Validate the input fields; exception will be thrown if validation fails
@@ -735,78 +858,8 @@ public class MedicalHistory {
         }
     }
 
-    private void restoreOriginalMedicationData() {
-        // Restore original data to fields
-        dateTakenOfMedicationDatePicker.setValue(LocalDate.parse(originalMedicationValuesMap.get("dateTaken")));
-        dosageOfMedicationTextField.setText(originalMedicationValuesMap.get("dosage"));
-        frequencyOfMedicationTextField.setText(originalMedicationValuesMap.get("frequency"));
-        administerOfMedicationTextField.setText(originalMedicationValuesMap.get("administeredBy"));
-        typeOfMedicationTextField.setText(originalMedicationValuesMap.get("type"));
-        categoryOfMedicationComboBox.setValue(originalMedicationValuesMap.get("category"));
 
-        // Construct contact details from the original values map
-        String callingCode = originalMedicationValuesMap.get("callingCode");
-        String restOfNumber = originalMedicationValuesMap.get("restOfNumber");
-        String contactDetails = String.format("(%s) %s", callingCode, restOfNumber);
-
-        // Restore contact details using the processMedicationContactDetails method
-        processMedicationContactDetails(contactDetails);
-
-        // Reset the modification state
-        isModifiedMedication = false; // Resetting the modification state since a new record is loaded
-    }
-
-
-    // Action for saving a new record
-    private void saveNewMedicationRecord() {
-        try {
-            if (!validateMedicationInputFields()) return;
-
-            MedicationHistory medicationHistory = createMedicationHistory();
-            saveMedicationHistoryToDatabase(medicationHistory);
-            loadMedicationDataIntoTableView();
-            showAlert(AlertType.INFORMATION, "Success", "Medication details saved successfully.");
-        } catch (ValidationException e) {
-            showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
-        } catch (DatabaseException e) {
-            showAlert(AlertType.ERROR, "Database Error", e.getMessage());
-        }
-    }
-
-    private MedicationHistory createMedicationHistory() throws ValidationException {
-        String dosage = dosageOfMedicationTextField.getText().trim();
-        String frequency = frequencyOfMedicationTextField.getText().trim();
-        String administeredBy = administerOfMedicationTextField.getText().trim();
-        LocalDate dateTaken = dateTakenOfMedicationDatePicker.getValue();
-        LocalDate nextSchedule = nextScheduleOfMedicationTextField.getValue();
-        String type = typeOfMedicationTextField.getText().trim();
-        String telNo = CountryCodePickerHelper.validateAndFormatContact(restOfNumberTextFieldOfMedication.getText().trim());
-        String category = categoryOfMedicationComboBox.getValue(); // Assuming it's a ComboBox
-
-
-        return new MedicationHistory(
-                0, // ID will be generated by the database
-                selectedCattleId,
-                dosage,
-                frequency,
-                dateTaken,
-                nextSchedule,
-                type,
-                administeredBy,
-                telNo,
-                category
-        );
-    }
-
-
-    private void saveMedicationHistoryToDatabase(MedicationHistory medicationHistory) throws DatabaseException {
-        try {
-            // Insert details into the database
-            MedicationHistoryDAO.insertMedicationHistory(medicationHistory);
-        } catch (SQLException e) {
-            throw new DatabaseException("Failed to save medication details: " + e.getMessage(), e);
-        }
-    }
+    //DELETE MEDICATION RECORD
 
     private void deleteMedicationRecord() {
         // Get the selected medication record from the TableView
@@ -854,14 +907,61 @@ public class MedicalHistory {
         Optional<ButtonType> confirmation = confirmationAlert.showAndWait();
         return confirmation.isPresent() && confirmation.get() == ButtonType.OK;
     }
+
+
+    //RESTORE MEDICATION DETAILS
+    private void restoreOriginalMedicationData() {
+        // Restore original data to fields
+        dateTakenOfMedicationDatePicker.setValue(LocalDate.parse(originalMedicationValuesMap.get("dateTaken")));
+        dosageOfMedicationTextField.setText(originalMedicationValuesMap.get("dosage"));
+        frequencyOfMedicationTextField.setText(originalMedicationValuesMap.get("frequency"));
+        administerOfMedicationTextField.setText(originalMedicationValuesMap.get("administeredBy"));
+        typeOfMedicationTextField.setText(originalMedicationValuesMap.get("type"));
+        categoryOfMedicationComboBox.setValue(originalMedicationValuesMap.get("category"));
+
+        // Construct contact details from the original values map
+        String callingCode = originalMedicationValuesMap.get("callingCode");
+        String restOfNumber = originalMedicationValuesMap.get("restOfNumber");
+        String contactDetails = String.format("(%s) %s", callingCode, restOfNumber);
+
+        // Restore contact details using the processMedicationContactDetails method
+        processMedicationContactDetails(contactDetails);
+
+        // Restore the response type based on original values
+        String responseType = originalMedicationValuesMap.get("responseType");
+        if ("Positive".equals(responseType)) {
+            positiveCheckBox.setSelected(true);
+            negativeCheckBox.setSelected(false);
+        } else if ("Negative".equals(responseType)) {
+            positiveCheckBox.setSelected(false);
+            negativeCheckBox.setSelected(true);
+        } else {
+            positiveCheckBox.setSelected(false);
+            negativeCheckBox.setSelected(false);
+        }
+
+        // Reset the modification state
+        isModifiedMedication = false; // Resetting the modification state since a new record is loaded
+    }
+
+
+
+    //CLEAR MEDICATION DETAILS
+    @FXML
+    private void clearAllMedicationRecord() {
+        clearAllMedicationFields();
+    }
     // Clear all input fields
     private void clearAllMedicationFields() {
-        // Deselect any currently selected item in the table
         medicationHistoryTableView.getSelectionModel().clearSelection();
 
-        // Set the selected record to null
-        selectedMedicationRecord = null; // Assuming selectedRecord is the variable that tracks the currently selected record
+        selectedMedicationRecord = null;
 
+        // Check if the originalMedicationValuesMap is not empty
+        if (! originalMedicationValuesMap.isEmpty()) {
+            // Clear the entire map
+            originalMedicationValuesMap.clear();
+        }
         // Clear all input fields
         dosageOfMedicationTextField.clear();
         frequencyOfMedicationTextField.clear();
@@ -870,45 +970,22 @@ public class MedicalHistory {
         dateTakenOfMedicationDatePicker.setValue(null);
         nextScheduleOfMedicationTextField.setValue(null);
         categoryOfMedicationComboBox.setValue(null);
+        countryCodeTextFieldOfMedication.clear();
+        restOfNumberTextFieldOfMedication.clear();
+        countryComboBoxOfMedication.setValue(null);
+
+        // Reset checkboxes
         negativeCheckBox.setSelected(false);
         positiveCheckBox.setSelected(false);
+
+        // Clear any phone number fields if applicable
         medicationCountryCodePickerHelper.clearPhoneNumberFields();
+
         // Reset the modified flag
         isModifiedMedication = false; // Assuming isModified tracks if there were changes to the input fields
     }
 
-    private void setupMedicationChangeListeners() {
-        dateTakenOfMedicationDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dateTaken", newValue.toString()));
-        typeOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("typeOfMedication", newValue));
-        dosageOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dosage", newValue));
-        administerOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("administeredBy", newValue));
-        frequencyOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("frequency", newValue));
-        categoryOfMedicationComboBox.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("category", newValue));
-
-        // Add listeners for calling code and rest of number fields
-        countryCodeTextFieldOfMedication.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("callingCode", newValue));
-        restOfNumberTextFieldOfMedication.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("restOfNumber", newValue));
-    }
 
 
 
-
-    private void checkForChangesInMedicationData(String fieldName, String newValue) {
-        // Get the original value from the map
-        String originalValue = originalMedicationValuesMap.get(fieldName);
-
-        // Compare the new value to the original value
-        if (originalValue != null && !originalValue.equals(newValue)) {
-            // Mark that a change has occurred only if the value differs from the original
-            isModifiedMedication = true;
-        } else if (originalValue != null) {
-            // Reset the modified state if the current value matches the original
-            isModifiedMedication = false;
-        }
-    }
-
-    @FXML
-    private void clearAllMedicationRecord() {
-        clearAllMedicationFields();
-    }
 }

@@ -11,11 +11,6 @@ import java.util.List;
 public class MedicationHistoryDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
-    public static MedicationHistory getMedicationHistoryById(int id) throws SQLException {
-        String query = "SELECT * FROM medicationhistory WHERE id = ?";
-        List<MedicationHistory> medicationHistoryList = getMedicationHistoryByQuery(query, id);
-        return medicationHistoryList.isEmpty() ? null : medicationHistoryList.getFirst(); // Use get(0) instead of getFirst()
-    }
 
     public static List<MedicationHistory> getMedicationHistoriesByCattleId(int cattleId) throws SQLException {
         String query = "SELECT * FROM medicationhistory WHERE cattleId = ?";
@@ -40,11 +35,12 @@ public class MedicationHistoryDAO {
 
     public static void updateMedicationHistory(MedicationHistory medicationHistory) throws SQLException {
         String query = "UPDATE medicationhistory SET cattleId = ?, dosage = ?, frequency = ?, " +
-                "dateTaken = ?, nextSchedule = ?, type = ?, administeredBy = ?, telNo = ?, category = ? WHERE id = ?";
+                "dateTaken = ?, nextSchedule = ?, type = ?, administeredBy = ?, telNo = ?, category = ?, responseType = ? WHERE id = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             setMedicationHistoryPreparedStatementValues(preparedStatement, medicationHistory);
-            preparedStatement.setInt(10, medicationHistory.getId());
+            preparedStatement.setString(10, medicationHistory.getResponseType()); // Set responseType
+            preparedStatement.setInt(11, medicationHistory.getId());
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
                 throw new SQLException("Failed to update medication history with ID: " + medicationHistory.getId());
@@ -84,6 +80,7 @@ public class MedicationHistoryDAO {
         preparedStatement.setString(7, medicationHistory.getAdministeredBy());
         preparedStatement.setString(8, medicationHistory.getTelNo());
         preparedStatement.setString(9, medicationHistory.getCategory());
+        preparedStatement.setString(10, medicationHistory.getResponseType()); // Set responseType
     }
 
     private static MedicationHistory mapResultSetToMedicationHistory(ResultSet resultSet) throws SQLException {
@@ -97,13 +94,14 @@ public class MedicationHistoryDAO {
         String administeredBy = resultSet.getString("administeredBy");
         String telNo = resultSet.getString("telNo");
         String category = resultSet.getString("category");
+        String responseType = resultSet.getString("responseType"); // Get responseType
 
-        return new MedicationHistory(id, cattleId, dosage, frequency, dateTaken, nextSchedule, type, administeredBy, telNo, category);
+        return new MedicationHistory(id, cattleId, dosage, frequency, dateTaken, nextSchedule, type, administeredBy, telNo, category, responseType); // Include responseType in constructor
     }
 
     public static void insertMedicationHistory(MedicationHistory medicationHistory) throws SQLException {
         String query = "INSERT INTO medicationhistory (cattleId, dosage, frequency, dateTaken, nextSchedule, " +
-                "type, administeredBy, telNo, category) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                "type, administeredBy, telNo, category, responseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Include responseType
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             setMedicationHistoryPreparedStatementValues(preparedStatement, medicationHistory);

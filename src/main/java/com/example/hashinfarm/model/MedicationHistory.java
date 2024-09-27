@@ -13,11 +13,12 @@ public class MedicationHistory {
     private String administeredBy;    // Who administered the medication
     private String telNo;             // Contact number of the person administering
     private String category;          // Category of medication
+    private String responseType;      // Response type (Negative, Positive, or None)
 
     // Constructor
     public MedicationHistory(int id, int cattleId, String dosage, String frequency, LocalDate dateTaken,
                              LocalDate nextSchedule, String type, String administeredBy, String telNo,
-                             String category) {
+                             String category, String responseType) {
         this.id = id;
         this.cattleId = cattleId;
         this.dosage = dosage;
@@ -28,6 +29,7 @@ public class MedicationHistory {
         this.administeredBy = administeredBy;
         this.telNo = telNo;
         this.category = category;
+        this.responseType = responseType; // Set responseType
     }
 
     // Getters and Setters
@@ -111,6 +113,14 @@ public class MedicationHistory {
         this.category = category;
     }
 
+    public String getResponseType() {
+        return responseType; // Getter for response type
+    }
+
+    public void setResponseType(String responseType) {
+        this.responseType = responseType; // Setter for response type
+    }
+
     @Override
     public String toString() {
         return "MedicationHistory{" +
@@ -124,6 +134,7 @@ public class MedicationHistory {
                 ", administeredBy='" + administeredBy + '\'' +
                 ", telNo='" + telNo + '\'' +
                 ", category='" + category + '\'' +
+                ", responseType='" + responseType + '\'' + // Include response type in toString
                 '}';
     }
 }

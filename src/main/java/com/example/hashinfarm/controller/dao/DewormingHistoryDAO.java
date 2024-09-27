@@ -11,11 +11,7 @@ import java.util.List;
 public class DewormingHistoryDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
-    public static DewormingHistory getDewormingHistoryById(int id) throws SQLException {
-        String query = "SELECT * FROM deworminghistory WHERE id = ?";
-        List<DewormingHistory> dewormingHistoryList = getDewormingHistoryByQuery(query, id);
-        return dewormingHistoryList.isEmpty() ? null : dewormingHistoryList.getFirst();
-    }
+
     public static List<DewormingHistory> getDewormingHistoriesByCattleId(int cattleId) throws SQLException {
         String query = "SELECT * FROM deworminghistory WHERE cattleId = ?";
         return getDewormingHistoryByQuery(query, cattleId);

@@ -289,8 +289,8 @@
                                 </HBox>
 
                                 <HBox alignment="CENTER" layoutX="660.0" layoutY="96.0" spacing="10.0" GridPane.columnIndex="3" GridPane.rowIndex="4">
-                                    <CheckBox text="Negative" />
-                                    <CheckBox text="Positive" />
+                                    <CheckBox fx:id="negativeCheckBox"  text="Negative" />
+                                    <CheckBox fx:id="positiveCheckBox" text="Positive" />
                                 </HBox>
 
                                 <VBox alignment="CENTER" GridPane.columnIndex="5" GridPane.rowIndex="1" />
