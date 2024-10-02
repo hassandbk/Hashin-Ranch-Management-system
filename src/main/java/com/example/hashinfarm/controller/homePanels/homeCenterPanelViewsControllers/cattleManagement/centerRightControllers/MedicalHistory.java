@@ -1,23 +1,25 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
 import com.example.hashinfarm.controller.dao.DewormingHistoryDAO;
+import com.example.hashinfarm.controller.dao.FollowUpRecommendationDAO;
+import com.example.hashinfarm.controller.dao.HealthCheckupHistoryDAO;
 import com.example.hashinfarm.controller.dao.MedicationHistoryDAO;
 import com.example.hashinfarm.controller.records.DewormingRecord;
+import com.example.hashinfarm.controller.records.HealthCheckupRecord;
 import com.example.hashinfarm.controller.records.MedicationRecord;
 import com.example.hashinfarm.controller.utility.*;
 
 import java.sql.SQLException;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.function.Consumer;
 
-
 import com.example.hashinfarm.exceptions.DatabaseException;
 import com.example.hashinfarm.exceptions.ValidationException;
-import com.example.hashinfarm.model.Country;
-import com.example.hashinfarm.model.DewormingHistory;
+import com.example.hashinfarm.model.*;
 
-import com.example.hashinfarm.model.MedicationHistory;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 
@@ -39,11 +41,15 @@ public class MedicalHistory {
     private int selectedCattleId = 0;
     private final Map<String, String> originalDewormingValuesMap = new HashMap<>();
     private final Map<String, String> originalMedicationValuesMap = new HashMap<>();
+    private final Map<String, String> originalHealthCheckupValuesMap = new HashMap<>();
 
     private boolean isModifiedDeworming = false;
     private boolean isModifiedMedication = false;
+    private boolean isModifiedHealthCheckup =false;
+
     private DewormingRecord selectedDewormingRecord;
     private MedicationRecord selectedMedicationRecord;
+    private HealthCheckupRecord selectedHealthCheckupRecord;
 
     private CountryCodePickerHelper dewormingCountryCodePickerHelper;
     private CountryCodePickerHelper medicationCountryCodePickerHelper;
@@ -75,21 +81,58 @@ public class MedicalHistory {
     @FXML private ComboBox<String> categoryOfMedicationComboBox;
     @FXML private CheckBox negativeCheckBox, positiveCheckBox;
 
+    // HEALTH CHECKUP
+    @FXML private TableView<HealthCheckupRecord> healthCheckupTableView;
+    @FXML private TableColumn<HealthCheckupRecord, Integer> idHealthCheckupColumn;
+    @FXML private TableColumn<HealthCheckupRecord, LocalDate> checkupDateColumn;
+    @FXML private TableColumn<HealthCheckupRecord, String> createdATColumn, temperatureColumn, heartRateColumn, respiratoryRateColumn, bloodPressureColumn, behavioralObservationsColumn, physicalExaminationColumn, healthIssuesColumn, specificObservationsColumn, checkupNotesColumn, chronicConditionsColumn;
+
+    @FXML private DatePicker checkupDatePicker;
+    @FXML private TextField createdATTextField, temperatureTextField, heartRateTextField, respiratoryRateTextField, bloodPressureTextField;
+    @FXML private TextArea behavioralObservationsTextArea, physicalExaminationTextArea, healthIssuesTextArea, specificObservationsTextArea, checkupNotesTextArea, chronicConditionsTextArea;
+    @FXML private TitledPane healthAssessmentsTitledPane, preventiveCareTitledPane, nutritionalManagementTitledPane, physicalHealthMaintenanceTitledPane, managementPracticesTitledPane, environmentalHousingAssessmentsTitledPane, monitoringReviewTitledPane, additionalRecommendationsTitledPane;
+
+    @FXML private CheckBox regularHealthAssessmentsCheckBox, monitoringTemperatureCheckBox, monitoringDiseasesCheckBox, routineBloodTestsCheckBox, fecalTestingCheckBox, skinCoatInspectionsCheckBox, monitoringBloatCheckBox, monitoringAnaplasmosisCheckBox, monitoringJohnesDiseaseCheckBox, behavioralAssessmentsCheckBox;
+    @FXML private CheckBox vaccinationProtocolsCheckBox, deWormingTreatmentsCheckBox, parasiteControlMeasuresCheckBox, bioSecurityPracticesCheckBox, breedingSoundnessExamsCheckBox, colostrumManagementCheckBox, stressReductionTechniquesCheckBox, bodyConditionScoringCheckBox, nutritionalSupplementationCheckBox;
+    @FXML private CheckBox nutritionalEvaluationCheckBox, monitoringWaterQualityCheckBox, monitoringMilkProductionCheckBox, regularWeightMonitoringCheckBox, consultationNutritionalRequirementsCheckBox;
+    @FXML private CheckBox hoofHealthAssessmentsCheckBox, footTrimmingScheduleCheckBox, dentalCheckUpsCheckBox, monitoringLamenessIssuesCheckBox, overallBodyConditionAssessmentCheckBox;
+    @FXML private CheckBox calvingManagementProtocolsCheckBox, cullingDecisionsCheckBox, herdImmunityAssessmentCheckBox, trainingStaffHandlingTechniquesCheckBox, implementingQuarantineProtocolsCheckBox, recordKeepingHealthInterventionsCheckBox;
+    @FXML private CheckBox livingConditionsAssessmentCheckBox, flyInsectManagementCheckBox, adequateExerciseCheckBox, environmentalToxinsMonitoringCheckBox;
+    @FXML private CheckBox vaccinationScheduleReviewCheckBox, regularWeightChecksCheckBox, educationZoonoticDiseasesCheckBox, postMortemExaminationsCheckBox, recordKeepingVeterinaryInterventionsCheckBox;
+    @FXML private CheckBox monitoringCalfHealthCheckBox, limitingStressFactorsCheckBox, evaluationBreedingPracticesCheckBox, implementationHerdHealthPlansCheckBox, observationSocialBehaviorCheckBox, regularReproductivePerformanceAssessmentCheckBox;
+
+    private final Map<TitledPane, List<CheckBox>> titledPaneCheckboxMap = new HashMap<>();
+    private final Map<String, Boolean> originalRecommendationsMap = new HashMap<>();
+
+
+
+
 
     public void initialize() {
         initializeSelectedCattleManager();
         DateUtil.datePickerFormat(dewormingDatePicker);
         DateUtil.datePickerFormat(dateTakenOfMedicationDatePicker);
         DateUtil.datePickerFormat(nextScheduleOfMedicationTextField);
-        setupDewormingTableColumns();
         initializeImageView();
         initializeCountryCodePicker();
         initializeTextFields();
         initializeSelectionListener();
+
+        setupDewormingTableColumns();
         setupDewormingChangeListeners();
 
         setupMedicationTableColumns();
         setupMedicationChangeListeners();
+
+        setupHealthCheckupTableColumns();
+        setupHealthCheckupChangeListeners();
+
+
+        // Initialize the map
+
+
+        mapTitledPaneToCheckBoxes();
+        addCheckboxListeners();
     }
     private void showAlert(AlertType type, String title, String message) {
         Alert alert = new Alert(type, message, ButtonType.OK);
@@ -109,6 +152,7 @@ public class MedicalHistory {
             selectedCattleId = newValue.intValue();
             loadDewormingDataIntoTableView();
             loadMedicationDataIntoTableView();
+            loadHealthCheckupDataIntoTableView();
         });
     }
 
@@ -130,14 +174,34 @@ public class MedicalHistory {
 
 
     private void initializeTextFields() {
-        UnitsTextField.initializeTextField(dosageOfDewormingTextField, true);
-        UnitsTextField.initializeTextField(weightAtTimeOfDewormingTextField, false);
-        UnitsTextField.initializeTextField(dosageOfMedicationTextField, true);
+        UnitsTextField.initializeTextField(dosageOfDewormingTextField, MeasurementType.DOSAGE);
+        UnitsTextField.initializeTextField(weightAtTimeOfDewormingTextField, MeasurementType.WEIGHT);
+        UnitsTextField.initializeTextField(temperatureTextField, MeasurementType.TEMPERATURE);
+        UnitsTextField.initializeTextField(heartRateTextField, MeasurementType.HEART_RATE);
+        UnitsTextField.initializeTextField(respiratoryRateTextField, MeasurementType.RESPIRATORY_RATE);
+        UnitsTextField.initializeTextField(bloodPressureTextField, MeasurementType.BLOOD_PRESSURE);
 
-        UnitsTextField.addValidationListener(dosageOfDewormingTextField, UnitsTextField::isValidDosage);
-        UnitsTextField.addValidationListener(weightAtTimeOfDewormingTextField, UnitsTextField::isValidWeight);
-        UnitsTextField.addValidationListener(dosageOfMedicationTextField, UnitsTextField::isValidDosage);
+        UnitsTextField.addValidationListener(dosageOfDewormingTextField, MeasurementType.DOSAGE,
+                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.DOSAGE)
+        );
+        UnitsTextField.addValidationListener(weightAtTimeOfDewormingTextField, MeasurementType.WEIGHT,
+                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.WEIGHT)
+        );
+        UnitsTextField.addValidationListener(temperatureTextField, MeasurementType.TEMPERATURE,
+                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.TEMPERATURE)
+        );
+        UnitsTextField.addValidationListener(heartRateTextField, MeasurementType.HEART_RATE,
+                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.HEART_RATE)
+        );
+        UnitsTextField.addValidationListener(respiratoryRateTextField, MeasurementType.RESPIRATORY_RATE,
+                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.RESPIRATORY_RATE)
+        );
+        UnitsTextField.addValidationListener(bloodPressureTextField, MeasurementType.BLOOD_PRESSURE,
+                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.BLOOD_PRESSURE)
+        );
     }
+
+
 
 
 
@@ -155,6 +219,20 @@ public class MedicalHistory {
                 selectedMedicationRecord =newValue;
             }
         });
+
+
+
+
+
+
+        // Listener for health checkups table
+        healthCheckupTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                populateHealthCheckupFields(newValue);
+                selectedHealthCheckupRecord = newValue;
+            }
+        });
+
     }
 
 
@@ -266,7 +344,7 @@ public class MedicalHistory {
         return true;
     }
 
-    // Populate original values map for change tracking
+    // Populate the original values map for change tracking
     private void populateOriginalDewormingValuesMap(DewormingRecord record, String callingCode, String restOfNumber) {
         originalDewormingValuesMap.put("id", String.valueOf(record.id()));
         originalDewormingValuesMap.put("dewormingDate", record.dewormingDate().toString());
@@ -299,9 +377,9 @@ public class MedicalHistory {
         String originalValue = originalDewormingValuesMap.get(fieldName);
 
         if (originalValue != null && !originalValue.equals(newValue)) {
-            isModifiedDeworming = true; // Mark changes if value differs
+            isModifiedDeworming = true; // Mark changes if the value differs
         } else if (originalValue != null) {
-            isModifiedDeworming = false; // Reset modification flag if values match
+            isModifiedDeworming = false; // Reset the modification flag if values match
         }
     }
 
@@ -364,8 +442,13 @@ public class MedicalHistory {
     // Create DewormingHistory object from input fields
     private DewormingHistory createDewormingHistory() throws ValidationException {
         String dewormerType = dewormerTypeTextArea.getText().trim();
-        double dosage = CountryCodePickerHelper.parseNumericValue(dosageOfDewormingTextField.getText().trim(), UnitsTextField.ML_SUFFIX);
-        double weightAtTime = CountryCodePickerHelper.parseNumericValue(weightAtTimeOfDewormingTextField.getText().trim(), UnitsTextField.KG_SUFFIX);
+        double dosage = CountryCodePickerHelper.parseNumericValue(
+                dosageOfDewormingTextField.getText().trim(), MeasurementType.DOSAGE.getSuffix()
+        );
+        double weightAtTime = CountryCodePickerHelper.parseNumericValue(
+                weightAtTimeOfDewormingTextField.getText().trim(), MeasurementType.WEIGHT.getSuffix()
+        );
+
         String administeredBy = administerOfDewormingTextField.getText().trim();
         LocalDate dateOfDeworming = dewormingDatePicker.getValue();
         String manufacturerDetails = manufacturerDetailsTextArea.getText().trim();
@@ -420,7 +503,7 @@ public class MedicalHistory {
             DewormingHistoryDAO.updateDewormingHistory(updatedHistory);
             loadDewormingDataIntoTableView();
 
-            // Show success message
+            // Show the success message
             showAlert(AlertType.INFORMATION, "Success", "Deworming record updated successfully.");
         } catch (ValidationException e) {
             // Handle validation errors
@@ -529,7 +612,7 @@ public class MedicalHistory {
         manufacturerDetailsTextArea.clear();
         dewormingCountryCodePickerHelper.clearPhoneNumberFields();
 
-        // Reset modification flag
+        // Reset the modification flag
         isModifiedDeworming = false;
     }
 
@@ -597,7 +680,7 @@ public class MedicalHistory {
 
         // Populate the fields with values from the MedicationRecord
         dateTakenOfMedicationDatePicker.setValue(record.dateTaken()); // Set date taken
-        nextScheduleOfMedicationTextField.setValue(record.nextSchedule()); // Set next schedule date
+        nextScheduleOfMedicationTextField.setValue(record.nextSchedule()); // Set the next schedule date
         dosageOfMedicationTextField.setText(record.dosage()); // Set dosage
         frequencyOfMedicationTextField.setText(record.frequency()); // Set frequency
         typeOfMedicationTextField.setText(record.type()); // Set medication type
@@ -605,7 +688,7 @@ public class MedicalHistory {
         categoryOfMedicationComboBox.setValue(record.category()); // Set category of medication
 
         negativeCheckBox.setSelected(false);  // Set default value for negative check (adjust as necessary)
-        positiveCheckBox.setSelected(false);  // Set default value for positive check (adjust as necessary)
+        positiveCheckBox.setSelected(false);  // Set the default value for positive check (adjust as necessary)
 
 
         // Extract and process contact details
@@ -844,7 +927,7 @@ public class MedicalHistory {
             MedicationHistoryDAO.updateMedicationHistory(updatedHistory);
             loadMedicationDataIntoTableView();
 
-            // Show success message
+            // Show the success message
             showAlert(AlertType.INFORMATION, "Success", "Medication record updated successfully.");
         } catch (ValidationException e) {
             // Handle validation errors
@@ -988,4 +1071,649 @@ public class MedicalHistory {
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    // HEALTH CHECKUP HISTORY
+    private void loadHealthCheckupDataIntoTableView() {
+        clearAllHealthCheckupFields();
+
+        if (selectedCattleId == 0) {  // Ensure you have a valid selectedCattleId
+            // Show an alert if no cattle is selected
+            showAlert(AlertType.WARNING, "No Cattle Selected", "Please select a cattle before proceeding.");
+            return;
+        }
+
+        List<HealthCheckupHistory> healthCheckupHistories;
+        try {
+            healthCheckupHistories = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(selectedCattleId);
+        } catch (SQLException e) {
+            showAlert(AlertType.ERROR, "Database Error", "Failed to load health checkup history. Please try again.");
+            return;
+        }
+
+        ObservableList<HealthCheckupRecord> records = getHealthCheckupRecords(healthCheckupHistories);
+        healthCheckupTableView.setItems(records);
+    }
+
+    private ObservableList<HealthCheckupRecord> getHealthCheckupRecords(List<HealthCheckupHistory> healthCheckupHistories) {
+        ObservableList<HealthCheckupRecord> records = FXCollections.observableArrayList();
+
+        for (HealthCheckupHistory history : healthCheckupHistories) {
+            records.add(new HealthCheckupRecord(
+                    history.getId(),
+                    history.getCheckupDate(),
+                    history.getTemperature(),
+                    history.getHeartRate(),
+                    history.getRespiratoryRate(),
+                    history.getBloodPressure(),
+                    history.getBehavioralObservations(),
+                    history.getPhysicalExaminationFindings(),
+                    history.getHealthIssues(),
+                    history.getSpecificObservations(),
+                    history.getCheckupNotes(),
+                    history.getChronicConditions(),
+                    history.getCreatedAt()
+            ));
+        }
+
+        return records;
+    }
+
+
+    private void setupHealthCheckupTableColumns() {
+        idHealthCheckupColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().id()));
+        checkupDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().checkupDate()));
+        // Convert LocalDateTime to String for the createdAt column
+        createdATColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                cellData.getValue().createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))); // Format as desired
+
+
+        temperatureColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().temperature()));
+        heartRateColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().heartRate()));
+        bloodPressureColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().bloodPressure()));
+        respiratoryRateColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().respiratoryRate()));
+        behavioralObservationsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().behavioralObservations()));
+        physicalExaminationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().physicalExaminationFindings()));
+        healthIssuesColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().healthIssues()));
+        specificObservationsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().specificObservations()));
+        checkupNotesColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().checkupNotes()));
+        chronicConditionsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().chronicConditions()));
+    }
+
+
+
+    private void populateHealthCheckupFields(HealthCheckupRecord record) {
+        // Clear all fields before populating with new data
+        clearAllHealthCheckupFields();
+
+        // Populate the fields with values from the HealthCheckupRecord
+        checkupDatePicker.setValue(record.checkupDate());
+        createdATTextField.setText(record.checkupDate().toString());
+
+        // Vital Signs
+        temperatureTextField.setText(record.temperature());
+        heartRateTextField.setText(record.heartRate());
+        respiratoryRateTextField.setText(record.respiratoryRate());
+        bloodPressureTextField.setText(record.bloodPressure());
+
+        // Observations and Findings
+        behavioralObservationsTextArea.setText(record.behavioralObservations());
+        physicalExaminationTextArea.setText(record.physicalExaminationFindings());
+        healthIssuesTextArea.setText(record.healthIssues());
+        specificObservationsTextArea.setText(record.specificObservations());
+        checkupNotesTextArea.setText(record.checkupNotes());
+        chronicConditionsTextArea.setText(record.chronicConditions());
+
+        // Retrieve follow-up recommendations using the health checkup ID
+        try {
+            List<FollowUpRecommendation> recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(record.id());
+            setCheckboxStates(recommendations);
+        } catch (SQLException e) {
+            e.printStackTrace();
+            // Handle SQL exception appropriately (e.g., show error message)
+        }
+        // Store original checkbox states for later comparison
+        storeOriginalRecommendations();
+
+        // Populate the original values map for change tracking
+        populateOriginalHealthCheckupValuesMap(record);
+
+        // Reset the modification state if applicable
+        isModifiedHealthCheckup = false;
+    }
+
+    private void setCheckboxStates(List<FollowUpRecommendation> recommendations) {
+        // Clear previous checkbox states
+        titledPaneCheckboxMap.forEach((titledPane, checkboxes) -> {
+            for (CheckBox checkBox : checkboxes) {
+                checkBox.setSelected(false); // Reset all to uncheck first
+            }
+        });
+
+        // Set checkbox states based on recommendations
+        for (FollowUpRecommendation recommendation : recommendations) {
+            String recommendationText = recommendation.getRecommendation().trim();
+
+            // Check each checkbox in the map and set it if it matches the recommendation text
+            titledPaneCheckboxMap.forEach((titledPane, checkboxes) -> {
+                for (CheckBox checkBox : checkboxes) {
+                    if (checkBox.getText().trim().equals(recommendationText)) {
+                        checkBox.setSelected(true); // Set to check if it matches
+                        break; // No need to continue if we found the match
+                    }
+                }
+            });
+        }
+    }
+
+    private void storeOriginalRecommendations() {
+        originalRecommendationsMap.clear();
+        titledPaneCheckboxMap.forEach((titledPane, checkboxes) ->
+                checkboxes.forEach(checkBox ->
+                        originalRecommendationsMap.put(checkBox.getText().trim(), checkBox.isSelected())
+                )
+        );
+    }
+
+    private void mapTitledPaneToCheckBoxes() {
+        titledPaneCheckboxMap.put(healthAssessmentsTitledPane, List.of(
+                regularHealthAssessmentsCheckBox,
+                monitoringTemperatureCheckBox,
+                monitoringDiseasesCheckBox,
+                routineBloodTestsCheckBox,
+                fecalTestingCheckBox,
+                skinCoatInspectionsCheckBox,
+                monitoringBloatCheckBox,
+                monitoringAnaplasmosisCheckBox,
+                monitoringJohnesDiseaseCheckBox,
+                behavioralAssessmentsCheckBox
+        ));
+
+        titledPaneCheckboxMap.put(preventiveCareTitledPane, List.of(
+                vaccinationProtocolsCheckBox,
+                deWormingTreatmentsCheckBox,
+                parasiteControlMeasuresCheckBox,
+                bioSecurityPracticesCheckBox,
+                breedingSoundnessExamsCheckBox,
+                colostrumManagementCheckBox,
+                stressReductionTechniquesCheckBox,
+                bodyConditionScoringCheckBox,
+                nutritionalSupplementationCheckBox
+        ));
+
+        titledPaneCheckboxMap.put(nutritionalManagementTitledPane, List.of(
+                nutritionalEvaluationCheckBox,
+                monitoringWaterQualityCheckBox,
+                monitoringMilkProductionCheckBox,
+                regularWeightMonitoringCheckBox,
+                consultationNutritionalRequirementsCheckBox
+        ));
+
+        titledPaneCheckboxMap.put(physicalHealthMaintenanceTitledPane, List.of(
+                hoofHealthAssessmentsCheckBox,
+                footTrimmingScheduleCheckBox,
+                dentalCheckUpsCheckBox,
+                monitoringLamenessIssuesCheckBox,
+                overallBodyConditionAssessmentCheckBox
+        ));
+
+        titledPaneCheckboxMap.put(managementPracticesTitledPane, List.of(
+                calvingManagementProtocolsCheckBox,
+                cullingDecisionsCheckBox,
+                herdImmunityAssessmentCheckBox,
+                trainingStaffHandlingTechniquesCheckBox,
+                implementingQuarantineProtocolsCheckBox,
+                recordKeepingHealthInterventionsCheckBox
+        ));
+
+        titledPaneCheckboxMap.put(environmentalHousingAssessmentsTitledPane, List.of(
+                livingConditionsAssessmentCheckBox,
+                flyInsectManagementCheckBox,
+                adequateExerciseCheckBox,
+                environmentalToxinsMonitoringCheckBox
+        ));
+
+        titledPaneCheckboxMap.put(monitoringReviewTitledPane, List.of(
+                vaccinationScheduleReviewCheckBox,
+                regularWeightChecksCheckBox,
+                educationZoonoticDiseasesCheckBox,
+                postMortemExaminationsCheckBox,
+                recordKeepingVeterinaryInterventionsCheckBox
+        ));
+
+        titledPaneCheckboxMap.put(additionalRecommendationsTitledPane, List.of(
+                monitoringCalfHealthCheckBox,
+                limitingStressFactorsCheckBox,
+                evaluationBreedingPracticesCheckBox,
+                implementationHerdHealthPlansCheckBox,
+                observationSocialBehaviorCheckBox,
+                regularReproductivePerformanceAssessmentCheckBox
+        ));
+    }
+
+    private void addCheckboxListeners() {
+        for (Map.Entry<TitledPane, List<CheckBox>> entry : titledPaneCheckboxMap.entrySet()) {
+            for (CheckBox checkBox : entry.getValue()) {
+                checkBox.selectedProperty().addListener((observable, oldValue, newValue) -> checkForCheckboxChanges(checkBox.getText().trim(), newValue));
+            }
+        }
+    }
+
+    // Check for changes in checkbox selections
+    private void checkForCheckboxChanges(String recommendationText, boolean isSelected) {
+        Boolean originalSelected = originalRecommendationsMap.get(recommendationText);
+
+        // If the original state exists, and it's different from the new state, mark as modified
+        if (originalSelected != null && originalSelected != isSelected) {
+            isModifiedHealthCheckup = true; // Mark as modified if the selection has changed
+        } else {
+            // If the original state is the same as the new state, check if all checkboxes match the original states
+            isModifiedHealthCheckup = checkIfAnyCheckboxModified();
+        }
+    }
+
+    // Helper method to check if any checkbox state differs from its original state
+    private boolean checkIfAnyCheckboxModified() {
+        for (Map.Entry<TitledPane, List<CheckBox>> entry : titledPaneCheckboxMap.entrySet()) {
+            for (CheckBox checkBox : entry.getValue()) {
+                Boolean originalSelected = originalRecommendationsMap.get(checkBox.getText().trim());
+                if (originalSelected != null && originalSelected != checkBox.isSelected()) {
+                    return true; // At least one checkbox has been modified
+                }
+            }
+        }
+        return false; // No modifications found
+    }
+
+
+    private List<FollowUpRecommendation> getSelectedFollowUpRecommendations() {
+        List<FollowUpRecommendation> recommendations = new ArrayList<>();
+        LocalDateTime createdAt = LocalDateTime.now(); // Get current date and time
+
+        // Iterate through TitledPane entries
+        for (Map.Entry<TitledPane, List<CheckBox>> entry : titledPaneCheckboxMap.entrySet()) {
+            List<CheckBox> checkboxes = entry.getValue();
+
+            // Check each checkbox in the TitledPane
+            for (CheckBox checkbox : checkboxes) {
+                if (checkbox.isSelected()) {
+                    String recommendationText = checkbox.getText().trim();
+                    FollowUpRecommendation recommendation = new FollowUpRecommendation(
+                            0, // ID (this will be generated by the database)
+                            0, // This will be updated later when saved
+                            recommendationText,
+                            createdAt
+                    );
+
+                    recommendations.add(recommendation);
+                }
+            }
+        }
+
+        return recommendations;
+    }
+
+    // Method to clear all fields related to health checkup
+    private void clearAllHealthCheckupFields() {
+        // Clear selections in the health checkup table view
+        healthCheckupTableView.getSelectionModel().clearSelection();
+
+        selectedHealthCheckupRecord = null;
+
+        // Clear input fields related to health checkup
+        checkupDatePicker.setValue(null);
+        createdATTextField.clear();
+
+        // Vital Signs
+        temperatureTextField.clear();
+        heartRateTextField.clear();
+        respiratoryRateTextField.clear();
+        bloodPressureTextField.clear();
+
+        // Observations and Findings
+        behavioralObservationsTextArea.clear();
+        physicalExaminationTextArea.clear();
+        healthIssuesTextArea.clear();
+        specificObservationsTextArea.clear();
+        checkupNotesTextArea.clear();
+        chronicConditionsTextArea.clear();
+
+        // Reset all checkboxes to unchecked state
+        resetAllCheckboxes();
+
+        // Clear any maps or flags related to the health checkup
+        originalHealthCheckupValuesMap.clear(); // Clear the original values map if it exists
+        isModifiedHealthCheckup = false; // Reset the modification flag
+    }
+
+    // Method to reset all checkboxes to an unchecked state
+    private void resetAllCheckboxes() {
+        titledPaneCheckboxMap.forEach((titledPane, checkboxes) -> {
+            for (CheckBox checkBox : checkboxes) {
+                checkBox.setSelected(false); // Reset all checkboxes to uncheck
+            }
+        });
+    }
+
+    private boolean validateHealthCheckupInputFields() throws ValidationException {
+        // Validate all fields and apply error effects as needed
+        InputFieldsValidationHelper.validateField(selectedCattleId == 0, "Select a Cattle from the Herds table", null);
+        InputFieldsValidationHelper.validateField(temperatureTextField.getText().trim().isEmpty(), "Temperature is required.", temperatureTextField);
+        InputFieldsValidationHelper.validateField(checkupDatePicker.getValue() == null, "Date of Checkup is required.", checkupDatePicker);
+
+        // Validate behavioral observations
+        InputFieldsValidationHelper.validateField(behavioralObservationsTextArea.getText().trim().isEmpty(), "Behavioral observations are required.", behavioralObservationsTextArea);
+        InputFieldsValidationHelper.validateField(physicalExaminationTextArea.getText().trim().isEmpty(), "Physical examination findings are required.", physicalExaminationTextArea);
+        InputFieldsValidationHelper.validateField(healthIssuesTextArea.getText().trim().isEmpty(), "Health issues are required.", healthIssuesTextArea);
+        InputFieldsValidationHelper.validateField(specificObservationsTextArea.getText().trim().isEmpty(), "Specific observations are required.", specificObservationsTextArea);
+        InputFieldsValidationHelper.validateField(checkupNotesTextArea.getText().trim().isEmpty(), "Checkup notes are required.", checkupNotesTextArea);
+        InputFieldsValidationHelper.validateField(chronicConditionsTextArea.getText().trim().isEmpty(), "Chronic conditions are required.", chronicConditionsTextArea);
+
+        // If no exception was thrown, return true (indicating all fields are valid)
+        return true;
+    }
+
+
+    // Populate the original values map for change tracking
+    private void populateOriginalHealthCheckupValuesMap(HealthCheckupRecord record) {
+        originalHealthCheckupValuesMap.put("id", String.valueOf(record.id()));
+        originalHealthCheckupValuesMap.put("checkupDate", record.checkupDate().toString());
+        originalHealthCheckupValuesMap.put("temperature", record.temperature());
+        originalHealthCheckupValuesMap.put("heartRate", record.heartRate());
+        originalHealthCheckupValuesMap.put("respiratoryRate", record.respiratoryRate());
+        originalHealthCheckupValuesMap.put("bloodPressure", record.bloodPressure());
+        originalHealthCheckupValuesMap.put("behavioralObservations", record.behavioralObservations());
+        originalHealthCheckupValuesMap.put("physicalExaminationFindings", record.physicalExaminationFindings());
+        originalHealthCheckupValuesMap.put("healthIssues", record.healthIssues());
+        originalHealthCheckupValuesMap.put("specificObservations", record.specificObservations());
+        originalHealthCheckupValuesMap.put("checkupNotes", record.checkupNotes());
+        originalHealthCheckupValuesMap.put("chronicConditions", record.chronicConditions());
+    }
+
+    // Set up listeners for changes in input fields related to health checkup
+    private void setupHealthCheckupChangeListeners() {
+        checkupDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("checkupDate", newValue != null ? newValue.toString() : null));
+        temperatureTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("temperature", newValue != null ? newValue : ""));
+        heartRateTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("heartRate", newValue != null ? newValue : ""));
+        respiratoryRateTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("respiratoryRate", newValue != null ? newValue : ""));
+        bloodPressureTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("bloodPressure", newValue != null ? newValue : ""));
+
+        behavioralObservationsTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("behavioralObservations", newValue != null ? newValue : ""));
+        physicalExaminationTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("physicalExaminationFindings", newValue != null ? newValue : ""));
+        healthIssuesTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("healthIssues", newValue != null ? newValue : ""));
+        specificObservationsTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("specificObservations", newValue != null ? newValue : ""));
+        checkupNotesTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("checkupNotes", newValue != null ? newValue : ""));
+        chronicConditionsTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInHealthCheckupData("chronicConditions", newValue != null ? newValue : ""));
+    }
+
+    // Check for changes in health checkup data and update modification state
+    private void checkForChangesInHealthCheckupData(String fieldName, String newValue) {
+        String originalValue = originalHealthCheckupValuesMap.get(fieldName);
+
+        if (originalValue != null && !originalValue.equals(newValue)) {
+            isModifiedHealthCheckup = true; // Mark changes if the value differs
+        } else if (originalValue != null) {
+            isModifiedHealthCheckup = false; // Reset the modification flag if values match
+        }
+    }
+
+
+
+
+    // MODIFY DETAILS BUTTON
+    @FXML
+    public void modifyHealthCheckupRecord() {
+        selectedHealthCheckupRecord = healthCheckupTableView.getSelectionModel().getSelectedItem();
+        if (selectedHealthCheckupRecord == null) {
+            // No record selected, show saving options
+            showHealthCheckupSaveDialog();
+        } else {
+            showHealthCheckupUpdateDialog();
+        }
+    }
+
+    private void showHealthCheckupSaveDialog() {
+        List<ButtonType> buttonTypes = Arrays.asList(
+                new ButtonType("Save"),
+                new ButtonType("Clear Fields"),
+                new ButtonType("Cancel")
+        );
+
+        List<Consumer<Void>> actions = Arrays.asList(
+                v -> saveNewHealthCheckupRecord(),
+                v -> clearAllHealthCheckupFields(),
+                v -> {} // Cancel does nothing as it's handled automatically
+        );
+
+        DialogHelper.showConfirmationDialog("New Record", "Choose an Action?", buttonTypes, actions);
+    }
+
+    private void showHealthCheckupUpdateDialog() {
+        DialogHelper.showUpdateDialog(
+                "Modify Health Checkup Record",
+                isModifiedHealthCheckup,
+                v -> updateHealthCheckupRecord(),
+                v -> restoreOriginalHealthCheckupData(),
+                v -> deleteHealthCheckupRecord(),
+                v -> {}
+        );
+    }
+
+    // SAVE HEALTH CHECKUP RECORD
+    private void saveNewHealthCheckupRecord() {
+        try {
+            if (!validateHealthCheckupInputFields()) return;
+
+            HealthCheckupHistory healthCheckupHistory = createHealthCheckupHistory();
+            saveHealthCheckupHistoryToDatabase(healthCheckupHistory);
+            loadHealthCheckupDataIntoTableView();
+            showAlert(AlertType.INFORMATION, "Success", "Health checkup details saved successfully.");
+        } catch (ValidationException e) {
+            showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (DatabaseException e) {
+            showAlert(AlertType.ERROR, "Database Error", e.getMessage());
+        }
+    }
+    // Create HealthCheckupHistory object from input fields
+    private HealthCheckupHistory createHealthCheckupHistory() throws ValidationException {
+        LocalDate checkupDate = checkupDatePicker.getValue();
+        String temperature = temperatureTextField.getText().trim();
+        String heartRate = heartRateTextField.getText().trim();
+        String respiratoryRate = respiratoryRateTextField.getText().trim();
+        String bloodPressure = bloodPressureTextField.getText().trim();
+
+        String behavioralObservations = behavioralObservationsTextArea.getText().trim();
+        String physicalExaminationFindings = physicalExaminationTextArea.getText().trim();
+        String healthIssues = healthIssuesTextArea.getText().trim();
+        String specificObservations = specificObservationsTextArea.getText().trim();
+        String checkupNotes = checkupNotesTextArea.getText().trim();
+        String chronicConditions = chronicConditionsTextArea.getText().trim();
+
+        LocalDateTime createdAt = LocalDateTime.now(); // Get the current date and time
+
+        List<FollowUpRecommendation> selectedRecommendations = getSelectedFollowUpRecommendations();
+
+        // Create HealthCheckupHistory object
+        return new HealthCheckupHistory(
+                0, // ID will be generated by the database
+                selectedCattleId, // Assuming you have selected cattle ID accessible here
+                checkupDate,
+                temperature,
+                heartRate,
+                respiratoryRate,
+                bloodPressure,
+                behavioralObservations,
+                physicalExaminationFindings,
+                healthIssues,
+                specificObservations,
+                checkupNotes,
+                chronicConditions,
+                createdAt,
+                selectedRecommendations // Pass the selected recommendations
+        );
+    }
+
+
+
+    // Save HealthCheckupHistory to the database
+    private void saveHealthCheckupHistoryToDatabase(HealthCheckupHistory healthCheckupHistory) throws DatabaseException {
+        try {
+            // Insert details into the database
+            HealthCheckupHistoryDAO.insertHealthCheckupHistory(healthCheckupHistory);
+        } catch (SQLException e) {
+            throw new DatabaseException("Failed to save health checkup details: " + e.getMessage(), e);
+        }
+    }
+
+
+
+
+    // UPDATE HEALTH CHECKUP RECORD DETAILS
+    private void updateHealthCheckupRecord() {
+        try {
+            // Validate the input fields; exception will be thrown if validation fails
+            validateHealthCheckupInputFields();
+
+            // Proceed with creating the updated health checkup object
+            HealthCheckupHistory updatedHistory = createHealthCheckupHistory();
+
+            // Retrieve and set the original ID from the map
+            String originalIdString = originalHealthCheckupValuesMap.get("id");
+            if (originalIdString != null) {
+                int originalId = Integer.parseInt(originalIdString);
+                updatedHistory.setId(originalId);
+            } else {
+                throw new IllegalStateException("Original ID not found in the values map.");
+            }
+
+            // Update the record in the database
+            HealthCheckupHistoryDAO.updateHealthCheckupHistory(updatedHistory);
+            loadHealthCheckupDataIntoTableView();
+
+            // Show the success message
+            showAlert(AlertType.INFORMATION, "Success", "Health checkup record updated successfully.");
+        } catch (ValidationException e) {
+            // Handle validation errors
+            showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (SQLException e) {
+            // Handle database errors
+            throw new RuntimeException(e);
+        } catch (IllegalStateException e) {
+            // Handle other errors like missing ID
+            showAlert(AlertType.ERROR, "Error", e.getMessage());
+        }
+    }
+
+
+
+
+
+
+    // DELETE HEALTH CHECKUP RECORD
+    private void deleteHealthCheckupRecord() {
+        // Get the selected health checkup record from the TableView
+        selectedHealthCheckupRecord = healthCheckupTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedHealthCheckupRecord == null) {
+            return; // No record selected, nothing to do
+        }
+
+        // Confirm the deletion from the user before proceeding
+        if (!confirmHealthCheckupRecordDeletion("Record ID: " + selectedHealthCheckupRecord.id())) {
+            return; // User canceled the deletion
+        }
+
+        try {
+            // Delete the selected health checkup record
+            deleteHealthCheckupRecord(selectedHealthCheckupRecord);
+            // Show confirmation that the record was deleted
+            showAlert(Alert.AlertType.INFORMATION, "Record Deleted", "The selected health checkup record has been successfully deleted.");
+        } finally {
+            // Reload and refresh the data in the TableView after deletion
+            loadHealthCheckupDataIntoTableView();
+        }
+    }
+
+    private void deleteHealthCheckupRecord(HealthCheckupRecord record) {
+        int cattleId = selectedCattleId; // Assuming selectedCattleId is set elsewhere in your controller
+        int recordId = record.id();
+
+        try {
+            // Call the DAO to delete the health checkup record by cattleId and recordId
+            HealthCheckupHistoryDAO.deleteHealthCheckupHistoryByCattleIdAndId(cattleId, recordId);
+        } catch (SQLException e) {
+            // Handle any SQL exception by showing an alert
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to delete the health checkup record. Please try again.");
+        }
+    }
+
+    private boolean confirmHealthCheckupRecordDeletion(String contentText) {
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Delete Confirmation");
+        confirmationAlert.setHeaderText("Are you sure you want to delete this health checkup record?");
+        confirmationAlert.setContentText(contentText + "\nThis action cannot be undone.");
+
+        Optional<ButtonType> confirmation = confirmationAlert.showAndWait();
+        return confirmation.isPresent() && confirmation.get() == ButtonType.OK;
+    }
+
+
+
+
+
+
+    // RESTORE HEALTH CHECKUP DETAILS
+    private void restoreOriginalHealthCheckupData() {
+        // Restore original data to fields
+        checkupDatePicker.setValue(LocalDate.parse(originalHealthCheckupValuesMap.get("checkupDate")));
+        temperatureTextField.setText(originalHealthCheckupValuesMap.get("temperature"));
+        heartRateTextField.setText(originalHealthCheckupValuesMap.get("heartRate"));
+        respiratoryRateTextField.setText(originalHealthCheckupValuesMap.get("respiratoryRate"));
+        bloodPressureTextField.setText(originalHealthCheckupValuesMap.get("bloodPressure"));
+        behavioralObservationsTextArea.setText(originalHealthCheckupValuesMap.get("behavioralObservations"));
+        physicalExaminationTextArea.setText(originalHealthCheckupValuesMap.get("physicalExaminationFindings"));
+        healthIssuesTextArea.setText(originalHealthCheckupValuesMap.get("healthIssues"));
+        specificObservationsTextArea.setText(originalHealthCheckupValuesMap.get("specificObservations"));
+        checkupNotesTextArea.setText(originalHealthCheckupValuesMap.get("checkupNotes"));
+        chronicConditionsTextArea.setText(originalHealthCheckupValuesMap.get("chronicConditions"));
+
+
+// Restore checkbox states from the originalRecommendationsMap
+        titledPaneCheckboxMap.forEach((titledPane, checkboxes) -> {
+            for (CheckBox checkBox : checkboxes) {
+                String recommendationText = checkBox.getText().trim();
+                Boolean originalState = originalRecommendationsMap.get(recommendationText);
+
+                // Restore the checkbox state to the original state if present in the map
+                if (originalState != null) {
+                    checkBox.setSelected(originalState);
+                }
+            }
+        });
+
+        // Reset the modification state
+        isModifiedHealthCheckup = false; // Resetting the modification state since a new record is loaded
+    }
+
+
+    @FXML private void clearHealthCheckupRecord() {
+        clearAllHealthCheckupFields();
+    }
 }
