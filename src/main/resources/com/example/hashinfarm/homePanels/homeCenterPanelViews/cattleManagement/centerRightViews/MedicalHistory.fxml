@@ -74,16 +74,8 @@
                 <RowConstraints maxHeight="139.9999858856201" minHeight="10.0" prefHeight="93.39999294281004" vgrow="SOMETIMES" />
             </rowConstraints>
 
-            <ListView prefHeight="169.0" prefWidth="502.0" GridPane.rowIndex="1">
-                <items>
-                    <FXCollections fx:factory="observableArrayList">
-                        <String fx:value="Unusual Milk Production Pattern" />
-                        <String fx:value="Signs of Mastitis" />
-                        <String fx:value="Abnormal Udder Swelling" />
+            <ListView fx:id="healthRecommendationsListView" prefHeight="169.0" prefWidth="502.0" GridPane.rowIndex="1"/>
 
-                    </FXCollections>
-                </items>
-            </ListView>
             <TextArea fx:id="healthNotesTextArea" promptText="Enter health-related notes or comments" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
             <Label text="Health Notes" GridPane.columnIndex="1">
@@ -114,8 +106,8 @@
                 <TitledPane text="Deworming History">
                     <BorderPane>
                         <top>
-
-                            <TableView fx:id="dewormingHistoryTableView" maxHeight="-Infinity" prefHeight="200.0" BorderPane.alignment="CENTER">
+                            <VBox styleClass="table-container">
+                            <TableView fx:id="dewormingHistoryTableView" maxHeight="-Infinity" prefHeight="200.0" BorderPane.alignment="CENTER" >
                                 <columns>
                                     <TableColumn fx:id="dewormingHistoryDateColumn" minWidth="100.0" prefWidth="150.0" text="Deworming Date" />
                                     <TableColumn fx:id="dewormerTypeColumn" minWidth="100.0" prefWidth="150.0" text="Dewormer Type" />
@@ -130,7 +122,7 @@
                                     <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
                                 </columnResizePolicy>
                             </TableView>
-
+                            </VBox>
                         </top>
                         <center>
 
@@ -187,8 +179,8 @@
                                     </HBox>
                                 </VBox>
                                 <HBox alignment="CENTER" prefHeight="100.0" prefWidth="200.0" spacing="40.0" GridPane.columnSpan="4" GridPane.rowIndex="5">
-                                    <Button mnemonicParsing="false" onAction="#modifyDewormingRecord" text="Modify record" />
-                                    <Button mnemonicParsing="false" onAction="#clearAllDewormingDetails" text="Clear All" />
+                                    <Button fx:id="modifyDewormingRecordButton" mnemonicParsing="false" onAction="#modifyDewormingRecord" text="Modify record" />
+                                    <Button fx:id="clearAllDewormingDetailsButton" mnemonicParsing="false" onAction="#clearAllDewormingDetails" text="Clear All" />
                                 </HBox>
                                 <Separator prefWidth="200.0" GridPane.columnSpan="4" />
 
@@ -265,7 +257,7 @@
                                     <Label text="Next Schedule" />
                                 </VBox>
 
-                                <DatePicker fx:id="nextScheduleOfMedicationTextField" maxWidth="140.0" minWidth="140.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
+                                <DatePicker fx:id="nextScheduleOfMedicationDatePicker" maxWidth="140.0" minWidth="140.0" GridPane.columnIndex="3" GridPane.rowIndex="3" />
                                 <VBox alignment="CENTER_LEFT" GridPane.rowIndex="2">
                                     <Label text="Type" />
                                 </VBox>
@@ -318,8 +310,8 @@
                                 </HBox>
 
                                 <HBox alignment="CENTER" spacing="40.0" GridPane.columnSpan="4" GridPane.rowIndex="7">
-                                    <Button mnemonicParsing="false" onAction="#modifyMedicationRecord" text="Modify Record" />
-                                    <Button mnemonicParsing="false" onAction="#clearAllMedicationRecord" text="Clear All" />
+                                    <Button fx:id="modifyMedicationRecordButton" mnemonicParsing="false" onAction="#modifyMedicationRecord" text="Modify Record" />
+                                    <Button fx:id="clearAllMedicationRecordButton" mnemonicParsing="false" onAction="#clearAllMedicationRecord" text="Clear All" />
                                 </HBox>
                                 <Separator prefWidth="200.0" GridPane.columnSpan="4" />
 
@@ -400,7 +392,7 @@
                                         <Font name="System Bold" size="19.0" />
                                     </font>
                                 </Label>
-                                <TextField fx:id="createdATTextField" maxHeight="-Infinity" maxWidth="-Infinity" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                <TextField fx:id="createdATTextField" editable="false" maxHeight="-Infinity" maxWidth="-Infinity" GridPane.columnIndex="3" GridPane.rowIndex="1" />
 
                                 <!-- Vital Signs -->
                                 <Label text="Vital Signs" wrapText="true" GridPane.columnIndex="0" GridPane.columnSpan="4" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
@@ -667,12 +659,12 @@
                                 <Separator prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="BOTTOM" />
                                 <Separator prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="TOP" />
                                 <Separator prefWidth="200.0" GridPane.columnSpan="6" />
-                        <HBox alignment="CENTER" spacing="40.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="11">
-                           <children>
-                              <Button mnemonicParsing="false" onAction="#modifyHealthCheckupRecord" text="Modify" />
-                              <Button mnemonicParsing="false" onAction="#clearHealthCheckupRecord" text="Clear" />
-                           </children>
-                        </HBox>
+                                <HBox alignment="CENTER" spacing="40.0" GridPane.columnIndex="1" GridPane.columnSpan="3"
+                                      GridPane.rowIndex="11">
+                                    <Button mnemonicParsing="false" fx:id="modifyHealthCheckupRecordButton" onAction="#modifyHealthCheckupRecord"
+                                            text="Modify"/>
+                                    <Button mnemonicParsing="false" fx:id="clearHealthCheckupRecordButton"  onAction="#clearHealthCheckupRecord" text="Clear"/>
+                                </HBox>
 
                                 <!-- Add more rows and fields as needed for Health Checkups -->
 

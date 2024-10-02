@@ -7,7 +7,9 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class HealthCheckupHistoryDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
@@ -34,24 +36,61 @@ public class HealthCheckupHistoryDAO {
     }
 
     public static void updateHealthCheckupHistory(HealthCheckupHistory healthCheckup) throws SQLException {
-        String query = "UPDATE healthCheckupHistory SET cattleID = ?, checkupDate = ?, temperature = ?, " +
+        String updateQuery = "UPDATE healthCheckupHistory SET cattleID = ?, checkupDate = ?, temperature = ?, " +
                 "heartRate = ?, respiratoryRate = ?, bloodPressure = ?, behavioralObservations = ?, " +
                 "physicalExaminationFindings = ?, healthIssues = ?, specificObservations = ?, " +
                 "checkupNotes = ?, chronicConditions = ? WHERE id = ?";
+
         try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+             PreparedStatement preparedStatement = connection.prepareStatement(updateQuery)) {
+
+            // Set the parameters for the update statement
             setHealthCheckupPreparedStatementValues(preparedStatement, healthCheckup);
-            preparedStatement.setInt(13, healthCheckup.getId());
+            preparedStatement.setInt(13, healthCheckup.getId()); // Setting the ID for WHERE clause
+
+            // Execute the update
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
-                throw new SQLException("Failed to update health checkup history with ID: " + healthCheckup.getId());
+                throw new SQLException("Updating health checkup failed, no rows affected.");
             }
+
+            // Now manage the follow-up recommendations
+            updateFollowUpRecommendations(healthCheckup.getFollowUpRecommendations(), healthCheckup.getId());
         } catch (SQLException e) {
-            AppLogger.error("Error updating health checkup history: " + healthCheckup.getId(), e);
-            e.printStackTrace();
+            AppLogger.error("Error updating health checkup history with ID: " + healthCheckup.getId(), e);
             throw e; // Re-throw the exception for higher-level handling
         }
     }
+
+    private static void updateFollowUpRecommendations(List<FollowUpRecommendation> recommendations, int healthCheckupId) throws SQLException {
+        // Get existing recommendations for comparison
+        List<FollowUpRecommendation> existingRecommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(healthCheckupId);
+
+        // Create a set to track existing recommendation IDs for easy lookup
+        Set<Integer> existingIds = new HashSet<>();
+        for (FollowUpRecommendation recommendation : existingRecommendations) {
+            existingIds.add(recommendation.getId());
+        }
+
+        // Update or insert new recommendations
+        for (FollowUpRecommendation recommendation : recommendations) {
+            if (recommendation.getId() == 0) {
+                // New recommendation, insert it
+                recommendation.setHealthCheckupId(healthCheckupId); // Ensure we set the correct ID
+                FollowUpRecommendationDAO.insertFollowUpRecommendation(recommendation);
+            } else {
+                // Existing recommendation, update it
+                FollowUpRecommendationDAO.updateFollowUpRecommendation(recommendation);
+                existingIds.remove(recommendation.getId()); // Remove from the existing set since it's updated
+            }
+        }
+
+        // Delete recommendations that are no longer associated
+        for (Integer id : existingIds) {
+            FollowUpRecommendationDAO.deleteFollowUpRecommendation(id);
+        }
+    }
+
 
 
 

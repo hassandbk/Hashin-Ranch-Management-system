@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
+
 import java.util.function.Consumer;
 
 import com.example.hashinfarm.exceptions.DatabaseException;
@@ -59,11 +60,12 @@ public class MedicalHistory {
     @FXML private ImageView imageViewOfDewormingHistory,imageViewOfMedication;
     @FXML private ComboBox<Country> countryComboBoxOfDewormingHistory, countryComboBoxOfMedication;
     @FXML private TextField restOfNumberOfDewormingHistoryTextField, countryCodeOfDewormingHistoryTextField,countryCodeTextFieldOfMedication, restOfNumberTextFieldOfMedication;
-
+    @FXML private Button modifyDewormingRecordButton,clearAllDewormingDetailsButton,modifyMedicationRecordButton,clearAllMedicationRecordButton,modifyHealthCheckupRecordButton,clearHealthCheckupRecordButton;
+    @FXML private ListView<String> healthRecommendationsListView;
     // DEWORMING PART
     @FXML private TableView<DewormingRecord> dewormingHistoryTableView;
     @FXML private TableColumn<DewormingRecord, LocalDate> dewormingHistoryDateColumn;
-    @FXML private TableColumn<DewormingRecord, String> dewormerTypeColumn, dosageColumn, administeredByColumn, routeOfAdministrationColumn, weightAtTimeColumn, contactDetailsColumn;
+    @FXML private TableColumn<DewormingRecord, String> dewormerTypeColumn, dosageColumn, administeredByColumn, routeOfAdministrationColumn, weightAtTimeColumn, contactDetailsColumn,manufacturerDetailsColumn;
 
     @FXML private TextField cattleNameTextField, dosageOfDewormingTextField, weightAtTimeOfDewormingTextField, administerOfDewormingTextField;
     @FXML private TextArea dewormerTypeTextArea,manufacturerDetailsTextArea;
@@ -77,7 +79,7 @@ public class MedicalHistory {
     @FXML private TableColumn<MedicationRecord, String> dosageOfMedicationColumn, frequencyOfMedicationColumn, typeOfMedicationColumn, administerOfMedicationColumn, telNoOfMedicationColumn, categoryOfMedicationColumn;
 
     @FXML private TextField dosageOfMedicationTextField, frequencyOfMedicationTextField, typeOfMedicationTextField, administerOfMedicationTextField;
-    @FXML private DatePicker dateTakenOfMedicationDatePicker, nextScheduleOfMedicationTextField;
+    @FXML private DatePicker dateTakenOfMedicationDatePicker, nextScheduleOfMedicationDatePicker;
     @FXML private ComboBox<String> categoryOfMedicationComboBox;
     @FXML private CheckBox negativeCheckBox, positiveCheckBox;
 
@@ -107,137 +109,233 @@ public class MedicalHistory {
 
 
 
-
     public void initialize() {
-        initializeSelectedCattleManager();
-        DateUtil.datePickerFormat(dewormingDatePicker);
-        DateUtil.datePickerFormat(dateTakenOfMedicationDatePicker);
-        DateUtil.datePickerFormat(nextScheduleOfMedicationTextField);
-        initializeImageView();
-        initializeCountryCodePicker();
-        initializeTextFields();
-        initializeSelectionListener();
+        try {
+            initializeSelectedCattleManager();
+            initializeDatePickers();
+            initializeImageView();
+            initializeCountryCodePicker();
+            initializeTextFields();
 
-        setupDewormingTableColumns();
-        setupDewormingChangeListeners();
+            setupDewormingTableColumns();
+            setupMedicationTableColumns();
+            setupHealthCheckupTableColumns();
 
-        setupMedicationTableColumns();
-        setupMedicationChangeListeners();
+            setupDewormingChangeListeners();
+            setupMedicationChangeListeners();
+            setupHealthCheckupChangeListeners();
 
-        setupHealthCheckupTableColumns();
-        setupHealthCheckupChangeListeners();
+            initializeSelectionListener();
 
-
-        // Initialize the map
-
-
-        mapTitledPaneToCheckBoxes();
-        addCheckboxListeners();
+            mapTitledPaneToCheckBoxes();
+            addCheckboxListeners();
+        } catch (Exception e) {
+            showAlert(AlertType.ERROR, "Initialization Error", "An error occurred during initialization: " + e.getMessage());
+            e.printStackTrace(); // For logging purposes
+        }
     }
     private void showAlert(AlertType type, String title, String message) {
         Alert alert = new Alert(type, message, ButtonType.OK);
         alert.setTitle(title);
         alert.showAndWait();
     }
+    private void loadHealthRecommendations(int cattleId) {
+        List<String> recommendationsToUpdate = new ArrayList<>();
+
+        // Fetch health checkup histories for the selected cattle
+        List<HealthCheckupHistory> healthCheckupHistories;
+        try {
+            healthCheckupHistories = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(cattleId);
+        } catch (SQLException e) {
+            // Handle exception
+            showAlert(AlertType.ERROR, "Database Error", "Failed to load health checkup histories: " + e.getMessage());
+            return; // Exit the method if there's an error
+        }
+
+        // Iterate through health checkup histories and get follow-up recommendations
+        for (HealthCheckupHistory checkup : healthCheckupHistories) {
+            List<FollowUpRecommendation> recommendations;
+            try {
+                recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(checkup.getId());
+            } catch (SQLException e) {
+                // Handle exception
+                showAlert(AlertType.ERROR, "Database Error", "Failed to load follow-up recommendations: " + e.getMessage());
+                return; // Exit the method if there's an error
+            }
+
+            // Populate the recommendation list
+            for (FollowUpRecommendation recommendation : recommendations) {
+                recommendationsToUpdate.add(recommendation.getRecommendation());
+            }
+        }
+
+        // Clear the current ListView items
+        healthRecommendationsListView.getItems().clear();
+        // Add all new recommendations
+        healthRecommendationsListView.getItems().addAll(recommendationsToUpdate);
+    }
 
 
-    private void initializeSelectedCattleManager() {
-        SelectedCattleManager selectedCattleManager = SelectedCattleManager.getInstance();
-        selectedCattleManager.selectedNameProperty().addListener((observable, oldValue, newValue) ->
-                cattleNameTextField.setText(newValue)
-        );
+    private void initializeDatePickers() {
+        try {
+            // Format each DatePicker using your existing utility
+            DateUtil.datePickerFormat(dewormingDatePicker);
+            DateUtil.datePickerFormat(dateTakenOfMedicationDatePicker);
+            DateUtil.datePickerFormat(nextScheduleOfMedicationDatePicker);
+            DateUtil.datePickerFormat(checkupDatePicker);
 
-        selectedCattleManager.selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue == null || newValue.intValue() == 0) return;
-            selectedCattleId = newValue.intValue();
-            loadDewormingDataIntoTableView();
-            loadMedicationDataIntoTableView();
-            loadHealthCheckupDataIntoTableView();
+            // Initialize each DatePicker with the appropriate date disabling
+            setDatePickerRestrictions(dewormingDatePicker, false); // Disable future dates
+            setDatePickerRestrictions(dateTakenOfMedicationDatePicker, false); // Disable future dates
+            setDatePickerRestrictions(nextScheduleOfMedicationDatePicker, true); // Disable past dates
+            setDatePickerRestrictions(checkupDatePicker, false); // Disable future dates
+
+        } catch (Exception e) {
+            showAlert(AlertType.ERROR, "Date Picker Error", "Failed to initialize date pickers: " + e.getMessage());
+        }
+    }
+
+    private void setDatePickerRestrictions(DatePicker datePicker, boolean disablePast) {
+        datePicker.setDayCellFactory(dp -> new DateCell() {
+            @Override
+            public void updateItem(LocalDate item, boolean empty) {
+                super.updateItem(item, empty);
+                if (item != null) {
+                    // Disable future dates if disablePast is false; otherwise, disable past dates
+                    if ((disablePast && item.isBefore(LocalDate.now())) ||
+                            (!disablePast && item.isAfter(LocalDate.now()))) {
+                        setDisable(true); // Disable the date
+                        setStyle("-fx-background-color: #ffcccc;"); // Set background color for disabled dates
+                        setTooltip(new Tooltip("This date is not selectable")); // Optional tooltip
+                    }
+                }
+            }
         });
     }
 
+    private void initializeSelectedCattleManager() {
+        try {
+            SelectedCattleManager selectedCattleManager = SelectedCattleManager.getInstance();
+
+            // Listener for selected cattle name
+            selectedCattleManager.selectedNameProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    cattleNameTextField.setText(newValue);
+                }
+            });
+
+            selectedCattleManager.selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null && newValue.intValue() > 0) {
+                    selectedCattleId = newValue.intValue();
+                    loadHealthRecommendations(selectedCattleId); // Load health recommendations
+                    loadDewormingDataIntoTableView();
+                    loadMedicationDataIntoTableView();
+                    loadHealthCheckupDataIntoTableView();
+                    enableActionButtons(true); // Enable buttons when a valid cattle ID is selected
+                } else {
+                    enableActionButtons(false); // Disable buttons when no valid cattle is selected
+                }
+            });
+
+            // Initially disable buttons until cattle is selected
+            enableActionButtons(false);
+        } catch (Exception e) {
+            showAlert(AlertType.ERROR, "Cattle Manager Error", "Failed to initialize cattle manager: " + e.getMessage());
+        }
+    }
+
+    // Method to enable or disable action buttons
+    private void enableActionButtons(boolean enable) {
+        modifyDewormingRecordButton.setDisable(!enable);
+        clearAllDewormingDetailsButton.setDisable(!enable);
+        modifyMedicationRecordButton.setDisable(!enable);
+        clearAllMedicationRecordButton.setDisable(!enable);
+        modifyHealthCheckupRecordButton.setDisable(!enable);
+        clearHealthCheckupRecordButton.setDisable(!enable);
+    }
 
     private void initializeImageView() {
-        imageViewOfDewormingHistory.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/flags/placeholder.png"))));
-        imageViewOfMedication.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/flags/placeholder.png"))));
+        try {
+            imageViewOfDewormingHistory.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/flags/placeholder.png"))));
+            imageViewOfMedication.setImage(new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/flags/placeholder.png"))));
+        } catch (NullPointerException e) {
+            showAlert(AlertType.ERROR, "Image Load Error", "Failed to load placeholder images: " + e.getMessage());
+        }
     }
-
-
 
     private void initializeCountryCodePicker() {
-        dewormingCountryCodePickerHelper = new CountryCodePickerHelper(countryComboBoxOfDewormingHistory, countryCodeOfDewormingHistoryTextField, imageViewOfDewormingHistory, restOfNumberOfDewormingHistoryTextField);
-        dewormingCountryCodePickerHelper.initialize();
+        try {
+            dewormingCountryCodePickerHelper = new CountryCodePickerHelper(
+                    countryComboBoxOfDewormingHistory, countryCodeOfDewormingHistoryTextField, imageViewOfDewormingHistory, restOfNumberOfDewormingHistoryTextField);
+            dewormingCountryCodePickerHelper.initialize();
 
-        medicationCountryCodePickerHelper = new CountryCodePickerHelper(countryComboBoxOfMedication, countryCodeTextFieldOfMedication, imageViewOfMedication, restOfNumberTextFieldOfMedication);
-        medicationCountryCodePickerHelper.initialize();
+            medicationCountryCodePickerHelper = new CountryCodePickerHelper(
+                    countryComboBoxOfMedication, countryCodeTextFieldOfMedication, imageViewOfMedication, restOfNumberTextFieldOfMedication);
+            medicationCountryCodePickerHelper.initialize();
+        } catch (Exception e) {
+            showAlert(AlertType.ERROR, "Country Code Picker Error", "Failed to initialize country code pickers: " + e.getMessage());
+        }
     }
-
 
     private void initializeTextFields() {
-        UnitsTextField.initializeTextField(dosageOfDewormingTextField, MeasurementType.DOSAGE);
-        UnitsTextField.initializeTextField(weightAtTimeOfDewormingTextField, MeasurementType.WEIGHT);
-        UnitsTextField.initializeTextField(temperatureTextField, MeasurementType.TEMPERATURE);
-        UnitsTextField.initializeTextField(heartRateTextField, MeasurementType.HEART_RATE);
-        UnitsTextField.initializeTextField(respiratoryRateTextField, MeasurementType.RESPIRATORY_RATE);
-        UnitsTextField.initializeTextField(bloodPressureTextField, MeasurementType.BLOOD_PRESSURE);
+        try {
+            UnitsTextField.initializeTextField(dosageOfDewormingTextField, MeasurementType.DOSAGE);
+            UnitsTextField.initializeTextField(weightAtTimeOfDewormingTextField, MeasurementType.WEIGHT);
+            UnitsTextField.initializeTextField(temperatureTextField, MeasurementType.TEMPERATURE);
+            UnitsTextField.initializeTextField(heartRateTextField, MeasurementType.HEART_RATE);
+            UnitsTextField.initializeTextField(respiratoryRateTextField, MeasurementType.RESPIRATORY_RATE);
+            UnitsTextField.initializeTextField(bloodPressureTextField, MeasurementType.BLOOD_PRESSURE);
 
-        UnitsTextField.addValidationListener(dosageOfDewormingTextField, MeasurementType.DOSAGE,
-                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.DOSAGE)
-        );
-        UnitsTextField.addValidationListener(weightAtTimeOfDewormingTextField, MeasurementType.WEIGHT,
-                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.WEIGHT)
-        );
-        UnitsTextField.addValidationListener(temperatureTextField, MeasurementType.TEMPERATURE,
-                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.TEMPERATURE)
-        );
-        UnitsTextField.addValidationListener(heartRateTextField, MeasurementType.HEART_RATE,
-                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.HEART_RATE)
-        );
-        UnitsTextField.addValidationListener(respiratoryRateTextField, MeasurementType.RESPIRATORY_RATE,
-                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.RESPIRATORY_RATE)
-        );
-        UnitsTextField.addValidationListener(bloodPressureTextField, MeasurementType.BLOOD_PRESSURE,
-                text -> UnitsTextField.isValidMeasurement(text, MeasurementType.BLOOD_PRESSURE)
-        );
+            UnitsTextField.addValidationListener(dosageOfDewormingTextField, MeasurementType.DOSAGE,
+                    text -> UnitsTextField.isValidMeasurement(text, MeasurementType.DOSAGE));
+            UnitsTextField.addValidationListener(weightAtTimeOfDewormingTextField, MeasurementType.WEIGHT,
+                    text -> UnitsTextField.isValidMeasurement(text, MeasurementType.WEIGHT));
+            UnitsTextField.addValidationListener(temperatureTextField, MeasurementType.TEMPERATURE,
+                    text -> UnitsTextField.isValidMeasurement(text, MeasurementType.TEMPERATURE));
+            UnitsTextField.addValidationListener(heartRateTextField, MeasurementType.HEART_RATE,
+                    text -> UnitsTextField.isValidMeasurement(text, MeasurementType.HEART_RATE));
+            UnitsTextField.addValidationListener(respiratoryRateTextField, MeasurementType.RESPIRATORY_RATE,
+                    text -> UnitsTextField.isValidMeasurement(text, MeasurementType.RESPIRATORY_RATE));
+            UnitsTextField.addValidationListener(bloodPressureTextField, MeasurementType.BLOOD_PRESSURE,
+                    text -> UnitsTextField.isValidMeasurement(text, MeasurementType.BLOOD_PRESSURE));
+        } catch (Exception e) {
+            showAlert(AlertType.ERROR, "Text Field Error", "Failed to initialize text fields: " + e.getMessage());
+        }
     }
-
-
-
 
 
     private void initializeSelectionListener() {
-        dewormingHistoryTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                populateDewormingHistoryFields(newValue);
-                selectedDewormingRecord =newValue;
-            }
-        });
+        try {
+            dewormingHistoryTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    populateDewormingHistoryFields(newValue);
+                    selectedDewormingRecord = newValue;
+                } else {
+                    clearAllDewormingFields();
+                }
+            });
 
-        medicationHistoryTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                populateMedicationHistoryFields(newValue);
-                selectedMedicationRecord =newValue;
-            }
-        });
+            medicationHistoryTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    populateMedicationHistoryFields(newValue);
+                    selectedMedicationRecord = newValue;
+                } else {
+                    clearAllMedicationFields();
+                }
+            });
 
-
-
-
-
-
-        // Listener for health checkups table
-        healthCheckupTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null) {
-                populateHealthCheckupFields(newValue);
-                selectedHealthCheckupRecord = newValue;
-            }
-        });
-
+            healthCheckupTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    populateHealthCheckupFields(newValue);
+                    selectedHealthCheckupRecord = newValue;
+                } else {
+                    clearAllHealthCheckupFields();
+                }
+            });
+        } catch (Exception e) {
+            showAlert(AlertType.ERROR, "Selection Listener Error", "Failed to initialize selection listeners: " + e.getMessage());
+        }
     }
-
-
-
-
 
 
     //DEWORMING HISTORY
@@ -261,6 +359,14 @@ public class MedicalHistory {
 
         ObservableList<DewormingRecord> records = getDewormingRecords(dewormingHistories);
         dewormingHistoryTableView.setItems(records);
+
+        if (!records.isEmpty()) {
+            dewormingHistoryTableView.getSelectionModel().selectFirst();
+            populateDewormingHistoryFields(records.getFirst());
+        } else {
+            // Optionally, clear fields or provide feedback to the user
+            clearAllHealthCheckupFields();
+        }
     }
 
     private ObservableList<DewormingRecord> getDewormingRecords(List<DewormingHistory> dewormingHistories) {
@@ -294,11 +400,11 @@ public class MedicalHistory {
         routeOfAdministrationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().routeOfAdministration()));
         weightAtTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().weightAtTime()));
         contactDetailsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().contactDetails()));
+        manufacturerDetailsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().manufacturerDetails()));
     }
 
     // Populate input fields with selected DewormingRecord's values
     private void populateDewormingHistoryFields(DewormingRecord record) {
-        clearAllDewormingFields();
 
         // Populate fields with record's values
         dewormingDatePicker.setValue(record.dewormingDate());
@@ -418,9 +524,11 @@ public class MedicalHistory {
                 v -> updateDewormingRecord(),
                 v -> restoreOriginalDewormingData(),
                 v -> deleteDewormingRecord(),
-                v -> {}
+                v -> clearAllDewormingFields(), // This action will be triggered for New Record
+                v -> {} // For clear fields action
         );
     }
+
 
 
     // SAVE DEWORMING RECORD
@@ -640,6 +748,14 @@ public class MedicalHistory {
 
         ObservableList<MedicationRecord> records = getMedicationRecords(medicationHistories);
         medicationHistoryTableView.setItems(records);
+
+        if (!records.isEmpty()) {
+            medicationHistoryTableView.getSelectionModel().selectFirst();
+            populateMedicationHistoryFields(records.getFirst());
+        } else {
+            // Optionally, clear fields or provide feedback to the user
+            clearAllHealthCheckupFields();
+        }
     }
 
 
@@ -676,11 +792,9 @@ public class MedicalHistory {
 
     private void populateMedicationHistoryFields(MedicationRecord record) {
 
-        clearAllMedicationFields();
-
         // Populate the fields with values from the MedicationRecord
         dateTakenOfMedicationDatePicker.setValue(record.dateTaken()); // Set date taken
-        nextScheduleOfMedicationTextField.setValue(record.nextSchedule()); // Set the next schedule date
+        nextScheduleOfMedicationDatePicker.setValue(record.nextSchedule()); // Set the next schedule date
         dosageOfMedicationTextField.setText(record.dosage()); // Set dosage
         frequencyOfMedicationTextField.setText(record.frequency()); // Set frequency
         typeOfMedicationTextField.setText(record.type()); // Set medication type
@@ -718,7 +832,7 @@ public class MedicalHistory {
         InputFieldsValidationHelper.validateField(frequencyOfMedicationTextField.getText().trim().isEmpty(), "Frequency is required.", frequencyOfMedicationTextField);
         InputFieldsValidationHelper.validateField(administerOfMedicationTextField.getText().trim().isEmpty(), "Administered By is required.", administerOfMedicationTextField);
         InputFieldsValidationHelper.validateField(dateTakenOfMedicationDatePicker.getValue() == null, "Date Taken is required.", dateTakenOfMedicationDatePicker);
-        InputFieldsValidationHelper.validateField(nextScheduleOfMedicationTextField.getValue() == null, "Next Schedule is required.", nextScheduleOfMedicationTextField);
+        InputFieldsValidationHelper.validateField(nextScheduleOfMedicationDatePicker.getValue() == null, "Next Schedule is required.", nextScheduleOfMedicationDatePicker);
         InputFieldsValidationHelper.validateField(typeOfMedicationTextField.getText().trim().isEmpty(), "Type of Medication is required.", typeOfMedicationTextField);
         InputFieldsValidationHelper.validateField(administerOfMedicationTextField.getText().trim().isEmpty(), "Telephone Number is required.", administerOfMedicationTextField); // Assuming telNo is entered here
         InputFieldsValidationHelper.validateField(categoryOfMedicationComboBox.getValue() == null || categoryOfMedicationComboBox.getValue().isEmpty(), "Category of Medication is required.", categoryOfMedicationComboBox);
@@ -752,7 +866,7 @@ public class MedicalHistory {
 
     private void setupMedicationChangeListeners() {
         dateTakenOfMedicationDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dateTaken", newValue != null ? newValue.toString() : null));
-        nextScheduleOfMedicationTextField.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("nextSchedule", newValue != null ? newValue.toString() : null));
+        nextScheduleOfMedicationDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("nextSchedule", newValue != null ? newValue.toString() : null));
         typeOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("type", newValue != null ? newValue : ""));
         dosageOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dosage", newValue != null ? newValue : ""));
         administerOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("administeredBy", newValue != null ? newValue : ""));
@@ -830,6 +944,7 @@ public class MedicalHistory {
                 v -> updateMedicationRecord(),
                 v -> restoreOriginalMedicationData(),
                 v -> deleteMedicationRecord(),
+                v -> clearAllMedicationFields(),
                 v -> {}
         );
     }
@@ -857,7 +972,7 @@ public class MedicalHistory {
         String frequency = frequencyOfMedicationTextField.getText().trim();
         String administeredBy = administerOfMedicationTextField.getText().trim();
         LocalDate dateTaken = dateTakenOfMedicationDatePicker.getValue();
-        LocalDate nextSchedule = nextScheduleOfMedicationTextField.getValue();
+        LocalDate nextSchedule = nextScheduleOfMedicationDatePicker.getValue();
         String type = typeOfMedicationTextField.getText().trim();
         String telNo = CountryCodePickerHelper.validateAndFormatContact(restOfNumberTextFieldOfMedication.getText().trim());
         String category = categoryOfMedicationComboBox.getValue(); // Assuming it's a ComboBox
@@ -1051,7 +1166,7 @@ public class MedicalHistory {
         typeOfMedicationTextField.clear();
         administerOfMedicationTextField.clear();
         dateTakenOfMedicationDatePicker.setValue(null);
-        nextScheduleOfMedicationTextField.setValue(null);
+        nextScheduleOfMedicationDatePicker.setValue(null);
         categoryOfMedicationComboBox.setValue(null);
         countryCodeTextFieldOfMedication.clear();
         restOfNumberTextFieldOfMedication.clear();
@@ -1068,29 +1183,7 @@ public class MedicalHistory {
         isModifiedMedication = false; // Assuming isModified tracks if there were changes to the input fields
     }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    // HEALTH CHECKUP HISTORY
+//HEALTH CHECKUP
     private void loadHealthCheckupDataIntoTableView() {
         clearAllHealthCheckupFields();
 
@@ -1110,7 +1203,16 @@ public class MedicalHistory {
 
         ObservableList<HealthCheckupRecord> records = getHealthCheckupRecords(healthCheckupHistories);
         healthCheckupTableView.setItems(records);
+
+        if (!records.isEmpty()) {
+            healthCheckupTableView.getSelectionModel().selectFirst();
+            populateHealthCheckupFields(records.getFirst());
+        } else {
+            // Optionally, clear fields or provide feedback to the user
+            clearAllHealthCheckupFields();
+        }
     }
+
 
     private ObservableList<HealthCheckupRecord> getHealthCheckupRecords(List<HealthCheckupHistory> healthCheckupHistories) {
         ObservableList<HealthCheckupRecord> records = FXCollections.observableArrayList();
@@ -1160,44 +1262,57 @@ public class MedicalHistory {
 
 
     private void populateHealthCheckupFields(HealthCheckupRecord record) {
-        // Clear all fields before populating with new data
-        clearAllHealthCheckupFields();
-
-        // Populate the fields with values from the HealthCheckupRecord
-        checkupDatePicker.setValue(record.checkupDate());
-        createdATTextField.setText(record.checkupDate().toString());
-
-        // Vital Signs
-        temperatureTextField.setText(record.temperature());
-        heartRateTextField.setText(record.heartRate());
-        respiratoryRateTextField.setText(record.respiratoryRate());
-        bloodPressureTextField.setText(record.bloodPressure());
-
-        // Observations and Findings
-        behavioralObservationsTextArea.setText(record.behavioralObservations());
-        physicalExaminationTextArea.setText(record.physicalExaminationFindings());
-        healthIssuesTextArea.setText(record.healthIssues());
-        specificObservationsTextArea.setText(record.specificObservations());
-        checkupNotesTextArea.setText(record.checkupNotes());
-        chronicConditionsTextArea.setText(record.chronicConditions());
-
-        // Retrieve follow-up recommendations using the health checkup ID
         try {
-            List<FollowUpRecommendation> recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(record.id());
-            setCheckboxStates(recommendations);
-        } catch (SQLException e) {
+
+            // Checkup date (null check)
+            if (record.checkupDate() != null) {
+                checkupDatePicker.setValue(record.checkupDate());
+                createdATTextField.setText(record.checkupDate().toString());
+            } else {
+                checkupDatePicker.setValue(null);
+                createdATTextField.setText(""); // Set a blank string if null
+            }
+
+            // Vital Signs (null checks for each field)
+            temperatureTextField.setText(record.temperature() != null ? record.temperature() : "");
+            heartRateTextField.setText(record.heartRate() != null ? record.heartRate() : "");
+            respiratoryRateTextField.setText(record.respiratoryRate() != null ? record.respiratoryRate() : "");
+            bloodPressureTextField.setText(record.bloodPressure() != null ? record.bloodPressure() : "");
+
+            // Observations and Findings (null checks for each field)
+            behavioralObservationsTextArea.setText(record.behavioralObservations() != null ? record.behavioralObservations() : "");
+            physicalExaminationTextArea.setText(record.physicalExaminationFindings() != null ? record.physicalExaminationFindings() : "");
+            healthIssuesTextArea.setText(record.healthIssues() != null ? record.healthIssues() : "");
+            specificObservationsTextArea.setText(record.specificObservations() != null ? record.specificObservations() : "");
+            checkupNotesTextArea.setText(record.checkupNotes() != null ? record.checkupNotes() : "");
+            chronicConditionsTextArea.setText(record.chronicConditions() != null ? record.chronicConditions() : "");
+
+
+                try {
+                    List<FollowUpRecommendation> recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(record.id());
+                    setCheckboxStates(recommendations);
+                } catch (SQLException e) {
+                    e.printStackTrace();
+                    showAlert(AlertType.ERROR, "Database Error", "Failed to retrieve follow-up recommendations.");
+                }
+
+
+            // Store original checkbox states for later comparison
+            storeOriginalRecommendations();
+
+            // Populate the original values map for change tracking
+            populateOriginalHealthCheckupValuesMap(record);
+
+            // Reset the modification state if applicable
+            isModifiedHealthCheckup = false;
+
+        } catch (Exception e) {
             e.printStackTrace();
-            // Handle SQL exception appropriately (e.g., show error message)
+            // Handle any unexpected exceptions and alert the user
+            showAlert(AlertType.ERROR, "Error", "An unexpected error occurred while populating health checkup fields.");
         }
-        // Store original checkbox states for later comparison
-        storeOriginalRecommendations();
-
-        // Populate the original values map for change tracking
-        populateOriginalHealthCheckupValuesMap(record);
-
-        // Reset the modification state if applicable
-        isModifiedHealthCheckup = false;
     }
+
 
     private void setCheckboxStates(List<FollowUpRecommendation> recommendations) {
         // Clear previous checkbox states
@@ -1512,6 +1627,7 @@ public class MedicalHistory {
                 v -> updateHealthCheckupRecord(),
                 v -> restoreOriginalHealthCheckupData(),
                 v -> deleteHealthCheckupRecord(),
+                v -> clearAllHealthCheckupFields(),
                 v -> {}
         );
     }
@@ -1603,8 +1719,9 @@ public class MedicalHistory {
                 throw new IllegalStateException("Original ID not found in the values map.");
             }
 
-            // Update the record in the database
+            // Update the record in the database, including follow-up recommendations
             HealthCheckupHistoryDAO.updateHealthCheckupHistory(updatedHistory);
+
             loadHealthCheckupDataIntoTableView();
 
             // Show the success message
@@ -1620,7 +1737,6 @@ public class MedicalHistory {
             showAlert(AlertType.ERROR, "Error", e.getMessage());
         }
     }
-
 
 
 

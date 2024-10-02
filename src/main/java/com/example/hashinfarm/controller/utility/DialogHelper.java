@@ -45,6 +45,7 @@ public class DialogHelper {
                                         Consumer<Void> updateAction,
                                         Consumer<Void> restoreAction,
                                         Consumer<Void> deleteAction,
+                                        Consumer<Void> newRecordAction, // New parameter for New Record action
                                         Consumer<Void> clearFieldsAction) {
         List<ButtonType> buttonTypes = new ArrayList<>();
 
@@ -64,9 +65,14 @@ public class DialogHelper {
             actions.add(restoreAction);
         }
         actions.add(deleteAction);
-        actions.add(clearFieldsAction);
+
+        if (!isModified) {
+            actions.add(newRecordAction); // Add action for New Record
+        }
+
         actions.add(v -> {}); // Cancel does nothing as it's handled automatically
 
         showConfirmationDialog(title, "What would you like to do?", buttonTypes, actions);
     }
+
 }

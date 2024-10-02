@@ -44,12 +44,9 @@ public class FollowUpRecommendationDAO {
             }
         } catch (SQLException e) {
             AppLogger.error("Error updating follow-up recommendation: " + followUpRecommendation.getId(), e);
-            e.printStackTrace();
             throw e; // Re-throw the exception for higher-level handling
         }
     }
-
-
 
     public static void insertFollowUpRecommendation(FollowUpRecommendation followUpRecommendation) throws SQLException {
         String query = "INSERT INTO followUpRecommendation (healthCheckupID, recommendation) VALUES (?, ?)";
@@ -60,7 +57,21 @@ public class FollowUpRecommendationDAO {
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
             AppLogger.error("Error inserting follow-up recommendation with ID: " + followUpRecommendation.getId(), e);
-            e.printStackTrace();
+            throw e; // Re-throw the exception for higher-level handling
+        }
+    }
+
+    public static void deleteFollowUpRecommendation(int recommendationId) throws SQLException {
+        String query = "DELETE FROM followUpRecommendation WHERE id = ?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, recommendationId);
+            int rowsAffected = preparedStatement.executeUpdate();
+            if (rowsAffected == 0) {
+                throw new SQLException("No follow-up recommendation found with ID: " + recommendationId);
+            }
+        } catch (SQLException e) {
+            AppLogger.error("Error deleting follow-up recommendation with ID: " + recommendationId, e);
             throw e; // Re-throw the exception for higher-level handling
         }
     }
@@ -72,5 +83,4 @@ public class FollowUpRecommendationDAO {
         LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime(); // assuming the database has a timestamp for createdAt
         return new FollowUpRecommendation(id, healthCheckupId, recommendation, createdAt);
     }
-
 }

@@ -19,7 +19,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
+
 import javafx.scene.text.Font;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
@@ -120,6 +120,7 @@ public class HerdList {
         });
       }
 
+
       @Override
       protected void updateItem(String item, boolean empty) {
         super.updateItem(item, empty);
@@ -128,15 +129,19 @@ public class HerdList {
           setGraphic(null);
         } else {
           Herd herd = getTableView().getItems().get(getIndex());
-          List<String> animalNames = herd.getAnimals().stream().map(Cattle::getName).collect(Collectors.toList());
+          List<Cattle> animals = herd.getAnimals();
 
+          // Create a map for quick lookup of Cattle by their names
+          Map<String, Cattle> animalMap = animals.stream()
+                  .collect(Collectors.toMap(Cattle::getName, cattle -> cattle));
+
+          List<String> animalNames = new ArrayList<>(animalMap.keySet());
           animalDropdown.setItems(FXCollections.observableArrayList(animalNames));
 
           animalDropdown.setOnAction(event -> {
             String selectedAnimalName = animalDropdown.getValue();
-            Cattle selectedCattle = herd.getAnimals().stream()
-                    .filter(cattle -> cattle.getName().equals(selectedAnimalName))
-                    .findFirst().orElse(null);
+            Cattle selectedCattle = animalMap.get(selectedAnimalName); // Quick lookup using the map
+
             if (selectedCattle != null) {
               if (currentlySelectedComboBox != null && currentlySelectedComboBox != animalDropdown) {
                 currentlySelectedComboBox.getSelectionModel().clearSelection();
@@ -146,7 +151,6 @@ public class HerdList {
               selectedCattle.setSelected(true);
               SelectedCattleManager.getInstance().setSelectedCattle(selectedCattle);
               SelectedHerdManager.getInstance().setSelectedHerd(herd);
-
             }
             animalDropdown.hide();
           });
@@ -157,6 +161,9 @@ public class HerdList {
           setGraphic(animalDropdown);
         }
       }
+
+
+
     };
   }
 
@@ -294,57 +301,12 @@ public class HerdList {
       }, 500);
     });
 
-    try {
-      List<String> uniqueNames = HerdDAO.getUniqueNamesFromHerd();
-      String[] possibleSuggestions = uniqueNames.toArray(new String[0]);
-      setupAutoCompletion(searchField, possibleSuggestions);
-    } catch (SQLException e) {
-      AppLogger.error("Failed to load unique names for autocompletion", e);
-    }
+
   }
 
-  private void setupAutoCompletion(TextField textField, String[] possibleSuggestions) {
-    textField.setOnKeyReleased(event -> {
-      if (!textField.getText().isEmpty()) {
-        String input = textField.getText().toLowerCase();
-        List<String> filteredSuggestions = Arrays.stream(possibleSuggestions)
-                .filter(suggestion -> suggestion.toLowerCase().startsWith(input))
-                .collect(Collectors.toList());
-        if (!filteredSuggestions.isEmpty()) {
-          showSuggestions(textField, filteredSuggestions);
-        }
-      }
-    });
-  }
 
-  private void showSuggestions(TextField textField, List<String> suggestions) {
-    ListView<String> suggestionList = new ListView<>();
-    suggestionList.getItems().addAll(suggestions);
 
-    // Clear the previous suggestions if they exist
-    Parent parent = textField.getParent();
-    if (parent instanceof Pane pane) {
-        // Remove any existing suggestion lists
-      pane.getChildren().removeIf(node -> node instanceof ListView);
-    }
 
-    suggestionList.setOnMouseClicked(event -> {
-      String selectedSuggestion = suggestionList.getSelectionModel().getSelectedItem();
-      textField.setText(selectedSuggestion);
-      suggestionList.getItems().clear(); // Clear suggestion list after selection
-    });
-
-    // Position the suggestion list
-    suggestionList.setLayoutX(textField.getLayoutX());
-    suggestionList.setLayoutY(textField.getLayoutY() + textField.getHeight());
-    suggestionList.setPrefWidth(textField.getWidth());
-    suggestionList.setMaxHeight(150);
-
-    // Add the suggestion list to the parent
-    if (parent instanceof Pane pane) {
-        pane.getChildren().add(suggestionList);
-    }
-  }
 
 
 

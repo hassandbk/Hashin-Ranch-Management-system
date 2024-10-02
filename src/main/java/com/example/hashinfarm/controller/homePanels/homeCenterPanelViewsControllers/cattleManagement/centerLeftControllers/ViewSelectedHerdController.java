@@ -14,28 +14,26 @@ import javafx.scene.control.TableView;
 
 import java.sql.Date;
 import java.time.LocalDate;
+import java.util.List;
 
 public class ViewSelectedHerdController {
-    @FXML
-    private Label damHerdName, damName, sireName, sireHerdName, damID, sireID, herdIdLabel, nameLabel,
+    @FXML  private Label damHerdName, damName, sireName, sireHerdName, damID, sireID, herdIdLabel, nameLabel,
             totalAnimalsLabel, animalsClassLabel, breedTypeLabel, ageClassLabel,
             breedSystemLabel, solutionTypeLabel, feedBasisLabel, locationLabel;
 
-    @FXML
-    private TableView<Cattle> cattleTableView;
-
-    @FXML
-    private TableColumn<Cattle, Integer> cattleIdColumn, cattleAgeColumn, cattleWeightIdColumn,
-            cattleBreedIdColumn;
-
-    @FXML
-    private TableColumn<Cattle, String> cattleTagIdColumn, cattleColorMarkingsColumn,
-            cattleNameColumn, cattleGenderColumn, cattleBcsColumn;
-
-    @FXML
-    private TableColumn<Cattle, Date> cattleDateOfBirthColumn;
+    @FXML   private TableView<Cattle> cattleTableView;
+    @FXML   private TableColumn<Cattle, Integer> cattleIdColumn, cattleAgeColumn, cattleWeightIdColumn, cattleBreedIdColumn;
+    @FXML   private TableColumn<Cattle, String> cattleTagIdColumn, cattleColorMarkingsColumn, cattleNameColumn, cattleGenderColumn, cattleBcsColumn;
+    @FXML   private TableColumn<Cattle, Date> cattleDateOfBirthColumn;
 
     public void initData(Herd herd) {
+        setHerdLabels(herd);
+        populateCattleTable(herd.getAnimals());
+        setupCattleTableColumns();
+        setupCattleSelectionListener();
+    }
+
+    private void setHerdLabels(Herd herd) {
         herdIdLabel.setText(String.valueOf(herd.getId()));
         nameLabel.setText(herd.getName());
         totalAnimalsLabel.setText(String.valueOf(herd.getTotalAnimals()));
@@ -46,11 +44,14 @@ public class ViewSelectedHerdController {
         solutionTypeLabel.setText(herd.getSolutionType());
         feedBasisLabel.setText(herd.getFeedBasis());
         locationLabel.setText(herd.getLocation());
+    }
 
-        // Populate cattle table
-        ObservableList<Cattle> cattleList = FXCollections.observableArrayList(herd.getAnimals());
+    private void populateCattleTable(List<Cattle> cattle) {
+        ObservableList<Cattle> cattleList = FXCollections.observableArrayList(cattle);
         cattleTableView.setItems(cattleList);
+    }
 
+    private void setupCattleTableColumns() {
         cattleIdColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getCattleId()).asObject());
         cattleTagIdColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getTagId()));
         cattleColorMarkingsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getColorMarkings()));
@@ -67,18 +68,23 @@ public class ViewSelectedHerdController {
         cattleWeightIdColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getWeightId()).asObject());
         cattleBcsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().getBcs()));
         cattleBreedIdColumn.setCellValueFactory(cellData -> new SimpleIntegerProperty(cellData.getValue().getBreedId()).asObject());
+    }
 
-        // Set up listener for selected items in the cattle table
+    private void setupCattleSelectionListener() {
         cattleTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
             if (newValue != null) {
-                // Set pedigree details for the selected cattle
-                damHerdName.setText(newValue.getDamHerdName());
-                damName.setText(newValue.getDamName());
-                sireName.setText(newValue.getSireName());
-                sireHerdName.setText(newValue.getSireHerdName());
-                damID.setText(String.valueOf(newValue.getDamId()));
-                sireID.setText(String.valueOf(newValue.getSireId()));
+                updatePedigreeDetails(newValue);
             }
         });
     }
+
+    private void updatePedigreeDetails(Cattle cattle) {
+        damHerdName.setText(cattle.getDamHerdName());
+        damName.setText(cattle.getDamName());
+        sireName.setText(cattle.getSireName());
+        sireHerdName.setText(cattle.getSireHerdName());
+        damID.setText(String.valueOf(cattle.getDamId()));
+        sireID.setText(String.valueOf(cattle.getSireId()));
+    }
+
 }
