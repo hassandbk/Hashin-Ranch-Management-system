@@ -217,23 +217,27 @@ public class MedicalHistory {
         try {
             SelectedCattleManager selectedCattleManager = SelectedCattleManager.getInstance();
 
-            // Listener for selected cattle name
-            selectedCattleManager.selectedNameProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null) {
-                    cattleNameTextField.setText(newValue);
-                }
-            });
+            // Listener for changes in the entire Cattle object
+            selectedCattleManager.selectedCattleProperty().addListener((observable, oldCattle, newCattle) -> {
+                if (newCattle != null) {
+                    // Update the cattle name text field
+                    cattleNameTextField.setText(newCattle.getName());
 
-            selectedCattleManager.selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
-                if (newValue != null && newValue.intValue() > 0) {
-                    selectedCattleId = newValue.intValue();
-                    loadHealthRecommendations(selectedCattleId); // Load health recommendations
-                    loadDewormingDataIntoTableView();
-                    loadMedicationDataIntoTableView();
-                    loadHealthCheckupDataIntoTableView();
-                    enableActionButtons(true); // Enable buttons when a valid cattle ID is selected
+                    // Load health data only if the selected Cattle ID is valid
+                    if (newCattle.getCattleId() > 0) {
+                        selectedCattleId = newCattle.getCattleId();
+                        loadHealthRecommendations(selectedCattleId); // Load health recommendations
+                        loadDewormingDataIntoTableView();
+                        loadMedicationDataIntoTableView();
+                        loadHealthCheckupDataIntoTableView();
+                        enableActionButtons(true); // Enable buttons for valid cattle
+                    } else {
+                        enableActionButtons(false); // Disable buttons if cattle ID is invalid
+                    }
                 } else {
-                    enableActionButtons(false); // Disable buttons when no valid cattle is selected
+                    // Handle case when no valid cattle is selected
+                    cattleNameTextField.clear(); // Clear the name text field
+                    enableActionButtons(false); // Disable buttons
                 }
             });
 
@@ -243,6 +247,7 @@ public class MedicalHistory {
             showAlert(AlertType.ERROR, "Cattle Manager Error", "Failed to initialize cattle manager: " + e.getMessage());
         }
     }
+
 
     // Method to enable or disable action buttons
     private void enableActionButtons(boolean enable) {

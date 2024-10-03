@@ -1,6 +1,7 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
 import com.example.hashinfarm.controller.utility.SelectedCattleManager;
+import com.example.hashinfarm.model.Cattle;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.text.Text;
@@ -25,19 +26,25 @@ public class CattleController {
         selectedCattleManager = SelectedCattleManager.getInstance();
 
         // Listen for changes in selected cattle properties
-        selectedCattleManager.selectedGenderProperty().addListener((observable, oldValue, newValue) -> updateTabVisibility());
-        selectedCattleManager.selectedDateOfBirthProperty().addListener((observable, oldValue, newValue) -> updateTabVisibility());
+        selectedCattleManager.selectedCattleProperty().addListener((observable, oldCattle, newCattle) -> updateTabVisibility());
 
         // Initial update based on the currently selected cattle
         updateTabVisibility();
     }
 
     private void updateTabVisibility() {
-        String gender = selectedCattleManager.getSelectedGender();
-        LocalDate dateOfBirth = selectedCattleManager.getSelectedDateOfBirth();
+        Cattle selectedCattle = selectedCattleManager.getSelectedCattle();
+        if (selectedCattle == null) {
+            // No cattle selected, hide the tab
+            mainTabPane.getTabs().remove(productivityAndCalvingTab);
+            return;
+        }
+
+        String gender = selectedCattle.getGender();
+        LocalDate dateOfBirth = selectedCattle.getDateOfBirth();
 
         if (gender == null || dateOfBirth == null) {
-            // No cattle selected or date of birth is not set, hide the tab
+            // Date of birth is not set, hide the tab
             mainTabPane.getTabs().remove(productivityAndCalvingTab);
             return;
         }
@@ -48,6 +55,7 @@ public class CattleController {
         // Update tab visibility and style based on gender and age
         updateTabState(gender, isValidAge, ageInMonths);
     }
+
 
     private void updateTabState(String gender, boolean isValidAge, long ageInMonths) {
         if ("Female".equals(gender) && isValidAge) {

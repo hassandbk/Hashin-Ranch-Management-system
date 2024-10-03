@@ -13,12 +13,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+
+import com.example.hashinfarm.model.Cattle;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.geometry.Point2D;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
@@ -54,12 +55,16 @@ public class CattleImageManager {
   }
 
   private void updateImageContainer(HBox container) {
-    if (cattleImages == null || cattleImages.isEmpty()) {
+    // Retrieve the selected cattle object
+    Cattle selectedCattle = SelectedCattleManager.getInstance().selectedCattleProperty().get();
+
+    // Return early if there is no selected cattle
+    if (selectedCattle == null || selectedCattle.getCattleId() == 0) {
       return;
     }
 
-    // Retrieve selected cattle ID
-    int selectedCattleId = SelectedCattleManager.getInstance().getSelectedCattleID();
+    // Retrieve the selected cattle ID
+    int selectedCattleId = selectedCattle.getCattleId();
     List<CattleImage> updatedImages;
     try {
       updatedImages = cattleImageDAO.getCattleImagesByCattleId(selectedCattleId);
@@ -79,8 +84,7 @@ public class CattleImageManager {
     // Check for changes in image paths
     boolean imagesChanged = false;
     for (int i = 0; i < updatedImages.size(); i++) {
-      if (!Objects.equals(
-          updatedImages.get(i).getImagePath(), cattleImages.get(i).getImagePath())) {
+      if (!Objects.equals(updatedImages.get(i).getImagePath(), cattleImages.get(i).getImagePath())) {
         imagesChanged = true;
         break;
       }
@@ -95,6 +99,7 @@ public class CattleImageManager {
       populateImageViews(container);
     }
   }
+
 
   private void populateImageViews(HBox container) {
     container.getChildren().clear();
@@ -125,13 +130,7 @@ public class CattleImageManager {
 
   private void showAlert(String title, String content) {
     Platform.runLater(
-        () -> {
-          Alert alert = new Alert(Alert.AlertType.INFORMATION);
-          alert.setTitle(title);
-          alert.setHeaderText(null);
-          alert.setContentText(content);
-          alert.showAndWait();
-        });
+        () -> CattleUtils.showAlert(title, content));
   }
 
   public void displayCurrentImage() {

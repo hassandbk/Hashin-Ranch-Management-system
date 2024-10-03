@@ -9,7 +9,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-
 public class CattleUtils {
     public static <T> T showSelectionDialog(String title, String headerText, List<T> items, Function<T, String> displayMapper) {
         Dialog<T> dialog = new Dialog<>();
@@ -69,6 +68,7 @@ public class CattleUtils {
         alert.setContentText(content);
         alert.showAndWait();
     }
+
     public static Cattle createCattle(
             String tagId,
             int herdId,
@@ -84,19 +84,44 @@ public class CattleUtils {
             int damsHerd,
             int siresHerd,
             int cattleId) {
-        SelectedCattleManager cattleManager = SelectedCattleManager.getInstance();
-        String breedName = (breedId != 0) ? cattleManager.getSelectedBreedName() : "";
-        String sireName = (sireId != 0) ? cattleManager.getSelectedSireName() : "";
-        String damName = (damId != 0) ? cattleManager.getSelectedDamName() : "";
-        String damHerdName = (damId != 0) ? cattleManager.getSelectedDamHerdName() : "";
-        String sireHerdName = (sireId != 0) ? cattleManager.getSelectedSireHerdName() : "";
-        String sireBreedName = (sireId != 0) ? cattleManager.getSelectedSireBreedName() : "";
-        String damBreedName = (damId != 0) ? cattleManager.getSelectedDamBreedName() : "";
 
-        return new Cattle(cattleId, tagId, herdId, colorMarkings, name, gender, dateOfBirth, weightId, bcs, breedId,
-                breedName, sireId, sireName, damId, damName, damsHerd, siresHerd,
-                damHerdName, sireHerdName, sireBreedName, damBreedName);
+        // Get instance of SelectedCattleManager
+        SelectedCattleManager cattleManager = SelectedCattleManager.getInstance();
+
+        // Retrieve names and herd names from the selected cattle
+        String breedName = breedId != 0 ? cattleManager.getSelectedCattle().getBreedName() : "";
+        String sireName = sireId != 0 ? cattleManager.getSelectedCattle().getSireName() : "";
+        String damName = damId != 0 ? cattleManager.getSelectedCattle().getDamName() : "";
+        String damHerdName = damId != 0 ? cattleManager.getSelectedCattle().getDamHerdName() : "";
+        String sireHerdName = sireId != 0 ? cattleManager.getSelectedCattle().getSireHerdName() : "";
+        String sireBreedName = sireId != 0 ? cattleManager.getSelectedCattle().getSireBreedName() : "";
+        String damBreedName = damId != 0 ? cattleManager.getSelectedCattle().getDamBreedName() : "";
+
+        return new Cattle(
+                cattleId,
+                tagId,
+                herdId,
+                colorMarkings,
+                name,
+                gender,
+                dateOfBirth,
+                weightId,
+                bcs,
+                breedId,
+                breedName,
+                sireId,
+                sireName,
+                damId,
+                damName,
+                damsHerd,
+                siresHerd,
+                damHerdName,
+                sireHerdName,
+                sireBreedName,
+                damBreedName
+        );
     }
+
     public static CattleUIInfo gatherCommonUIInfo(
             TextField tagIDTextField,
             TextField nameTextField,
@@ -105,13 +130,14 @@ public class CattleUtils {
             DatePicker dateOfBirthDatePicker,
             TextField weightTextField,
             Label BCSSliderLabel) {
-        String tagId = tagIDTextField.getText();
-        String name = nameTextField.getText();
+
+        String tagId = tagIDTextField.getText().trim(); // Trim whitespace
+        String name = nameTextField.getText().trim(); // Trim whitespace
         String gender = genderComboBox.getValue();
-        String colorMarkings = colorMarkingTextField.getText();
+        String colorMarkings = colorMarkingTextField.getText().trim(); // Trim whitespace
         LocalDate dateOfBirth = dateOfBirthDatePicker.getValue();
-        int weightId = Integer.parseInt(weightTextField.getText());
-        String bcs = BCSSliderLabel.getText();
+        int weightId = Integer.parseInt(weightTextField.getText().trim()); // Trim whitespace
+        String bcs = BCSSliderLabel.getText().trim(); // Trim whitespace
 
         return new CattleUIInfo(tagId, name, gender, colorMarkings, dateOfBirth, weightId, bcs);
     }

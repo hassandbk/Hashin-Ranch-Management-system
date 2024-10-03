@@ -5,6 +5,7 @@ import com.example.hashinfarm.controller.handlers.ActionHandlerFactory;
 import com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController;
 import com.example.hashinfarm.controller.utility.*;
 import com.example.hashinfarm.controller.utility.CattleImage;
+import com.example.hashinfarm.model.Cattle;
 import javafx.application.Platform;
 import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
@@ -78,19 +79,20 @@ public class CharacteristicsController {
   private void initSelectedCattleListeners() {
     SelectedCattleManager selectedCattleManager = SelectedCattleManager.getInstance();
 
-    selectedCattleManager.selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
-      if (newValue != null && newValue.intValue() != 0) {
-        selectedCattleId = newValue.intValue(); // Update selectedCattleId
-        fetchAndPopulateCarousel();
+    // Listener for changes in the entire Cattle object
+    selectedCattleManager.selectedCattleProperty().addListener((observable, oldCattle, newCattle) -> {
+      if (newCattle != null) {
+        // Update selectedCattleId from the new Cattle object
+        selectedCattleId = newCattle.getCattleId();
+        fetchAndPopulateCarousel(); // Populate the carousel based on the new cattle
+
+        // Update the age and date of birth labels
+        updateAgeLabel(newCattle.getDateOfBirth());
+        updateDateOfBirthLabel(newCattle.getDateOfBirth());
       }
     });
-
-    selectedCattleManager.selectedDateOfBirthProperty().addListener((observable, oldValue, newValue) -> {
-      updateAgeLabel(newValue);
-      updateDateOfBirthLabel(newValue);
-    });
-
   }
+
 
 
   private void initDateOfBirthLabelStyle() {
@@ -148,23 +150,66 @@ public class CharacteristicsController {
   }
 
   private void initializeCattleAndHerdListeners() {
-    addListeners(SelectedCattleManager.getInstance(),
-            new Label[]{cattleNameLabel, cattleIdLabel, ageLabel, breedIDLabel, cattleBreedLabel,
-                    damNameLabel, sireNameLabel, sireIDLabel, damIDLabel, sireHerdNameLabel,
-                    damHerdNameLabel, sireBreedNameLabel, damBreedNameLabel},
-            new String[]{"selectedNameProperty", "selectedCattleIDProperty", "selectedAgeProperty",
-                    "selectedBreedIdProperty", "selectedBreedNameProperty", "selectedDamNameProperty",
-                    "selectedSireNameProperty", "selectedSireIdProperty", "selectedDamIdProperty",
-                    "selectedSireHerdNameProperty", "selectedDamHerdNameProperty", "selectedSireBreedNameProperty",
-                    "selectedDamBreedNameProperty"});
+    addCattleListeners(SelectedCattleManager.getInstance()
+    );
 
-    addListeners(SelectedHerdManager.getInstance(),
-            new Label[]{cattleHerdLabel, animalClassLabel, breedTypeLabel, ageClassLabel, breedSystemLabel, herdSolutionTypeLabel},
-            new String[]{"selectedHerdNameProperty", "selectedHerdAnimalClassProperty", "selectedHerdBreedTypeProperty",
-                    "selectedHerdAgeClassProperty", "selectedHerdBreedSystemProperty", "selectedHerdSolutionTypeProperty"});
+    addHerdListeners(SelectedHerdManager.getInstance(),
+            new Label[]{cattleHerdLabel, animalClassLabel, breedTypeLabel, ageClassLabel, breedSystemLabel, herdSolutionTypeLabel});
   }
 
-  private void addListeners(Object manager, Label[] labels, String[] properties) {
+  // New method to handle Cattle updates
+  private void addCattleListeners(SelectedCattleManager manager) {
+    manager.selectedCattleProperty().addListener((observable, oldCattle, newCattle) -> {
+      if (newCattle != null) {
+        updateCattleLabels(newCattle);
+      } else {
+        clearCattleLabels();
+      }
+    });
+  }
+
+  // Update labels based on selected Cattle object
+  private void updateCattleLabels(Cattle cattle) {
+    cattleNameLabel.setText(cattle.getName() != null ? cattle.getName() : "");
+    cattleIdLabel.setText(String.valueOf(cattle.getCattleId()));
+    ageLabel.setText(String.valueOf(cattle.getAge())); // Use getAge() to display age
+    breedIDLabel.setText(String.valueOf(cattle.getBreedId()));
+    cattleBreedLabel.setText(cattle.getBreedName() != null ? cattle.getBreedName() : "");
+    damNameLabel.setText(cattle.getDamName() != null ? cattle.getDamName() : "");
+    sireNameLabel.setText(cattle.getSireName() != null ? cattle.getSireName() : "");
+    sireIDLabel.setText(String.valueOf(cattle.getSireId()));
+    damIDLabel.setText(String.valueOf(cattle.getDamId()));
+    sireHerdNameLabel.setText(cattle.getSireHerdName() != null ? cattle.getSireHerdName() : "");
+    damHerdNameLabel.setText(cattle.getDamHerdName() != null ? cattle.getDamHerdName() : "");
+    sireBreedNameLabel.setText(cattle.getSireBreedName() != null ? cattle.getSireBreedName() : "");
+    damBreedNameLabel.setText(cattle.getDamBreedName() != null ? cattle.getDamBreedName() : "");
+  }
+
+  // Clear labels when no Cattle is selected
+  private void clearCattleLabels() {
+    cattleNameLabel.setText("");
+    cattleIdLabel.setText("");
+    ageLabel.setText("");
+    breedIDLabel.setText("");
+    cattleBreedLabel.setText("");
+    damNameLabel.setText("");
+    sireNameLabel.setText("");
+    sireIDLabel.setText("");
+    damIDLabel.setText("");
+    sireHerdNameLabel.setText("");
+    damHerdNameLabel.setText("");
+    sireBreedNameLabel.setText("");
+    damBreedNameLabel.setText("");
+  }
+
+  // Add listeners for Herd updates
+  private void addHerdListeners(SelectedHerdManager manager, Label[] labels) {
+    // Define the properties for the herd listeners
+    String[] properties = new String[]{
+            "selectedHerdNameProperty", "selectedHerdAnimalClassProperty", "selectedHerdBreedTypeProperty",
+            "selectedHerdAgeClassProperty", "selectedHerdBreedSystemProperty", "selectedHerdSolutionTypeProperty"
+    };
+
     for (int i = 0; i < labels.length; i++) {
       final Label label = labels[i];
       try {
@@ -180,6 +225,7 @@ public class CharacteristicsController {
       }
     }
   }
+
 
   private void updateLabel(Label label, String text) {
     label.setText(text);

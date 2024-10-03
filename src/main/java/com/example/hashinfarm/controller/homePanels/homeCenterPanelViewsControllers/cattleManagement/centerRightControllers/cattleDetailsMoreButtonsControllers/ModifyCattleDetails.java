@@ -42,8 +42,9 @@ public class ModifyCattleDetails {
     @FXML
     private Label ageLabel, BCSSliderLabel, damNameLabel, sireNameLabel;
     private Breed selectedCattleBreed;
-    private Cattle selectedDam;
-    private Cattle selectedSire;
+    private final Cattle selectedDam = new Cattle();
+    private final Cattle selectedSire = new Cattle();
+
     private int age;
 
     public void initialize() {
@@ -81,24 +82,29 @@ public class ModifyCattleDetails {
     }
 
     private void bindUIProperties(SelectedCattleManager cattleManager) {
-        cattleIDTextField.setText(String.valueOf(cattleManager.getSelectedCattleID()));
-        nameTextField.setText(cattleManager.getSelectedName());
-        tagIDTextField.setText(cattleManager.getSelectedTagId());
-        dateOfBirthDatePicker.setValue(cattleManager.getSelectedDateOfBirth());
-        ageLabel.setText(String.valueOf(cattleManager.getComputedAge()));
-        cattleBreedButton.setText(cattleManager.getSelectedBreedName());
-        genderComboBox.setValue(cattleManager.getSelectedGender());
-        colorMarkingTextField.setText(cattleManager.getSelectedColorMarkings());
-        weightTextField.setText(String.valueOf(cattleManager.getSelectedWeightId()));
-        BCSSliderLabel.setText(cattleManager.getSelectedBcs());
+        Cattle selectedCattle = cattleManager.getSelectedCattle(); // Get the Cattle object
 
-        try {
-            setCattleTag(damTagButton, selectedDam, cattleManager.getSelectedDamId(), cattleManager.getSelectedDamName(), damNameLabel);
-            setCattleTag(sireTagButton, selectedSire, cattleManager.getSelectedSireId(), cattleManager.getSelectedSireName(), sireNameLabel);
-        } catch (SQLException e) {
-            handleException(e);
+        if (selectedCattle != null) {
+            cattleIDTextField.setText(String.valueOf(selectedCattle.getCattleId()));
+            nameTextField.setText(selectedCattle.getName());
+            tagIDTextField.setText(selectedCattle.getTagId());
+            dateOfBirthDatePicker.setValue(selectedCattle.getDateOfBirth());
+            ageLabel.setText(String.valueOf(cattleManager.getComputedAge()));
+            cattleBreedButton.setText(selectedCattle.getBreedName());
+            genderComboBox.setValue(selectedCattle.getGender());
+            colorMarkingTextField.setText(selectedCattle.getColorMarkings());
+            weightTextField.setText(String.valueOf(selectedCattle.getWeightId()));
+            BCSSliderLabel.setText(selectedCattle.getBcs());
+
+            try {
+                setCattleTag(damTagButton, selectedDam, selectedCattle.getDamId(), selectedCattle.getDamName(), damNameLabel);
+                setCattleTag(sireTagButton, selectedSire, selectedCattle.getSireId(), selectedCattle.getSireName(), sireNameLabel);
+            } catch (SQLException e) {
+                handleException(e);
+            }
         }
     }
+
 
     private void setCattleTag(Button button, Cattle selectedCattle, int selectedId, String selectedName, Label CattleNameLabel) throws SQLException {
         if (selectedId != 0) {
@@ -185,19 +191,51 @@ public class ModifyCattleDetails {
         SelectedCattleManager cattleManager = SelectedCattleManager.getInstance();
 
         try {
-            int cattleId = Integer.parseInt(cattleIDTextField.getText());
-            CattleUIInfo uiInfo = CattleUtils.gatherCommonUIInfo(tagIDTextField, nameTextField, genderComboBox, colorMarkingTextField, dateOfBirthDatePicker, weightTextField, BCSSliderLabel);
+            // Parse the cattle ID from the text field, ensuring valid input
+            int cattleId = Integer.parseInt(cattleIDTextField.getText().trim()); // Trim whitespace
 
-            int breedId = (selectedCattleBreed != null) ? selectedCattleBreed.getBreedId() : cattleManager.getSelectedBreedId();
-            int sireId = (selectedSire != null) ? selectedSire.getCattleId() : cattleManager.getSelectedSireId();
-            int damId = (selectedDam != null) ? selectedDam.getCattleId() : cattleManager.getSelectedDamId();
-            int damsHerd = (selectedDam != null) ? selectedDam.getHerdId() : cattleManager.getSelectedDamsHerd();
-            int siresHerd = (selectedSire != null) ? selectedSire.getHerdId() : cattleManager.getSelectedSiresHerd();
+            // Gather common UI info using CattleUtils
+            CattleUIInfo uiInfo = CattleUtils.gatherCommonUIInfo(
+                    tagIDTextField,
+                    nameTextField,
+                    genderComboBox,
+                    colorMarkingTextField,
+                    dateOfBirthDatePicker,
+                    weightTextField,
+                    BCSSliderLabel
+            );
 
-            return CattleUtils.createCattle(uiInfo.tagId(),cattleManager.getSelectedHerdId(), uiInfo.name(), uiInfo.gender(), uiInfo.colorMarkings(), uiInfo.dateOfBirth(), uiInfo.weightId(), uiInfo.bcs(), breedId, sireId, damId, damsHerd, siresHerd, cattleId);
+            // Retrieve breed, sire, and dam IDs, defaulting to those in the SelectedCattleManager
+            int breedId = (selectedCattleBreed != null) ? selectedCattleBreed.getBreedId() : cattleManager.getSelectedCattle() != null ? cattleManager.getSelectedCattle().getBreedId() : 0;
+            int sireId = selectedSire.getCattleId();
+            int damId = selectedDam.getCattleId();
+
+            // Get the herds based on selected sire and dam, or from the selected cattle manager
+            int damsHerd = selectedDam.getHerdId();
+            int siresHerd = selectedSire.getHerdId();
+
+            // Create and return a Cattle object using the gathered information
+            return CattleUtils.createCattle(
+                    uiInfo.tagId(),
+                    cattleManager.getSelectedCattle() != null ? cattleManager.getSelectedCattle().getHerdId() : 0,
+                    uiInfo.name(),
+                    uiInfo.gender(),
+                    uiInfo.colorMarkings(),
+                    uiInfo.dateOfBirth(),
+                    uiInfo.weightId(),
+                    uiInfo.bcs(),
+                    breedId,
+                    sireId,
+                    damId,
+                    damsHerd,
+                    siresHerd,
+                    cattleId
+            );
+
         } catch (NumberFormatException e) {
             handleException(e);
-            return null;
+            return null; // Return null if there's an error
         }
     }
+
 }

@@ -60,7 +60,6 @@ public class ProductivityAndCalving {
     private final Map<String, Integer[]> stageDaysRangeMap = new HashMap<>();
     private final Map<String, StageDetails> stageDetailsMap = new HashMap<>();
     private final Map<String, String> initialValues = new HashMap<>();
-    private String selectedCattleGender =null;
 
     private final Map<String, String> initialValuesOffspring = new HashMap<>();
     private final double maxPosition2 = 0.7;
@@ -306,27 +305,24 @@ public class ProductivityAndCalving {
         createReproductiveTableColumns();
 
         SelectedCattleManager selectedCattleManager = SelectedCattleManager.getInstance();
-        selectedCattleManager
-                .selectedCattleIDProperty()
-                .addListener(
-                        (observable, oldValue, newValue) -> {
-                            if (newValue == null || newValue.intValue() == 0) return;
 
-                            selectedCattleId = newValue.intValue();
-                            loadCalvingHistoryForCattle(selectedCattleId);
-                            updateCalvingHistoryData();
-                        });
+        // Listen to changes in the entire Cattle object
+        selectedCattleManager.selectedCattleProperty().addListener((observable, oldCattle, newCattle) -> {
+            if (newCattle == null || newCattle.getCattleId() == 0) return;
 
-        selectedCattleManager
-                .selectedDateOfBirthProperty()
-                .addListener(
-                        (observable, oldValue, newValue) -> {
-                            if (newValue != null) {
-                                selectedCattleDateOfBirth = selectedCattleManager.getSelectedDateOfBirth();
-                                setAgeAtFirstCalving();
-                            }
-                        });
+            selectedCattleId = newCattle.getCattleId();  // Get the selected cattle ID
+            loadCalvingHistoryForCattle(selectedCattleId);
+            updateCalvingHistoryData();
+
+            // Optionally, set age at first calving if Date of Birth is needed
+            LocalDate dateOfBirth = newCattle.getDateOfBirth();
+            if (dateOfBirth != null) {
+                selectedCattleDateOfBirth = dateOfBirth;  // Update Date of Birth
+                setAgeAtFirstCalving();  // Calculate age at first calving
+            }
+        });
     }
+
 
     private void initializeGestationPeriod() {
         int initialGestationDays = 283;
@@ -527,19 +523,26 @@ public class ProductivityAndCalving {
 
     private void initializeSelectedCattleManagerListeners() {
         SelectedCattleManager selectedCattleManager = SelectedCattleManager.getInstance();
+
+        // Listen to changes in the entire Cattle object
         selectedCattleManager
-                .selectedCattleIDProperty()
+                .selectedCattleProperty()
                 .addListener(
-                        (observable, oldValue, newValue) -> {
-                            if (newValue != null && newValue.intValue() != 0) {
-                                selectedCattleId = selectedCattleManager.getSelectedCattleID();
+                        (observable, oldCattle, newCattle) -> {
+                            if (newCattle != null && newCattle.getCattleId() != 0) {
+                                selectedCattleId = newCattle.getCattleId();  // Get the selected cattle ID
+                                selectedCattleDateOfBirth = newCattle.getDateOfBirth(); // Get Date of Birth
+
+                                // Call methods that depend on the cattle ID and Date of Birth
                                 updateLactationStartDateField();
-                                productionSessionDatePicker.setValue(LocalDate.now());
+                                productionSessionDatePicker.setValue(LocalDate.now());  // Set current date
+                            } else {
+                                // Handle case when no valid cattle is selected (e.g., reset fields)
+                                selectedCattleId = 0;
+                                selectedCattleDateOfBirth = null;
                             }
-                        });
-        selectedCattleManager
-                .selectedDateOfBirthProperty()
-                .addListener((observable, oldValue, newValue) -> selectedCattleDateOfBirth = newValue);
+                        }
+                );
     }
 
     private void initializeCalvingDateDayCellFactory() {
@@ -1810,24 +1813,26 @@ public class ProductivityAndCalving {
         splitpane.getDividers().getFirst().positionProperty().addListener((obs, oldPos, newPos) -> cattleController.updateButtonsPosition(newPos.doubleValue(), splitpane, leftArrowButton, rightArrowButton));
 
     }
-
     private void initSelectedCattleListeners() {
         SelectedCattleManager selectedCattleManager = SelectedCattleManager.getInstance();
 
-        selectedCattleManager.selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
-            if (newValue != null && newValue.intValue() != 0) {
-                selectedCattleId = newValue.intValue();
+        // Listen for changes to the entire Cattle object
+        selectedCattleManager.selectedCattleProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue.getCattleId() != 0) {
+                selectedCattleId = newValue.getCattleId();  // Get the new cattle ID from the Cattle object
                 try {
                     loadOffspringData();
                     loadBreedingAttemptsData();
-
                 } catch (SQLException e) {
                     throw new RuntimeException(e);
                 }
+            } else {
+                // Handle case when no cattle is selected or invalid cattle ID
+                selectedCattleId = 0;  // Reset selectedCattleId or other UI components as needed
             }
         });
-
     }
+
 
 
     private void initializeOffspringAndBreedingAttemptTableColumns() {
@@ -3131,25 +3136,32 @@ public class ProductivityAndCalving {
 
     //LACTATION PERIOD CODE SECTION
 
-    private void initializeLactationPeriods(){
-
+    private void initializeLactationPeriods() {
+        // Disable the date picker initially if no cattle is selected
         if (selectedCattleId == 0) {
-            lactationEndDatePicker.setDisable(true); // Disable the date picker if no cattle is selected
+            lactationEndDatePicker.setDisable(true);
         }
-        SelectedCattleManager.getInstance().selectedGenderProperty().addListener((observable, oldValue, newValue) -> selectedCattleGender = newValue);
 
-        SelectedCattleManager.getInstance().selectedCattleIDProperty().addListener((observable, oldValue, newValue) -> {
-            selectedCattleId = newValue != null ? newValue.intValue() : 0;
-            if(Objects.equals(selectedCattleGender, "Female")){
-                clearLactationFieldsOnCattleIdChange();
-                initializeLactationTableColumns();
-                initializeTableViewSelectionListener();
-                loadLactationPeriodsForSelectedCattle();
-                initializeLactationEndDatePicker();
+        // Add listener for when the entire selected cattle changes
+        SelectedCattleManager.getInstance().selectedCattleProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null) {
+                handleCattleSelection(newValue);  // Pass the new cattle object to handle the selection change
             }
-
-
         });
+    }
+
+    private void handleCattleSelection(Cattle selectedCattle) {
+        selectedCattleId = selectedCattle.getCattleId();           // Set cattle ID
+        String selectedCattleGender = selectedCattle.getGender();         // Set cattle gender
+
+        // Check if the cattle is female and has a valid ID
+        if (selectedCattleId != 0 && "Female".equals(selectedCattleGender)) {
+            clearLactationFieldsOnCattleIdChange();           // Clear fields when ID changes
+            initializeLactationTableColumns();                // Set up the table columns
+            initializeTableViewSelectionListener();           // Add listener for table selections
+            loadLactationPeriodsForSelectedCattle();          // Load data based on selected cattle
+            initializeLactationEndDatePicker();               // Initialize the lactation end date picker
+        }
     }
 
 
