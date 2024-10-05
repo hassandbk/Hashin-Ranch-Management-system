@@ -94,11 +94,14 @@ public class CattleImageManager {
     if (imagesChanged) {
       fetchAndPopulateCarousel(selectedCattleId, container);
     } else {
-      // Update index and populate with existing images
-      currentIndex = (currentIndex + 1) % cattleImages.size();
-      populateImageViews(container);
+      if (cattleImages != null && !cattleImages.isEmpty()) {  // Ensure cattleImages is not empty
+        // Update index and populate with existing images
+        currentIndex = (currentIndex + 1) % cattleImages.size();
+        populateImageViews(container);
+      }
     }
   }
+
 
 
   private void populateImageViews(HBox container) {
@@ -106,19 +109,20 @@ public class CattleImageManager {
     if (cattleImages == null || cattleImages.isEmpty()) {
       return;
     }
-    int numImages = cattleImages.size();
-    for (int i = 0; i < Math.min(numImages, 5); i++) {
-      double scale = scaleMap.getOrDefault(i, 0.9);
-      int index = (currentIndex + i) % numImages;
-      String imagePath = "/images/" + cattleImages.get(index).getImagePath();
-      Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
 
-      ImageView imageView = new ImageView(image);
-      imageView.setFitWidth(200 * scale);
-      imageView.setFitHeight(180 * scale);
-      container.getChildren().add(imageView);
-    }
+    int numImages = cattleImages.size();
+      for (int i = 0; i < Math.min(numImages, 5); i++) {
+          double scale = scaleMap.getOrDefault(i, 0.9);
+          int index = (currentIndex + i) % numImages;  // Safe because numImages > 0
+          String imagePath = "/images/" + cattleImages.get(index).getImagePath();
+          Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
+          ImageView imageView = new ImageView(image);
+          imageView.setFitWidth(200 * scale);
+          imageView.setFitHeight(180 * scale);
+          container.getChildren().add(imageView);
+      }
   }
+
 
   public void pauseCarousel() {
     timeline.pause();
@@ -135,18 +139,18 @@ public class CattleImageManager {
 
   public void displayCurrentImage() {
     pauseCarousel();
-    if (cattleImages.isEmpty()) {
+    if (cattleImages == null || cattleImages.isEmpty()) {
       showAlert("No images to display.", "No images found to display.");
       return;
     }
 
-    String imagePath =
-        "/images/" + cattleImages.get((currentIndex + 2) % cattleImages.size()).getImagePath();
-    Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
-
-    Stage stage = getStage(image);
-    stage.show();
+    int size = cattleImages.size();
+      String imagePath = "/images/" + cattleImages.get((currentIndex + 2) % size).getImagePath();
+      Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
+      Stage stage = getStage(image);
+      stage.show();
   }
+
 
   private Stage getStage(Image image) {
     Stage stage = new Stage();

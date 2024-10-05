@@ -28,8 +28,8 @@
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<ScrollPane fitToWidth="true" prefWidth="1064.0" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.MedicalHistory">
-    <VBox prefHeight="1400.0" prefWidth="1049.0">
+<ScrollPane fitToWidth="true" prefHeight="2000.0" prefWidth="1064.0" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.MedicalHistory">
+    <VBox prefWidth="1049.0">
 
         <GridPane alignment="CENTER" maxHeight="-Infinity" minWidth="-Infinity" prefHeight="50.0" prefWidth="1002.0" HBox.hgrow="ALWAYS">
 
@@ -64,33 +64,32 @@
                 <Insets bottom="20.0" left="10.0" right="10.0" top="20.0" />
             </opaqueInsets>
         </GridPane>
-        <GridPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="200.0">
+        <GridPane maxHeight="-Infinity" minHeight="-Infinity" prefHeight="400.0">
             <columnConstraints>
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
-                <ColumnConstraints hgrow="SOMETIMES" minWidth="10.0" prefWidth="100.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" />
+                <ColumnConstraints hgrow="SOMETIMES" minWidth="600.0" />
             </columnConstraints>
             <rowConstraints>
                 <RowConstraints maxHeight="39.800007057189944" minHeight="7.999988937377935" prefHeight="39.800007057189944" vgrow="SOMETIMES" />
-                <RowConstraints maxHeight="139.9999858856201" minHeight="10.0" prefHeight="93.39999294281004" vgrow="SOMETIMES" />
+                <RowConstraints minHeight="-Infinity" prefHeight="300.0" vgrow="SOMETIMES" />
             </rowConstraints>
-
-            <ListView fx:id="healthRecommendationsListView" prefHeight="169.0" prefWidth="502.0" GridPane.rowIndex="1"/>
-
-            <TextArea fx:id="healthNotesTextArea" promptText="Enter health-related notes or comments" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+            <Label text="Health Alerts">
+                <font>
+                    <Font name="System Bold" size="15.0" />
+                </font>
+            </Label>
+            <ListView fx:id="healthRecommendationsListView" prefWidth="502.0" GridPane.rowIndex="1" />
 
             <Label text="Health Notes" GridPane.columnIndex="1">
                 <font>
                     <Font name="System Bold" size="14.0" />
                 </font>
             </Label>
+            <ListView fx:id="healthNotesListView" GridPane.columnIndex="1" GridPane.rowIndex="1" />
 
 
 
-            <Label text="Health Alerts">
-                <font>
-                    <Font name="System Bold" size="15.0" />
-                </font>
-            </Label>
+
         </GridPane>
 
 
@@ -106,8 +105,8 @@
                 <TitledPane text="Deworming History">
                     <BorderPane>
                         <top>
-                            <VBox styleClass="table-container">
-                            <TableView fx:id="dewormingHistoryTableView" maxHeight="-Infinity" prefHeight="200.0" BorderPane.alignment="CENTER" >
+                            <VBox >
+                            <TableView fx:id="dewormingHistoryTableView" maxHeight="-Infinity" prefHeight="200.0" BorderPane.alignment="CENTER">
                                 <columns>
                                     <TableColumn fx:id="dewormingHistoryDateColumn" minWidth="100.0" prefWidth="150.0" text="Deworming Date" />
                                     <TableColumn fx:id="dewormerTypeColumn" minWidth="100.0" prefWidth="150.0" text="Dewormer Type" />
@@ -166,8 +165,8 @@
                                     <Label text="Manufacturer Details" wrapText="true" />
                                 </VBox>
 
-                                <TextArea fx:id="manufacturerDetailsTextArea" prefHeight="150.0" prefWidth="300.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
-                                <TextArea fx:id="dewormerTypeTextArea" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                                <TextArea fx:id="manufacturerDetailsTextArea" wrapText="true" prefHeight="150.0" prefWidth="300.0" GridPane.columnIndex="3" GridPane.rowIndex="1" />
+                                <TextArea fx:id="dewormerTypeTextArea" wrapText="true" maxWidth="-Infinity" minWidth="-Infinity" prefHeight="150.0" prefWidth="300.0" GridPane.columnIndex="1" GridPane.rowIndex="1" />
                                 <Label text="Contact Details*" GridPane.columnIndex="2" GridPane.rowIndex="4" />
 
                                 <VBox alignment="CENTER" spacing="10" GridPane.columnIndex="3" GridPane.rowIndex="4">
@@ -437,7 +436,7 @@
                                         </font>
                                     </Label>
                                 </VBox>
-                                <TextArea fx:id="behavioralObservationsTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.rowSpan="2">
+                                <TextArea fx:id="behavioralObservationsTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="7" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS">
                                     <GridPane.margin>
                                         <Insets bottom="10.0" top="10.0" />
                                     </GridPane.margin>
@@ -452,9 +451,9 @@
                                         </font>
                                     </Label>
                                 </VBox>
-                                <TextArea fx:id="physicalExaminationTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="7" GridPane.rowSpan="2">
+                                <TextArea fx:id="physicalExaminationTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="7" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS">
                                     <GridPane.margin>
-                                        <Insets />
+                                        <Insets bottom="10.0" top="10.0" />
                                     </GridPane.margin>
                                 </TextArea>
 
@@ -466,7 +465,7 @@
                                         </font>
                                     </Label>
                                 </VBox>
-                                <TextArea fx:id="healthIssuesTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                                <TextArea fx:id="healthIssuesTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="1" GridPane.rowIndex="5" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS">
                                     <GridPane.margin>
                                         <Insets bottom="10.0" top="10.0" />
                                     </GridPane.margin>
@@ -481,7 +480,10 @@
                                         </font>
                                     </Label>
                                 </VBox>
-                                <TextArea fx:id="specificObservationsTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS" />
+                                <TextArea fx:id="specificObservationsTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" wrapText="true" GridPane.columnIndex="3" GridPane.rowIndex="5" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS">
+                           <GridPane.margin>
+                              <Insets bottom="10.0" top="10.0" />
+                           </GridPane.margin></TextArea>
 
 
                                 <VBox alignment="CENTER" GridPane.rowIndex="9" GridPane.rowSpan="2">
@@ -492,7 +494,7 @@
                                         </font>
                                     </Label>
                                 </VBox>
-                                <TextArea fx:id="checkupNotesTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" GridPane.columnIndex="1" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                                <TextArea fx:id="checkupNotesTextArea" wrapText="true" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" GridPane.columnIndex="1" GridPane.rowIndex="9" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS">
                                     <GridPane.margin>
                                         <Insets bottom="10.0" top="10.0" />
                                     </GridPane.margin>
@@ -507,9 +509,9 @@
                                         </font>
                                     </Label>
                                 </VBox>
-                                <TextArea fx:id="chronicConditionsTextArea" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" GridPane.columnIndex="3" GridPane.halignment="CENTER" GridPane.hgrow="ALWAYS" GridPane.rowIndex="9" GridPane.rowSpan="2" GridPane.valignment="CENTER" GridPane.vgrow="ALWAYS">
+                                <TextArea fx:id="chronicConditionsTextArea" wrapText="true" maxHeight="-Infinity" minHeight="-Infinity" prefHeight="100.0" GridPane.columnIndex="3" GridPane.rowIndex="9" GridPane.rowSpan="2" GridPane.vgrow="ALWAYS">
                                     <GridPane.margin>
-                                        <Insets />
+                                        <Insets bottom="10.0" top="10.0" />
                                     </GridPane.margin>
                                 </TextArea>
 
@@ -659,11 +661,9 @@
                                 <Separator prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="1" GridPane.valignment="BOTTOM" />
                                 <Separator prefWidth="200.0" GridPane.columnSpan="4" GridPane.hgrow="ALWAYS" GridPane.rowIndex="5" GridPane.valignment="TOP" />
                                 <Separator prefWidth="200.0" GridPane.columnSpan="6" />
-                                <HBox alignment="CENTER" spacing="40.0" GridPane.columnIndex="1" GridPane.columnSpan="3"
-                                      GridPane.rowIndex="11">
-                                    <Button mnemonicParsing="false" fx:id="modifyHealthCheckupRecordButton" onAction="#modifyHealthCheckupRecord"
-                                            text="Modify"/>
-                                    <Button mnemonicParsing="false" fx:id="clearHealthCheckupRecordButton"  onAction="#clearHealthCheckupRecord" text="Clear"/>
+                                <HBox alignment="CENTER" spacing="40.0" GridPane.columnIndex="1" GridPane.columnSpan="3" GridPane.rowIndex="11">
+                                    <Button fx:id="modifyHealthCheckupRecordButton" mnemonicParsing="false" onAction="#modifyHealthCheckupRecord" text="Modify" />
+                                    <Button fx:id="clearHealthCheckupRecordButton" mnemonicParsing="false" onAction="#clearHealthCheckupRecord" text="Clear" />
                                 </HBox>
 
                                 <!-- Add more rows and fields as needed for Health Checkups -->

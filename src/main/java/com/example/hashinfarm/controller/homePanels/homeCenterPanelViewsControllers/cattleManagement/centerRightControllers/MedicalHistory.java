@@ -1,12 +1,7 @@
 package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers;
 
-import com.example.hashinfarm.controller.dao.DewormingHistoryDAO;
-import com.example.hashinfarm.controller.dao.FollowUpRecommendationDAO;
-import com.example.hashinfarm.controller.dao.HealthCheckupHistoryDAO;
-import com.example.hashinfarm.controller.dao.MedicationHistoryDAO;
-import com.example.hashinfarm.controller.records.DewormingRecord;
-import com.example.hashinfarm.controller.records.HealthCheckupRecord;
-import com.example.hashinfarm.controller.records.MedicationRecord;
+import com.example.hashinfarm.controller.dao.*;
+import com.example.hashinfarm.controller.records.*;
 import com.example.hashinfarm.controller.utility.*;
 
 import java.sql.SQLException;
@@ -32,8 +27,6 @@ import javafx.scene.control.*;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-
-import com.example.hashinfarm.controller.utility.CountryCodePickerHelper;
 
 
 
@@ -61,7 +54,10 @@ public class MedicalHistory {
     @FXML private ComboBox<Country> countryComboBoxOfDewormingHistory, countryComboBoxOfMedication;
     @FXML private TextField restOfNumberOfDewormingHistoryTextField, countryCodeOfDewormingHistoryTextField,countryCodeTextFieldOfMedication, restOfNumberTextFieldOfMedication;
     @FXML private Button modifyDewormingRecordButton,clearAllDewormingDetailsButton,modifyMedicationRecordButton,clearAllMedicationRecordButton,modifyHealthCheckupRecordButton,clearHealthCheckupRecordButton;
-    @FXML private ListView<String> healthRecommendationsListView;
+
+    @FXML private ListView<HealthRecommendationItem> healthRecommendationsListView;
+    @FXML private ListView<HealthNoteItem> healthNotesListView;
+
     // DEWORMING PART
     @FXML private TableView<DewormingRecord> dewormingHistoryTableView;
     @FXML private TableColumn<DewormingRecord, LocalDate> dewormingHistoryDateColumn;
@@ -103,6 +99,8 @@ public class MedicalHistory {
     @FXML private CheckBox vaccinationScheduleReviewCheckBox, regularWeightChecksCheckBox, educationZoonoticDiseasesCheckBox, postMortemExaminationsCheckBox, recordKeepingVeterinaryInterventionsCheckBox;
     @FXML private CheckBox monitoringCalfHealthCheckBox, limitingStressFactorsCheckBox, evaluationBreedingPracticesCheckBox, implementationHerdHealthPlansCheckBox, observationSocialBehaviorCheckBox, regularReproductivePerformanceAssessmentCheckBox;
 
+
+
     private final Map<TitledPane, List<CheckBox>> titledPaneCheckboxMap = new HashMap<>();
     private final Map<String, Boolean> originalRecommendationsMap = new HashMap<>();
 
@@ -138,41 +136,6 @@ public class MedicalHistory {
         Alert alert = new Alert(type, message, ButtonType.OK);
         alert.setTitle(title);
         alert.showAndWait();
-    }
-    private void loadHealthRecommendations(int cattleId) {
-        List<String> recommendationsToUpdate = new ArrayList<>();
-
-        // Fetch health checkup histories for the selected cattle
-        List<HealthCheckupHistory> healthCheckupHistories;
-        try {
-            healthCheckupHistories = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(cattleId);
-        } catch (SQLException e) {
-            // Handle exception
-            showAlert(AlertType.ERROR, "Database Error", "Failed to load health checkup histories: " + e.getMessage());
-            return; // Exit the method if there's an error
-        }
-
-        // Iterate through health checkup histories and get follow-up recommendations
-        for (HealthCheckupHistory checkup : healthCheckupHistories) {
-            List<FollowUpRecommendation> recommendations;
-            try {
-                recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(checkup.getId());
-            } catch (SQLException e) {
-                // Handle exception
-                showAlert(AlertType.ERROR, "Database Error", "Failed to load follow-up recommendations: " + e.getMessage());
-                return; // Exit the method if there's an error
-            }
-
-            // Populate the recommendation list
-            for (FollowUpRecommendation recommendation : recommendations) {
-                recommendationsToUpdate.add(recommendation.getRecommendation());
-            }
-        }
-
-        // Clear the current ListView items
-        healthRecommendationsListView.getItems().clear();
-        // Add all new recommendations
-        healthRecommendationsListView.getItems().addAll(recommendationsToUpdate);
     }
 
 
@@ -226,7 +189,8 @@ public class MedicalHistory {
                     // Load health data only if the selected Cattle ID is valid
                     if (newCattle.getCattleId() > 0) {
                         selectedCattleId = newCattle.getCattleId();
-                        loadHealthRecommendations(selectedCattleId); // Load health recommendations
+                        loadHealthRecommendations(selectedCattleId);
+                        loadHealthCheckupNotes(selectedCattleId);
                         loadDewormingDataIntoTableView();
                         loadMedicationDataIntoTableView();
                         loadHealthCheckupDataIntoTableView();
@@ -341,6 +305,94 @@ public class MedicalHistory {
             showAlert(AlertType.ERROR, "Selection Listener Error", "Failed to initialize selection listeners: " + e.getMessage());
         }
     }
+
+
+    private void loadHealthRecommendations(int cattleId) {
+        // Use a Set to automatically handle duplicates
+        Set<String> recommendationsToUpdate = new HashSet<>();
+
+        // Fetch health checkup histories for the selected cattle
+        List<HealthCheckupHistory> healthCheckupHistories;
+        try {
+            healthCheckupHistories = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(cattleId);
+        } catch (SQLException e) {
+            // Handle exception
+            showAlert(AlertType.ERROR, "Database Error", "Failed to load health checkup histories: " + e.getMessage());
+            return; // Exit the method if there's an error
+        }
+
+        // Iterate through health checkup histories and get follow-up recommendations
+        for (HealthCheckupHistory checkup : healthCheckupHistories) {
+            List<FollowUpRecommendation> recommendations;
+            try {
+                recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(checkup.getId());
+            } catch (SQLException e) {
+                // Handle exception
+                showAlert(AlertType.ERROR, "Database Error", "Failed to load follow-up recommendations: " + e.getMessage());
+                return; // Exit the method if there's an error
+            }
+
+            // Populate the recommendation set
+            for (FollowUpRecommendation recommendation : recommendations) {
+                recommendationsToUpdate.add(recommendation.getRecommendation());
+            }
+        }
+
+        // Clear the current ListView items
+        healthRecommendationsListView.getItems().clear();
+
+        // Create observable list for health recommendations
+        ObservableList<HealthRecommendationItem> observableRecommendations = FXCollections.observableArrayList();
+        for (String recommendation : recommendationsToUpdate) {
+            observableRecommendations.add(new HealthRecommendationItem(recommendation));
+        }
+
+        // Set the items in the ListView and apply a custom cell factory
+        healthRecommendationsListView.setItems(observableRecommendations);
+        healthRecommendationsListView.setCellFactory(listView -> new HealthRecommendationItemListCell());
+    }
+
+
+    public void loadHealthCheckupNotes(int cattleId) {
+        try {
+            // Fetch categorized health notes for the specific cattle
+            Map<String, List<String>> categorizedHealthNotes = HealthCheckupHistoryDAO.getCategorizedHealthCheckupHistoriesByCattleId(cattleId);
+
+            // Format health notes into a structured observable list
+            ObservableList<HealthNoteItem> observableHealthNotes = formatHealthNotes(categorizedHealthNotes);
+            setListViewItems(observableHealthNotes);
+        } catch (SQLException e) {
+            AppLogger.error("Error fetching health checkup histories: " + e.getMessage(), e);
+            e.printStackTrace();
+        }
+    }
+
+    private ObservableList<HealthNoteItem> formatHealthNotes(Map<String, List<String>> categorizedHealthNotes) {
+        ObservableList<HealthNoteItem> observableHealthNotes = FXCollections.observableArrayList();
+
+        for (Map.Entry<String, List<String>> entry : categorizedHealthNotes.entrySet()) {
+            // Create category item
+            HealthNoteItem categoryItem = new HealthNoteItem(entry.getKey(), true); // true indicates a category
+            observableHealthNotes.add(categoryItem);
+
+            // Create sublist items
+            for (String detail : entry.getValue()) {
+                HealthNoteItem sublistItem = new HealthNoteItem(detail, false); // false indicates a sublist item
+                observableHealthNotes.add(sublistItem);
+            }
+        }
+
+        return observableHealthNotes;
+    }
+
+    // Sets the ListView items with a custom cell factory
+    private void setListViewItems(ObservableList<HealthNoteItem> observableHealthNotes) {
+        healthNotesListView.setItems(observableHealthNotes);
+
+        healthNotesListView.setCellFactory(listView -> new HealthNoteItemListCell());
+    }
+
+
 
 
     //DEWORMING HISTORY
@@ -1837,4 +1889,20 @@ public class MedicalHistory {
     @FXML private void clearHealthCheckupRecord() {
         clearAllHealthCheckupFields();
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 }

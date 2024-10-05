@@ -6,10 +6,7 @@ import com.example.hashinfarm.model.HealthCheckupHistory;
 import java.sql.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 public class HealthCheckupHistoryDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
@@ -199,17 +196,61 @@ public class HealthCheckupHistoryDAO {
         String heartRate = resultSet.getString("heartRate");
         String respiratoryRate = resultSet.getString("respiratoryRate");
         String bloodPressure = resultSet.getString("bloodPressure");
-        String behavioralObservations = resultSet.getString("behavioralObservations");
-        String physicalExaminationFindings = resultSet.getString("physicalExaminationFindings");
-        String healthIssues = resultSet.getString("healthIssues");
-        String specificObservations = resultSet.getString("specificObservations");
-        String checkupNotes = resultSet.getString("checkupNotes");
-        String chronicConditions = resultSet.getString("chronicConditions");
-        LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime(); // assuming the database has a timestamp for createdAt
+
+        // Retrieve observations using the new method
+        Map<String, String> observations = extractObservations(resultSet);
+
+        LocalDateTime createdAt = resultSet.getTimestamp("createdAt").toLocalDateTime();
 
         return new HealthCheckupHistory(id, cattleId, checkupDate, temperature, heartRate, respiratoryRate,
-                bloodPressure, behavioralObservations, physicalExaminationFindings, healthIssues,
-                specificObservations, checkupNotes, chronicConditions, createdAt, null); // You can fetch follow-up recommendations later
+                bloodPressure, observations.get("behavioralObservations"), observations.get("physicalExaminationFindings"),
+                observations.get("healthIssues"), observations.get("specificObservations"),
+                observations.get("checkupNotes"), observations.get("chronicConditions"), createdAt, null);
     }
+
+    // New method to extract observation values
+    private static Map<String, String> extractObservations(ResultSet resultSet) throws SQLException {
+        Map<String, String> observations = new HashMap<>();
+        observations.put("behavioralObservations", resultSet.getString("behavioralObservations"));
+        observations.put("physicalExaminationFindings", resultSet.getString("physicalExaminationFindings"));
+        observations.put("healthIssues", resultSet.getString("healthIssues"));
+        observations.put("specificObservations", resultSet.getString("specificObservations"));
+        observations.put("checkupNotes", resultSet.getString("checkupNotes"));
+        observations.put("chronicConditions", resultSet.getString("chronicConditions"));
+        return observations;
+    }
+
+    // Method to retrieve categorized health checkup history by cattle ID
+    public static Map<String, List<String>> getCategorizedHealthCheckupHistoriesByCattleId(int cattleId) throws SQLException {
+        String query = "SELECT * FROM healthCheckupHistory WHERE cattleID = ?";
+        Map<String, List<String>> categorizedHealthNotes = new HashMap<>();
+
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    // Use the new method to extract observations
+                    Map<String, String> observations = extractObservations(resultSet);
+
+                    // Populate the map with categorized data
+                    addToCategory(categorizedHealthNotes, "Behavioral Observations", observations.get("behavioralObservations"));
+                    addToCategory(categorizedHealthNotes, "Physical Examination Findings", observations.get("physicalExaminationFindings"));
+                    addToCategory(categorizedHealthNotes, "Health Issues", observations.get("healthIssues"));
+                    addToCategory(categorizedHealthNotes, "Specific Observations", observations.get("specificObservations"));
+                    addToCategory(categorizedHealthNotes, "Checkup Notes", observations.get("checkupNotes"));
+                    addToCategory(categorizedHealthNotes, "Chronic Conditions", observations.get("chronicConditions"));
+                }
+            }
+        }
+        return categorizedHealthNotes;
+    }
+    // Helper method to add an observation to the respective category
+    private static void addToCategory(Map<String, List<String>> map, String category, String observation) {
+        if (observation != null && !observation.trim().isEmpty()) {
+            map.computeIfAbsent(category, k -> new ArrayList<>()).add(observation);
+        }
+    }
+
 
 }
