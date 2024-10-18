@@ -1,5 +1,6 @@
 package com.example.hashinfarm.controller.utility;
 
+import com.example.hashinfarm.model.LactationPeriodWithSelection;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;

@@ -3,7 +3,7 @@ package com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControl
 import com.example.hashinfarm.controller.dao.CattleImageDAO;
 import com.example.hashinfarm.controller.utility.AppLogger;
 import com.example.hashinfarm.controller.utility.CattleImageManager;
-import com.example.hashinfarm.controller.utility.CattleImage;
+import com.example.hashinfarm.model.CattleImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.List;

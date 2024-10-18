@@ -1,4 +1,4 @@
-package com.example.hashinfarm.controller.utility;
+package com.example.hashinfarm.model;
 
 public class FilteredCattle {
     private int cattleID;

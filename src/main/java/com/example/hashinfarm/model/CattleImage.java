@@ -1,4 +1,4 @@
-package com.example.hashinfarm.controller.utility;
+package com.example.hashinfarm.model;
 
 import java.sql.Timestamp;
 

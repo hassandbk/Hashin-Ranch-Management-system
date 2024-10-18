@@ -1,6 +1,5 @@
-package com.example.hashinfarm.controller.utility;
+package com.example.hashinfarm.model;
 
-import com.example.hashinfarm.model.LactationPeriod;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 

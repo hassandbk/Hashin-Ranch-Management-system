@@ -1,4 +1,4 @@
-package com.example.hashinfarm.controller.utility;
+package com.example.hashinfarm.model;
 
 import javafx.collections.ObservableList;
 import java.time.LocalDate;

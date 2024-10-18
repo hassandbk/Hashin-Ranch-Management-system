@@ -1,6 +1,5 @@
-package com.example.hashinfarm.controller.utility;
+package com.example.hashinfarm.model;
 
-import com.example.hashinfarm.model.Herd;
 import javafx.beans.property.*;
 
 public class SelectedHerdManager {

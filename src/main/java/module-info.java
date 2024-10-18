@@ -31,7 +31,6 @@ module com.example.hashinfarm {
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers to javafx.fxml;
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers to javafx.fxml;
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.matingAndBreedingControllers to javafx.fxml;
-    opens com.example.hashinfarm.model to javafx.base, com.fasterxml.jackson.databind;
     opens com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers to javafx.fxml;
     opens com.example.hashinfarm.controller.utility to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.controller.records to javafx.base, javafx.fxml;
@@ -51,5 +50,6 @@ module com.example.hashinfarm {
     exports com.example.hashinfarm.controller.dao;
     exports com.example.hashinfarm.controller.interfaces;
     exports com.example.hashinfarm.controller.records;
+    opens com.example.hashinfarm.model to com.fasterxml.jackson.databind, javafx.base, javafx.fxml;
 
 }
