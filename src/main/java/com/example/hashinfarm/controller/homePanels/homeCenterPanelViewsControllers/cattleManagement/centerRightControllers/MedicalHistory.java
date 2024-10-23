@@ -4,6 +4,7 @@ import com.example.hashinfarm.controller.dao.*;
 import com.example.hashinfarm.controller.records.*;
 import com.example.hashinfarm.controller.utility.*;
 
+import java.math.BigDecimal;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -36,24 +37,29 @@ public class MedicalHistory {
     private final Map<String, String> originalDewormingValuesMap = new HashMap<>();
     private final Map<String, String> originalMedicationValuesMap = new HashMap<>();
     private final Map<String, String> originalHealthCheckupValuesMap = new HashMap<>();
+    private final Map<String, String> originalInjuryValuesMap = new HashMap<>();
 
     private boolean isModifiedDeworming = false;
     private boolean isModifiedMedication = false;
     private boolean isModifiedHealthCheckup =false;
+    private boolean isModifiedInjury =false;
 
     private DewormingRecord selectedDewormingRecord;
     private MedicationRecord selectedMedicationRecord;
     private HealthCheckupRecord selectedHealthCheckupRecord;
+    private InjuryRecord selectedInjuryRecord;
 
     private CountryCodePickerHelper dewormingCountryCodePickerHelper;
     private CountryCodePickerHelper medicationCountryCodePickerHelper;
 
+    private final Map<TitledPane, List<CheckBox>> titledPaneCheckboxMap = new HashMap<>();
+    private final Map<String, Boolean> originalRecommendationsMap = new HashMap<>();
 
 
     @FXML private ImageView imageViewOfDewormingHistory,imageViewOfMedication;
     @FXML private ComboBox<Country> countryComboBoxOfDewormingHistory, countryComboBoxOfMedication;
     @FXML private TextField restOfNumberOfDewormingHistoryTextField, countryCodeOfDewormingHistoryTextField,countryCodeTextFieldOfMedication, restOfNumberTextFieldOfMedication;
-    @FXML private Button modifyDewormingRecordButton,clearAllDewormingDetailsButton,modifyMedicationRecordButton,clearAllMedicationRecordButton,modifyHealthCheckupRecordButton,clearHealthCheckupRecordButton;
+    @FXML private Button modifyDewormingRecordButton,clearAllDewormingDetailsButton,modifyMedicationRecordButton,clearAllMedicationRecordButton,modifyHealthCheckupRecordButton,clearHealthCheckupRecordButton,modifyInjuryRecordButton,clearInjuryRecordButton;
 
     @FXML private ListView<HealthRecommendationItem> healthRecommendationsListView;
     @FXML private ListView<HealthNoteItem> healthNotesListView;
@@ -72,9 +78,9 @@ public class MedicalHistory {
     // MEDICATION PART
     @FXML private TableView<MedicationRecord> medicationHistoryTableView;
     @FXML private TableColumn<MedicationRecord, LocalDate> dateTakenOfMedicationColumn,nextScheduleOfMedicationColumn;
-    @FXML private TableColumn<MedicationRecord, String> dosageOfMedicationColumn, frequencyOfMedicationColumn, typeOfMedicationColumn, administerOfMedicationColumn, telNoOfMedicationColumn, categoryOfMedicationColumn;
+    @FXML private TableColumn<MedicationRecord, String> dosageOfMedicationColumn, frequencyOfMedicationColumn,  administerOfMedicationColumn, telNoOfMedicationColumn, categoryOfMedicationColumn;
 
-    @FXML private TextField dosageOfMedicationTextField, frequencyOfMedicationTextField, typeOfMedicationTextField, administerOfMedicationTextField;
+    @FXML private TextField dosageOfMedicationTextField, frequencyOfMedicationTextField,  administerOfMedicationTextField;
     @FXML private DatePicker dateTakenOfMedicationDatePicker, nextScheduleOfMedicationDatePicker;
     @FXML private ComboBox<String> categoryOfMedicationComboBox;
     @FXML private CheckBox negativeCheckBox, positiveCheckBox;
@@ -100,12 +106,24 @@ public class MedicalHistory {
     @FXML private CheckBox monitoringCalfHealthCheckBox, limitingStressFactorsCheckBox, evaluationBreedingPracticesCheckBox, implementationHerdHealthPlansCheckBox, observationSocialBehaviorCheckBox, regularReproductivePerformanceAssessmentCheckBox;
 
 
+    //INJURY
+    @FXML  private TableView<InjuryRecord> injuryTableView;
+    @FXML  private TableColumn<InjuryRecord, Integer> idColumn;
+    @FXML  private TableColumn<InjuryRecord, LocalDate> dateOfOccurrenceColumn;
+    @FXML  private TableColumn<InjuryRecord, BigDecimal> medicationCostColumn;
+    @FXML  private TableColumn<InjuryRecord, String> typeOfInjuryColumn, specificBodyPartColumn, severityColumn, causeOfInjuryColumn, firstAidMeasuresColumn, followUpTreatmentTypeColumn, monitoringInstructionsColumn,
+            scheduledProceduresColumn, followUpMedicationsColumn;
 
-    private final Map<TitledPane, List<CheckBox>> titledPaneCheckboxMap = new HashMap<>();
-    private final Map<String, Boolean> originalRecommendationsMap = new HashMap<>();
 
 
+    @FXML private DatePicker dateOfOccurrenceDatePicker;
+    @FXML private ComboBox<String> typeOfInjuryComboBox, specificBodyPartComboBox, severityComboBox, followUpTreatmentTypeComboBox;
+    @FXML private TextArea causeOfInjuryTextArea, firstAidMeasuresTextArea, monitoringInstructionsTextArea, scheduledProceduresTextArea, followUpMedicationsTextArea;
+    @FXML private TextField medicalAdminNameTextField, medicalAdminContactTextField, medicationCostTextField, medicalCategoryTextField;
+    @FXML private ListView<MedicationListItem> medicationAdministeredListView;
 
+    // Initialize the ToggleGroup for radio buttons
+    ToggleGroup toggleGroup = new ToggleGroup();
 
     public void initialize() {
         try {
@@ -118,10 +136,12 @@ public class MedicalHistory {
             setupDewormingTableColumns();
             setupMedicationTableColumns();
             setupHealthCheckupTableColumns();
+            setupInjuryTableColumns();
 
             setupDewormingChangeListeners();
             setupMedicationChangeListeners();
             setupHealthCheckupChangeListeners();
+            setupInjuryChangeListeners();
 
             initializeSelectionListener();
 
@@ -146,13 +166,13 @@ public class MedicalHistory {
             DateUtil.datePickerFormat(dateTakenOfMedicationDatePicker);
             DateUtil.datePickerFormat(nextScheduleOfMedicationDatePicker);
             DateUtil.datePickerFormat(checkupDatePicker);
-
+            DateUtil.datePickerFormat(dateOfOccurrenceDatePicker);
             // Initialize each DatePicker with the appropriate date disabling
             setDatePickerRestrictions(dewormingDatePicker, false); // Disable future dates
             setDatePickerRestrictions(dateTakenOfMedicationDatePicker, false); // Disable future dates
             setDatePickerRestrictions(nextScheduleOfMedicationDatePicker, true); // Disable past dates
             setDatePickerRestrictions(checkupDatePicker, false); // Disable future dates
-
+            setDatePickerRestrictions(dateOfOccurrenceDatePicker, false);
         } catch (Exception e) {
             showAlert(AlertType.ERROR, "Date Picker Error", "Failed to initialize date pickers: " + e.getMessage());
         }
@@ -194,6 +214,7 @@ public class MedicalHistory {
                         loadDewormingDataIntoTableView();
                         loadMedicationDataIntoTableView();
                         loadHealthCheckupDataIntoTableView();
+                        loadInjuryDataIntoTableView();
                         enableActionButtons(true); // Enable buttons for valid cattle
                     } else {
                         enableActionButtons(false); // Disable buttons if cattle ID is invalid
@@ -221,6 +242,8 @@ public class MedicalHistory {
         clearAllMedicationRecordButton.setDisable(!enable);
         modifyHealthCheckupRecordButton.setDisable(!enable);
         clearHealthCheckupRecordButton.setDisable(!enable);
+        modifyInjuryRecordButton.setDisable(!enable);
+        clearInjuryRecordButton.setDisable(!enable);
     }
 
     private void initializeImageView() {
@@ -297,6 +320,15 @@ public class MedicalHistory {
                 if (newValue != null) {
                     populateHealthCheckupFields(newValue);
                     selectedHealthCheckupRecord = newValue;
+                } else {
+                    clearAllHealthCheckupFields();
+                }
+            });
+
+            injuryTableView.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+                if (newValue != null) {
+                    populateInjuryFields(newValue);
+                    selectedInjuryRecord = newValue;
                 } else {
                     clearAllHealthCheckupFields();
                 }
@@ -826,7 +858,6 @@ public class MedicalHistory {
                     history.getFrequency(),
                     history.getDateTaken(),
                     history.getNextSchedule(),
-                    history.getType(),
                     history.getAdministeredBy(),
                     history.getTelNo(),
                     history.getCategory()
@@ -842,7 +873,6 @@ public class MedicalHistory {
         frequencyOfMedicationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().frequency()));
         nextScheduleOfMedicationColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().nextSchedule()));
         administerOfMedicationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().administeredBy()));
-        typeOfMedicationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().type()));
         telNoOfMedicationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().telNo()));
         categoryOfMedicationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().category()));
     }
@@ -854,9 +884,10 @@ public class MedicalHistory {
         nextScheduleOfMedicationDatePicker.setValue(record.nextSchedule()); // Set the next schedule date
         dosageOfMedicationTextField.setText(record.dosage()); // Set dosage
         frequencyOfMedicationTextField.setText(record.frequency()); // Set frequency
-        typeOfMedicationTextField.setText(record.type()); // Set medication type
         administerOfMedicationTextField.setText(record.administeredBy()); // Set administered by
-        categoryOfMedicationComboBox.setValue(record.category()); // Set category of medication
+
+        String category = record.category() != null ? record.category().trim() : null;
+        categoryOfMedicationComboBox.setValue(category);
 
         negativeCheckBox.setSelected(false);  // Set default value for negative check (adjust as necessary)
         positiveCheckBox.setSelected(false);  // Set the default value for positive check (adjust as necessary)
@@ -890,7 +921,6 @@ public class MedicalHistory {
         InputFieldsValidationHelper.validateField(administerOfMedicationTextField.getText().trim().isEmpty(), "Administered By is required.", administerOfMedicationTextField);
         InputFieldsValidationHelper.validateField(dateTakenOfMedicationDatePicker.getValue() == null, "Date Taken is required.", dateTakenOfMedicationDatePicker);
         InputFieldsValidationHelper.validateField(nextScheduleOfMedicationDatePicker.getValue() == null, "Next Schedule is required.", nextScheduleOfMedicationDatePicker);
-        InputFieldsValidationHelper.validateField(typeOfMedicationTextField.getText().trim().isEmpty(), "Type of Medication is required.", typeOfMedicationTextField);
         InputFieldsValidationHelper.validateField(administerOfMedicationTextField.getText().trim().isEmpty(), "Telephone Number is required.", administerOfMedicationTextField); // Assuming telNo is entered here
         InputFieldsValidationHelper.validateField(categoryOfMedicationComboBox.getValue() == null || categoryOfMedicationComboBox.getValue().isEmpty(), "Category of Medication is required.", categoryOfMedicationComboBox);
 
@@ -912,7 +942,6 @@ public class MedicalHistory {
         originalMedicationValuesMap.put("dosage", record.dosage()); // Store the dosage
         originalMedicationValuesMap.put("frequency", record.frequency()); // Store the frequency
         originalMedicationValuesMap.put("administeredBy", record.administeredBy()); // Store the name of the administrator
-        originalMedicationValuesMap.put("type", record.type()); // Store the type of medication
         originalMedicationValuesMap.put("category", record.category()); // Store the category of medication
         originalMedicationValuesMap.put("callingCode", callingCode); // Store the calling code
         originalMedicationValuesMap.put("restOfNumber", restOfNumber); // Store the rest of the number
@@ -924,7 +953,6 @@ public class MedicalHistory {
     private void setupMedicationChangeListeners() {
         dateTakenOfMedicationDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dateTaken", newValue != null ? newValue.toString() : null));
         nextScheduleOfMedicationDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("nextSchedule", newValue != null ? newValue.toString() : null));
-        typeOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("type", newValue != null ? newValue : ""));
         dosageOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("dosage", newValue != null ? newValue : ""));
         administerOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("administeredBy", newValue != null ? newValue : ""));
         frequencyOfMedicationTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInMedicationData("frequency", newValue != null ? newValue : ""));
@@ -1030,7 +1058,6 @@ public class MedicalHistory {
         String administeredBy = administerOfMedicationTextField.getText().trim();
         LocalDate dateTaken = dateTakenOfMedicationDatePicker.getValue();
         LocalDate nextSchedule = nextScheduleOfMedicationDatePicker.getValue();
-        String type = typeOfMedicationTextField.getText().trim();
         String telNo = CountryCodePickerHelper.validateAndFormatContact(restOfNumberTextFieldOfMedication.getText().trim());
         String category = categoryOfMedicationComboBox.getValue(); // Assuming it's a ComboBox
 
@@ -1044,7 +1071,6 @@ public class MedicalHistory {
                 frequency,
                 dateTaken,
                 nextSchedule,
-                type,
                 administeredBy,
                 telNo,
                 category,
@@ -1171,7 +1197,6 @@ public class MedicalHistory {
         dosageOfMedicationTextField.setText(originalMedicationValuesMap.get("dosage"));
         frequencyOfMedicationTextField.setText(originalMedicationValuesMap.get("frequency"));
         administerOfMedicationTextField.setText(originalMedicationValuesMap.get("administeredBy"));
-        typeOfMedicationTextField.setText(originalMedicationValuesMap.get("type"));
         categoryOfMedicationComboBox.setValue(originalMedicationValuesMap.get("category"));
 
         // Construct contact details from the original values map
@@ -1220,7 +1245,6 @@ public class MedicalHistory {
         // Clear all input fields
         dosageOfMedicationTextField.clear();
         frequencyOfMedicationTextField.clear();
-        typeOfMedicationTextField.clear();
         administerOfMedicationTextField.clear();
         dateTakenOfMedicationDatePicker.setValue(null);
         nextScheduleOfMedicationDatePicker.setValue(null);
@@ -1240,7 +1264,7 @@ public class MedicalHistory {
         isModifiedMedication = false; // Assuming isModified tracks if there were changes to the input fields
     }
 
-//HEALTH CHECKUP
+    //HEALTH CHECKUP
     private void loadHealthCheckupDataIntoTableView() {
         clearAllHealthCheckupFields();
 
@@ -1345,13 +1369,13 @@ public class MedicalHistory {
             chronicConditionsTextArea.setText(record.chronicConditions() != null ? record.chronicConditions() : "");
 
 
-                try {
-                    List<FollowUpRecommendation> recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(record.id());
-                    setCheckboxStates(recommendations);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                    showAlert(AlertType.ERROR, "Database Error", "Failed to retrieve follow-up recommendations.");
-                }
+            try {
+                List<FollowUpRecommendation> recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(record.id());
+                setCheckboxStates(recommendations);
+            } catch (SQLException e) {
+                e.printStackTrace();
+                showAlert(AlertType.ERROR, "Database Error", "Failed to retrieve follow-up recommendations.");
+            }
 
 
             // Store original checkbox states for later comparison
@@ -1895,13 +1919,545 @@ public class MedicalHistory {
 
 
 
+//INJURY
+
+
+    private void loadInjuryDataIntoTableView() {
+        clearAllInjuryFields();
+
+        if (selectedCattleId == 0) {  // Ensure you have a valid selectedCattleId
+            showAlert(AlertType.WARNING, "No Cattle Selected", "Please select a cattle before proceeding.");
+            return;
+        }
+
+        List<InjuryReport> injuryReports;
+        try {
+            injuryReports = InjuryReportDAO.getInjuryReportsByCattleId(selectedCattleId); // Replace DAO method with the appropriate one
+        } catch (SQLException e) {
+            showAlert(AlertType.ERROR, "Database Error", "Failed to load injury reports. Please try again.");
+            return;
+        }
+
+        ObservableList<InjuryRecord> records = getInjuryRecords(injuryReports);
+        injuryTableView.setItems(records);
+
+        if (!records.isEmpty()) {
+            injuryTableView.getSelectionModel().selectFirst();
+            populateInjuryFields(records.getFirst()); // Populate the first record's data into the fields
+        } else {
+            clearAllInjuryFields();
+        }
+    }
+
+    private ObservableList<InjuryRecord> getInjuryRecords(List<InjuryReport> injuryReports) {
+        ObservableList<InjuryRecord> records = FXCollections.observableArrayList();
+
+        for (InjuryReport report : injuryReports) {
+            records.add(new InjuryRecord(
+                    report.getId(),
+                    report.getCattleId(),
+                    report.getDateOfOccurrence(),
+                    report.getTypeOfInjury(),
+                    report.getSpecificBodyPart(),
+                    report.getSeverity(),
+                    report.getCauseOfInjury(),
+                    report.getFirstAidMeasures(),
+                    report.getFollowUpTreatmentType(),
+                    report.getMonitoringInstructions(),
+                    report.getScheduledProcedures(),
+                    report.getFollowUpMedications(),
+                    report.getMedicationCost(),
+                    report.getMedicationHistoryId()
+            ));
+        }
+
+        return records;
+    }
+    private void setupInjuryTableColumns() {
+        idColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().id()));
+        dateOfOccurrenceColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().dateOfOccurrence()));
+        medicationCostColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().medicationCost()));
+
+        // Set up string-based columns
+        typeOfInjuryColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().typeOfInjury()));
+        specificBodyPartColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().specificBodyPart()));
+        severityColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().severity()));
+        causeOfInjuryColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().causeOfInjury()));
+        firstAidMeasuresColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().firstAidMeasures()));
+        followUpTreatmentTypeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().followUpTreatmentType()));
+        monitoringInstructionsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().monitoringInstructions()));
+        scheduledProceduresColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().scheduledProcedures()));
+        followUpMedicationsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().followUpMedications()));
+
+    }
+
+    private void populateInjuryFields(InjuryRecord record) {
+        try {
+            // Date of Occurrence (null check)
+            dateOfOccurrenceDatePicker.setValue(record.dateOfOccurrence() != null ? record.dateOfOccurrence() : null);
+
+            // Injury Information (null checks for each field)
+            typeOfInjuryComboBox.setValue(record.typeOfInjury() != null ? record.typeOfInjury() : "");
+            specificBodyPartComboBox.setValue(record.specificBodyPart() != null ? record.specificBodyPart() : "");
+            severityComboBox.setValue(record.severity() != null ? record.severity() : "");
+
+            // Injury Details (null checks for each field)
+            causeOfInjuryTextArea.setText(record.causeOfInjury() != null ? record.causeOfInjury() : "");
+            firstAidMeasuresTextArea.setText(record.firstAidMeasures() != null ? record.firstAidMeasures() : "");
+            followUpTreatmentTypeComboBox.setValue(record.followUpTreatmentType() != null ? record.followUpTreatmentType() : "");
+            monitoringInstructionsTextArea.setText(record.monitoringInstructions() != null ? record.monitoringInstructions() : "");
+            scheduledProceduresTextArea.setText(record.scheduledProcedures() != null ? record.scheduledProcedures() : "");
+            followUpMedicationsTextArea.setText(record.followUpMedications() != null ? record.followUpMedications() : "");
+            medicationCostTextField.setText(record.medicationCost() != null ? record.medicationCost().toString() : "");
+
+            // Load the medication history and select the matching item based on medicationHistoryId
+            int medicationHistoryId = record.medicationHistoryId(); // Get the medication history ID
+            loadMedicationHistory(medicationHistoryId); // Pass the ID to load and select
+
+            // Load original injury values to the map
+            populateOriginalInjuryValuesMap(record);
+
+            // Reset modification state if necessary
+            isModifiedInjury = false;
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            // Handle any unexpected exceptions and alert the user
+            showAlert(AlertType.ERROR, "Error", "An unexpected error occurred while populating injury fields.");
+        }
+    }
+
+    private void loadMedicationHistory(int selectedMedicationHistoryId) {
+        try {
+            List<MedicationHistory> medicationHistories = MedicationHistoryDAO.getMedicationHistoriesByCattleId(selectedCattleId);
+            List<MedicationListItem> items = createMedicationItems(medicationHistories, selectedMedicationHistoryId);
+
+            medicationAdministeredListView.setItems(FXCollections.observableArrayList(items));
+            setupMedicationListViewListeners();
+        } catch (SQLException e) {
+            e.printStackTrace();
+            showAlert(AlertType.ERROR, "Database Error", "Failed to retrieve medication history.");
+        }
+    }
 
 
 
 
+    // Helper method to create medication list items
+    private List<MedicationListItem> createMedicationItems(List<MedicationHistory> histories, int selectedId) {
+        List<MedicationListItem> items = new ArrayList<>();
+        for (MedicationHistory medication : histories) {
+            MedicationListItem item = new MedicationListItem(medication);
+            item.getRadioButton().setToggleGroup(toggleGroup);
+            items.add(item);
+
+            if (medication.getId() == selectedId) {
+                toggleGroup.selectToggle(item.getRadioButton());
+            }
+        }
+        return items;
+    }
+
+    // Setup listeners for the medication ListView and ToggleGroup
+    private void setupMedicationListViewListeners() {
+        medicationAdministeredListView.setOnMouseClicked(event -> {
+            MedicationListItem selectedItem = medicationAdministeredListView.getSelectionModel().getSelectedItem();
+            if (selectedItem != null) {
+                toggleGroup.selectToggle(selectedItem.getRadioButton());
+            }
+        });
+
+        toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle != null) {
+                MedicationListItem selectedItem = (MedicationListItem) ((RadioButton) newToggle).getParent();
+                medicalAdminNameTextField.setText(selectedItem.getMedicationHistory().getAdministeredBy());
+                medicalAdminContactTextField.setText(selectedItem.getMedicationHistory().getTelNo());
+                medicalCategoryTextField.setText(selectedItem.getMedicationHistory().getCategory());
+            }
+        });
+    }
 
 
+    private void validateInjuryInputFields() throws ValidationException {
+        InputFieldsValidationHelper.validateField(selectedCattleId == 0, "Select a Cattle from the Herds table", null);
+        InputFieldsValidationHelper.validateField(dateOfOccurrenceDatePicker.getValue() == null, "Date of Occurrence is required.", dateOfOccurrenceDatePicker);
+        InputFieldsValidationHelper.validateField(typeOfInjuryComboBox.getValue() == null || typeOfInjuryComboBox.getValue().trim().isEmpty(), "Type of Injury is required.", typeOfInjuryComboBox);
+        InputFieldsValidationHelper.validateField(specificBodyPartComboBox.getValue() == null || specificBodyPartComboBox.getValue().trim().isEmpty(), "Specific Body Part is required.", specificBodyPartComboBox);
+        InputFieldsValidationHelper.validateField(severityComboBox.getValue() == null || severityComboBox.getValue().trim().isEmpty(), "Severity is required.", severityComboBox);
+        InputFieldsValidationHelper.validateField(causeOfInjuryTextArea.getText().trim().isEmpty(), "Cause of Injury is required.", causeOfInjuryTextArea);
+        InputFieldsValidationHelper.validateField(firstAidMeasuresTextArea.getText().trim().isEmpty(), "First Aid Measures are required.", firstAidMeasuresTextArea);
+        InputFieldsValidationHelper.validateField(followUpTreatmentTypeComboBox.getValue() == null || followUpTreatmentTypeComboBox.getValue().trim().isEmpty(), "Follow-Up Treatment Type is required.", followUpTreatmentTypeComboBox);
+        InputFieldsValidationHelper.validateField(monitoringInstructionsTextArea.getText().trim().isEmpty(), "Monitoring Instructions are required.", monitoringInstructionsTextArea);
+        InputFieldsValidationHelper.validateField(scheduledProceduresTextArea.getText().trim().isEmpty(), "Scheduled Procedures are required.", scheduledProceduresTextArea);
+        InputFieldsValidationHelper.validateField(followUpMedicationsTextArea.getText().trim().isEmpty(), "Follow-Up Medications are required.", followUpMedicationsTextArea);
+        InputFieldsValidationHelper.validateField(medicalAdminNameTextField.getText().trim().isEmpty(), "Medical Administrator Name is required.", medicalAdminNameTextField);
+        InputFieldsValidationHelper.validateField(medicalCategoryTextField.getText().trim().isEmpty(), "Medical Administrator Address is required.", medicalCategoryTextField);
+        InputFieldsValidationHelper.validateField(medicalAdminContactTextField.getText().trim().isEmpty(), "Medical Administrator Contact is required.", medicalAdminContactTextField);
+        InputFieldsValidationHelper.validateField(medicationCostTextField.getText().trim().isEmpty(), "Medication Cost is required.", medicationCostTextField);
+    }
 
+
+    private void populateOriginalInjuryValuesMap(InjuryRecord record) {
+        // Store original values in the map for injury-related fields
+        originalInjuryValuesMap.put("id", String.valueOf(record.id())); // Store the ID
+        originalInjuryValuesMap.put("dateOfOccurrence", record.dateOfOccurrence().toString()); // Store the date of occurrence
+        originalInjuryValuesMap.put("typeOfInjury", record.typeOfInjury()); // Store the type of injury
+        originalInjuryValuesMap.put("specificBodyPart", record.specificBodyPart()); // Store the specific body part
+        originalInjuryValuesMap.put("severity", record.severity()); // Store the severity
+        originalInjuryValuesMap.put("causeOfInjury", record.causeOfInjury()); // Store the cause of injury
+        originalInjuryValuesMap.put("firstAidMeasures", record.firstAidMeasures()); // Store the first aid measures
+        originalInjuryValuesMap.put("followUpTreatmentType", record.followUpTreatmentType()); // Store follow-up treatment type
+        originalInjuryValuesMap.put("monitoringInstructions", record.monitoringInstructions()); // Store monitoring instructions
+        originalInjuryValuesMap.put("scheduledProcedures", record.scheduledProcedures()); // Store scheduled procedures
+        originalInjuryValuesMap.put("followUpMedications", record.followUpMedications()); // Store follow-up medications
+        originalInjuryValuesMap.put("medicationCost", record.medicationCost().toString()); // Store the medication cost
+        originalInjuryValuesMap.put("medicationHistoryId", String.valueOf(record.medicationHistoryId())); // Store the medication history ID
+    }
+
+    private void setupInjuryChangeListeners() {
+        // Listeners to track changes in injury-related fields
+        dateOfOccurrenceDatePicker.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("dateOfOccurrence", newValue != null ? newValue.toString() : null));
+        typeOfInjuryComboBox.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("typeOfInjury", newValue != null ? newValue : ""));
+        specificBodyPartComboBox.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("specificBodyPart", newValue != null ? newValue : ""));
+        severityComboBox.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("severity", newValue != null ? newValue : ""));
+        causeOfInjuryTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("causeOfInjury", newValue != null ? newValue : ""));
+        firstAidMeasuresTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("firstAidMeasures", newValue != null ? newValue : ""));
+        followUpTreatmentTypeComboBox.valueProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("followUpTreatmentType", newValue != null ? newValue : ""));
+        monitoringInstructionsTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("monitoringInstructions", newValue != null ? newValue : ""));
+        scheduledProceduresTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("scheduledProcedures", newValue != null ? newValue : ""));
+        followUpMedicationsTextArea.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("followUpMedications", newValue != null ? newValue : ""));
+        medicalAdminNameTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("medicalAdminName", newValue != null ? newValue : ""));
+        medicalCategoryTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("medicalType", newValue != null ? newValue : ""));
+        medicalAdminContactTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("medicalAdminContact", newValue != null ? newValue : ""));
+        medicationCostTextField.textProperty().addListener((obs, oldValue, newValue) -> checkForChangesInInjuryData("medicationCost", newValue != null ? newValue : ""));
+
+        toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
+            if (newToggle != null) {
+                // Get the newly selected Medication History ID
+                MedicationListItem selectedItem = (MedicationListItem) ((RadioButton) newToggle).getParent();
+                int newMedicationHistoryId = selectedItem.getMedicationHistory().getId();
+
+                // Check if the Medication History ID has changed
+                checkForChangesInInjuryData("medicationHistoryId", String.valueOf(newMedicationHistoryId));
+            }
+        });
+    }
+
+    private void checkForChangesInInjuryData(String fieldName, String newValue) {
+        // Get the original value from the map
+        String originalValue = originalInjuryValuesMap.get(fieldName);
+
+        // Compare the new value to the original value
+        if (originalValue != null && !originalValue.equals(newValue)) {
+            // Mark that a change has occurred only if the value differs from the original
+            isModifiedInjury = true;
+        } else if (originalValue != null) {
+            // Reset the modified state if the current value matches the original
+            isModifiedInjury = false;
+        }
+    }
+
+
+    @FXML
+    public void modifyInjuryRecord() {
+        // Get the selected injury record from the table view
+        selectedInjuryRecord = injuryTableView.getSelectionModel().getSelectedItem();
+
+        if (selectedInjuryRecord == null) {
+            // No record is selected, so show the save dialog
+            showInjurySaveDialog();
+        } else {
+            // A record is selected, so show the update dialog
+            showInjuryUpdateDialog();
+        }
+    }
+
+    private void showInjurySaveDialog() {
+        // Define the buttons for the dialog
+        List<ButtonType> buttonTypes = Arrays.asList(
+                new ButtonType("Save"),            // Option to save a new injury record
+                new ButtonType("Clear Fields"),    // Option to clear all input fields
+                new ButtonType("Cancel")           // Option to cancel the operation
+        );
+
+        // Define the actions associated with each button
+        List<Consumer<Void>> actions = Arrays.asList(
+                v -> saveNewInjuryReport(),        // Save the new injury record
+                v -> clearAllInjuryFields(),       // Clear all injury-related input fields
+                v -> {}                              // Cancel button does nothing (handled automatically)
+        );
+
+        // Show the confirmation dialog for saving a new injury record
+        DialogHelper.showConfirmationDialog("New Injury Record", "Choose an Action?", buttonTypes, actions);
+    }
+
+    private void showInjuryUpdateDialog() {
+        // Show the update dialog for modifying an existing injury record
+        DialogHelper.showUpdateDialog(
+                "Modify Injury Record",            // Title of the dialog
+                isModifiedInjury,                  // Boolean indicating whether there are changes to save
+                v -> updateInjuryReport(),         // Update the existing injury record
+                v -> restoreOriginalInjuryData(),  // Restore the original data (undo changes)
+                v -> deleteInjuryRecord(),         // Delete the injury record
+                v -> clearAllInjuryFields(),       // Clear all injury-related input fields
+                v -> {}                             // Cancel button does nothing (handled automatically)
+        );
+    }
+
+
+    private int getSelectedMedicationHistoryId() {
+        try {
+            if (toggleGroup == null || toggleGroup.getSelectedToggle() == null) {
+                showAlert(Alert.AlertType.WARNING, "Selection Error", "No Medication History selected.");
+                return 0;
+            }
+
+            RadioButton selectedRadioButton = (RadioButton) toggleGroup.getSelectedToggle();
+            if (selectedRadioButton.getParent() == null) {
+                showAlert(Alert.AlertType.WARNING, "Selection Error", "Invalid selection.");
+                return 0;
+            }
+
+            MedicationListItem selectedItem = (MedicationListItem) selectedRadioButton.getParent();
+            if (selectedItem == null || selectedItem.getMedicationHistory() == null) {
+                showAlert(Alert.AlertType.WARNING, "Selection Error", "Invalid Medication History selected.");
+                return 0;
+            }
+
+            MedicationHistory selectedMedication = selectedItem.getMedicationHistory();
+            return selectedMedication.getId(); // Return the valid medication history ID
+        } catch (Exception e) {
+            AppLogger.error("Error retrieving selected medication history.", e);
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to retrieve the selected medication history.");
+            return 0;
+        }
+    }
+
+    private void saveNewInjuryReport() {
+        try {
+            // Validate input fields (throws ValidationException if invalid)
+            validateInjuryInputFields();
+
+            // Null-safe creation of the InjuryReport object
+            InjuryReport injuryReport = new InjuryReport(
+                    0, // ID will be generated
+                    selectedCattleId,
+                    dateOfOccurrenceDatePicker.getValue() != null ? dateOfOccurrenceDatePicker.getValue() : LocalDate.now(),
+                    typeOfInjuryComboBox.getValue() != null ? typeOfInjuryComboBox.getValue() : "",
+                    specificBodyPartComboBox.getValue() != null ? specificBodyPartComboBox.getValue() : "",
+                    severityComboBox.getValue() != null ? severityComboBox.getValue() : "",
+                    causeOfInjuryTextArea.getText() != null ? causeOfInjuryTextArea.getText().trim() : "",
+                    firstAidMeasuresTextArea.getText() != null ? firstAidMeasuresTextArea.getText().trim() : "",
+                    followUpTreatmentTypeComboBox.getValue() != null ? followUpTreatmentTypeComboBox.getValue() : "",
+                    monitoringInstructionsTextArea.getText() != null ? monitoringInstructionsTextArea.getText().trim() : "",
+                    scheduledProceduresTextArea.getText() != null ? scheduledProceduresTextArea.getText().trim() : "",
+                    followUpMedicationsTextArea.getText() != null ? followUpMedicationsTextArea.getText().trim() : "",
+                    new BigDecimal(medicationCostTextField.getText().trim().isEmpty() ? "0" : medicationCostTextField.getText().trim()),
+                    getSelectedMedicationHistoryId()
+            );
+
+            // Save the InjuryReport object to the database
+            InjuryReportDAO.insertInjuryReport(injuryReport);
+
+            // Reload the injury data into the table view
+            loadInjuryDataIntoTableView();
+
+            // Show success message
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Injury details saved successfully.");
+        } catch (ValidationException e) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (SQLException e) {
+            AppLogger.error("Error saving injury report.", e);
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to save injury report. Please try again.");
+        } catch (Exception e) {
+            AppLogger.error("Unexpected error occurred while saving injury report.", e);
+            showAlert(Alert.AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
+        }
+    }
+
+
+    private void updateInjuryReport() {
+        try {
+            // Validate input fields (throws ValidationException if invalid)
+            validateInjuryInputFields();
+
+            InjuryRecord selectedInjuryRecord = injuryTableView.getSelectionModel().getSelectedItem();
+            if (selectedInjuryRecord == null) {
+                showAlert(Alert.AlertType.WARNING, "Selection Error", "No Injury Report selected.");
+                return;
+            }
+
+            InjuryReport reportToUpdate = convertToInjuryReport(selectedInjuryRecord);
+
+            // Update the InjuryReport object fields with null-safe values
+            reportToUpdate.setDateOfOccurrence(dateOfOccurrenceDatePicker.getValue() != null ? dateOfOccurrenceDatePicker.getValue() : reportToUpdate.getDateOfOccurrence());
+            reportToUpdate.setTypeOfInjury(typeOfInjuryComboBox.getValue() != null ? typeOfInjuryComboBox.getValue() : reportToUpdate.getTypeOfInjury());
+            reportToUpdate.setSpecificBodyPart(specificBodyPartComboBox.getValue() != null ? specificBodyPartComboBox.getValue() : reportToUpdate.getSpecificBodyPart());
+            reportToUpdate.setSeverity(severityComboBox.getValue() != null ? severityComboBox.getValue() : reportToUpdate.getSeverity());
+            reportToUpdate.setCauseOfInjury(causeOfInjuryTextArea.getText() != null ? causeOfInjuryTextArea.getText().trim() : reportToUpdate.getCauseOfInjury());
+            reportToUpdate.setFirstAidMeasures(firstAidMeasuresTextArea.getText() != null ? firstAidMeasuresTextArea.getText().trim() : reportToUpdate.getFirstAidMeasures());
+            reportToUpdate.setFollowUpTreatmentType(followUpTreatmentTypeComboBox.getValue() != null ? followUpTreatmentTypeComboBox.getValue() : reportToUpdate.getFollowUpTreatmentType());
+            reportToUpdate.setMonitoringInstructions(monitoringInstructionsTextArea.getText() != null ? monitoringInstructionsTextArea.getText().trim() : reportToUpdate.getMonitoringInstructions());
+            reportToUpdate.setScheduledProcedures(scheduledProceduresTextArea.getText() != null ? scheduledProceduresTextArea.getText().trim() : reportToUpdate.getScheduledProcedures());
+            reportToUpdate.setFollowUpMedications(followUpMedicationsTextArea.getText() != null ? followUpMedicationsTextArea.getText().trim() : reportToUpdate.getFollowUpMedications());
+            reportToUpdate.setMedicationCost(new BigDecimal(medicationCostTextField.getText().trim().isEmpty() ? "0" : medicationCostTextField.getText().trim()));
+            reportToUpdate.setMedicationHistoryId(getSelectedMedicationHistoryId());
+
+            InjuryReportDAO.updateInjuryReport(reportToUpdate);
+
+            loadInjuryDataIntoTableView();
+
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Injury details updated successfully.");
+        } catch (ValidationException e) {
+            showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
+        } catch (SQLException e) {
+            AppLogger.error("Error updating injury report.", e);
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to update injury report. Please try again.");
+        } catch (Exception e) {
+            AppLogger.error("Unexpected error occurred while updating injury report.", e);
+            showAlert(Alert.AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
+        }
+    }
+
+
+    private void deleteInjuryRecord() {
+        try {
+            InjuryRecord selectedInjuryRecord = injuryTableView.getSelectionModel().getSelectedItem();
+            if (selectedInjuryRecord == null) {
+                showAlert(Alert.AlertType.WARNING, "Selection Error", "No Injury Report selected.");
+                return;
+            }
+
+            InjuryReport reportToDelete = convertToInjuryReport(selectedInjuryRecord);
+
+            if (!confirmInjuryRecordDeletion("Record ID: " + reportToDelete.getId())) {
+                return;
+            }
+
+            // Try deleting the record
+            deleteInjuryRecord(reportToDelete);
+
+            showAlert(Alert.AlertType.INFORMATION, "Record Deleted", "The selected injury record has been successfully deleted.");
+        } catch (SQLException e) {
+            AppLogger.error("Error deleting injury report.", e);
+            showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to delete injury report. Please try again.");
+        } catch (Exception e) {
+            AppLogger.error("Unexpected error occurred while deleting injury report.", e);
+            showAlert(Alert.AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
+        } finally {
+            // Reload data regardless of success/failure
+            loadInjuryDataIntoTableView();
+        }
+    }
+
+    private InjuryReport convertToInjuryReport(InjuryRecord record) {
+        return new InjuryReport(
+                record.id(),
+                record.cattleId(),
+                record.dateOfOccurrence(),
+                record.typeOfInjury(),
+                record.specificBodyPart(),
+                record.severity(),
+                record.causeOfInjury(),
+                record.firstAidMeasures(),
+                record.followUpTreatmentType(),
+                record.monitoringInstructions(),
+                record.scheduledProcedures(),
+                record.followUpMedications(),
+                record.medicationCost(),
+                record.medicationHistoryId()
+        );
+    }
+
+    private void deleteInjuryRecord(InjuryReport report) throws SQLException {
+        int reportId = report.getId();
+        try {
+            InjuryReportDAO.deleteInjuryReportById(reportId);
+        } catch (SQLException e) {
+            AppLogger.error("Failed to delete injury report with ID: " + reportId, e);
+            throw e;
+        }
+    }
+
+    private boolean confirmInjuryRecordDeletion(String contentText) {
+        Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);
+        confirmationAlert.setTitle("Delete Confirmation");
+        confirmationAlert.setHeaderText("Are you sure you want to delete this injury record?");
+        confirmationAlert.setContentText(contentText + "\nThis action cannot be undone.");
+
+        Optional<ButtonType> confirmation = confirmationAlert.showAndWait();
+        return confirmation.isPresent() && confirmation.get() == ButtonType.OK;
+    }
+
+
+    private void restoreOriginalInjuryData() {
+        dateOfOccurrenceDatePicker.setValue(LocalDate.parse(originalInjuryValuesMap.get("dateOfOccurrence")));
+        typeOfInjuryComboBox.setValue(originalInjuryValuesMap.get("typeOfInjury"));
+        specificBodyPartComboBox.setValue(originalInjuryValuesMap.get("specificBodyPart"));
+        severityComboBox.setValue(originalInjuryValuesMap.get("severity"));
+        causeOfInjuryTextArea.setText(originalInjuryValuesMap.get("causeOfInjury"));
+        firstAidMeasuresTextArea.setText(originalInjuryValuesMap.get("firstAidMeasures"));
+        followUpTreatmentTypeComboBox.setValue(originalInjuryValuesMap.get("followUpTreatmentType"));
+        monitoringInstructionsTextArea.setText(originalInjuryValuesMap.get("monitoringInstructions"));
+        scheduledProceduresTextArea.setText(originalInjuryValuesMap.get("scheduledProcedures"));
+        followUpMedicationsTextArea.setText(originalInjuryValuesMap.get("followUpMedications"));
+        medicationCostTextField.setText(originalInjuryValuesMap.get("medicationCost"));
+
+        // Restore medication history selection using the stored medication history ID
+        int medicationHistoryId = Integer.parseInt(originalInjuryValuesMap.get("medicationHistoryId"));
+        loadMedicationHistory(medicationHistoryId); // Load and select the matching medication history
+
+        // Reset the modification state
+        isModifiedInjury = false;
+    }
+
+    // Method to clear all fields related to injury records
+    private void clearAllInjuryFields() {
+        // Clear selections in the injury table view
+        injuryTableView.getSelectionModel().clearSelection();
+
+        // Reset the selected injury record
+        selectedInjuryRecord = null;
+
+        // Clear input fields related to injury
+        dateOfOccurrenceDatePicker.setValue(null);
+
+        // Reset injury-related combo boxes
+        typeOfInjuryComboBox.setValue(null);
+        specificBodyPartComboBox.setValue(null);
+        severityComboBox.setValue(null);
+        followUpTreatmentTypeComboBox.setValue(null);
+
+        // Clear text areas for injury details
+        causeOfInjuryTextArea.clear();
+        firstAidMeasuresTextArea.clear();
+        monitoringInstructionsTextArea.clear();
+        scheduledProceduresTextArea.clear();
+        followUpMedicationsTextArea.clear();
+
+        // Clear medical admin info fields
+        medicalAdminNameTextField.clear();
+        medicalCategoryTextField.clear();
+        medicalAdminContactTextField.clear();
+
+        // Clear the medication cost field
+        medicationCostTextField.clear();
+
+        // Clear the medication administered list view selection
+        medicationAdministeredListView.getSelectionModel().clearSelection(); // Deselect any selected item
+
+        // Clear the toggle group selection
+        toggleGroup.selectToggle(null); // Deselect any selected toggle
+
+        // Clear any maps or flags related to the injury record
+        originalInjuryValuesMap.clear(); // Clear the map holding original values (if it exists)
+        isModifiedInjury = false; // Reset the modification flag
+    }
+
+
+    @FXML private void clearInjuryRecord() {
+        clearAllInjuryFields();
+    }
 
 
 

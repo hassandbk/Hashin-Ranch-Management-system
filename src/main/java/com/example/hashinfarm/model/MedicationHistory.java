@@ -9,7 +9,6 @@ public class MedicationHistory {
     private String frequency;         // Frequency of administration
     private LocalDate dateTaken;      // Date when the medication was administered
     private LocalDate nextSchedule;   // Date for the next scheduled medication
-    private String type;              // Type of medication
     private String administeredBy;    // Who administered the medication
     private String telNo;             // Contact number of the person administering
     private String category;          // Category of medication
@@ -17,7 +16,7 @@ public class MedicationHistory {
 
     // Constructor
     public MedicationHistory(int id, int cattleId, String dosage, String frequency, LocalDate dateTaken,
-                             LocalDate nextSchedule, String type, String administeredBy, String telNo,
+                             LocalDate nextSchedule, String administeredBy, String telNo,
                              String category, String responseType) {
         this.id = id;
         this.cattleId = cattleId;
@@ -25,7 +24,6 @@ public class MedicationHistory {
         this.frequency = frequency;
         this.dateTaken = dateTaken;
         this.nextSchedule = nextSchedule;
-        this.type = type;
         this.administeredBy = administeredBy;
         this.telNo = telNo;
         this.category = category;
@@ -81,13 +79,6 @@ public class MedicationHistory {
         this.nextSchedule = nextSchedule;
     }
 
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
-    }
 
     public String getAdministeredBy() {
         return administeredBy;
@@ -130,7 +121,6 @@ public class MedicationHistory {
                 ", frequency='" + frequency + '\'' +
                 ", dateTaken=" + dateTaken +
                 ", nextSchedule=" + nextSchedule +
-                ", type='" + type + '\'' +
                 ", administeredBy='" + administeredBy + '\'' +
                 ", telNo='" + telNo + '\'' +
                 ", category='" + category + '\'' +

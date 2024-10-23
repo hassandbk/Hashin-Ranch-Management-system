@@ -11,10 +11,17 @@ import java.util.List;
 public class MedicationHistoryDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
-
     public static List<MedicationHistory> getMedicationHistoriesByCattleId(int cattleId) throws SQLException {
         String query = "SELECT * FROM medicationhistory WHERE cattleId = ?";
         return getMedicationHistoryByQuery(query, cattleId);
+    }
+
+    public static MedicationHistory getMedicationHistoryById(int id) throws SQLException {
+        String query = "SELECT * FROM medicationhistory WHERE id = ?";
+        List<MedicationHistory> medicationHistories = getMedicationHistoryByQuery(query, id);
+
+        // Return the first result, or null if no result found
+        return medicationHistories.isEmpty() ? null : medicationHistories.getFirst();
     }
 
     private static List<MedicationHistory> getMedicationHistoryByQuery(String query, Object parameter) throws SQLException {
@@ -35,12 +42,12 @@ public class MedicationHistoryDAO {
 
     public static void updateMedicationHistory(MedicationHistory medicationHistory) throws SQLException {
         String query = "UPDATE medicationhistory SET cattleId = ?, dosage = ?, frequency = ?, " +
-                "dateTaken = ?, nextSchedule = ?, type = ?, administeredBy = ?, telNo = ?, category = ?, responseType = ? WHERE id = ?";
+                "dateTaken = ?, nextSchedule = ?, administeredBy = ?, telNo = ?, category = ?, responseType = ? WHERE id = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             setMedicationHistoryPreparedStatementValues(preparedStatement, medicationHistory);
-            preparedStatement.setString(10, medicationHistory.getResponseType()); // Set responseType
-            preparedStatement.setInt(11, medicationHistory.getId());
+            preparedStatement.setString(9, medicationHistory.getResponseType()); // Set responseType
+            preparedStatement.setInt(10, medicationHistory.getId());
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
                 throw new SQLException("Failed to update medication history with ID: " + medicationHistory.getId());
@@ -76,11 +83,9 @@ public class MedicationHistoryDAO {
         preparedStatement.setString(3, medicationHistory.getFrequency());
         preparedStatement.setDate(4, java.sql.Date.valueOf(medicationHistory.getDateTaken()));
         preparedStatement.setDate(5, java.sql.Date.valueOf(medicationHistory.getNextSchedule()));
-        preparedStatement.setString(6, medicationHistory.getType());
-        preparedStatement.setString(7, medicationHistory.getAdministeredBy());
-        preparedStatement.setString(8, medicationHistory.getTelNo());
-        preparedStatement.setString(9, medicationHistory.getCategory());
-        preparedStatement.setString(10, medicationHistory.getResponseType()); // Set responseType
+        preparedStatement.setString(6, medicationHistory.getAdministeredBy());
+        preparedStatement.setString(7, medicationHistory.getTelNo());
+        preparedStatement.setString(8, medicationHistory.getCategory());
     }
 
     private static MedicationHistory mapResultSetToMedicationHistory(ResultSet resultSet) throws SQLException {
@@ -90,18 +95,17 @@ public class MedicationHistoryDAO {
         String frequency = resultSet.getString("frequency");
         LocalDate dateTaken = resultSet.getDate("dateTaken").toLocalDate();
         LocalDate nextSchedule = resultSet.getDate("nextSchedule").toLocalDate();
-        String type = resultSet.getString("type");
         String administeredBy = resultSet.getString("administeredBy");
         String telNo = resultSet.getString("telNo");
         String category = resultSet.getString("category");
         String responseType = resultSet.getString("responseType"); // Get responseType
 
-        return new MedicationHistory(id, cattleId, dosage, frequency, dateTaken, nextSchedule, type, administeredBy, telNo, category, responseType); // Include responseType in constructor
+        return new MedicationHistory(id, cattleId, dosage, frequency, dateTaken, nextSchedule, administeredBy, telNo, category, responseType); // Include responseType in constructor
     }
 
     public static void insertMedicationHistory(MedicationHistory medicationHistory) throws SQLException {
         String query = "INSERT INTO medicationhistory (cattleId, dosage, frequency, dateTaken, nextSchedule, " +
-                "type, administeredBy, telNo, category, responseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Include responseType
+                "administeredBy, telNo, category, responseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Removed type
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             setMedicationHistoryPreparedStatementValues(preparedStatement, medicationHistory);

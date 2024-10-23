@@ -8,7 +8,6 @@ public record MedicationRecord(
         String frequency,
         LocalDate dateTaken,
         LocalDate nextSchedule,
-        String type,
         String administeredBy,
         String telNo,
         String category
