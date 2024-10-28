@@ -8,54 +8,54 @@
 <?import javafx.scene.layout.*?>
 
 <HBox alignment="CENTER" minWidth="-Infinity" spacing="10" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.EditHerdController">
+      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers.EditHerdController">
     <VBox alignment="CENTER" fillWidth="false" minWidth="-Infinity" spacing="10" HBox.hgrow="ALWAYS">
 
         <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Modify Herd Details" />
       <Separator prefWidth="800.0" />
-      <HBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="91.0" prefWidth="946.0" VBox.vgrow="ALWAYS">
-         <children>
+        <HBox minHeight="-Infinity" minWidth="-Infinity" prefHeight="91.0" prefWidth="946.0" VBox.vgrow="ALWAYS">
             <GridPane alignment="CENTER_LEFT" minWidth="-Infinity" HBox.hgrow="ALWAYS">
-              <columnConstraints>
-                <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
-                  <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
-                <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity" />
-              </columnConstraints>
-              <rowConstraints>
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-                <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES" />
-              </rowConstraints>
-               <children>
+                <columnConstraints>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity"/>
+                    <ColumnConstraints hgrow="ALWAYS" minWidth="-Infinity"/>
+                </columnConstraints>
+                <rowConstraints>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                    <RowConstraints minHeight="10.0" prefHeight="30.0" vgrow="SOMETIMES"/>
+                </rowConstraints>
+                <children>
 
                     <HBox alignment="CENTER_LEFT" minWidth="-Infinity" spacing="5">
-                        <Label text="Herd Name:" />
-                        <TextField fx:id="herdNameTextField" maxWidth="-Infinity" minWidth="-Infinity" promptText="Enter Herd name" />
+                        <Label text="Herd Name:"/>
+                        <TextField fx:id="herdNameTextField" maxWidth="-Infinity" minWidth="-Infinity"
+                                   promptText="Enter Herd name"/>
 
-                        <HBox alignment="CENTER" minWidth="-Infinity" spacing="5" />
+                        <HBox alignment="CENTER" minWidth="-Infinity" spacing="5"/>
                     </HBox>
 
                     <HBox alignment="CENTER_LEFT" spacing="5" GridPane.rowIndex="1">
-                        <Label text="Animal Class:" />
+                        <Label text="Animal Class:"/>
                         <ComboBox fx:id="animalClassComboBox" minWidth="-Infinity" promptText="Select Animal Class">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Grow/finish" />
-                                    <String fx:value="Lactating" />
-                                    <String fx:value="Dry" />
-                                    <String fx:value="Replacement" />
+                                    <String fx:value="Grow/finish"/>
+                                    <String fx:value="Lactating"/>
+                                    <String fx:value="Dry"/>
+                                    <String fx:value="Replacement"/>
                                 </FXCollections>
                             </items>
                         </ComboBox>
                     </HBox>
 
                     <HBox alignment="CENTER_LEFT" spacing="5" GridPane.columnIndex="2" GridPane.rowIndex="2">
-                        <Label text="Age Class:" />
+                        <Label text="Age Class:"/>
                         <ComboBox fx:id="ageClassComboBox" minWidth="-Infinity" promptText="Select Age Class">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Calves" />
-                                    <String fx:value="Yearlings" />
+                                    <String fx:value="Calves"/>
+                                    <String fx:value="Yearlings"/>
                                 </FXCollections>
                             </items>
 
@@ -64,71 +64,74 @@
 
                     <HBox alignment="CENTER_LEFT" spacing="5" GridPane.rowIndex="2">
                         <Label text="Feed Basis:">
-            </Label>
+                        </Label>
                         <ComboBox fx:id="feedBasisComboBox" minWidth="-Infinity" promptText="Select Feed Basis">
                             <items>
                                 <FXCollections fx:factory="observableArrayList">
-                                    <String fx:value="Dry Matter (DM)" />
-                                    <String fx:value="AS-Fed (AF)" />
+                                    <String fx:value="Dry Matter (DM)"/>
+                                    <String fx:value="AS-Fed (AF)"/>
 
                                 </FXCollections>
                             </items>
 
                         </ComboBox>
                     </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
-                     <children>
-                            <Label text="Location:" />
-                            <TextField fx:id="locationTextField" promptText="Enter Herd Location" />
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
-                     <children>
-                           <Label text="Breed Type:" />
-                           <ComboBox fx:id="breedTypeComboBox" minWidth="-Infinity" promptText="Select Breed Type">
-                               <items>
-                                   <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="Dual-purpose" />
-                                       <String fx:value="Bos Taurus" />
-                                       <String fx:value="Bos Indicus" />
-                                       <String fx:value="Dairy" />
-                                   </FXCollections>
-                               </items>
-                           </ComboBox>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
-                     <children>
-                           <Label text="Breed System:" />
-                           <ComboBox fx:id="breedSystemComboBox" minWidth="-Infinity" promptText="Select Breed System">
-                               <items>
-                                   <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="Straightbred" />
-                                       <String fx:value="2-way-x" />
-                                       <String fx:value="3-way-x" />
-                                   </FXCollections>
-                               </items>
-                           </ComboBox>
-                     </children>
-                  </HBox>
-                  <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
-                     <children>
-                           <Label text="Solution Type:" />
-                           <ComboBox fx:id="solutionTypeComboBox" minWidth="-Infinity" promptText="Select Solution Type">
-                               <items>
-                                   <FXCollections fx:factory="observableArrayList">
-                                       <String fx:value="Equivalent Livestock System (ELS)" />
-                                       <String fx:value="Multiple Livestock System (MLS)" />
-                                   </FXCollections>
-                               </items>
+                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1">
+                        <children>
+                            <Label text="Location:"/>
+                            <TextField fx:id="locationTextField" promptText="Enter Herd Location"/>
+                        </children>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="2"
+                          GridPane.rowIndex="1">
+                        <children>
+                            <Label text="Breed Type:"/>
+                            <ComboBox fx:id="breedTypeComboBox" minWidth="-Infinity" promptText="Select Breed Type">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Dual-purpose"/>
+                                        <String fx:value="Bos Taurus"/>
+                                        <String fx:value="Bos Indicus"/>
+                                        <String fx:value="Dairy"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </children>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1"
+                          GridPane.rowIndex="1">
+                        <children>
+                            <Label text="Breed System:"/>
+                            <ComboBox fx:id="breedSystemComboBox" minWidth="-Infinity" promptText="Select Breed System">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Straightbred"/>
+                                        <String fx:value="2-way-x"/>
+                                        <String fx:value="3-way-x"/>
+                                    </FXCollections>
+                                </items>
+                            </ComboBox>
+                        </children>
+                    </HBox>
+                    <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="200.0" GridPane.columnIndex="1"
+                          GridPane.rowIndex="2">
+                        <children>
+                            <Label text="Solution Type:"/>
+                            <ComboBox fx:id="solutionTypeComboBox" minWidth="-Infinity"
+                                      promptText="Select Solution Type">
+                                <items>
+                                    <FXCollections fx:factory="observableArrayList">
+                                        <String fx:value="Equivalent Livestock System (ELS)"/>
+                                        <String fx:value="Multiple Livestock System (MLS)"/>
+                                    </FXCollections>
+                                </items>
 
-                           </ComboBox>
-                     </children>
-                  </HBox>
-               </children>
+                            </ComboBox>
+                        </children>
+                    </HBox>
+                </children>
             </GridPane>
-         </children>
-      </HBox>
+        </HBox>
 
         <Button onAction="#handleEditHerd" text="Edit Herd" />
       <Separator prefWidth="180.0" />

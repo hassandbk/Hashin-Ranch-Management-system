@@ -35,7 +35,8 @@
 <?import javafx.scene.control.Accordion?>
 <?import javafx.scene.control.TitledPane?>
 <?import javafx.scene.control.Slider?>
-<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.ProductivityAndCalving">
+<ScrollPane fitToWidth="true" stylesheets="@../../../../../../../css/styles.css" vbarPolicy="ALWAYS" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1"
+            fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.ProductivityAndCalving">
     <VBox spacing="10.0">
 
         <VBox spacing="10" />

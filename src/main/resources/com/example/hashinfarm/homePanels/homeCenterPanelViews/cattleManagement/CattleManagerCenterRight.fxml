@@ -3,7 +3,7 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 <VBox xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.CattleController">
+      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.CattleRightController">
 
     <TabPane fx:id="mainTabPane">
 

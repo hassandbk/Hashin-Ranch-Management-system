@@ -19,7 +19,7 @@
 <?import javafx.scene.text.Text?>
 
 <VBox prefHeight="761.0" prefWidth="935.0" stylesheets="@../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx"
-      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.matingAndBreedingControllers.BreedingRecommendation">
+      xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.matingAndBreedingControllers.BreedingRecommendation">
     <ScrollPane fitToWidth="true" prefHeight="626.0" prefWidth="935.0" VBox.vgrow="ALWAYS">
 
         <!-- Mating and Breeding Details Section -->

@@ -8,7 +8,7 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
 <VBox xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17.0.2-ea"
-      fx:controller="com.example.hashinfarm.controller.HomeController">
+      fx:controller="com.example.hashinfarm.presentationLayer.controllers.home.HomeController">
 
     <MenuBar prefHeight="25.0" prefWidth="926.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0"
              AnchorPane.topAnchor="0.0">

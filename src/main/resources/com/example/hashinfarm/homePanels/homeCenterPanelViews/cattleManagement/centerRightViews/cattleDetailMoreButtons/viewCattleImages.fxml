@@ -3,11 +3,32 @@
 <?import javafx.scene.control.TableView?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="748.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/21" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController">
-    <TableView fx:id="imageViewTable" layoutX="35.0" layoutY="39.0" maxWidth="-Infinity" prefHeight="322.0" prefWidth="530.0" AnchorPane.bottomAnchor="38.400000000000034" AnchorPane.leftAnchor="35.200000000000045" AnchorPane.rightAnchor="34.60000000000002" AnchorPane.topAnchor="39.0">
+<AnchorPane
+        maxHeight="-Infinity"
+        maxWidth="-Infinity"
+        minHeight="-Infinity"
+        minWidth="-Infinity"
+        prefHeight="748.0"
+        prefWidth="600.0"
+        xmlns="http://javafx.com/javafx/21"
+        xmlns:fx="http://javafx.com/fxml/1"
+        fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController">
+
+    <TableView
+            fx:id="imageViewTable"
+            layoutX="35.0"
+            layoutY="39.0"
+            maxWidth="-Infinity"
+            prefHeight="322.0"
+            prefWidth="530.0"
+            AnchorPane.bottomAnchor="38.4"
+            AnchorPane.leftAnchor="35.2"
+            AnchorPane.rightAnchor="34.6"
+            AnchorPane.topAnchor="39.0">
 
         <columnResizePolicy>
             <TableView fx:constant="CONSTRAINED_RESIZE_POLICY" />
         </columnResizePolicy>
     </TableView>
+
 </AnchorPane>

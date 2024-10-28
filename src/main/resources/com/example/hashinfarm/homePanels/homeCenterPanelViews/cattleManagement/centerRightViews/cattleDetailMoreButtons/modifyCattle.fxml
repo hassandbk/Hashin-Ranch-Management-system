@@ -6,7 +6,8 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.layout.*?>
 
-<VBox alignment="CENTER" spacing="10" stylesheets="@../../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ModifyCattleDetails">
+<VBox alignment="CENTER" spacing="10" stylesheets="@../../../../../../../../css/styles.css" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml"
+      fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ModifyCattleDetails">
 
     <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Modify Cattle" />
 

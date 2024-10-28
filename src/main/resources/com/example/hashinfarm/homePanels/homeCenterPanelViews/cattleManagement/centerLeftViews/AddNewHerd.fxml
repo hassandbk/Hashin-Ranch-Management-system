@@ -11,7 +11,8 @@
 <?import javafx.scene.layout.VBox?>
 
 <HBox  xmlns="http://javafx.com/javafx"
-       xmlns:fx="http://javafx.com/fxml" stylesheets="@../../../../../../../css/styles.css"  fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewHerd">
+       xmlns:fx="http://javafx.com/fxml" stylesheets="@../../../../../../../css/styles.css"
+       fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers.AddNewHerd">
 
     <VBox  alignment="CENTER" minWidth="-Infinity" spacing="10" HBox.hgrow="ALWAYS">
 

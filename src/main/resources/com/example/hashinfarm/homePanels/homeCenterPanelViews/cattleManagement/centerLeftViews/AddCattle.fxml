@@ -7,7 +7,7 @@
 <?import java.lang.String?>
 <VBox xmlns:fx="http://javafx.com/fxml" alignment="CENTER" spacing="10"
       xmlns="http://javafx.com/javafx" stylesheets="@../../../../../../../css/styles.css"
-      fx:controller="com.example.hashinfarm.controller.homePanels.homeCenterPanelViewsControllers.cattleManagement.centerLeftControllers.AddNewCattleController">
+      fx:controller="com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers.AddNewCattleController">
 
     <Label style="-fx-font-size: 20px; -fx-font-weight: bold;" text="Add Cattle To Herd"/>
 
