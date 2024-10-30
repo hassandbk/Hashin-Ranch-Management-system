@@ -26,16 +26,8 @@ public class ProductionSession {
         return sessionID;
     }
 
-    public void setSessionID(int sessionID) {
-        this.sessionID = sessionID;
-    }
-
     public int getLactationPeriodID() {
         return lactationPeriodID;
-    }
-
-    public void setLactationPeriodID(int lactationPeriodID) {
-        this.lactationPeriodID = lactationPeriodID;
     }
 
     public int getCattleID() {

@@ -2,7 +2,7 @@ package com.example.hashinfarm.utils;
 
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.records.CattleUIInfo;
+import com.example.hashinfarm.data.DTOs.records.CattleUIInfo;
 import javafx.scene.control.*;
 
 import java.time.LocalDate;

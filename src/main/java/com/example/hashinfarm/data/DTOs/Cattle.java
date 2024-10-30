@@ -80,24 +80,13 @@ public class Cattle {
         return tagId;
     }
 
-    public void setTagId(String tagId) {
-        this.tagId = tagId;
-    }
-
     public int getHerdId() {
         return herdId;
     }
 
-    public void setHerdId(int herdId) {
-        this.herdId = herdId;
-    }
 
     public String getColorMarkings() {
         return colorMarkings;
-    }
-
-    public void setColorMarkings(String colorMarkings) {
-        this.colorMarkings = colorMarkings;
     }
 
     public String getName() {
@@ -135,113 +124,59 @@ public class Cattle {
         return weightId;
     }
 
-    public void setWeightId(int weightId) {
-        this.weightId = weightId;
-    }
-
     public String getBcs() {
         return bcs;
-    }
-
-    public void setBcs(String bcs) {
-        this.bcs = bcs;
     }
 
     public int getBreedId() {
         return breedId;
     }
 
-    public void setBreedId(int breedId) {
-        this.breedId = breedId;
-    }
-
     public int getSireId() {
         return sireId;
     }
 
-    public void setSireId(int sireId) {
-        this.sireId = sireId;
-    }
 
     public int getDamId() {
         return damId;
-    }
-
-    public void setDamId(int damId) {
-        this.damId = damId;
     }
 
     public int getDamsHerd() {
         return damsHerd;
     }
 
-    public void setDamsHerd(int damsHerd) {
-        this.damsHerd = damsHerd;
-    }
-
     public int getSiresHerd() {
         return siresHerd;
-    }
-
-    public void setSiresHerd(int siresHerd) {
-        this.siresHerd = siresHerd;
     }
 
     public String getBreedName() {
         return breedName;
     }
 
-    public void setBreedName(String breedName) {
-        this.breedName = breedName;
-    }
-
     public String getSireName() {
         return sireName;
-    }
-
-    public void setSireName(String sireName) {
-        this.sireName = sireName;
     }
 
     public String getDamName() {
         return damName;
     }
 
-    public void setDamName(String damName) {
-        this.damName = damName;
-    }
-
     public String getSireHerdName() {
         return sireHerdName;
-    }
-
-    public void setSireHerdName(String sireHerdName) {
-        this.sireHerdName = sireHerdName;
     }
 
     public String getDamHerdName() {
         return damHerdName;
     }
 
-    public void setDamHerdName(String damHerdName) {
-        this.damHerdName = damHerdName;
-    }
-
     public String getSireBreedName() {
         return sireBreedName;
-    }
-
-    public void setSireBreedName(String sireBreedName) {
-        this.sireBreedName = sireBreedName;
     }
 
     public String getDamBreedName() {
         return damBreedName;
     }
 
-    public void setDamBreedName(String damBreedName) {
-        this.damBreedName = damBreedName;
-    }
 
     public boolean isSelected() {
         return selected.get();
@@ -254,18 +189,11 @@ public class Cattle {
     public BooleanProperty selectedProperty() {
         return selected;
     }
-    // Getters and setters for damList and sireList
-    public boolean isDamList() {
-        return damList;
-    }
 
     public void setDamList(boolean damList) {
         this.damList = damList;
     }
 
-    public boolean isSireList() {
-        return sireList;
-    }
 
     public void setSireList(boolean sireList) {
         this.sireList = sireList;

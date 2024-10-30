@@ -2,7 +2,7 @@ package com.example.hashinfarm.data.DAOs;
 
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger;
-import com.example.hashinfarm.data.DTOs.MedicationHistory;
+import com.example.hashinfarm.data.DTOs.records.MedicationRecord;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -12,21 +12,21 @@ import java.util.List;
 public class MedicationHistoryDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
-    public static List<MedicationHistory> getMedicationHistoriesByCattleId(int cattleId) throws SQLException {
+    public static List<MedicationRecord> getMedicationRecordsByCattleId(int cattleId) throws SQLException {
         String query = "SELECT * FROM medicationhistory WHERE cattleId = ?";
-        return getMedicationHistoryByQuery(query, cattleId);
+        return getMedicationRecordsByQuery(query, cattleId);
     }
 
-    public static MedicationHistory getMedicationHistoryById(int id) throws SQLException {
+    public static MedicationRecord getMedicationRecordById(int id) throws SQLException {
         String query = "SELECT * FROM medicationhistory WHERE id = ?";
-        List<MedicationHistory> medicationHistories = getMedicationHistoryByQuery(query, id);
+        List<MedicationRecord> medicationRecords = getMedicationRecordsByQuery(query, id);
 
         // Return the first result, or null if no result found
-        return medicationHistories.isEmpty() ? null : medicationHistories.getFirst();
+        return medicationRecords.isEmpty() ? null : medicationRecords.get(0);
     }
 
-    private static List<MedicationHistory> getMedicationHistoryByQuery(String query, Object parameter) throws SQLException {
-        List<MedicationHistory> medicationHistoryList = new ArrayList<>();
+    private static List<MedicationRecord> getMedicationRecordsByQuery(String query, Object parameter) throws SQLException {
+        List<MedicationRecord> medicationRecordList = new ArrayList<>();
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             if (parameter != null) {
@@ -34,33 +34,31 @@ public class MedicationHistoryDAO {
             }
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    medicationHistoryList.add(mapResultSetToMedicationHistory(resultSet));
+                    medicationRecordList.add(mapResultSetToMedicationRecord(resultSet));
                 }
             }
         }
-        return medicationHistoryList;
+        return medicationRecordList;
     }
 
-    public static void updateMedicationHistory(MedicationHistory medicationHistory) throws SQLException {
+    public static void updateMedicationRecord(MedicationRecord medicationRecord) throws SQLException {
         String query = "UPDATE medicationhistory SET cattleId = ?, dosage = ?, frequency = ?, " +
                 "dateTaken = ?, nextSchedule = ?, administeredBy = ?, telNo = ?, category = ?, responseType = ? WHERE id = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            setMedicationHistoryPreparedStatementValues(preparedStatement, medicationHistory);
-            preparedStatement.setString(9, medicationHistory.getResponseType()); // Set responseType
-            preparedStatement.setInt(10, medicationHistory.getId());
+            setMedicationRecordPreparedStatementValues(preparedStatement, medicationRecord);
+            preparedStatement.setInt(10, medicationRecord.id());
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
-                throw new SQLException("Failed to update medication history with ID: " + medicationHistory.getId());
+                throw new SQLException("Failed to update medication record with ID: " + medicationRecord.id());
             }
         } catch (SQLException e) {
-            AppLogger.error("Error updating medication history: " + medicationHistory.getId(), e);
-            e.printStackTrace();
-            throw e; // Re-throw the exception for higher-level handling
+            AppLogger.error("Error updating medication record: " + medicationRecord.id(), e);
+            throw e;
         }
     }
 
-    public static void deleteMedicationHistoryByCattleIdAndId(int cattleId, int id) throws SQLException {
+    public static void deleteMedicationRecordByCattleIdAndId(int cattleId, int id) throws SQLException {
         String query = "DELETE FROM medicationhistory WHERE id = ? AND cattleId = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
@@ -69,29 +67,29 @@ public class MedicationHistoryDAO {
             int rowsAffected = preparedStatement.executeUpdate();
 
             if (rowsAffected == 0) {
-                throw new SQLException("No medication history found for cattleId: " + cattleId + " and id: " + id);
+                throw new SQLException("No medication record found for cattleId: " + cattleId + " and id: " + id);
             }
         } catch (SQLException e) {
-            AppLogger.error("Error deleting medication history for cattleId: " + cattleId + " and id: " + id, e);
-            e.printStackTrace();
-            throw e; // Re-throw the exception for higher-level handling
+            AppLogger.error("Error deleting medication record for cattleId: " + cattleId + " and id: " + id, e);
+            throw e;
         }
     }
 
-    private static void setMedicationHistoryPreparedStatementValues(PreparedStatement preparedStatement, MedicationHistory medicationHistory) throws SQLException {
-        preparedStatement.setObject(1, medicationHistory.getCattleId(), Types.INTEGER);
-        preparedStatement.setString(2, medicationHistory.getDosage());
-        preparedStatement.setString(3, medicationHistory.getFrequency());
-        preparedStatement.setDate(4, java.sql.Date.valueOf(medicationHistory.getDateTaken()));
-        preparedStatement.setDate(5, java.sql.Date.valueOf(medicationHistory.getNextSchedule()));
-        preparedStatement.setString(6, medicationHistory.getAdministeredBy());
-        preparedStatement.setString(7, medicationHistory.getTelNo());
-        preparedStatement.setString(8, medicationHistory.getCategory());
+    private static void setMedicationRecordPreparedStatementValues(PreparedStatement preparedStatement, MedicationRecord medicationRecord) throws SQLException {
+        preparedStatement.setInt(1, medicationRecord.cattleId());
+        preparedStatement.setString(2, medicationRecord.dosage());
+        preparedStatement.setString(3, medicationRecord.frequency());
+        preparedStatement.setDate(4, java.sql.Date.valueOf(medicationRecord.dateTaken()));
+        preparedStatement.setDate(5, java.sql.Date.valueOf(medicationRecord.nextSchedule()));
+        preparedStatement.setString(6, medicationRecord.administeredBy());
+        preparedStatement.setString(7, medicationRecord.telNo());
+        preparedStatement.setString(8, medicationRecord.category());
+        preparedStatement.setString(9, medicationRecord.responseType());
     }
 
-    private static MedicationHistory mapResultSetToMedicationHistory(ResultSet resultSet) throws SQLException {
+    private static MedicationRecord mapResultSetToMedicationRecord(ResultSet resultSet) throws SQLException {
         int id = resultSet.getInt("id");
-        Integer cattleId = resultSet.getObject("cattleId", Integer.class);
+        int cattleId = resultSet.getInt("cattleId");
         String dosage = resultSet.getString("dosage");
         String frequency = resultSet.getString("frequency");
         LocalDate dateTaken = resultSet.getDate("dateTaken").toLocalDate();
@@ -99,22 +97,21 @@ public class MedicationHistoryDAO {
         String administeredBy = resultSet.getString("administeredBy");
         String telNo = resultSet.getString("telNo");
         String category = resultSet.getString("category");
-        String responseType = resultSet.getString("responseType"); // Get responseType
+        String responseType = resultSet.getString("responseType");
 
-        return new MedicationHistory(id, cattleId, dosage, frequency, dateTaken, nextSchedule, administeredBy, telNo, category, responseType); // Include responseType in constructor
+        return new MedicationRecord(id, cattleId, dosage, frequency, dateTaken, nextSchedule, administeredBy, telNo, category, responseType);
     }
 
-    public static void insertMedicationHistory(MedicationHistory medicationHistory) throws SQLException {
+    public static void insertMedicationRecord(MedicationRecord medicationRecord) throws SQLException {
         String query = "INSERT INTO medicationhistory (cattleId, dosage, frequency, dateTaken, nextSchedule, " +
-                "administeredBy, telNo, category, responseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)"; // Removed type
+                "administeredBy, telNo, category, responseType) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            setMedicationHistoryPreparedStatementValues(preparedStatement, medicationHistory);
+            setMedicationRecordPreparedStatementValues(preparedStatement, medicationRecord);
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            AppLogger.error("Error inserting medication history with ID: " + medicationHistory.getId(), e);
-            e.printStackTrace();
-            throw e; // Re-throw the exception for higher-level handling
+            AppLogger.error("Error inserting medication record with ID: " + medicationRecord.id(), e);
+            throw e;
         }
     }
 }

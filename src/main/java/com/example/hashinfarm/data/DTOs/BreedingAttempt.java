@@ -28,17 +28,9 @@ public class BreedingAttempt {
         this.attemptStatus = new SimpleStringProperty(attemptStatus);
     }
 
-    // Getters and Setters
+    // Getters
     public int getBreedingAttemptId() {
         return breedingAttemptId.get();
-    }
-
-    public void setBreedingAttemptId(int breedingAttemptId) {
-        this.breedingAttemptId.set(breedingAttemptId);
-    }
-
-    public IntegerProperty breedingAttemptIdProperty() {
-        return breedingAttemptId;
     }
 
     public int getCattleId() {
@@ -49,44 +41,16 @@ public class BreedingAttempt {
         this.cattleId.set(cattleId);
     }
 
-    public IntegerProperty cattleIdProperty() {
-        return cattleId;
-    }
-
     public String getEstrusDate() {
         return estrusDate.get();
-    }
-
-    public void setEstrusDate(String estrusDate) {
-        this.estrusDate.set(estrusDate);
-    }
-
-    public StringProperty estrusDateProperty() {
-        return estrusDate;
     }
 
     public String getBreedingMethod() {
         return breedingMethod.get();
     }
 
-    public void setBreedingMethod(String breedingMethod) {
-        this.breedingMethod.set(breedingMethod);
-    }
-
-    public StringProperty breedingMethodProperty() {
-        return breedingMethod;
-    }
-
     public int getSireId() {
         return sireId.get();
-    }
-
-    public void setSireId(int sireId) {
-        this.sireId.set(sireId);
-    }
-
-    public IntegerProperty sireIdProperty() {
-        return sireId;
     }
 
     public String getNotes() {
@@ -97,32 +61,12 @@ public class BreedingAttempt {
         this.notes.set(notes);
     }
 
-    public StringProperty notesProperty() {
-        return notes;
-    }
-
-
     public String getAttemptDate() {
         return attemptDate.get();
-    }
-
-    public void setAttemptDate(String attemptDate) {
-        this.attemptDate.set(attemptDate);
-    }
-
-    public StringProperty attemptDateProperty() {
-        return attemptDate;
     }
 
     public String getAttemptStatus() {
         return attemptStatus.get();
     }
 
-    public void setAttemptStatus(String attemptStatus) {
-        this.attemptStatus.set(attemptStatus);
-    }
-
-    public StringProperty attemptStatusProperty() {
-        return attemptStatus;
-    }
 }

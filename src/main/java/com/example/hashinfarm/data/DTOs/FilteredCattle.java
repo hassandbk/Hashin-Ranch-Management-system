@@ -18,37 +18,20 @@ public class FilteredCattle {
         return cattleID;
     }
 
-    public String getTagID() {
-        return tagID;
-    }
 
     public String getName() {
         return name;
     }
 
-    public int getHerdID() {
-        return herdID;
-    }
-
-
-
-
-    // Setters
     public void setCattleID(int cattleID) {
         this.cattleID = cattleID;
     }
 
-    public void setTagID(String tagID) {
-        this.tagID = tagID;
-    }
 
     public void setName(String name) {
         this.name = name;
     }
 
-    public void setHerdID(int herdID) {
-        this.herdID = herdID;
-    }
 
 
 }

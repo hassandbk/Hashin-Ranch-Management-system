@@ -4,10 +4,11 @@ import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
 import com.example.hashinfarm.data.DAOs.*;
 
-import com.example.hashinfarm.data.records.StageDetails;
-import com.example.hashinfarm.data.records.SubStageDetails;
+import com.example.hashinfarm.data.DTOs.records.StageDetails;
+import com.example.hashinfarm.data.DTOs.records.SubStageDetails;
 import com.example.hashinfarm.data.DTOs.*;
 
+import com.example.hashinfarm.data.DTOs.records.UnifiedOffspring;
 import com.example.hashinfarm.helpers.CustomTreeCell;
 import com.example.hashinfarm.presentationLayer.controllers.CattleController;
 import com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers.AddNewCattleController;
@@ -147,8 +148,8 @@ public class ProductivityAndCalving {
     @FXML private Slider easeOfCalvingSlider;
     @FXML private TextField sireIdOrDamIdTextField, measuredWeightTextField;
     @FXML private DatePicker lastDateWeightTakenDatePicker;
-    @FXML private TableView<OffSpringTable> cattleTableView;
-    @FXML private TableColumn<OffSpringTable, String> offspringIdColumn, cattleIdColumn, cattleNameColumn, genderColumn, breedingMethodColumn;
+    @FXML private TableView<UnifiedOffspring> cattleTableView;
+    @FXML private TableColumn<UnifiedOffspring, String> offspringIdColumn, cattleIdColumn, cattleNameColumn, genderColumn, breedingMethodColumn;
     @FXML private Button modifyOffspringDetailsButton, updateOffSpringDetailsButton;
     @FXML private Spinner<Integer> estimatedGestationSpinner2;
 
@@ -255,9 +256,9 @@ public class ProductivityAndCalving {
                 .selectedItemProperty()
                 .addListener((observable, oldValue, newValue) -> {
                     if (newValue != null) {
-                                updateFieldsWithSelectedRecord(newValue);
-                                saveButton.setDisable(true);
-                                updateButton.setDisable(true);
+                        updateFieldsWithSelectedRecord(newValue);
+                        saveButton.setDisable(true);
+                        updateButton.setDisable(true);
                     }
                 });
 
@@ -1846,16 +1847,35 @@ public class ProductivityAndCalving {
 
 
     private void initializeOffspringAndBreedingAttemptTableColumns() {
+
+        // Directly set the cell value factory for each column in the offspring table using custom CellValueFactory
+        offspringIdColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(String.valueOf(cellData.getValue().offspringId()))
+        );
+        cattleIdColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().cattleId())
+        );
+        cattleNameColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().cattleName())
+        );
+        genderColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().gender())
+        );
+        breedingMethodColumn.setCellValueFactory(cellData ->
+                new SimpleStringProperty(cellData.getValue().breedingMethod())
+        );
+
+        // Optionally, apply alignment to the offspring table columns after setting the custom CellValueFactory
+        TableColumnUtils.centerAlignColumn(offspringIdColumn);
+        TableColumnUtils.centerAlignColumn(cattleIdColumn);
+        TableColumnUtils.centerAlignColumn(cattleNameColumn);
+        TableColumnUtils.centerAlignColumn(genderColumn);
+        TableColumnUtils.centerAlignColumn(breedingMethodColumn);
+
+
+
         // Define all columns and their properties
         Object[][] columns = {
-                //offspring table
-                {cattleIdColumn, "cattleId"},
-                {cattleNameColumn, "cattleName"},
-                {genderColumn, "gender"},
-                {breedingMethodColumn, "breedingMethod"},
-                {offspringIdColumn, "offspringId"},
-
-
                 //breeding Attempts
                 {breedingAttemptIdColumn, "breedingAttemptId"},
                 {estrusDateColumn, "estrusDate"},
@@ -1883,43 +1903,40 @@ public class ProductivityAndCalving {
     private void loadOffspringData() throws SQLException {
         try {
             List<Cattle> cattleList = CattleDAO.getProgenyByCattleId(selectedCattleId);
-            List<Offspring> offspringList = new ArrayList<>();
+            List<UnifiedOffspring> unifiedOffspringList = new ArrayList<>();
 
             for (Cattle cattle : cattleList) {
-                if (OffspringDAO.hasOffspring(cattle.getCattleId())) {
-                    Offspring offspring = OffspringDAO.getOffspringByCattleId(cattle.getCattleId());
-                    if (offspring != null) {
-                        offspringList.add(offspring);
+                if (OffspringDAO.isOffspringOfSelectedCattle(cattle.getCattleId())) {
+                    UnifiedOffspring unifiedOffspring = OffspringDAO.getTheOffspringDetailsByItsCattleId(cattle.getCattleId());
+                    if (unifiedOffspring != null) {
+                        unifiedOffspringList.add(unifiedOffspring);
                     }
                 }else {
-                    // Cattle doesn't have offspring entry, so add a new entry
-                    Offspring newOffspring = new Offspring(
-                            0,                 // offspringId
-                            0.0,               // birthWeight
-                            1,                 // easeOfCalving
-                            283,                 // gestationLength
-                            0.0,               // measuredWeight
-                            null,              // lastDateWeightTaken
-                            "",                // intendedUse
+                    // Create a new UnifiedOffspring entry as needed
+                    UnifiedOffspring newOffspring = new UnifiedOffspring(
+                            0, // offspringId
                             String.valueOf(cattle.getCattleId()), // cattleId
-                            ""                 // breedingMethod
+                            cattle.getName(),
+                            cattle.getGender(),
+                            "", // breedingMethod
+                            0.0, // birthWeight
+                            1, // easeOfCalving
+                            283, // gestationLength
+                            0.0, // measuredWeight
+                            null, // lastDateWeightTaken
+                            "", // dateOfBirth
+                            "", // intendedUse
+                            "" // sireId
                     );
 
-                    // Add the new offspring to the database
                     OffspringDAO.insertOffspring(newOffspring);
-                    offspringList.add(newOffspring); // Also add it to the list for the table
+                    unifiedOffspringList.add(newOffspring);
                 }
             }
 
-            ObservableList<OffSpringTable> tableData = FXCollections.observableArrayList();
-            for (Offspring offspring : offspringList) {
-                OffSpringTable tableEntry = createOffSpringTableEntry(offspring);
-                tableData.add(tableEntry);
-            }
-
+            ObservableList<UnifiedOffspring> tableData = FXCollections.observableArrayList(unifiedOffspringList);
             cattleTableView.setItems(tableData);
 
-            // Default to the first record if none is selected
             if (tableData.isEmpty()) {
                 handleClearOffspringFields();
             } else {
@@ -1934,86 +1951,47 @@ public class ProductivityAndCalving {
         }
     }
 
-    // Method to create OffSpringTable entry
-    private OffSpringTable createOffSpringTableEntry(Offspring offspring) {
-        String cattleName;
-        String gender;
-        String breedingMethod;
-        String dateOfBirth;
 
-        try {
-            Cattle cattle = CattleDAO.getCattleByID(Integer.parseInt(offspring.getCattleId()));
-            cattleName = cattle != null ? cattle.getName() : "Unknown";
-            gender = cattle != null ? cattle.getGender() : "Unknown";
-            dateOfBirth =cattle != null ? String.valueOf(cattle.getDateOfBirth()) : "Unknown";
-            breedingMethod = getBreedingMethodById(Integer.parseInt(offspring.getCattleId()));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        }
-
-        return new OffSpringTable(
-                offspring.getOffspringId(),
-                offspring.getCattleId(),
-                dateOfBirth,
-                cattleName,
-                gender,
-                breedingMethod,
-                offspring.getBirthWeight(),
-                offspring.getEaseOfCalving(),
-                offspring.getGestationLength(),
-                offspring.getMeasuredWeight(),
-                offspring.getLastDateWeightTaken(),
-                offspring.getIntendedUse(),
-                offspring.getCattleId()
-        );
-    }
-
-    // Method to get Breeding Method by ID
-    private String getBreedingMethodById(int cattleId) throws SQLException {
-        Offspring offspring = OffspringDAO.getOffspringByCattleId(cattleId);
-        return offspring != null ? offspring.getBreedingMethod() : "Unknown";
-    }
-
-
-    //Populating and Handling Fields
-// Method to populate fields with selected Offspring
+    // Method to populate fields with selected Offspring
     private void populateFieldsWithSelectedOffspring() {
-        OffSpringTable selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
+        UnifiedOffspring selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
         if (selectedOffspring != null) {
             modifyOffspringDetailsButton.setDisable(false);
             storeInitialValues(selectedOffspring);
             populateFields(selectedOffspring);
-            updateSireIdOrDamIdLabel(selectedOffspring.getGender());
-            dateOfBirthTextField.setText(selectedOffspring.getDateOfBirth());
+            updateSireIdOrDamIdLabel(selectedOffspring.gender());
+            dateOfBirthTextField.setText(selectedOffspring.dateOfBirth());
             updateOffSpringDetailsButton.setDisable(true);
         }
     }
 
     // Method to store initial values
-    private void storeInitialValues(OffSpringTable offspring) {
-        initialValuesOffspring.put("birthWeight", getStringValue(offspring.getBirthWeight()));
-        initialValuesOffspring.put("easeOfCalving", getStringValue(offspring.getEaseOfCalving()));
-        initialValuesOffspring.put("gestationLength", getStringValue(offspring.getGestationLength()));
-        initialValuesOffspring.put("measuredWeight", getStringValue(offspring.getMeasuredWeight()));
-        initialValuesOffspring.put("lastDateWeightTaken", getStringValue(offspring.getLastDateWeightTaken()));
-        initialValuesOffspring.put("intendedUse", getStringValue(offspring.getIntendedUse()));
-        initialValuesOffspring.put("gender", getStringValue(offspring.getGender()));
-        initialValuesOffspring.put("breedingMethod", getStringValue(offspring.getBreedingMethod()));
+    private void storeInitialValues(UnifiedOffspring offspring) {
+        initialValuesOffspring.put("birthWeight", getStringValue(offspring.birthWeight()));
+        initialValuesOffspring.put("easeOfCalving", getStringValue(offspring.easeOfCalving()));
+        initialValuesOffspring.put("gestationLength", getStringValue(offspring.gestationLength()));
+        initialValuesOffspring.put("measuredWeight", getStringValue(offspring.measuredWeight()));
+        initialValuesOffspring.put("lastDateWeightTaken", getStringValue(offspring.lastDateWeightTaken()));
+        initialValuesOffspring.put("intendedUse", getStringValue(offspring.intendedUse()));
+        initialValuesOffspring.put("gender", getStringValue(offspring.gender()));
+        initialValuesOffspring.put("breedingMethod", getStringValue(offspring.breedingMethod()));
     }
 
     // Method to populate fields
-    private void populateFields(OffSpringTable offspring) {
-        offspringIdLabel.setText(String.valueOf(offspring.getOffspringId()));
-        birthWeightTextField.setText(getStringValue(offspring.getBirthWeight()));
-        easeOfCalvingSlider.setValue(getSliderValue(offspring.getEaseOfCalving()));
-        sireIdOrDamIdTextField.setText(getStringValue(offspring.getSireId()));
-        estimatedGestationSpinner2.getValueFactory().setValue(offspring.getGestationLength());
-        measuredWeightTextField.setText(getStringValue(offspring.getMeasuredWeight()));
-        lastDateWeightTakenDatePicker.setValue(offspring.getLastDateWeightTaken());
-        intendedUseComboBox.setValue(getStringValue(offspring.getIntendedUse()));
-        offspringGenderComboBox.setValue(getStringValue(offspring.getGender()));
-        breedingMethodComboBox.setValue(getStringValue(offspring.getBreedingMethod()));
+    private void populateFields(UnifiedOffspring offspring) {
+        offspringIdLabel.setText(String.valueOf(offspring.offspringId()));
+        birthWeightTextField.setText(getStringValue(offspring.birthWeight()));
+        easeOfCalvingSlider.setValue(getSliderValue(offspring.easeOfCalving()));
+        sireIdOrDamIdTextField.setText(getStringValue(offspring.sireId()));
+        estimatedGestationSpinner2.getValueFactory().setValue(offspring.gestationLength());
+        measuredWeightTextField.setText(getStringValue(offspring.measuredWeight()));
+        lastDateWeightTakenDatePicker.setValue(offspring.lastDateWeightTaken());
+        intendedUseComboBox.setValue(getStringValue(offspring.intendedUse()));
+        offspringGenderComboBox.setValue(getStringValue(offspring.gender()));
+        breedingMethodComboBox.setValue(getStringValue(offspring.breedingMethod()));
     }
+
+
 
     // Method to update Sire ID or Dam ID label
     private void updateSireIdOrDamIdLabel(String gender) {
@@ -2061,29 +2039,30 @@ public class ProductivityAndCalving {
 
     // Method to check if Offspring fields have changed
     private boolean offspringFieldsHaveChanged() {
-        OffSpringTable selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
-        return !birthWeightTextField.getText().equals(String.valueOf(selectedOffspring.getBirthWeight())) ||
-                easeOfCalvingSlider.getValue() != selectedOffspring.getEaseOfCalving() ||
-                !Objects.equals(estimatedGestationSpinner2.getValue(), selectedOffspring.getGestationLength()) ||
-                !measuredWeightTextField.getText().equals(String.valueOf(selectedOffspring.getMeasuredWeight())) ||
-                (lastDateWeightTakenDatePicker.getValue() != null && !lastDateWeightTakenDatePicker.getValue().equals(selectedOffspring.getLastDateWeightTaken())) ||
-                (intendedUseComboBox.getValue() != null && !intendedUseComboBox.getValue().equals(selectedOffspring.getIntendedUse())) ||
-                (offspringGenderComboBox.getValue() != null && !offspringGenderComboBox.getValue().equals(selectedOffspring.getGender())) ||
-                (breedingMethodComboBox.getValue() != null && !breedingMethodComboBox.getValue().equals(selectedOffspring.getBreedingMethod()));
+        UnifiedOffspring selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
+        return !birthWeightTextField.getText().equals(String.valueOf(selectedOffspring.birthWeight())) ||
+                easeOfCalvingSlider.getValue() != selectedOffspring.easeOfCalving() ||
+                !Objects.equals(estimatedGestationSpinner2.getValue(), selectedOffspring.gestationLength()) ||
+                !measuredWeightTextField.getText().equals(String.valueOf(selectedOffspring.measuredWeight())) ||
+                (lastDateWeightTakenDatePicker.getValue() != null && !lastDateWeightTakenDatePicker.getValue().equals(selectedOffspring.lastDateWeightTaken())) ||
+                (intendedUseComboBox.getValue() != null && !intendedUseComboBox.getValue().equals(selectedOffspring.intendedUse())) ||
+                (offspringGenderComboBox.getValue() != null && !offspringGenderComboBox.getValue().equals(selectedOffspring.gender())) ||
+                (breedingMethodComboBox.getValue() != null && !breedingMethodComboBox.getValue().equals(selectedOffspring.breedingMethod()));
     }
 
     // Method to check if Offspring fields are populated
     private boolean offspringFieldsArePopulated() {
-        OffSpringTable selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
-        return birthWeightTextField.getText().equals(String.valueOf(selectedOffspring.getBirthWeight())) &&
-                easeOfCalvingSlider.getValue() == selectedOffspring.getEaseOfCalving() &&
-                Objects.equals(estimatedGestationSpinner2.getValue(), selectedOffspring.getGestationLength()) &&
-                measuredWeightTextField.getText().equals(String.valueOf(selectedOffspring.getMeasuredWeight())) &&
-                (lastDateWeightTakenDatePicker.getValue() != null && lastDateWeightTakenDatePicker.getValue().equals(selectedOffspring.getLastDateWeightTaken())) &&
-                (intendedUseComboBox.getValue() != null && intendedUseComboBox.getValue().equals(selectedOffspring.getIntendedUse())) &&
-                (offspringGenderComboBox.getValue() != null && offspringGenderComboBox.getValue().equals(selectedOffspring.getGender())) &&
-                (breedingMethodComboBox.getValue() != null && breedingMethodComboBox.getValue().equals(selectedOffspring.getBreedingMethod()));
+        UnifiedOffspring selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
+        return birthWeightTextField.getText().equals(String.valueOf(selectedOffspring.birthWeight())) &&
+                easeOfCalvingSlider.getValue() == selectedOffspring.easeOfCalving() &&
+                Objects.equals(estimatedGestationSpinner2.getValue(), selectedOffspring.gestationLength()) &&
+                measuredWeightTextField.getText().equals(String.valueOf(selectedOffspring.measuredWeight())) &&
+                (lastDateWeightTakenDatePicker.getValue() != null && lastDateWeightTakenDatePicker.getValue().equals(selectedOffspring.lastDateWeightTaken())) &&
+                (intendedUseComboBox.getValue() != null && intendedUseComboBox.getValue().equals(selectedOffspring.intendedUse())) &&
+                (offspringGenderComboBox.getValue() != null && offspringGenderComboBox.getValue().equals(selectedOffspring.gender())) &&
+                (breedingMethodComboBox.getValue() != null && breedingMethodComboBox.getValue().equals(selectedOffspring.breedingMethod()));
     }
+
 
     // Method to check if fields are valid for Offspring
     private boolean areFieldsValidForOffspring() {
@@ -2124,9 +2103,9 @@ public class ProductivityAndCalving {
     // Method to update Offspring details
     @FXML
     private void updateOffSpringDetails() {
-        OffSpringTable selectedOffspringTable = cattleTableView.getSelectionModel().getSelectedItem();
+        UnifiedOffspring selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
 
-        if (selectedOffspringTable == null) {
+        if (selectedOffspring == null) {
             showAlert(Alert.AlertType.WARNING, "No Selection", "Please select an offspring from the table.");
             return;
         }
@@ -2147,19 +2126,22 @@ public class ProductivityAndCalving {
 
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == confirmButton) {
-            // Proceed with update if user confirms
             try {
-                // Create updated Offspring object with the current field values
-                Offspring updatedOffspring = new Offspring(
-                        selectedOffspringTable.getOffspringId(),
+                // Create updated UnifiedOffspring object with the current field values
+                UnifiedOffspring updatedUnifiedOffspring = new UnifiedOffspring(
+                        selectedOffspring.offspringId(),
+                        selectedOffspring.cattleId(),
+                        selectedOffspring.cattleName(),
+                        offspringGenderComboBox.getValue(),
+                        breedingMethodComboBox.getValue(),
                         Double.parseDouble(birthWeightTextField.getText()),
                         (int) easeOfCalvingSlider.getValue(),
                         estimatedGestationSpinner2.getValue(),
                         Double.parseDouble(measuredWeightTextField.getText()),
                         lastDateWeightTakenDatePicker.getValue(),
+                        selectedOffspring.dateOfBirth(),
                         intendedUseComboBox.getValue(),
-                        selectedOffspringTable.getCattleId(),
-                        breedingMethodComboBox.getValue()
+                        selectedOffspring.sireId()
                 );
 
                 // Check if the gender or gestation length has changed
@@ -2168,19 +2150,19 @@ public class ProductivityAndCalving {
 
                 // Update the database tables if necessary
                 if (genderChanged) {
-                    if (!updateCattleTableGender(Integer.parseInt(selectedOffspringTable.getCattleId()), offspringGenderComboBox.getValue())) {
+                    if (!updateCattleTableGender(Integer.parseInt(selectedOffspring.cattleId()), offspringGenderComboBox.getValue())) {
                         return; // Early return if updating gender failed
                     }
                 }
 
                 if (gestationLengthChanged) {
-                    if (!updateReproductiveVariablesTable(Integer.parseInt(selectedOffspringTable.getCattleId()), estimatedGestationSpinner2.getValue())) {
+                    if (!updateReproductiveVariablesTable(Integer.parseInt(selectedOffspring.cattleId()), estimatedGestationSpinner2.getValue())) {
                         return; // Early return if updating gestation length failed
                     }
                 }
 
                 // Update offspring details in the Offspring table
-                OffspringDAO.updateOffspring(updatedOffspring);
+                OffspringDAO.updateOffspring(updatedUnifiedOffspring);
 
                 // Reload data to reflect changes
                 loadOffspringData();
@@ -2194,6 +2176,7 @@ public class ProductivityAndCalving {
             showAlert(Alert.AlertType.INFORMATION, "Cancelled", "Update cancelled by the user.");
         }
     }
+
 
 
     private boolean updateCattleTableGender(int cattleId, String newGender) {
@@ -2224,15 +2207,14 @@ public class ProductivityAndCalving {
         }
     }
 
-
     // Method to handle deletion of Offspring
     private void handleDeleteOffspring() {
         Optional<ButtonType> result = showConfirmationAlert("Delete Offspring", "Are you sure you want to delete this offspring?");
         if (result.isPresent() && result.get() == ButtonType.OK) {
-            OffSpringTable selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
+            UnifiedOffspring selectedOffspring = cattleTableView.getSelectionModel().getSelectedItem();
             if (selectedOffspring != null) {
                 try {
-                    OffspringDAO.deleteOffspringById(Integer.parseInt(String.valueOf(selectedOffspring.getOffspringId())));
+                    OffspringDAO.deleteOffspringById(selectedOffspring.offspringId());
                     cattleTableView.getItems().remove(selectedOffspring);
 
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Offspring deleted successfully.");
@@ -4936,7 +4918,7 @@ public class ProductivityAndCalving {
         // For the selected cattle
         ObservableList<Double> selectedCattleDailyYields = FXCollections.observableArrayList(Collections.nCopies(daysElapsed, 0.0));
 
-        CattleYieldData selectedCattleYieldData = new CattleYieldData(selectedCattleId, selectedStage, startDate, endDate, selectedCattleDailyYields);
+        CattleYieldData selectedCattleYieldData = new CattleYieldData(selectedCattleId, startDate, endDate, selectedCattleDailyYields);
         cattleYieldDataList.add(selectedCattleYieldData);
 
         updateComparisonTableViewForSelectedCattle(filteredCattleList, cowTableItems, cattleYieldDataList, daysElapsed, selectedStage,selectedCattleRelativeDailyYield);
@@ -4970,7 +4952,7 @@ public class ProductivityAndCalving {
 
             ObservableList<Double> dailyYields = FXCollections.observableArrayList(Collections.nCopies(daysElapsed, 0.0));
 
-            CattleYieldData cattleYieldData = new CattleYieldData(cattleID, selectedStage, startDate, endDate, dailyYields);
+            CattleYieldData cattleYieldData = new CattleYieldData(cattleID, startDate, endDate, dailyYields);
             cattleYieldDataList.add(cattleYieldData);
 
             LocalDate startDate2 = determineStageStartDate(ongoingPeriod, currentStage);

@@ -21,23 +21,11 @@ public class Country {
         return callingCode;
     }
 
-    public void setCallingCode(String callingCode) {
-        this.callingCode = callingCode;
-    }
-
     public String getFlagName() {
         return flagName;
     }
 
-    public void setFlagName(String flagName) {
-        this.flagName = flagName;
-    }
-
     public String getAlpha2() {
         return alpha2;
-    }
-
-    public void setAlpha2(String alpha2) {
-        this.alpha2 = alpha2;
     }
 }

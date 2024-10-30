@@ -1,10 +1,14 @@
-package com.example.hashinfarm.data.records;
+package com.example.hashinfarm.data.DTOs.records;
+
+import com.example.hashinfarm.data.DTOs.FollowUpRecommendation;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record HealthCheckupRecord(
         int id,
+        int cattleId,
         LocalDate checkupDate,
         String temperature,
         String heartRate,
@@ -16,6 +20,7 @@ public record HealthCheckupRecord(
         String specificObservations,
         String checkupNotes,
         String chronicConditions,
-        LocalDateTime createdAt
+        LocalDateTime createdAt,
+        List<FollowUpRecommendation> followUpRecommendations // Assuming this class exists
 ) {
 }

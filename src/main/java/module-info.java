@@ -41,7 +41,7 @@ module com.example.hashinfarm {
 
     exports com.example.hashinfarm.data.DTOs;
     exports com.example.hashinfarm.data.DAOs;
-    exports com.example.hashinfarm.data.records;
+    exports com.example.hashinfarm.data.DTOs.records;
 
     exports com.example.hashinfarm.presentationLayer.controllers;
     exports com.example.hashinfarm.presentationLayer.controllers.home;
@@ -56,7 +56,6 @@ module com.example.hashinfarm {
     opens com.example.hashinfarm.app to javafx.fxml;
     opens com.example.hashinfarm.businessLogic.services to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.data.DTOs to com.fasterxml.jackson.databind, javafx.base, javafx.fxml;
-    opens com.example.hashinfarm.data.records to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.helpers to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.presentationLayer.controllers to javafx.fxml;
     opens com.example.hashinfarm.presentationLayer.controllers.home to javafx.fxml;
@@ -69,4 +68,5 @@ module com.example.hashinfarm {
     opens com.example.hashinfarm.utils.date to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.utils.logging to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.utils.validation to javafx.base, javafx.fxml;
+    opens com.example.hashinfarm.data.DTOs.records to com.fasterxml.jackson.databind, javafx.base, javafx.fxml;
 }

@@ -2,7 +2,7 @@ package com.example.hashinfarm.presentationLayer.controllers.cattleManagement.ce
 
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
 import com.example.hashinfarm.data.DAOs.*;
-import com.example.hashinfarm.data.records.*;
+import com.example.hashinfarm.data.DTOs.records.*;
 
 import java.math.BigDecimal;
 import java.sql.SQLException;
@@ -348,15 +348,14 @@ public class MedicalHistory {
         }
     }
 
-
     private void loadHealthRecommendations(int cattleId) {
         // Use a Set to automatically handle duplicates
         Set<String> recommendationsToUpdate = new HashSet<>();
 
         // Fetch health checkup histories for the selected cattle
-        List<HealthCheckupHistory> healthCheckupHistories;
+        List<HealthCheckupRecord> healthCheckupRecords;
         try {
-            healthCheckupHistories = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(cattleId);
+            healthCheckupRecords = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(cattleId);
         } catch (SQLException e) {
             // Handle exception
             showAlert(AlertType.ERROR, "Database Error", "Failed to load health checkup histories: " + e.getMessage());
@@ -364,10 +363,10 @@ public class MedicalHistory {
         }
 
         // Iterate through health checkup histories and get follow-up recommendations
-        for (HealthCheckupHistory checkup : healthCheckupHistories) {
+        for (HealthCheckupRecord checkup : healthCheckupRecords) {
             List<FollowUpRecommendation> recommendations;
             try {
-                recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(checkup.getId());
+                recommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(checkup.id());
             } catch (SQLException e) {
                 // Handle exception
                 showAlert(AlertType.ERROR, "Database Error", "Failed to load follow-up recommendations: " + e.getMessage());
@@ -393,6 +392,7 @@ public class MedicalHistory {
         healthRecommendationsListView.setItems(observableRecommendations);
         healthRecommendationsListView.setCellFactory(listView -> new HealthRecommendationItemListCell());
     }
+
 
 
     public void loadHealthCheckupNotes(int cattleId) {
@@ -436,8 +436,7 @@ public class MedicalHistory {
 
 
 
-
-    //DEWORMING HISTORY
+    // DEWORMING HISTORY
     private void loadDewormingDataIntoTableView() {
         clearAllDewormingFields();
 
@@ -447,16 +446,15 @@ public class MedicalHistory {
             return;
         }
 
-        List<DewormingHistory> dewormingHistories;
+        List<DewormingRecord> dewormingRecords;
         try {
-            dewormingHistories = DewormingHistoryDAO.getDewormingHistoriesByCattleId(selectedCattleId);
+            dewormingRecords = DewormingHistoryDAO.getDewormingHistoriesByCattleId(selectedCattleId);
         } catch (SQLException e) {
-
             showAlert(AlertType.ERROR, "Database Error", "Failed to load deworming history. Please try again.");
             return;
         }
 
-        ObservableList<DewormingRecord> records = getDewormingRecords(dewormingHistories);
+        ObservableList<DewormingRecord> records = FXCollections.observableArrayList(dewormingRecords);
         dewormingHistoryTableView.setItems(records);
 
         if (!records.isEmpty()) {
@@ -468,50 +466,29 @@ public class MedicalHistory {
         }
     }
 
-    private ObservableList<DewormingRecord> getDewormingRecords(List<DewormingHistory> dewormingHistories) {
-        ObservableList<DewormingRecord> records = FXCollections.observableArrayList();
-
-        for (DewormingHistory history : dewormingHistories) {
-
-            records.add(new DewormingRecord(
-                    history.getId(),
-                    history.getDateOfDeworming(),
-                    history.getDewormerType(),
-                    String.valueOf(history.getDosage()),
-                    history.getAdministeredBy(),
-                    history.getRouteOfAdministration(),
-                    history.getWeightAtTime() != null ? String.valueOf(history.getWeightAtTime()) : "", // Handle potential null
-                    history.getContactDetails(),
-                    history.getManufacturerDetails()
-            ));
-        }
-
-        return records;
-    }
-
-
-
+    // Setup table columns to use DewormingRecord fields
     private void setupDewormingTableColumns() {
-        dewormingHistoryDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().dewormingDate()));
+        dewormingHistoryDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().dateOfDeworming()));
         dewormerTypeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().dewormerType()));
-        dosageColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().dosage()));
+        dosageColumn.setCellValueFactory(cellData -> new SimpleStringProperty(String.valueOf(cellData.getValue().dosage())));
         administeredByColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().administeredBy()));
         routeOfAdministrationColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().routeOfAdministration()));
-        weightAtTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().weightAtTime()));
+        weightAtTimeColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
+                cellData.getValue().weightAtTime() != null ? String.valueOf(cellData.getValue().weightAtTime()) : ""));
         contactDetailsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().contactDetails()));
         manufacturerDetailsColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().manufacturerDetails()));
     }
 
     // Populate input fields with selected DewormingRecord's values
     private void populateDewormingHistoryFields(DewormingRecord record) {
-
         // Populate fields with record's values
-        dewormingDatePicker.setValue(record.dewormingDate());
+        dewormingDatePicker.setValue(record.dateOfDeworming());
         dewormerTypeTextArea.setText(record.dewormerType());
-        dosageOfDewormingTextField.setText(record.dosage());
+        dosageOfDewormingTextField.setText(String.valueOf(record.dosage()));
         administerOfDewormingTextField.setText(record.administeredBy());
         routeOfAdministrationCombo.setValue(record.routeOfAdministration());
-        weightAtTimeOfDewormingTextField.setText(record.weightAtTime());
+        weightAtTimeOfDewormingTextField.setText(
+                record.weightAtTime() != null ? String.valueOf(record.weightAtTime()) : "");
         manufacturerDetailsTextArea.setText(record.manufacturerDetails());
 
         // Process contact details
@@ -525,6 +502,7 @@ public class MedicalHistory {
         isModifiedDeworming = false;
     }
 
+
     // Extract and process contact details from the record
     private String[] processDewormingContactDetails(String contactDetails) {
         return dewormingCountryCodePickerHelper.processContactDetails(contactDetails,
@@ -534,7 +512,7 @@ public class MedicalHistory {
     }
 
 
-    private boolean validateDewormingInputFields() throws ValidationException {
+    private void validateDewormingInputFields() throws ValidationException {
         // Validate all fields and apply error effects as needed
         InputFieldsValidation.validateField(selectedCattleId == 0, "Select a Cattle from the Herds table", null);
         InputFieldsValidation.validateField(dewormerTypeTextArea.getText().trim().isEmpty(), "Dewormer Type is required.", dewormerTypeTextArea);
@@ -546,22 +524,24 @@ public class MedicalHistory {
         CountryCodePickerHelper.validateAndFormatContact(restOfNumberOfDewormingHistoryTextField.getText().trim());
 
         // If no exception was thrown, return true (indicating all fields are valid)
-        return true;
     }
-
     // Populate the original values map for change tracking
     private void populateOriginalDewormingValuesMap(DewormingRecord record, String callingCode, String restOfNumber) {
         originalDewormingValuesMap.put("id", String.valueOf(record.id()));
-        originalDewormingValuesMap.put("dewormingDate", record.dewormingDate().toString());
+        originalDewormingValuesMap.put("cattleId", String.valueOf(record.cattleId()));
+        originalDewormingValuesMap.put("dewormingDate", record.dateOfDeworming().toString());
         originalDewormingValuesMap.put("dewormerType", record.dewormerType());
-        originalDewormingValuesMap.put("dosage", record.dosage()); // Store the dosage
+        originalDewormingValuesMap.put("dosage", String.valueOf(record.dosage())); // Convert dosage to String
         originalDewormingValuesMap.put("administeredBy", record.administeredBy());
         originalDewormingValuesMap.put("routeOfAdministration", record.routeOfAdministration());
-        originalDewormingValuesMap.put("weightAtTime", record.weightAtTime());
+        originalDewormingValuesMap.put("weightAtTime",
+                record.weightAtTime() != null ? String.valueOf(record.weightAtTime()) : ""); // Handle null weight
         originalDewormingValuesMap.put("manufacturerDetails", record.manufacturerDetails());
+        originalDewormingValuesMap.put("contactDetails", record.contactDetails());
         originalDewormingValuesMap.put("callingCode", callingCode);
         originalDewormingValuesMap.put("restOfNumber", restOfNumber);
     }
+
 
     // Set up listeners for changes in input fields
     private void setupDewormingChangeListeners() {
@@ -629,14 +609,13 @@ public class MedicalHistory {
     }
 
 
-
     // SAVE DEWORMING RECORD
     private void saveNewDewormingRecord() {
         try {
-            if (!validateDewormingInputFields()) return;
+          validateDewormingInputFields();
 
-            DewormingHistory dewormingHistory = createDewormingHistory();
-            saveDewormingHistoryToDatabase(dewormingHistory);
+            DewormingRecord dewormingRecord = createDewormingRecord();
+            saveDewormingRecordToDatabase(dewormingRecord);
             loadDewormingDataIntoTableView();
             showAlert(AlertType.INFORMATION, "Success", "Deworming details saved successfully.");
         } catch (ValidationException e) {
@@ -646,23 +625,24 @@ public class MedicalHistory {
         }
     }
 
-    // Create DewormingHistory object from input fields
-    private DewormingHistory createDewormingHistory() throws ValidationException {
+    // Create DewormingRecord from input fields
+    private DewormingRecord createDewormingRecord() throws ValidationException {
         String dewormerType = dewormerTypeTextArea.getText().trim();
         double dosage = CountryCodePickerHelper.parseNumericValue(
                 dosageOfDewormingTextField.getText().trim(), MeasurementType.DOSAGE.getSuffix()
         );
-        double weightAtTime = CountryCodePickerHelper.parseNumericValue(
+        Double weightAtTime = CountryCodePickerHelper.parseNumericValue(
                 weightAtTimeOfDewormingTextField.getText().trim(), MeasurementType.WEIGHT.getSuffix()
         );
-
         String administeredBy = administerOfDewormingTextField.getText().trim();
         LocalDate dateOfDeworming = dewormingDatePicker.getValue();
         String manufacturerDetails = manufacturerDetailsTextArea.getText().trim();
-        String contactDetails = CountryCodePickerHelper.validateAndFormatContact(restOfNumberOfDewormingHistoryTextField.getText().trim());
+        String contactDetails = CountryCodePickerHelper.validateAndFormatContact(
+                restOfNumberOfDewormingHistoryTextField.getText().trim()
+        );
         String routeOfAdministration = routeOfAdministrationCombo.getValue();
 
-        return new DewormingHistory(
+        return new DewormingRecord(
                 0, // ID will be generated by the database
                 selectedCattleId,
                 dewormerType,
@@ -676,50 +656,55 @@ public class MedicalHistory {
         );
     }
 
-    // Save DewormingHistory to the database
-    private void saveDewormingHistoryToDatabase(DewormingHistory dewormingHistory) throws DatabaseException {
+    // Save DewormingRecord to the database
+    private void saveDewormingRecordToDatabase(DewormingRecord dewormingRecord) throws DatabaseException {
         try {
-            // Insert details into the database
-            DewormingHistoryDAO.insertDewormingHistory(dewormingHistory);
+            DewormingHistoryDAO.insertDewormingRecord(dewormingRecord);
         } catch (SQLException e) {
             throw new DatabaseException("Failed to save deworming details: " + e.getMessage(), e);
         }
     }
 
-
-
     // UPDATE DEWORMING RECORD
     private void updateDewormingRecord() {
         try {
             // Validate the input fields; exception will be thrown if validation fails
-            validateDewormingInputFields();
+          validateDewormingInputFields();
 
-            // Proceed with creating the updated history object
-            DewormingHistory updatedHistory = createDewormingHistory();
+            // Create the updated DewormingRecord object
+            DewormingRecord updatedRecord = createDewormingRecord();
 
             // Retrieve and set the original ID from the map
             String originalIdString = originalDewormingValuesMap.get("id");
             if (originalIdString != null) {
                 int originalId = Integer.parseInt(originalIdString);
-                updatedHistory.setId(originalId);
+                updatedRecord = new DewormingRecord(
+                        originalId,
+                        updatedRecord.cattleId(),
+                        updatedRecord.dewormerType(),
+                        updatedRecord.dosage(),
+                        updatedRecord.weightAtTime(),
+                        updatedRecord.administeredBy(),
+                        updatedRecord.routeOfAdministration(),
+                        updatedRecord.dateOfDeworming(),
+                        updatedRecord.manufacturerDetails(),
+                        updatedRecord.contactDetails()
+                );
             } else {
                 throw new IllegalStateException("Original ID not found in the values map.");
             }
 
             // Update the record in the database
-            DewormingHistoryDAO.updateDewormingHistory(updatedHistory);
+            DewormingHistoryDAO.updateDewormingRecord(updatedRecord);
             loadDewormingDataIntoTableView();
 
             // Show the success message
             showAlert(AlertType.INFORMATION, "Success", "Deworming record updated successfully.");
         } catch (ValidationException e) {
-            // Handle validation errors
             showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
         } catch (SQLException e) {
-            // Handle database errors
-            throw new RuntimeException(e);
+            showAlert(AlertType.ERROR, "Database Error", "Failed to update deworming record: " + e.getMessage());
         } catch (IllegalStateException e) {
-            // Handle other errors like missing ID
             showAlert(AlertType.ERROR, "Error", e.getMessage());
         }
     }
@@ -762,11 +747,14 @@ public class MedicalHistory {
         int cattleId = selectedCattleId;
         int recordId = record.id();
         try {
-            DewormingHistoryDAO.deleteDewormingHistoryByCattleIdAndId(cattleId, recordId);
+            DewormingHistoryDAO.deleteDewormingRecordByCattleIdAndId(cattleId, recordId);
+            loadDewormingDataIntoTableView();  // Refresh the table view to show changes
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Deworming record deleted successfully.");
         } catch (SQLException e) {
             showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to delete the deworming record. Please try again.");
         }
     }
+
 
 
     //RESTORE DEWORMING DETAILS
@@ -825,7 +813,7 @@ public class MedicalHistory {
 
 
 
-//MEDICATION HISTORY
+// MEDICATION HISTORY
 
     private void loadMedicationDataIntoTableView() {
 
@@ -837,15 +825,16 @@ public class MedicalHistory {
             return;
         }
 
-        List<MedicationHistory> medicationHistories;
+        List<MedicationRecord> medicationRecords;
         try {
-            medicationHistories = MedicationHistoryDAO.getMedicationHistoriesByCattleId(selectedCattleId);
+            // Directly fetching MedicationRecord objects
+            medicationRecords = MedicationHistoryDAO.getMedicationRecordsByCattleId(selectedCattleId);
         } catch (SQLException e) {
             showAlert(AlertType.ERROR, "Database Error", "Failed to load medication history. Please try again.");
             return;
         }
 
-        ObservableList<MedicationRecord> records = getMedicationRecords(medicationHistories);
+        ObservableList<MedicationRecord> records = FXCollections.observableArrayList(medicationRecords);
         medicationHistoryTableView.setItems(records);
 
         if (!records.isEmpty()) {
@@ -855,26 +844,6 @@ public class MedicalHistory {
             // Optionally, clear fields or provide feedback to the user
             clearAllHealthCheckupFields();
         }
-    }
-
-
-    private ObservableList<MedicationRecord> getMedicationRecords(List<MedicationHistory> medicationHistories) {
-        ObservableList<MedicationRecord> records = FXCollections.observableArrayList();
-
-        for (MedicationHistory history : medicationHistories) {
-            records.add(new MedicationRecord(
-                    history.getId(),
-                    history.getDosage(),
-                    history.getFrequency(),
-                    history.getDateTaken(),
-                    history.getNextSchedule(),
-                    history.getAdministeredBy(),
-                    history.getTelNo(),
-                    history.getCategory()
-            ));
-        }
-
-        return records;
     }
 
     private void setupMedicationTableColumns() {
@@ -1044,15 +1013,13 @@ public class MedicalHistory {
         );
     }
 
-
-
     // SAVE MEDICATION DETAILS
     private void saveNewMedicationRecord() {
         try {
             if (!validateMedicationInputFields()) return;
 
-            MedicationHistory medicationHistory = createMedicationHistory();
-            saveMedicationHistoryToDatabase(medicationHistory);
+            MedicationRecord medicationRecord = createMedicationRecord();
+            saveMedicationRecordToDatabase(medicationRecord);
             loadMedicationDataIntoTableView();
             showAlert(AlertType.INFORMATION, "Success", "Medication details saved successfully.");
         } catch (ValidationException e) {
@@ -1062,20 +1029,18 @@ public class MedicalHistory {
         }
     }
 
-    private MedicationHistory createMedicationHistory() throws ValidationException {
+    private MedicationRecord createMedicationRecord() throws ValidationException {
         String dosage = dosageOfMedicationTextField.getText().trim();
         String frequency = frequencyOfMedicationTextField.getText().trim();
         String administeredBy = administerOfMedicationTextField.getText().trim();
         LocalDate dateTaken = dateTakenOfMedicationDatePicker.getValue();
         LocalDate nextSchedule = nextScheduleOfMedicationDatePicker.getValue();
         String telNo = CountryCodePickerHelper.validateAndFormatContact(restOfNumberTextFieldOfMedication.getText().trim());
-        String category = categoryOfMedicationComboBox.getValue(); // Assuming it's a ComboBox
-
-        // Get the selected response from checkboxes directly
+        String category = categoryOfMedicationComboBox.getValue();
         String responseType = getSelectedCheckBoxResponse();
 
-        return new MedicationHistory(
-                0, // ID will be generated by the database
+        return new MedicationRecord(
+                0,  // ID generated by the database
                 selectedCattleId,
                 dosage,
                 frequency,
@@ -1089,65 +1054,64 @@ public class MedicalHistory {
     }
 
     private String getSelectedCheckBoxResponse() {
-        boolean isNegativeResponse = negativeCheckBox.isSelected();
-        boolean isPositiveResponse = positiveCheckBox.isSelected();
-
-        if (isNegativeResponse) {
+        if (negativeCheckBox.isSelected()) {
             return "Negative";
-        } else if (isPositiveResponse) {
+        } else if (positiveCheckBox.isSelected()) {
             return "Positive";
         } else {
-            return null; // Return null if none is selected
+            return null;
         }
     }
 
-
-
-    private void saveMedicationHistoryToDatabase(MedicationHistory medicationHistory) throws DatabaseException {
+    private void saveMedicationRecordToDatabase(MedicationRecord medicationRecord) throws DatabaseException {
         try {
-            // Insert details into the database
-            MedicationHistoryDAO.insertMedicationHistory(medicationHistory);
+            MedicationHistoryDAO.insertMedicationRecord(medicationRecord);
         } catch (SQLException e) {
             throw new DatabaseException("Failed to save medication details: " + e.getMessage(), e);
         }
     }
 
-
-    // UPDATE MEDICATION RECORD DETAILS
     private void updateMedicationRecord() {
         try {
-            // Validate the input fields; exception will be thrown if validation fails
             validateMedicationInputFields();
 
-            // Proceed with creating the updated medication object
-            MedicationHistory updatedHistory = createMedicationHistory();
+            MedicationRecord updatedRecord = createMedicationRecord();
 
-            // Retrieve and set the original ID from the map
             String originalIdString = originalMedicationValuesMap.get("id");
-            if (originalIdString != null) {
-                int originalId = Integer.parseInt(originalIdString);
-                updatedHistory.setId(originalId);
-            } else {
+            if (originalIdString == null) {
                 throw new IllegalStateException("Original ID not found in the values map.");
             }
+            int originalId = Integer.parseInt(originalIdString);
 
-            // Update the record in the database
-            MedicationHistoryDAO.updateMedicationHistory(updatedHistory);
+            MedicationRecord recordWithOriginalId = createRecordWithOriginalId(updatedRecord, originalId);
+
+            MedicationHistoryDAO.updateMedicationRecord(recordWithOriginalId);
             loadMedicationDataIntoTableView();
-
-            // Show the success message
             showAlert(AlertType.INFORMATION, "Success", "Medication record updated successfully.");
         } catch (ValidationException e) {
-            // Handle validation errors
             showAlert(AlertType.ERROR, "Validation Error", e.getMessage());
         } catch (SQLException e) {
-            // Handle database errors
             throw new RuntimeException(e);
         } catch (IllegalStateException e) {
-            // Handle other errors like missing ID
             showAlert(AlertType.ERROR, "Error", e.getMessage());
         }
     }
+
+    private MedicationRecord createRecordWithOriginalId(MedicationRecord updatedRecord, int originalId) {
+        return new MedicationRecord(
+                originalId,
+                updatedRecord.cattleId(),
+                updatedRecord.dosage(),
+                updatedRecord.frequency(),
+                updatedRecord.dateTaken(),
+                updatedRecord.nextSchedule(),
+                updatedRecord.administeredBy(),
+                updatedRecord.telNo(),
+                updatedRecord.category(),
+                updatedRecord.responseType()
+        );
+    }
+
 
 
     //DELETE MEDICATION RECORD
@@ -1181,7 +1145,7 @@ public class MedicalHistory {
 
         try {
             // Call the DAO to delete the medication record by cattleId and recordId
-            MedicationHistoryDAO.deleteMedicationHistoryByCattleIdAndId(cattleId, recordId);
+            MedicationHistoryDAO.deleteMedicationRecordByCattleIdAndId(cattleId, recordId);
         } catch (SQLException e) {
             // Handle any SQL exception by showing an alert
             showAlert(Alert.AlertType.ERROR, "Database Error", "Failed to delete the medication record. Please try again.");
@@ -1273,8 +1237,7 @@ public class MedicalHistory {
         // Reset the modified flag
         isModifiedMedication = false; // Assuming isModified tracks if there were changes to the input fields
     }
-
-    //HEALTH CHECKUP
+    // HEALTH CHECKUP
     private void loadHealthCheckupDataIntoTableView() {
         clearAllHealthCheckupFields();
 
@@ -1284,49 +1247,24 @@ public class MedicalHistory {
             return;
         }
 
-        List<HealthCheckupHistory> healthCheckupHistories;
+        List<HealthCheckupRecord> healthCheckupRecords;
         try {
-            healthCheckupHistories = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(selectedCattleId);
+            healthCheckupRecords = HealthCheckupHistoryDAO.getHealthCheckupHistoriesByCattleId(selectedCattleId);
         } catch (SQLException e) {
             showAlert(AlertType.ERROR, "Database Error", "Failed to load health checkup history. Please try again.");
             return;
         }
 
-        ObservableList<HealthCheckupRecord> records = getHealthCheckupRecords(healthCheckupHistories);
+        ObservableList<HealthCheckupRecord> records = FXCollections.observableArrayList(healthCheckupRecords);
         healthCheckupTableView.setItems(records);
 
         if (!records.isEmpty()) {
             healthCheckupTableView.getSelectionModel().selectFirst();
-            populateHealthCheckupFields(records.getFirst());
+            populateHealthCheckupFields(records.getFirst()); // Use get(0) instead of getFirst()
         } else {
             // Optionally, clear fields or provide feedback to the user
             clearAllHealthCheckupFields();
         }
-    }
-
-
-    private ObservableList<HealthCheckupRecord> getHealthCheckupRecords(List<HealthCheckupHistory> healthCheckupHistories) {
-        ObservableList<HealthCheckupRecord> records = FXCollections.observableArrayList();
-
-        for (HealthCheckupHistory history : healthCheckupHistories) {
-            records.add(new HealthCheckupRecord(
-                    history.getId(),
-                    history.getCheckupDate(),
-                    history.getTemperature(),
-                    history.getHeartRate(),
-                    history.getRespiratoryRate(),
-                    history.getBloodPressure(),
-                    history.getBehavioralObservations(),
-                    history.getPhysicalExaminationFindings(),
-                    history.getHealthIssues(),
-                    history.getSpecificObservations(),
-                    history.getCheckupNotes(),
-                    history.getChronicConditions(),
-                    history.getCreatedAt()
-            ));
-        }
-
-        return records;
     }
 
 
@@ -1335,7 +1273,7 @@ public class MedicalHistory {
         checkupDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().checkupDate()));
         // Convert LocalDateTime to String for the createdAt column
         createdATColumn.setCellValueFactory(cellData -> new SimpleStringProperty(
-                cellData.getValue().createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")))); // Format as desired
+                cellData.getValue().createdAt().format(DateTimeFormatter.ofPattern("yyyy-MM-dd")))); // Format as desired
 
 
         temperatureColumn.setCellValueFactory(cellData -> new SimpleStringProperty(cellData.getValue().temperature()));
@@ -1722,14 +1660,13 @@ public class MedicalHistory {
                 v -> {}
         );
     }
-
     // SAVE HEALTH CHECKUP RECORD
     private void saveNewHealthCheckupRecord() {
         try {
             if (!validateHealthCheckupInputFields()) return;
 
-            HealthCheckupHistory healthCheckupHistory = createHealthCheckupHistory();
-            saveHealthCheckupHistoryToDatabase(healthCheckupHistory);
+            HealthCheckupRecord healthCheckupRecord = createHealthCheckupRecord();
+            saveHealthCheckupRecordToDatabase(healthCheckupRecord);
             loadHealthCheckupDataIntoTableView();
             showAlert(AlertType.INFORMATION, "Success", "Health checkup details saved successfully.");
         } catch (ValidationException e) {
@@ -1738,8 +1675,9 @@ public class MedicalHistory {
             showAlert(AlertType.ERROR, "Database Error", e.getMessage());
         }
     }
-    // Create HealthCheckupHistory object from input fields
-    private HealthCheckupHistory createHealthCheckupHistory() throws ValidationException {
+
+    // Create HealthCheckupRecord object from input fields
+    private HealthCheckupRecord createHealthCheckupRecord() throws ValidationException {
         LocalDate checkupDate = checkupDatePicker.getValue();
         String temperature = temperatureTextField.getText().trim();
         String heartRate = heartRateTextField.getText().trim();
@@ -1757,8 +1695,8 @@ public class MedicalHistory {
 
         List<FollowUpRecommendation> selectedRecommendations = getSelectedFollowUpRecommendations();
 
-        // Create HealthCheckupHistory object
-        return new HealthCheckupHistory(
+        // Create and return HealthCheckupRecord
+        return new HealthCheckupRecord(
                 0, // ID will be generated by the database
                 selectedCattleId, // Assuming you have selected cattle ID accessible here
                 checkupDate,
@@ -1777,20 +1715,15 @@ public class MedicalHistory {
         );
     }
 
-
-
-    // Save HealthCheckupHistory to the database
-    private void saveHealthCheckupHistoryToDatabase(HealthCheckupHistory healthCheckupHistory) throws DatabaseException {
+    // Save HealthCheckupRecord to the database
+    private void saveHealthCheckupRecordToDatabase(HealthCheckupRecord healthCheckupRecord) throws DatabaseException {
         try {
             // Insert details into the database
-            HealthCheckupHistoryDAO.insertHealthCheckupHistory(healthCheckupHistory);
+            HealthCheckupHistoryDAO.insertHealthCheckupHistory(healthCheckupRecord);
         } catch (SQLException e) {
             throw new DatabaseException("Failed to save health checkup details: " + e.getMessage(), e);
         }
     }
-
-
-
 
     // UPDATE HEALTH CHECKUP RECORD DETAILS
     private void updateHealthCheckupRecord() {
@@ -1798,20 +1731,18 @@ public class MedicalHistory {
             // Validate the input fields; exception will be thrown if validation fails
             validateHealthCheckupInputFields();
 
-            // Proceed with creating the updated health checkup object
-            HealthCheckupHistory updatedHistory = createHealthCheckupHistory();
-
-            // Retrieve and set the original ID from the map
+            // Retrieve and parse the original ID from the map
             String originalIdString = originalHealthCheckupValuesMap.get("id");
-            if (originalIdString != null) {
-                int originalId = Integer.parseInt(originalIdString);
-                updatedHistory.setId(originalId);
-            } else {
+            if (originalIdString == null) {
                 throw new IllegalStateException("Original ID not found in the values map.");
             }
+            int originalId = Integer.parseInt(originalIdString);
+
+            // Create updated HealthCheckupRecord with the original ID
+            HealthCheckupRecord updatedRecord = createUpdatedHealthCheckupRecord(originalId);
 
             // Update the record in the database, including follow-up recommendations
-            HealthCheckupHistoryDAO.updateHealthCheckupHistory(updatedHistory);
+            HealthCheckupHistoryDAO.updateHealthCheckupHistory(updatedRecord);
 
             loadHealthCheckupDataIntoTableView();
 
@@ -1829,6 +1760,44 @@ public class MedicalHistory {
         }
     }
 
+    // Create HealthCheckupRecord for updates with an existing ID
+    private HealthCheckupRecord createUpdatedHealthCheckupRecord(int originalId) throws ValidationException {
+        LocalDate checkupDate = checkupDatePicker.getValue();
+        String temperature = temperatureTextField.getText().trim();
+        String heartRate = heartRateTextField.getText().trim();
+        String respiratoryRate = respiratoryRateTextField.getText().trim();
+        String bloodPressure = bloodPressureTextField.getText().trim();
+
+        String behavioralObservations = behavioralObservationsTextArea.getText().trim();
+        String physicalExaminationFindings = physicalExaminationTextArea.getText().trim();
+        String healthIssues = healthIssuesTextArea.getText().trim();
+        String specificObservations = specificObservationsTextArea.getText().trim();
+        String checkupNotes = checkupNotesTextArea.getText().trim();
+        String chronicConditions = chronicConditionsTextArea.getText().trim();
+
+        LocalDateTime createdAt = LocalDateTime.now(); // Set creation or modification time
+
+        List<FollowUpRecommendation> selectedRecommendations = getSelectedFollowUpRecommendations();
+
+        // Create and return HealthCheckupRecord with the original ID
+        return new HealthCheckupRecord(
+                originalId,
+                selectedCattleId,
+                checkupDate,
+                temperature,
+                heartRate,
+                respiratoryRate,
+                bloodPressure,
+                behavioralObservations,
+                physicalExaminationFindings,
+                healthIssues,
+                specificObservations,
+                checkupNotes,
+                chronicConditions,
+                createdAt,
+                selectedRecommendations
+        );
+    }
 
 
 
@@ -1931,7 +1900,6 @@ public class MedicalHistory {
 
 //INJURY
 
-
     private void loadInjuryDataIntoTableView() {
         clearAllInjuryFields();
 
@@ -1940,15 +1908,17 @@ public class MedicalHistory {
             return;
         }
 
-        List<InjuryReport> injuryReports;
+        List<InjuryRecord> injuryRecords;
         try {
-            injuryReports = InjuryReportDAO.getInjuryReportsByCattleId(selectedCattleId); // Replace DAO method with the appropriate one
+            // Fetch InjuryRecords directly from the DAO
+            injuryRecords = InjuryReportDAO.getInjuryRecordsByCattleId(selectedCattleId);
         } catch (SQLException e) {
             showAlert(AlertType.ERROR, "Database Error", "Failed to load injury reports. Please try again.");
             return;
         }
 
-        ObservableList<InjuryRecord> records = getInjuryRecords(injuryReports);
+        // Convert the list to an ObservableList directly
+        ObservableList<InjuryRecord> records = FXCollections.observableArrayList(injuryRecords);
         injuryTableView.setItems(records);
 
         if (!records.isEmpty()) {
@@ -1959,30 +1929,6 @@ public class MedicalHistory {
         }
     }
 
-    private ObservableList<InjuryRecord> getInjuryRecords(List<InjuryReport> injuryReports) {
-        ObservableList<InjuryRecord> records = FXCollections.observableArrayList();
-
-        for (InjuryReport report : injuryReports) {
-            records.add(new InjuryRecord(
-                    report.getId(),
-                    report.getCattleId(),
-                    report.getDateOfOccurrence(),
-                    report.getTypeOfInjury(),
-                    report.getSpecificBodyPart(),
-                    report.getSeverity(),
-                    report.getCauseOfInjury(),
-                    report.getFirstAidMeasures(),
-                    report.getFollowUpTreatmentType(),
-                    report.getMonitoringInstructions(),
-                    report.getScheduledProcedures(),
-                    report.getFollowUpMedications(),
-                    report.getMedicationCost(),
-                    report.getMedicationHistoryId()
-            ));
-        }
-
-        return records;
-    }
     private void setupInjuryTableColumns() {
         idColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().id()));
         dateOfOccurrenceColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().dateOfOccurrence()));
@@ -2036,32 +1982,29 @@ public class MedicalHistory {
             showAlert(AlertType.ERROR, "Error", "An unexpected error occurred while populating injury fields.");
         }
     }
-
-    private void loadMedicationHistory(int selectedMedicationHistoryId) {
+    // Load medication records and populate the list view
+    private void loadMedicationHistory(int selectedMedicationRecordId) {
         try {
-            List<MedicationHistory> medicationHistories = MedicationHistoryDAO.getMedicationHistoriesByCattleId(selectedCattleId);
-            List<MedicationListItem> items = createMedicationItems(medicationHistories, selectedMedicationHistoryId);
+            List<MedicationRecord> medicationRecords = MedicationHistoryDAO.getMedicationRecordsByCattleId(selectedCattleId);
+            List<MedicationListItem> items = createMedicationItems(medicationRecords, selectedMedicationRecordId);
 
             medicationAdministeredListView.setItems(FXCollections.observableArrayList(items));
             setupMedicationListViewListeners();
         } catch (SQLException e) {
             e.printStackTrace();
-            showAlert(AlertType.ERROR, "Database Error", "Failed to retrieve medication history.");
+            showAlert(AlertType.ERROR, "Database Error", "Failed to retrieve medication records.");
         }
     }
 
-
-
-
-    // Helper method to create medication list items
-    private List<MedicationListItem> createMedicationItems(List<MedicationHistory> histories, int selectedId) {
+    // Helper method to create medication list items from MedicationRecord
+    private List<MedicationListItem> createMedicationItems(List<MedicationRecord> records, int selectedId) {
         List<MedicationListItem> items = new ArrayList<>();
-        for (MedicationHistory medication : histories) {
-            MedicationListItem item = new MedicationListItem(medication);
+        for (MedicationRecord record : records) {
+            MedicationListItem item = new MedicationListItem(record);  // Updated to use MedicationRecord
             item.getRadioButton().setToggleGroup(toggleGroup);
             items.add(item);
 
-            if (medication.getId() == selectedId) {
+            if (record.id() == selectedId) {  // Use record’s id accessor
                 toggleGroup.selectToggle(item.getRadioButton());
             }
         }
@@ -2080,9 +2023,10 @@ public class MedicalHistory {
         toggleGroup.selectedToggleProperty().addListener((obs, oldToggle, newToggle) -> {
             if (newToggle != null) {
                 MedicationListItem selectedItem = (MedicationListItem) ((RadioButton) newToggle).getParent();
-                medicalAdminNameTextField.setText(selectedItem.getMedicationHistory().getAdministeredBy());
-                medicalAdminContactTextField.setText(selectedItem.getMedicationHistory().getTelNo());
-                medicalCategoryTextField.setText(selectedItem.getMedicationHistory().getCategory());
+                MedicationRecord record = selectedItem.getMedicationRecord();  // Use MedicationRecord directly
+                medicalAdminNameTextField.setText(record.administeredBy());    // Updated field access
+                medicalAdminContactTextField.setText(record.telNo());
+                medicalCategoryTextField.setText(record.category());
             }
         });
     }
@@ -2145,7 +2089,7 @@ public class MedicalHistory {
             if (newToggle != null) {
                 // Get the newly selected Medication History ID
                 MedicationListItem selectedItem = (MedicationListItem) ((RadioButton) newToggle).getParent();
-                int newMedicationHistoryId = selectedItem.getMedicationHistory().getId();
+                int newMedicationHistoryId = selectedItem.getMedicationRecord().id();
 
                 // Check if the Medication History ID has changed
                 checkForChangesInInjuryData("medicationHistoryId", String.valueOf(newMedicationHistoryId));
@@ -2214,7 +2158,6 @@ public class MedicalHistory {
         );
     }
 
-
     private int getSelectedMedicationHistoryId() {
         try {
             if (toggleGroup == null || toggleGroup.getSelectedToggle() == null) {
@@ -2229,27 +2172,25 @@ public class MedicalHistory {
             }
 
             MedicationListItem selectedItem = (MedicationListItem) selectedRadioButton.getParent();
-            if (selectedItem == null || selectedItem.getMedicationHistory() == null) {
+            if (selectedItem == null || selectedItem.getMedicationRecord() == null) { // Updated to use getMedicationRecord
                 showAlert(Alert.AlertType.WARNING, "Selection Error", "Invalid Medication History selected.");
                 return 0;
             }
 
-            MedicationHistory selectedMedication = selectedItem.getMedicationHistory();
-            return selectedMedication.getId(); // Return the valid medication history ID
+            MedicationRecord selectedMedicationRecord = selectedItem.getMedicationRecord(); // Updated to use MedicationRecord
+            return selectedMedicationRecord.id(); // Return the valid medication record ID
         } catch (Exception e) {
-            AppLogger.error("Error retrieving selected medication history.", e);
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to retrieve the selected medication history.");
+            AppLogger.error("Error retrieving selected medication record.", e); // Updated log message
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to retrieve the selected medication record."); // Updated alert message
             return 0;
         }
     }
-
     private void saveNewInjuryReport() {
         try {
-            // Validate input fields (throws ValidationException if invalid)
             validateInjuryInputFields();
 
-            // Null-safe creation of the InjuryReport object
-            InjuryReport injuryReport = new InjuryReport(
+            // Create an InjuryRecord with fields; ID 0 implies a new record.
+            InjuryRecord injuryRecord = new InjuryRecord(
                     0, // ID will be generated
                     selectedCattleId,
                     dateOfOccurrenceDatePicker.getValue() != null ? dateOfOccurrenceDatePicker.getValue() : LocalDate.now(),
@@ -2266,13 +2207,12 @@ public class MedicalHistory {
                     getSelectedMedicationHistoryId()
             );
 
-            // Save the InjuryReport object to the database
-            InjuryReportDAO.insertInjuryReport(injuryReport);
+            // Save the InjuryRecord object to the database
+            InjuryReportDAO.insertInjuryRecord(injuryRecord);
 
             // Reload the injury data into the table view
             loadInjuryDataIntoTableView();
 
-            // Show success message
             showAlert(Alert.AlertType.INFORMATION, "Success", "Injury details saved successfully.");
         } catch (ValidationException e) {
             showAlert(Alert.AlertType.ERROR, "Validation Error", e.getMessage());
@@ -2285,10 +2225,8 @@ public class MedicalHistory {
         }
     }
 
-
     private void updateInjuryReport() {
         try {
-            // Validate input fields (throws ValidationException if invalid)
             validateInjuryInputFields();
 
             InjuryRecord selectedInjuryRecord = injuryTableView.getSelectionModel().getSelectedItem();
@@ -2297,23 +2235,25 @@ public class MedicalHistory {
                 return;
             }
 
-            InjuryReport reportToUpdate = convertToInjuryReport(selectedInjuryRecord);
+            // Create an updated InjuryRecord with current values
+            InjuryRecord updatedRecord = new InjuryRecord(
+                    selectedInjuryRecord.id(),
+                    selectedCattleId,
+                    dateOfOccurrenceDatePicker.getValue() != null ? dateOfOccurrenceDatePicker.getValue() : selectedInjuryRecord.dateOfOccurrence(),
+                    typeOfInjuryComboBox.getValue() != null ? typeOfInjuryComboBox.getValue() : selectedInjuryRecord.typeOfInjury(),
+                    specificBodyPartComboBox.getValue() != null ? specificBodyPartComboBox.getValue() : selectedInjuryRecord.specificBodyPart(),
+                    severityComboBox.getValue() != null ? severityComboBox.getValue() : selectedInjuryRecord.severity(),
+                    causeOfInjuryTextArea.getText() != null ? causeOfInjuryTextArea.getText().trim() : selectedInjuryRecord.causeOfInjury(),
+                    firstAidMeasuresTextArea.getText() != null ? firstAidMeasuresTextArea.getText().trim() : selectedInjuryRecord.firstAidMeasures(),
+                    followUpTreatmentTypeComboBox.getValue() != null ? followUpTreatmentTypeComboBox.getValue() : selectedInjuryRecord.followUpTreatmentType(),
+                    monitoringInstructionsTextArea.getText() != null ? monitoringInstructionsTextArea.getText().trim() : selectedInjuryRecord.monitoringInstructions(),
+                    scheduledProceduresTextArea.getText() != null ? scheduledProceduresTextArea.getText().trim() : selectedInjuryRecord.scheduledProcedures(),
+                    followUpMedicationsTextArea.getText() != null ? followUpMedicationsTextArea.getText().trim() : selectedInjuryRecord.followUpMedications(),
+                    new BigDecimal(medicationCostTextField.getText().trim().isEmpty() ? "0" : medicationCostTextField.getText().trim()),
+                    getSelectedMedicationHistoryId()
+            );
 
-            // Update the InjuryReport object fields with null-safe values
-            reportToUpdate.setDateOfOccurrence(dateOfOccurrenceDatePicker.getValue() != null ? dateOfOccurrenceDatePicker.getValue() : reportToUpdate.getDateOfOccurrence());
-            reportToUpdate.setTypeOfInjury(typeOfInjuryComboBox.getValue() != null ? typeOfInjuryComboBox.getValue() : reportToUpdate.getTypeOfInjury());
-            reportToUpdate.setSpecificBodyPart(specificBodyPartComboBox.getValue() != null ? specificBodyPartComboBox.getValue() : reportToUpdate.getSpecificBodyPart());
-            reportToUpdate.setSeverity(severityComboBox.getValue() != null ? severityComboBox.getValue() : reportToUpdate.getSeverity());
-            reportToUpdate.setCauseOfInjury(causeOfInjuryTextArea.getText() != null ? causeOfInjuryTextArea.getText().trim() : reportToUpdate.getCauseOfInjury());
-            reportToUpdate.setFirstAidMeasures(firstAidMeasuresTextArea.getText() != null ? firstAidMeasuresTextArea.getText().trim() : reportToUpdate.getFirstAidMeasures());
-            reportToUpdate.setFollowUpTreatmentType(followUpTreatmentTypeComboBox.getValue() != null ? followUpTreatmentTypeComboBox.getValue() : reportToUpdate.getFollowUpTreatmentType());
-            reportToUpdate.setMonitoringInstructions(monitoringInstructionsTextArea.getText() != null ? monitoringInstructionsTextArea.getText().trim() : reportToUpdate.getMonitoringInstructions());
-            reportToUpdate.setScheduledProcedures(scheduledProceduresTextArea.getText() != null ? scheduledProceduresTextArea.getText().trim() : reportToUpdate.getScheduledProcedures());
-            reportToUpdate.setFollowUpMedications(followUpMedicationsTextArea.getText() != null ? followUpMedicationsTextArea.getText().trim() : reportToUpdate.getFollowUpMedications());
-            reportToUpdate.setMedicationCost(new BigDecimal(medicationCostTextField.getText().trim().isEmpty() ? "0" : medicationCostTextField.getText().trim()));
-            reportToUpdate.setMedicationHistoryId(getSelectedMedicationHistoryId());
-
-            InjuryReportDAO.updateInjuryReport(reportToUpdate);
+            InjuryReportDAO.updateInjuryRecord(updatedRecord);
 
             loadInjuryDataIntoTableView();
 
@@ -2329,7 +2269,6 @@ public class MedicalHistory {
         }
     }
 
-
     private void deleteInjuryRecord() {
         try {
             InjuryRecord selectedInjuryRecord = injuryTableView.getSelectionModel().getSelectedItem();
@@ -2338,14 +2277,12 @@ public class MedicalHistory {
                 return;
             }
 
-            InjuryReport reportToDelete = convertToInjuryReport(selectedInjuryRecord);
-
-            if (!confirmInjuryRecordDeletion("Record ID: " + reportToDelete.getId())) {
+            if (!confirmInjuryRecordDeletion("Record ID: " + selectedInjuryRecord.id())) {
                 return;
             }
 
             // Try deleting the record
-            deleteInjuryRecord(reportToDelete);
+            InjuryReportDAO.deleteInjuryRecordById(selectedInjuryRecord.id());
 
             showAlert(Alert.AlertType.INFORMATION, "Record Deleted", "The selected injury record has been successfully deleted.");
         } catch (SQLException e) {
@@ -2355,39 +2292,10 @@ public class MedicalHistory {
             AppLogger.error("Unexpected error occurred while deleting injury report.", e);
             showAlert(Alert.AlertType.ERROR, "Error", "An unexpected error occurred. Please try again.");
         } finally {
-            // Reload data regardless of success/failure
             loadInjuryDataIntoTableView();
         }
     }
 
-    private InjuryReport convertToInjuryReport(InjuryRecord record) {
-        return new InjuryReport(
-                record.id(),
-                record.cattleId(),
-                record.dateOfOccurrence(),
-                record.typeOfInjury(),
-                record.specificBodyPart(),
-                record.severity(),
-                record.causeOfInjury(),
-                record.firstAidMeasures(),
-                record.followUpTreatmentType(),
-                record.monitoringInstructions(),
-                record.scheduledProcedures(),
-                record.followUpMedications(),
-                record.medicationCost(),
-                record.medicationHistoryId()
-        );
-    }
-
-    private void deleteInjuryRecord(InjuryReport report) throws SQLException {
-        int reportId = report.getId();
-        try {
-            InjuryReportDAO.deleteInjuryReportById(reportId);
-        } catch (SQLException e) {
-            AppLogger.error("Failed to delete injury report with ID: " + reportId, e);
-            throw e;
-        }
-    }
 
     private boolean confirmInjuryRecordDeletion(String contentText) {
         Alert confirmationAlert = new Alert(Alert.AlertType.CONFIRMATION);

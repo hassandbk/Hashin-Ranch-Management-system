@@ -21,10 +21,6 @@ public class LactationPeriod {
         return lactationPeriodID;
     }
 
-    public void setLactationPeriodID(int lactationPeriodID) {
-        this.lactationPeriodID = lactationPeriodID;
-    }
-
     public int getCattleID() {
         return cattleID;
     }
@@ -35,10 +31,6 @@ public class LactationPeriod {
 
     public LocalDate getStartDate() {
         return startDate;
-    }
-
-    public void setStartDate(LocalDate startDate) {
-        this.startDate = startDate;
     }
 
     public LocalDate getEndDate() {

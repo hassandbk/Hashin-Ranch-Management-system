@@ -1,6 +1,6 @@
 package com.example.hashinfarm.helpers;
 
-import com.example.hashinfarm.data.records.HealthNoteItem;
+import com.example.hashinfarm.data.DTOs.records.HealthNoteItem;
 import javafx.geometry.Insets;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;

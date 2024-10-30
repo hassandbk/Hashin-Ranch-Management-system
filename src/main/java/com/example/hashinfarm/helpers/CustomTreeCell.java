@@ -1,7 +1,7 @@
 package com.example.hashinfarm.helpers;
 
-import com.example.hashinfarm.data.records.StageDetails;
-import com.example.hashinfarm.data.records.SubStageDetails;
+import com.example.hashinfarm.data.DTOs.records.StageDetails;
+import com.example.hashinfarm.data.DTOs.records.SubStageDetails;
 import javafx.scene.control.TreeCell;
 import javafx.scene.control.TreeItem;
 

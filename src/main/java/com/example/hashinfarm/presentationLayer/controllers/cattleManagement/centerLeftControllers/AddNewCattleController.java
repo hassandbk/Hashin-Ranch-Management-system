@@ -7,7 +7,7 @@ import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.utils.CattleDialogUtils;
 import com.example.hashinfarm.data.DTOs.Breed;
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.records.CattleUIInfo;
+import com.example.hashinfarm.data.DTOs.records.CattleUIInfo;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.stage.Stage;

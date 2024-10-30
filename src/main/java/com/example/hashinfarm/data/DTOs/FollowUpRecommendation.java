@@ -37,16 +37,6 @@ public class FollowUpRecommendation {
         return recommendation;
     }
 
-    public void setRecommendation(String recommendation) {
-        this.recommendation = recommendation;
-    }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
-    }
-
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
-    }
 
 }

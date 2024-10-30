@@ -12,7 +12,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import com.example.hashinfarm.data.records.CattleUIInfo;
+import com.example.hashinfarm.data.DTOs.records.CattleUIInfo;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;

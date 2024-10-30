@@ -1,4 +1,4 @@
-package com.example.hashinfarm.data.records;
+package com.example.hashinfarm.data.DTOs.records;
 
 import java.time.LocalDate;
 
