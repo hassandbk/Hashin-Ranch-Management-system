@@ -2,7 +2,7 @@ package com.example.hashinfarm.presentationLayer.controllers.cattleManagement.ce
 
 import com.example.hashinfarm.data.DAOs.BreedDAO;
 import com.example.hashinfarm.utils.logging.AppLogger;
-import com.example.hashinfarm.data.DTOs.Breed;
+import com.example.hashinfarm.data.DTOs.records.Breed;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;

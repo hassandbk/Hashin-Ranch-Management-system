@@ -2,7 +2,7 @@ package com.example.hashinfarm.data.DAOs;
 
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger;
-import com.example.hashinfarm.data.DTOs.BreedingAttempt;
+import com.example.hashinfarm.data.DTOs.records.BreedingAttempt;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -69,13 +69,13 @@ public class BreedingAttemptDAO {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            preparedStatement.setDate(1, Date.valueOf(breedingAttempt.getEstrusDate()));
-            preparedStatement.setString(2, breedingAttempt.getBreedingMethod());
-            preparedStatement.setInt(3, breedingAttempt.getSireId());
-            preparedStatement.setString(4, breedingAttempt.getNotes());
-            preparedStatement.setDate(5, Date.valueOf(breedingAttempt.getAttemptDate()));
-            preparedStatement.setString(6, breedingAttempt.getAttemptStatus());
-            preparedStatement.setInt(7, breedingAttempt.getBreedingAttemptId());
+            preparedStatement.setDate(1, Date.valueOf(breedingAttempt.estrusDate()));
+            preparedStatement.setString(2, breedingAttempt.breedingMethod());
+            preparedStatement.setInt(3, breedingAttempt.sireId());
+            preparedStatement.setString(4, breedingAttempt.notes());
+            preparedStatement.setDate(5, Date.valueOf(breedingAttempt.attemptDate()));
+            preparedStatement.setString(6, breedingAttempt.attemptStatus());
+            preparedStatement.setInt(7, breedingAttempt.breedingAttemptId());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -100,7 +100,7 @@ public class BreedingAttemptDAO {
         }
     }
 
-    // Map ResultSet to BreedingAttempt model
+    // Map ResultSet to BreedingAttempt record
     private static BreedingAttempt mapResultSetToBreedingAttempt(ResultSet resultSet) throws SQLException {
         LocalDate estrusDate = resultSet.getDate("estrusDate").toLocalDate();
         String estrusDateString = estrusDate.format(DateTimeFormatter.ISO_LOCAL_DATE);
@@ -116,6 +116,7 @@ public class BreedingAttemptDAO {
                 resultSet.getString("attemptStatus")
         );
     }
+
     // Fetch the previous breeding attempt date for a given cattle ID and current estrus date
     private static LocalDate fetchEstrusDate(int cattleId, LocalDate currentEstrusDate, String query) throws SQLException {
         LocalDate estrusDate = null;
@@ -159,7 +160,6 @@ public class BreedingAttemptDAO {
         AppLogger.error("SQLException occurred: " + e.getMessage());
     }
 
-
     // Save a new breeding attempt
     public static void saveBreedingAttempt(BreedingAttempt breedingAttempt) throws SQLException {
         String query = "INSERT INTO breedingattempts (cattleId, estrusDate, breedingMethod, sireId, notes, attemptDate, attemptStatus) VALUES (?, ?, ?, ?, ?, ?, ?)";
@@ -167,13 +167,13 @@ public class BreedingAttemptDAO {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            preparedStatement.setInt(1, breedingAttempt.getCattleId());
-            preparedStatement.setDate(2, Date.valueOf(breedingAttempt.getEstrusDate()));
-            preparedStatement.setString(3, breedingAttempt.getBreedingMethod());
-            preparedStatement.setInt(4, breedingAttempt.getSireId());
-            preparedStatement.setString(5, breedingAttempt.getNotes());
-            preparedStatement.setDate(6, Date.valueOf(breedingAttempt.getAttemptDate()));
-            preparedStatement.setString(7, breedingAttempt.getAttemptStatus());
+            preparedStatement.setInt(1, breedingAttempt.cattleId());
+            preparedStatement.setDate(2, Date.valueOf(breedingAttempt.estrusDate()));
+            preparedStatement.setString(3, breedingAttempt.breedingMethod());
+            preparedStatement.setInt(4, breedingAttempt.sireId());
+            preparedStatement.setString(5, breedingAttempt.notes());
+            preparedStatement.setDate(6, Date.valueOf(breedingAttempt.attemptDate()));
+            preparedStatement.setString(7, breedingAttempt.attemptStatus());
 
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
@@ -181,8 +181,4 @@ public class BreedingAttemptDAO {
             throw e;
         }
     }
-
-
-
-
 }

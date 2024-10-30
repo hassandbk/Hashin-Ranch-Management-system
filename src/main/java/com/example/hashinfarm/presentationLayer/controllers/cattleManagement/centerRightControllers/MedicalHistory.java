@@ -375,7 +375,7 @@ public class MedicalHistory {
 
             // Populate the recommendation set
             for (FollowUpRecommendation recommendation : recommendations) {
-                recommendationsToUpdate.add(recommendation.getRecommendation());
+                recommendationsToUpdate.add(recommendation.recommendation());
             }
         }
 
@@ -1353,7 +1353,7 @@ public class MedicalHistory {
 
         // Set checkbox states based on recommendations
         for (FollowUpRecommendation recommendation : recommendations) {
-            String recommendationText = recommendation.getRecommendation().trim();
+            String recommendationText = recommendation.recommendation().trim();
 
             // Check each checkbox in the map and set it if it matches the recommendation text
             titledPaneCheckboxMap.forEach((titledPane, checkboxes) -> {

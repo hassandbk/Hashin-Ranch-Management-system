@@ -7,7 +7,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 
-import com.example.hashinfarm.data.DTOs.Breed;
+import com.example.hashinfarm.data.DTOs.records.Breed;
 import com.example.hashinfarm.app.DatabaseConnection;
 
 public class BreedDAO {
@@ -32,6 +32,7 @@ public class BreedDAO {
                 boolean recognition = resultSet.getBoolean("Recognition");
                 String comments = resultSet.getString("Comments");
 
+                // Using the Breed record instead of the class
                 Breed breed = new Breed(breedId, breedName, origin, recognition, comments);
                 breeds.add(breed);
             }
@@ -55,10 +56,10 @@ public class BreedDAO {
             connection = dbConnection.getConnection();
             String query = "INSERT INTO breed (BreedName, Origin, Recognition, Comments) VALUES (?, ?, ?, ?)";
             preparedStatement = connection.prepareStatement(query);
-            preparedStatement.setString(1, breed.getBreedName());
-            preparedStatement.setString(2, breed.getOrigin());
-            preparedStatement.setBoolean(3, breed.isRecognition());
-            preparedStatement.setString(4, breed.getComments());
+            preparedStatement.setString(1, breed.breedName());
+            preparedStatement.setString(2, breed.origin());
+            preparedStatement.setBoolean(3, breed.recognition());
+            preparedStatement.setString(4, breed.comments());
 
             preparedStatement.executeUpdate();
         } finally {
@@ -68,7 +69,4 @@ public class BreedDAO {
             // Connection will be closed automatically by the DatabaseConnection class
         }
     }
-
-
-
 }

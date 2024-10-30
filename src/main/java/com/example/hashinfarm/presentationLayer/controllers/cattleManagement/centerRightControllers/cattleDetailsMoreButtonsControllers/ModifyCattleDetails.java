@@ -5,7 +5,7 @@ import com.example.hashinfarm.data.DAOs.CattleDAO;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.utils.CattleDialogUtils;
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
-import com.example.hashinfarm.data.DTOs.Breed;
+import com.example.hashinfarm.data.DTOs.records.Breed;
 import com.example.hashinfarm.data.DTOs.Cattle;
 import java.sql.SQLException;
 import java.time.LocalDate;
@@ -122,14 +122,14 @@ public class ModifyCattleDetails {
     private void selectCattleBreed() {
         selectedCattleBreed = selectBreed();
         if (selectedCattleBreed != null) {
-            cattleBreedButton.setText(selectedCattleBreed.getBreedName());
+            cattleBreedButton.setText(selectedCattleBreed.breedName());
         }
     }
 
     private Breed selectBreed() {
         try {
             List<Breed> breeds = BreedDAO.getAllBreeds();
-            return CattleDialogUtils.showSelectionDialog("Select Breed", "Select a breed from the list below", breeds, Breed::getBreedName);
+            return CattleDialogUtils.showSelectionDialog("Select Breed", "Select a breed from the list below", breeds, Breed::breedName);
         } catch (SQLException e) {
             handleException(e);
             return null;
@@ -206,7 +206,7 @@ public class ModifyCattleDetails {
             );
 
             // Retrieve breed, sire, and dam IDs, defaulting to those in the SelectedCattleManager
-            int breedId = (selectedCattleBreed != null) ? selectedCattleBreed.getBreedId() : cattleManager.getSelectedCattle() != null ? cattleManager.getSelectedCattle().getBreedId() : 0;
+            int breedId = (selectedCattleBreed != null) ? selectedCattleBreed.breedId() : cattleManager.getSelectedCattle() != null ? cattleManager.getSelectedCattle().getBreedId() : 0;
             int sireId = selectedSire.getCattleId();
             int damId = selectedDam.getCattleId();
 

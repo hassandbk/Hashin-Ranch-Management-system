@@ -1,7 +1,5 @@
 package com.example.hashinfarm.data.DTOs.records;
 
-import com.example.hashinfarm.data.DTOs.FollowUpRecommendation;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;

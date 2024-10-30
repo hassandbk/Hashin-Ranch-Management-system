@@ -2,7 +2,7 @@ package com.example.hashinfarm.data.DAOs;
 
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger;
-import com.example.hashinfarm.data.DTOs.FollowUpRecommendation;
+import com.example.hashinfarm.data.DTOs.records.FollowUpRecommendation;
 import java.sql.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -36,15 +36,15 @@ public class FollowUpRecommendationDAO {
         String query = "UPDATE followUpRecommendation SET healthCheckupID = ?, recommendation = ? WHERE id = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, followUpRecommendation.getHealthCheckupId());
-            preparedStatement.setString(2, followUpRecommendation.getRecommendation());
-            preparedStatement.setInt(3, followUpRecommendation.getId());
+            preparedStatement.setInt(1, followUpRecommendation.healthCheckupId());
+            preparedStatement.setString(2, followUpRecommendation.recommendation());
+            preparedStatement.setInt(3, followUpRecommendation.id());
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected == 0) {
-                throw new SQLException("Failed to update follow-up recommendation with ID: " + followUpRecommendation.getId());
+                throw new SQLException("Failed to update follow-up recommendation with ID: " + followUpRecommendation.id());
             }
         } catch (SQLException e) {
-            AppLogger.error("Error updating follow-up recommendation: " + followUpRecommendation.getId(), e);
+            AppLogger.error("Error updating follow-up recommendation: " + followUpRecommendation.id(), e);
             throw e; // Re-throw the exception for higher-level handling
         }
     }
@@ -53,11 +53,11 @@ public class FollowUpRecommendationDAO {
         String query = "INSERT INTO followUpRecommendation (healthCheckupID, recommendation) VALUES (?, ?)";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, followUpRecommendation.getHealthCheckupId());
-            preparedStatement.setString(2, followUpRecommendation.getRecommendation());
+            preparedStatement.setInt(1, followUpRecommendation.healthCheckupId());
+            preparedStatement.setString(2, followUpRecommendation.recommendation());
             preparedStatement.executeUpdate();
         } catch (SQLException e) {
-            AppLogger.error("Error inserting follow-up recommendation with ID: " + followUpRecommendation.getId(), e);
+            AppLogger.error("Error inserting follow-up recommendation with ID: " + followUpRecommendation.id(), e);
             throw e; // Re-throw the exception for higher-level handling
         }
     }

@@ -5,7 +5,7 @@ import com.example.hashinfarm.data.DAOs.CattleDAO;
 import com.example.hashinfarm.businessLogic.services.interfaces.CattleAdditionCallback;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.utils.CattleDialogUtils;
-import com.example.hashinfarm.data.DTOs.Breed;
+import com.example.hashinfarm.data.DTOs.records.Breed;
 import com.example.hashinfarm.data.DTOs.Cattle;
 import com.example.hashinfarm.data.DTOs.records.CattleUIInfo;
 import javafx.fxml.FXML;
@@ -159,9 +159,10 @@ public class AddNewCattleController {
     private void selectCattleBreed() {
         selectedCattleBreed = selectBreed();
         if (selectedCattleBreed != null) {
-            cattleBreedButton.setText(selectedCattleBreed.getBreedName());
+            cattleBreedButton.setText(selectedCattleBreed.breedName());
         }
     }
+
 
     public void handleCattleTagID(javafx.event.ActionEvent actionEvent) {
         Button buttonClicked = (Button) actionEvent.getSource();
@@ -209,7 +210,7 @@ public class AddNewCattleController {
         try {
             List<Breed> breeds = BreedDAO.getAllBreeds();
             return showSelectionDialog(
-                    breeds, Breed::getBreedName);
+                    breeds, Breed::breedName);
         } catch (SQLException e) {
             handleException(e);
             return null;
@@ -268,7 +269,7 @@ public class AddNewCattleController {
 
     private void gatherCattleInformationFromUI() {
         CattleUIInfo uiInfo = CattleDialogUtils.gatherCommonUIInfo(tagIDTextField, nameTextField, genderComboBox, colorMakingTextField, dateOfBirthDatePicker, weightTextField, BCSSliderLabel);
-        int breedId = selectedCattleBreed != null ? selectedCattleBreed.getBreedId() : 0;
+        int breedId = selectedCattleBreed != null ? selectedCattleBreed.breedId() : 0;
         int sireId = selectedSire != null ? selectedSire.getCattleId() : 0;
         int damId = selectedDam != null ? selectedDam.getCattleId() : 0;
         int damsHerd = selectedDam != null ? selectedDam.getHerdId() : 0;

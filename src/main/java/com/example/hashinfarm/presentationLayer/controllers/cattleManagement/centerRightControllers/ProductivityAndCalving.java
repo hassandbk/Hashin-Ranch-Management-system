@@ -4,6 +4,7 @@ import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
 import com.example.hashinfarm.data.DAOs.*;
 
+import com.example.hashinfarm.data.DTOs.records.BreedingAttempt;
 import com.example.hashinfarm.data.DTOs.records.StageDetails;
 import com.example.hashinfarm.data.DTOs.records.SubStageDetails;
 import com.example.hashinfarm.data.DTOs.*;
@@ -417,12 +418,12 @@ public class ProductivityAndCalving {
         try {
             List<BreedingAttempt> successfulBreedingAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleId(selectedCattleId)
                     .stream()
-                    .filter(attempt -> "Success".equals(attempt.getAttemptStatus()))
+                    .filter(attempt -> "Success".equals(attempt.attemptStatus()))
                     .toList();
 
             ObservableList<String> breedingDates = FXCollections.observableArrayList(
                     successfulBreedingAttempts.stream()
-                            .map(BreedingAttempt::getAttemptDate)
+                            .map(BreedingAttempt::attemptDate)
                             .collect(Collectors.toList())
             );
 
@@ -1845,56 +1846,36 @@ public class ProductivityAndCalving {
     }
 
 
-
     private void initializeOffspringAndBreedingAttemptTableColumns() {
+        // Initialize cell value factories for offspring table columns
+        setStringCellFactoryAndAlign(offspringIdColumn, cellData -> String.valueOf(cellData.getValue().offspringId()));
+        setStringCellFactoryAndAlign(cattleIdColumn, cellData -> String.valueOf(cellData.getValue().cattleId()));
+        setStringCellFactoryAndAlign(cattleNameColumn, cellData -> cellData.getValue().cattleName());
+        setStringCellFactoryAndAlign(genderColumn, cellData -> cellData.getValue().gender());
+        setStringCellFactoryAndAlign(breedingMethodColumn, cellData -> cellData.getValue().breedingMethod());
 
-        // Directly set the cell value factory for each column in the offspring table using custom CellValueFactory
-        offspringIdColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(String.valueOf(cellData.getValue().offspringId()))
-        );
-        cattleIdColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().cattleId())
-        );
-        cattleNameColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().cattleName())
-        );
-        genderColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().gender())
-        );
-        breedingMethodColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty(cellData.getValue().breedingMethod())
-        );
-
-        // Optionally, apply alignment to the offspring table columns after setting the custom CellValueFactory
-        TableColumnUtils.centerAlignColumn(offspringIdColumn);
-        TableColumnUtils.centerAlignColumn(cattleIdColumn);
-        TableColumnUtils.centerAlignColumn(cattleNameColumn);
-        TableColumnUtils.centerAlignColumn(genderColumn);
-        TableColumnUtils.centerAlignColumn(breedingMethodColumn);
-
-
-
-        // Define all columns and their properties
-        Object[][] columns = {
-                //breeding Attempts
-                {breedingAttemptIdColumn, "breedingAttemptId"},
-                {estrusDateColumn, "estrusDate"},
-                {breedingMethodBreedingAttemptColumn, "breedingMethod"},
-                {sireUsedColumn, "sireId"},
-                {attemptDateColumn, "attemptDate"},
-                {attemptStatusColumn, "attemptStatus"}
-        };
-
-        // Set cell value factories and center align columns
-        for (Object[] column : columns) {
-            setCellValueFactoryAndAlign((TableColumn<?, ?>) column[0], (String) column[1]);
-        }
+        // Initialize cell value factories for breeding attempt table columns
+        setIntegerCellFactoryAndAlign(breedingAttemptIdColumn, cellData -> cellData.getValue().breedingAttemptId());
+        setStringCellFactoryAndAlign(estrusDateColumn, cellData -> cellData.getValue().estrusDate());
+        setStringCellFactoryAndAlign(breedingMethodBreedingAttemptColumn, cellData -> cellData.getValue().breedingMethod());
+        setStringCellFactoryAndAlign(sireUsedColumn, cellData -> String.valueOf(cellData.getValue().sireId()));
+        setStringCellFactoryAndAlign(attemptDateColumn, cellData -> cellData.getValue().attemptDate());
+        setStringCellFactoryAndAlign(attemptStatusColumn, cellData -> cellData.getValue().attemptStatus());
     }
 
-    private <T> void setCellValueFactoryAndAlign(TableColumn<T, ?> column, String property) {
-        column.setCellValueFactory(new PropertyValueFactory<>(property));
+    // Method for columns with String values
+    private <T> void setStringCellFactoryAndAlign(TableColumn<T, String> column, Function<TableColumn.CellDataFeatures<T, String>, String> mapper) {
+        column.setCellValueFactory(cellData -> new SimpleStringProperty(mapper.apply(cellData)));
         TableColumnUtils.centerAlignColumn(column);
     }
+
+    // Method for columns with Integer values
+    private <T> void setIntegerCellFactoryAndAlign(TableColumn<T, Integer> column, Function<TableColumn.CellDataFeatures<T, Integer>, Integer> mapper) {
+        column.setCellValueFactory(cellData -> new SimpleIntegerProperty(mapper.apply(cellData)).asObject());
+        TableColumnUtils.centerAlignColumn(column);
+    }
+
+
 
 
 
@@ -2314,21 +2295,20 @@ public class ProductivityAndCalving {
         }
     }
 
-
     private void updateBreedingAttemptDetails(BreedingAttempt attempt) {
-        breedingAttemptIdLabel.setText(String.valueOf(attempt.getBreedingAttemptId()));
-        estrusDatePicker.setValue(LocalDate.parse(attempt.getEstrusDate()));
-        breedingMethodBreedingAttemptComboBox.setValue(attempt.getBreedingMethod());
+        breedingAttemptIdLabel.setText(String.valueOf(attempt.breedingAttemptId()));
+        estrusDatePicker.setValue(LocalDate.parse(attempt.estrusDate()));
+        breedingMethodBreedingAttemptComboBox.setValue(attempt.breedingMethod());
         attemptNumberTextField.setText(computeAttempts());
-        attemptDatePicker.setValue(LocalDate.parse(attempt.getAttemptDate()));
-        attemptStatusComboBox.setValue(attempt.getAttemptStatus());
-        notesTextArea.setText(attempt.getNotes());
+        attemptDatePicker.setValue(LocalDate.parse(attempt.attemptDate()));
+        attemptStatusComboBox.setValue(attempt.attemptStatus());
+        notesTextArea.setText(attempt.notes());
     }
 
     private void updateSireDetails(BreedingAttempt attempt) {
-        if (attempt.getSireId() != 0) {
+        if (attempt.sireId() != 0) {
             try {
-                Cattle cattle = CattleDAO.getCattleByID(attempt.getSireId());
+                Cattle cattle = CattleDAO.getCattleByID(attempt.sireId());
                 sireNameLabel.setText(Objects.requireNonNull(cattle).getName());
                 sireNameButton.setText(Objects.requireNonNull(cattle).getTagId());
             } catch (SQLException e) {
@@ -2338,6 +2318,7 @@ public class ProductivityAndCalving {
             sireNameLabel.setText("N/A");
         }
     }
+
 
 
     //Validation & Population
@@ -2457,12 +2438,12 @@ public class ProductivityAndCalving {
         if (selectedAttempt == null) return "";
 
         return switch (propertyName) {
-            case "estrusDate" -> selectedAttempt.getEstrusDate();
-            case "sireId" -> getSireName(selectedAttempt.getSireId());
-            case "breedingMethod" -> selectedAttempt.getBreedingMethod();
-            case "attemptDate" -> selectedAttempt.getAttemptDate();
-            case "attemptStatus" -> selectedAttempt.getAttemptStatus();
-            case "notes" -> selectedAttempt.getNotes();
+            case "estrusDate" -> selectedAttempt.estrusDate();
+            case "sireId" -> getSireName(selectedAttempt.sireId());
+            case "breedingMethod" -> selectedAttempt.breedingMethod();
+            case "attemptDate" -> selectedAttempt.attemptDate();
+            case "attemptStatus" -> selectedAttempt.attemptStatus();
+            case "notes" -> selectedAttempt.notes();
             default -> "";
         };
     }
@@ -2475,15 +2456,16 @@ public class ProductivityAndCalving {
         String currentBreedingMethod = breedingMethodBreedingAttemptComboBox.getValue();
         boolean isNaturalMating = "Natural Mating".equals(currentBreedingMethod);
 
-        boolean sireNameLabelChanged = !isNaturalMating || !sireNameLabel.getText().equals(getSireName(selectedAttempt.getSireId()));
+        boolean sireNameLabelChanged = !isNaturalMating || !sireNameLabel.getText().equals(getSireName(selectedAttempt.sireId()));
 
-        return !estrusDatePicker.getValue().toString().equals(selectedAttempt.getEstrusDate()) ||
+        return !estrusDatePicker.getValue().toString().equals(selectedAttempt.estrusDate()) ||
                 !sireNameLabelChanged ||  // Include sireNameLabel change check
-                !currentBreedingMethod.equals(selectedAttempt.getBreedingMethod()) ||
-                !attemptDatePicker.getValue().toString().equals(selectedAttempt.getAttemptDate()) ||
-                !attemptStatusComboBox.getValue().equals(selectedAttempt.getAttemptStatus()) ||
-                !notesTextArea.getText().equals(selectedAttempt.getNotes());
+                !currentBreedingMethod.equals(selectedAttempt.breedingMethod()) ||
+                !attemptDatePicker.getValue().toString().equals(selectedAttempt.attemptDate()) ||
+                !attemptStatusComboBox.getValue().equals(selectedAttempt.attemptStatus()) ||
+                !notesTextArea.getText().equals(selectedAttempt.notes());
     }
+
 
 
     //Update and Delete Operations:
@@ -2512,7 +2494,7 @@ public class ProductivityAndCalving {
             BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
             if (selectedAttempt != null) {
                 try {
-                    BreedingAttemptDAO.deleteBreedingAttemptById(selectedAttempt.getBreedingAttemptId());
+                    BreedingAttemptDAO.deleteBreedingAttemptById(selectedAttempt.breedingAttemptId());
                     breedingAttemptsTableView.getItems().remove(selectedAttempt);
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding attempt deleted successfully.");
                     loadBreedingAttemptsData();
@@ -2561,15 +2543,14 @@ public class ProductivityAndCalving {
         return sireName;
     }
 
-
-    //Utility and Listener Setup:
-    // Method to compute the attempt number
+    // Utility and Listener Setup:
+// Method to compute the attempt number
     private String computeAttempts() {
         BreedingAttempt selectedAttempt = breedingAttemptsTableView.getSelectionModel().getSelectedItem();
         if (selectedAttempt != null) {
-            int cattleId = selectedAttempt.getCattleId();
-            LocalDate estrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
-            LocalDate attemptDate = LocalDate.parse(selectedAttempt.getAttemptDate());
+            int cattleId = selectedAttempt.cattleId();
+            LocalDate estrusDate = LocalDate.parse(selectedAttempt.estrusDate());
+            LocalDate attemptDate = LocalDate.parse(selectedAttempt.attemptDate());
 
             List<BreedingAttempt> breedingAttempts;
             try {
@@ -2580,7 +2561,7 @@ public class ProductivityAndCalving {
 
             int attemptNumber = 0;
             for (BreedingAttempt attempt : breedingAttempts) {
-                LocalDate currentAttemptDate = LocalDate.parse(attempt.getAttemptDate());
+                LocalDate currentAttemptDate = LocalDate.parse(attempt.attemptDate());
                 if (!currentAttemptDate.isAfter(attemptDate)) {
                     attemptNumber++;
                 }
@@ -2590,6 +2571,7 @@ public class ProductivityAndCalving {
         }
         return "N/A";
     }
+
 
     private String ordinal(int number) {
         String[] suffixes = {"th", "st", "nd", "rd", "th", "th", "th", "th", "th", "th"};
@@ -2672,8 +2654,8 @@ public class ProductivityAndCalving {
 
                 try {
                     BreedingAttempt updatedAttempt = new BreedingAttempt(
-                            selectedAttempt.getBreedingAttemptId(),
-                            selectedAttempt.getCattleId(),
+                            selectedAttempt.breedingAttemptId(),
+                            selectedAttempt.cattleId(),
                             estrusDatePicker.getValue().toString(),
                             breedingMethodBreedingAttemptComboBox.getValue(),
                             sireId,
@@ -2795,9 +2777,9 @@ public class ProductivityAndCalving {
         List<BreedingAttempt> breedingAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleId(cattleId);
         for (BreedingAttempt attempt : breedingAttempts) {
 
-            if ("Success".equals(attempt.getAttemptStatus())) {
-                LocalDate breedingDate =LocalDate.parse(attempt.getAttemptDate());
-                LocalDate estrusDate = LocalDate.parse(attempt.getEstrusDate());
+            if ("Success".equals(attempt.attemptStatus())) {
+                LocalDate breedingDate =LocalDate.parse(attempt.attemptDate());
+                LocalDate estrusDate = LocalDate.parse(attempt.estrusDate());
 
                 ReproductiveVariables reproductiveVariables = reproductiveVariablesDAO.getReproductiveVariableByCattleIdAndBreedingDate(cattleId, breedingDate);
 
@@ -2847,7 +2829,7 @@ public class ProductivityAndCalving {
 
 
     public LocalDate calculateMinimumEstrusDate(int cattleId, BreedingAttempt selectedAttempt) throws SQLException {
-        LocalDate currentEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
+        LocalDate currentEstrusDate = LocalDate.parse(selectedAttempt.estrusDate());
 
         LocalDate previousEstrusDate = BreedingAttemptDAO.getPreviousEstrusDate(selectedCattleId, currentEstrusDate);
 
@@ -2861,11 +2843,11 @@ public class ProductivityAndCalving {
 
         List<BreedingAttempt> previousAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(cattleId, previousEstrusDate);
         Optional<BreedingAttempt> successfulAttempt = previousAttempts.stream()
-                .filter(attempt -> "Success".equals(attempt.getAttemptStatus()))
+                .filter(attempt -> "Success".equals(attempt.attemptStatus()))
                 .findFirst();
 
         if (successfulAttempt.isPresent()) {
-            LocalDate breedingDate = LocalDate.parse(successfulAttempt.get().getAttemptDate());
+            LocalDate breedingDate = LocalDate.parse(successfulAttempt.get().attemptDate());
             return calculateMinDateBasedOnSuccessfulAttempt(cattleId, breedingDate);
         } else {
             return previousEstrusDate.plusDays(24); // Handle case where no successful breeding attempt found
@@ -2930,7 +2912,7 @@ public class ProductivityAndCalving {
 
 
     public LocalDate calculateMaximumDate(int cattleId, BreedingAttempt selectedAttempt, LocalDate minDate) throws SQLException {
-        LocalDate currentEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
+        LocalDate currentEstrusDate = LocalDate.parse(selectedAttempt.estrusDate());
         LocalDate previousEstrusDate = BreedingAttemptDAO.getPreviousEstrusDate(cattleId, currentEstrusDate);
 
         return calculateMaxDateBasedOnNextEstrus(cattleId, previousEstrusDate, minDate, currentEstrusDate);
@@ -2956,10 +2938,10 @@ public class ProductivityAndCalving {
 
         List<BreedingAttempt> nextAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(cattleId, nextEstrusDate);
         Optional<BreedingAttempt> successfulAttempt = nextAttempts.stream()
-                .filter(attempt -> "Success".equals(attempt.getAttemptStatus()))
+                .filter(attempt -> "Success".equals(attempt.attemptStatus()))
                 .findFirst();
 
-        return successfulAttempt.map(breedingAttempt -> LocalDate.parse(breedingAttempt.getEstrusDate())).orElseGet(() -> minDate.plusMonths(3));
+        return successfulAttempt.map(breedingAttempt -> LocalDate.parse(breedingAttempt.estrusDate())).orElseGet(() -> minDate.plusMonths(3));
 
 
     }
@@ -2996,21 +2978,19 @@ public class ProductivityAndCalving {
             }
         });
     }
-
     public void initializeAttemptDatePicker(DatePicker attemptDatePicker, BreedingAttempt selectedAttempt) {
 
-        // Existing attempt, proceed with normal logic
         try {
             // Fetch all existing breeding attempts for the specified cattle
             List<BreedingAttempt> filteredAttempts = BreedingAttemptDAO.getBreedingAttemptsByCattleIdAndEstrusDate(
-                    selectedCattleId, LocalDate.parse(selectedAttempt.getEstrusDate()));
+                    selectedCattleId, LocalDate.parse(selectedAttempt.estrusDate()));
 
             LocalDate currentDate = LocalDate.now();
-            LocalDate selectedEstrusDate = LocalDate.parse(selectedAttempt.getEstrusDate());
-            LocalDate selectedAttemptDate = LocalDate.parse(selectedAttempt.getAttemptDate());
+            LocalDate selectedEstrusDate = LocalDate.parse(selectedAttempt.estrusDate());
+            LocalDate selectedAttemptDate = LocalDate.parse(selectedAttempt.attemptDate());
 
             // Sort the filtered attempts by attemptDate in ascending order
-            filteredAttempts.sort(Comparator.comparing(attempt -> LocalDate.parse(attempt.getAttemptDate())));
+            filteredAttempts.sort(Comparator.comparing(attempt -> LocalDate.parse(attempt.attemptDate())));
 
             // Initialize previous and subsequent attempts
             BreedingAttempt previousAttempt = null;
@@ -3020,7 +3000,7 @@ public class ProductivityAndCalving {
             int selectedIndex = -1;
             for (int i = 0; i < filteredAttempts.size(); i++) {
                 BreedingAttempt attempt = filteredAttempts.get(i);
-                LocalDate attemptDate = LocalDate.parse(attempt.getAttemptDate());
+                LocalDate attemptDate = LocalDate.parse(attempt.attemptDate());
 
                 if (attemptDate.isEqual(selectedAttemptDate)) {
                     selectedIndex = i;
@@ -3050,14 +3030,14 @@ public class ProductivityAndCalving {
             } else if (previousAttempt == null && subsequentAttempt != null) {
                 // First attempt
                 minDate = selectedEstrusDate;
-                maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
+                maxDate = LocalDate.parse(subsequentAttempt.attemptDate()).minusDays(1);
             } else if (previousAttempt != null && subsequentAttempt != null) {
                 // Middle attempt
-                minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
-                maxDate = LocalDate.parse(subsequentAttempt.getAttemptDate()).minusDays(1);
+                minDate = LocalDate.parse(previousAttempt.attemptDate()).plusDays(1);
+                maxDate = LocalDate.parse(subsequentAttempt.attemptDate()).minusDays(1);
             } else if (previousAttempt != null) {
                 // Last attempt
-                minDate = LocalDate.parse(previousAttempt.getAttemptDate()).plusDays(1);
+                minDate = LocalDate.parse(previousAttempt.attemptDate()).plusDays(1);
                 maxDate = selectedEstrusDate.plusDays(23).isAfter(currentDate) ? currentDate : selectedEstrusDate.plusDays(23);
             } else {
                 // Fallback case
@@ -3072,7 +3052,6 @@ public class ProductivityAndCalving {
             e.printStackTrace();
             showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while initializing the Attempt Date Picker.");
         }
-
     }
 
 

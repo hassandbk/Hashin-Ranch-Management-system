@@ -2,7 +2,7 @@ package com.example.hashinfarm.data.DAOs;
 
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger;
-import com.example.hashinfarm.data.DTOs.FollowUpRecommendation;
+import com.example.hashinfarm.data.DTOs.records.FollowUpRecommendation;
 import com.example.hashinfarm.data.DTOs.records.HealthCheckupRecord;
 
 import java.sql.*;
@@ -59,21 +59,23 @@ public class HealthCheckupHistoryDAO {
             throw e;
         }
     }
-
     private static void updateFollowUpRecommendations(List<FollowUpRecommendation> recommendations, int healthCheckupId) throws SQLException {
         List<FollowUpRecommendation> existingRecommendations = FollowUpRecommendationDAO.getFollowUpRecommendationsByHealthCheckupId(healthCheckupId);
         Set<Integer> existingIds = new HashSet<>();
         for (FollowUpRecommendation recommendation : existingRecommendations) {
-            existingIds.add(recommendation.getId());
+            existingIds.add(recommendation.id());
         }
 
         for (FollowUpRecommendation recommendation : recommendations) {
-            if (recommendation.getId() == 0) {
-                recommendation.setHealthCheckupId(healthCheckupId);
-                FollowUpRecommendationDAO.insertFollowUpRecommendation(recommendation);
+            if (recommendation.id() == 0) {
+                // Create a new FollowUpRecommendation record with the healthCheckupId
+                FollowUpRecommendation newRecommendation = new FollowUpRecommendation(
+                        0, healthCheckupId, recommendation.recommendation(), recommendation.createdAt()
+                );
+                FollowUpRecommendationDAO.insertFollowUpRecommendation(newRecommendation);
             } else {
                 FollowUpRecommendationDAO.updateFollowUpRecommendation(recommendation);
-                existingIds.remove(recommendation.getId());
+                existingIds.remove(recommendation.id());
             }
         }
 
@@ -108,10 +110,14 @@ public class HealthCheckupHistoryDAO {
 
     private static void insertFollowUpRecommendations(List<FollowUpRecommendation> recommendations, int healthCheckupId) throws SQLException {
         for (FollowUpRecommendation recommendation : recommendations) {
-            recommendation.setHealthCheckupId(healthCheckupId);
-            FollowUpRecommendationDAO.insertFollowUpRecommendation(recommendation);
+            // Create a new FollowUpRecommendation with the updated healthCheckupId
+            FollowUpRecommendation newRecommendation = new FollowUpRecommendation(
+                    recommendation.id(), healthCheckupId, recommendation.recommendation(), recommendation.createdAt()
+            );
+            FollowUpRecommendationDAO.insertFollowUpRecommendation(newRecommendation);
         }
     }
+
 
     public static void deleteHealthCheckupHistoryByCattleIdAndId(int cattleId, int healthCheckupId) throws SQLException {
         String deleteHealthCheckupQuery = "DELETE FROM healthCheckupHistory WHERE cattleID = ? AND id = ?";
