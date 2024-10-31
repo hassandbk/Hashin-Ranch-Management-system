@@ -64,8 +64,8 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                     setStyle(null); // Clear any style applied
                 } else {
                     LactationPeriodWithSelection lactationPeriodWithSelection = getTableView().getItems().get(getIndex());
-                    LocalDate startDate = lactationPeriodWithSelection.getLactationPeriod().getStartDate();
-                    LocalDate endDate = lactationPeriodWithSelection.getLactationPeriod().getEndDate();
+                    LocalDate startDate = lactationPeriodWithSelection.getLactationPeriod().startDate();
+                    LocalDate endDate = lactationPeriodWithSelection.getLactationPeriod().endDate();
                     LocalDate currentDate = LocalDate.now();
 
                     long daysSinceStart = ChronoUnit.DAYS.between(startDate, currentDate);

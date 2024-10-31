@@ -6,10 +6,11 @@ import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
 import com.example.hashinfarm.data.DTOs.SelectedHerdManager;
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.DTOs.Herd;
+import com.example.hashinfarm.data.DTOs.records.Herd;
 
 import javafx.application.Platform;
 import javafx.beans.property.ReadOnlyObjectWrapper;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -17,7 +18,6 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 
 import javafx.scene.text.Font;
@@ -28,6 +28,7 @@ import javafx.util.Callback;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 public class HerdList {
@@ -56,34 +57,36 @@ public class HerdList {
   }
 
   private void setupTableColumns() {
-    addColumn("Herd ID", "id");
-    addColumn("Herd Name", "name");
+    addColumn("Herd ID", Herd::id);
+    addColumn("Herd Name", Herd::name);
     addAnimalsColumn();
-    addColumn("Total Animals", "totalAnimals");
-    addColumn("Animals Class", "animalClass");
-    addColumn("Breed Type", "breedType");
-    addColumn("Age Class", "ageClass");
-    addColumn("Breed System", "breedSystem");
-    addColumn("Solution Type", "solutionType");
-    addColumn("Feed Basis", "feedBasis");
-    addColumn("Location", "location");
+    addColumn("Total Animals", Herd::totalAnimals);
+    addColumn("Animals Class", Herd::animalClass);
+    addColumn("Breed Type", Herd::breedType);
+    addColumn("Age Class", Herd::ageClass);
+    addColumn("Breed System", Herd::breedSystem);
+    addColumn("Solution Type", Herd::solutionType);
+    addColumn("Feed Basis", Herd::feedBasis);
+    addColumn("Location", Herd::location);
     addActionColumn();
     tableView.setItems(filteredHerds);
   }
 
-  private <T> void addColumn(String title, String propertyName) {
+
+  private <T> void addColumn(String title, Function<Herd, T> propertyAccessor) {
     TableColumn<Herd, T> column = new TableColumn<>(title);
-    column.setCellValueFactory(new PropertyValueFactory<>(propertyName));
+    column.setCellValueFactory(cellData -> new SimpleObjectProperty<>(propertyAccessor.apply(cellData.getValue())));
     tableView.getColumns().add(column);
   }
 
+
   private void addActionColumn() {
     TableColumn<Herd, String> column = new TableColumn<>("Action");
-    column.setCellValueFactory(new PropertyValueFactory<>("action"));
-    column.setCellFactory(getActionCellFactory());
+    column.setCellFactory(getActionCellFactory());  // Use the custom cell factory directly
     column.setPrefWidth(130);
     tableView.getColumns().add(column);
   }
+
 
   private void addAnimalsColumn() {
     TableColumn<Herd, String> column = new TableColumn<>("Animals");
@@ -93,33 +96,28 @@ public class HerdList {
     tableView.getColumns().add(column);
   }
 
+
   private Callback<TableColumn<Herd, String>, TableCell<Herd, String>> getAnimalsCellFactory() {
     return param -> new TableCell<>() {
       private final ComboBox<String> animalDropdown = new ComboBox<>();
       private static ComboBox<String> currentlySelectedComboBox = null;
 
       {
-        // Set smaller font size for the ComboBox and its cells
         animalDropdown.setStyle("-fx-font-size: 10px;");
-
-        // Set initial visible row count in dropdown
         animalDropdown.setVisibleRowCount(5);
-
-        // Show all items in dropdown with smaller font size
         animalDropdown.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(String item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
-                    setText(null);
-                } else {
-                    setText(item);
-                    setFont(Font.font("System", 10)); // Set smaller font size for cell text
-                }
+          @Override
+          protected void updateItem(String item, boolean empty) {
+            super.updateItem(item, empty);
+            if (empty || item == null) {
+              setText(null);
+            } else {
+              setText(item);
+              setFont(Font.font("System", 10));
             }
+          }
         });
       }
-
 
       @Override
       protected void updateItem(String item, boolean empty) {
@@ -129,7 +127,7 @@ public class HerdList {
           setGraphic(null);
         } else {
           Herd herd = getTableView().getItems().get(getIndex());
-          List<Cattle> animals = herd.getAnimals();
+          List<Cattle> animals = herd.animals();
 
           // Create a map for quick lookup of Cattle by their names
           Map<String, Cattle> animalMap = animals.stream()
@@ -140,7 +138,7 @@ public class HerdList {
 
           animalDropdown.setOnAction(event -> {
             String selectedAnimalName = animalDropdown.getValue();
-            Cattle selectedCattle = animalMap.get(selectedAnimalName); // Quick lookup using the map
+            Cattle selectedCattle = animalMap.get(selectedAnimalName);
 
             if (selectedCattle != null) {
               if (currentlySelectedComboBox != null && currentlySelectedComboBox != animalDropdown) {
@@ -155,15 +153,9 @@ public class HerdList {
             animalDropdown.hide();
           });
 
-          // Set a preferred width for the ComboBox
-          animalDropdown.setPrefWidth(100);
-
           setGraphic(animalDropdown);
         }
       }
-
-
-
     };
   }
 
@@ -178,9 +170,9 @@ public class HerdList {
       private final HBox buttonsBox = new HBox(viewButton, editButton, deleteButton);
 
       {
-        viewButton.setOnAction(event -> showViewStage(param.getTableView().getItems().get(getIndex()).getId()));
-        editButton.setOnAction(event -> showEditStage(param.getTableView().getItems().get(getIndex()).getId()));
-        deleteButton.setOnAction(event -> showDeleteConfirmation(param.getTableView().getItems().get(getIndex()).getId()));
+        viewButton.setOnAction(event -> showViewStage(param.getTableView().getItems().get(getIndex()).id()));
+        editButton.setOnAction(event -> showEditStage(param.getTableView().getItems().get(getIndex()).id()));
+        deleteButton.setOnAction(event -> showDeleteConfirmation(param.getTableView().getItems().get(getIndex()).id()));
       }
 
       @Override
@@ -195,6 +187,7 @@ public class HerdList {
     };
   }
 
+
   private void setupData() {
     try {
       loadDataFromDatabase();
@@ -206,7 +199,7 @@ public class HerdList {
 
   private void setupAnimalSelectionListener() {
     for (Herd herd : herds) {
-      for (Cattle cattle : herd.getAnimals()) {
+      for (Cattle cattle : herd.animals()) {
         cattle.selectedProperty().addListener((observable, oldValue, newValue) -> {
           if (newValue) {
             SelectedCattleManager.getInstance().setSelectedCattle(cattle);
@@ -224,7 +217,7 @@ public class HerdList {
       Parent root = loader.load();
       ViewSelectedHerdController controller = loader.getController();
 
-      Herd selectedHerd = herds.stream().filter(herd -> herd.getId() == herdId).findFirst().orElse(null);
+      Herd selectedHerd = herds.stream().filter(herd -> herd.id() == herdId).findFirst().orElse(null);
       if (selectedHerd != null) {
         controller.initData(selectedHerd);
         Stage stage = new Stage();
@@ -241,17 +234,41 @@ public class HerdList {
 
   private void loadDataFromDatabase() throws SQLException {
     List<Herd> herdsFromDB = HerdDAO.getAllHerds();
-    for (Herd herd : herdsFromDB) {
-      List<Cattle> cattleForHerd = CattleDAO.getCattleForHerd(herd.getId());
-      ObservableList<Cattle> cattleObservableList = FXCollections.observableArrayList(cattleForHerd);
-      herd.setAnimals(cattleObservableList);
 
-      // Calculate total animals and set it in the Herd object
+    // Create a list to hold updated Herd records
+    List<Herd> updatedHerds = new ArrayList<>();
+
+    for (Herd herd : herdsFromDB) {
+      List<Cattle> cattleForHerd = CattleDAO.getCattleForHerd(herd.id());
+      ObservableList<Cattle> cattleObservableList = FXCollections.observableArrayList(cattleForHerd);
+
+      // Calculate total animals
       int totalAnimals = cattleObservableList.size();
-      herd.setTotalAnimals(totalAnimals);
+
+      // Create a new Herd record with updated animals and total animals
+      Herd updatedHerd = new Herd(
+              herd.id(),            // Keep the existing ID
+              herd.name(),          // Retain the existing name
+              totalAnimals,         // Set the new total animals count
+              herd.animalClass(),   // Retain the existing animal class
+              herd.breedType(),     // Retain the existing breed type
+              herd.ageClass(),      // Retain the existing age class
+              herd.breedSystem(),   // Retain the existing breed system
+              herd.solutionType(),   // Retain the existing solution type
+              herd.feedBasis(),     // Retain the existing feed basis
+              herd.location(),      // Retain the existing location
+              herd.action(),        // Retain the existing action
+              cattleObservableList   // Set the updated list of cattle
+      );
+
+      // Add the updated Herd to the list
+      updatedHerds.add(updatedHerd);
     }
-    herds.addAll(herdsFromDB);
+
+    // Add all updated Herds to the main list
+    herds.addAll(updatedHerds);
   }
+
 
 
 
@@ -347,26 +364,30 @@ public class HerdList {
     }
     filteredHerds.addAll(herds.filtered(herd -> herdMatchesSearchCriteria(herd, searchText)));
   }
-
   private boolean herdMatchesSearchCriteria(Herd herd, String searchText) {
     String[] searchTokens = searchText.toLowerCase().split("\\s+");
+
     for (String token : searchTokens) {
       boolean tokenMatch =
-          herd.getName().toLowerCase().contains(token)
-              || String.valueOf(herd.getId()).contains(token)
-              || herd.getAnimalClass().toLowerCase().contains(token)
-              || herd.getBreedType().toLowerCase().contains(token)
-              || herd.getAgeClass().toLowerCase().contains(token)
-              || herd.getBreedSystem().toLowerCase().contains(token)
-              || herd.getSolutionType().toLowerCase().contains(token)
-              || herd.getFeedBasis().toLowerCase().contains(token)
-              || herd.getLocation().toLowerCase().contains(token);
+              herd.name().toLowerCase().contains(token) ||
+                      String.valueOf(herd.id()).contains(token) ||
+                      herd.animalClass().toLowerCase().contains(token) ||
+                      herd.breedType().toLowerCase().contains(token) ||
+                      herd.ageClass().toLowerCase().contains(token) ||
+                      herd.breedSystem().toLowerCase().contains(token) ||
+                      herd.solutionType().toLowerCase().contains(token) ||
+                      herd.feedBasis().toLowerCase().contains(token) ||
+                      herd.location().toLowerCase().contains(token);
+
+      // If any token does not match, return false
       if (!tokenMatch) {
         return false;
       }
     }
-    return true;
+
+    return true; // All tokens matched
   }
+
 
 
   private void handleShowViewError() {
@@ -386,7 +407,7 @@ public class HerdList {
 
       // Retrieve the Herd object from the list
       Herd selectedHerd =
-          herds.stream().filter(herd -> herd.getId() == herdId).findFirst().orElse(null);
+          herds.stream().filter(herd -> herd.id() == herdId).findFirst().orElse(null);
       if (selectedHerd != null) {
         controller.initData(selectedHerd);
         Stage stage = new Stage();
@@ -433,7 +454,7 @@ public class HerdList {
 
       // Remove the herd from the list and refresh the table
       Herd herdToRemove =
-          herds.stream().filter(herd -> herd.getId() == herdId).findFirst().orElse(null);
+          herds.stream().filter(herd -> herd.id() == herdId).findFirst().orElse(null);
       if (herdToRemove != null) {
         herds.remove(herdToRemove);
         filteredHerds.remove(herdToRemove);

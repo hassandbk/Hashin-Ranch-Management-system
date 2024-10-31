@@ -1,6 +1,6 @@
 package com.example.hashinfarm.utils.date;
 
-import com.example.hashinfarm.data.DTOs.LactationPeriod;
+import com.example.hashinfarm.data.DTOs.records.LactationPeriod;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
 import javafx.collections.FXCollections;
@@ -84,8 +84,8 @@ public class TimePickerController {
     }
 
     public void setLactationPeriodStartDate(LactationPeriod lactationPeriod) {
-        if (lactationPeriod != null && lactationPeriod.getStartDate() != null) {
-            LocalDate startDate = lactationPeriod.getStartDate();
+        if (lactationPeriod != null && lactationPeriod.startDate() != null) {
+            LocalDate startDate = lactationPeriod.startDate();
             HBox formattedDate = formatDate(startDate);
             lactationPeriodStartDateLabel.setText(null);
             lactationPeriodStartDateLabel.setGraphic(formattedDate);
@@ -93,6 +93,7 @@ public class TimePickerController {
             lactationPeriodStartDateLabel.setGraphic(null);
         }
     }
+
 
     public void setSelectedProductionSession(LocalDate selectedProductionDate) {
         if (selectedProductionDate != null) {

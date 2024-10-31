@@ -1,6 +1,6 @@
 package com.example.hashinfarm.utils;
 
-import com.example.hashinfarm.data.DTOs.Country;
+import com.example.hashinfarm.data.DTOs.records.Country;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import java.io.File;

@@ -1,7 +1,7 @@
 package com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers;
 
 import com.example.hashinfarm.data.DAOs.HerdDAO;
-import com.example.hashinfarm.data.DTOs.Herd;
+import com.example.hashinfarm.data.DTOs.records.Herd;
 import javafx.fxml.FXML;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ComboBox;

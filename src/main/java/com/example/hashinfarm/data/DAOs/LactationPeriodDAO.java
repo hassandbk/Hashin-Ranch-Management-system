@@ -1,6 +1,6 @@
 package com.example.hashinfarm.data.DAOs;
 
-import com.example.hashinfarm.data.DTOs.LactationPeriod;
+import com.example.hashinfarm.data.DTOs.records.LactationPeriod;
 import com.example.hashinfarm.app.DatabaseConnection;
 
 import java.sql.*;

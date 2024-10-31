@@ -1,6 +1,6 @@
 package com.example.hashinfarm.helpers;
 
-import com.example.hashinfarm.data.DTOs.Country;
+import com.example.hashinfarm.data.DTOs.records.Country;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.image.Image;
@@ -31,7 +31,6 @@ public class CountryListCell extends ListCell<Country> {
 
         setGraphic(hbox);  // Set the HBox as the graphic for the ListCell
     }
-
     @Override
     protected void updateItem(Country country, boolean empty) {
         super.updateItem(country, empty);
@@ -39,11 +38,11 @@ public class CountryListCell extends ListCell<Country> {
             setText(null);
             setGraphic(null);
         } else {
-            nameLabel.setText(country.getName());
-            callingCodeLabel.setText(country.getCallingCode());
+            nameLabel.setText(country.name());
+            callingCodeLabel.setText(country.callingCode());
 
             // Use cached flag images if available
-            String flagName = Optional.ofNullable(country.getFlagName()).orElse("placeholder.png");
+            String flagName = Optional.ofNullable(country.flagName()).orElse("placeholder.png");
             Image flagImage = flagImageCache.get(flagName);
 
             if (flagImage != null) {
@@ -56,4 +55,5 @@ public class CountryListCell extends ListCell<Country> {
             setGraphic(hbox);  // Make sure the HBox is set each time the cell is updated
         }
     }
+
 }

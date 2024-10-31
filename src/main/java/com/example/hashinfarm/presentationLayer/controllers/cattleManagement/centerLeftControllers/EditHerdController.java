@@ -4,7 +4,7 @@ import com.example.hashinfarm.data.DAOs.CattleDAO;
 import com.example.hashinfarm.data.DAOs.HerdDAO;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.DTOs.Herd;
+import com.example.hashinfarm.data.DTOs.records.Herd;
 import java.io.IOException;
 import java.sql.Date;
 import java.sql.SQLException;
@@ -64,22 +64,22 @@ public class EditHerdController {
   }
 
   private void populateFields() {
-    herdNameTextField.setText(selectedHerd.getName());
-    locationTextField.setText(selectedHerd.getLocation());
-    animalClassComboBox.setValue(selectedHerd.getAnimalClass());
-    breedTypeComboBox.setValue(selectedHerd.getBreedType());
-    breedSystemComboBox.setValue(selectedHerd.getBreedSystem());
-    solutionTypeComboBox.setValue(selectedHerd.getSolutionType());
-    ageClassComboBox.setValue(selectedHerd.getAgeClass());
-    feedBasisComboBox.setValue(selectedHerd.getFeedBasis());
+    herdNameTextField.setText(selectedHerd.name());
+    locationTextField.setText(selectedHerd.location());
+    animalClassComboBox.setValue(selectedHerd.animalClass());
+    breedTypeComboBox.setValue(selectedHerd.breedType());
+    breedSystemComboBox.setValue(selectedHerd.breedSystem());
+    solutionTypeComboBox.setValue(selectedHerd.solutionType());
+    ageClassComboBox.setValue(selectedHerd.ageClass());
+    feedBasisComboBox.setValue(selectedHerd.feedBasis());
   }
 
   private void populateCattleTable() {
-    ObservableList<Cattle> cattleList =
-            FXCollections.observableArrayList(selectedHerd.getAnimals());
+    ObservableList<Cattle> cattleList = FXCollections.observableArrayList(selectedHerd.animals());
     cattleTableView.setItems(cattleList);
     setCattleTableColumns();
   }
+
 
   private void setCattleTableColumns() {
     setCattleColumn(cattleIdColumn, Cattle::getCattleId);
@@ -106,17 +106,25 @@ public class EditHerdController {
       handleDatabaseError(e);
     }
   }
-
   private void updateHerdDetails() throws SQLException {
-    selectedHerd.setName(herdNameTextField.getText());
-    selectedHerd.setLocation(locationTextField.getText());
-    selectedHerd.setAnimalClass(animalClassComboBox.getValue());
-    selectedHerd.setBreedType(breedTypeComboBox.getValue());
-    selectedHerd.setBreedSystem(breedSystemComboBox.getValue());
-    selectedHerd.setSolutionType(solutionTypeComboBox.getValue());
-    selectedHerd.setAgeClass(ageClassComboBox.getValue());
-    selectedHerd.setFeedBasis(feedBasisComboBox.getValue());
-    HerdDAO.updateHerd(selectedHerd);
+    // Create a new Herd record with updated values from the text fields and combo boxes
+    Herd updatedHerd = new Herd(
+            selectedHerd.id(),  // use the existing ID
+            herdNameTextField.getText(),
+            selectedHerd.totalAnimals(), // keep the existing totalAnimals value
+            animalClassComboBox.getValue(),
+            breedTypeComboBox.getValue(),
+            ageClassComboBox.getValue(),
+            breedSystemComboBox.getValue(),
+            solutionTypeComboBox.getValue(),
+            feedBasisComboBox.getValue(),
+            locationTextField.getText(),
+            selectedHerd.action(),  // keep the existing action value
+            selectedHerd.animals()  // retain the list of animals
+    );
+
+    // Use HerdDAO to update the Herd with the new instance
+    HerdDAO.updateHerd(updatedHerd);
   }
 
   private void handleDatabaseError(SQLException e) {
@@ -137,7 +145,7 @@ public class EditHerdController {
                                       "/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerLeftViews/addCattle.fxml"));
       Parent root = loader.load();
       AddNewCattleController addCattleController = loader.getController();
-      addCattleController.initData(selectedHerd.getId(), this);
+      addCattleController.initData(selectedHerd.id(), this);
 
       // Set the title for the stage
       Stage stage = new Stage();
@@ -196,7 +204,7 @@ public class EditHerdController {
 
   public void handleRefreshCattleFromHerd() {
     try {
-      List<Cattle> updatedCattleList = CattleDAO.getCattleForHerd(selectedHerd.getId());
+      List<Cattle> updatedCattleList = CattleDAO.getCattleForHerd(selectedHerd.id());
       ObservableList<Cattle> cattleList = FXCollections.observableArrayList(updatedCattleList);
       cattleTableView.setItems(cattleList);
       showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle list refreshed successfully.");

@@ -3,7 +3,7 @@ package com.example.hashinfarm.presentationLayer.controllers.cattleManagement.ce
 import com.example.hashinfarm.data.DAOs.CattleImageDAO;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.businessLogic.services.CattleImageManager;
-import com.example.hashinfarm.data.DTOs.CattleImage;
+import com.example.hashinfarm.data.DTOs.records.CattleImage;
 import java.io.File;
 import java.sql.Timestamp;
 import java.util.List;
@@ -29,7 +29,7 @@ public class ImageViewTableController {
     @NotNull
     private static TableColumn<CattleImage, Timestamp> getCattleImageTimestampTableColumn() {
         TableColumn<CattleImage, Timestamp> dateCreatedColumn = new TableColumn<>("Date Created");
-        dateCreatedColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().getCreatedAt()));
+        dateCreatedColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(cellData.getValue().createdAt()));
         dateCreatedColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(Timestamp item, boolean empty) {
@@ -109,7 +109,7 @@ public class ImageViewTableController {
     }
 
     private Image getImageForTableCell(CattleImage cattleImage) {
-        String imageUrl = "file:src/main/resources/images/" + cattleImage.getImagePath();
+        String imageUrl = "file:src/main/resources/images/" + cattleImage.imagePath();
         return new Image(imageUrl);
     }
 
@@ -122,7 +122,7 @@ public class ImageViewTableController {
 
         confirmationAlert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                boolean deleted = cattleImageDAO.deleteCattleImage(image.getImageId());
+                boolean deleted = cattleImageDAO.deleteCattleImage(image.imageId());
                 if (deleted) {
                     imageViewTable.getItems().remove(image);
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Image Deleted Successfully");
@@ -134,7 +134,7 @@ public class ImageViewTableController {
     }
 
     public void handleViewAction(CattleImage image) {
-        Image imageToShow = new Image(new File("src/main/resources/images/" + image.getImagePath()).toURI().toString());
+        Image imageToShow = new Image(new File("src/main/resources/images/" + image.imagePath()).toURI().toString());
 
         Stage stage = new Stage();
         stage.setTitle("View Image");

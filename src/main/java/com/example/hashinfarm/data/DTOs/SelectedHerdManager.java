@@ -1,5 +1,6 @@
 package com.example.hashinfarm.data.DTOs;
 
+import com.example.hashinfarm.data.DTOs.records.Herd;
 import javafx.beans.property.*;
 
 public class SelectedHerdManager {
@@ -156,16 +157,16 @@ public class SelectedHerdManager {
 
     // Update method to set all properties at once
     public void setSelectedHerd(Herd herd) {
-        selectedHerdId.set(herd.getId());
-        selectedHerdName.set(herd.getName());
-        selectedHerdTotalAnimals.set(herd.getTotalAnimals());
-        selectedHerdAnimalClass.set(herd.getAnimalClass());
-        selectedHerdBreedType.set(herd.getBreedType());
-        selectedHerdAgeClass.set(herd.getAgeClass());
-        selectedHerdBreedSystem.set(herd.getBreedSystem());
-        selectedHerdSolutionType.set(herd.getSolutionType());
-        selectedHerdFeedBasis.set(herd.getFeedBasis());
-        selectedHerdLocation.set(herd.getLocation());
-
+        selectedHerdId.set(herd.id());
+        selectedHerdName.set(herd.name());
+        selectedHerdTotalAnimals.set(herd.totalAnimals());
+        selectedHerdAnimalClass.set(herd.animalClass());
+        selectedHerdBreedType.set(herd.breedType());
+        selectedHerdAgeClass.set(herd.ageClass());
+        selectedHerdBreedSystem.set(herd.breedSystem());
+        selectedHerdSolutionType.set(herd.solutionType());
+        selectedHerdFeedBasis.set(herd.feedBasis());
+        selectedHerdLocation.set(herd.location());
     }
+
 }

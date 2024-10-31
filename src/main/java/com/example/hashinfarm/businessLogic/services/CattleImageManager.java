@@ -15,7 +15,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.DTOs.CattleImage;
+import com.example.hashinfarm.data.DTOs.records.CattleImage;
 import com.example.hashinfarm.utils.CattleDialogUtils;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import javafx.animation.KeyFrame;
@@ -87,7 +87,7 @@ public class CattleImageManager {
     // Check for changes in image paths
     boolean imagesChanged = false;
     for (int i = 0; i < updatedImages.size(); i++) {
-      if (!Objects.equals(updatedImages.get(i).getImagePath(), cattleImages.get(i).getImagePath())) {
+      if (!Objects.equals(updatedImages.get(i).imagePath(), cattleImages.get(i).imagePath())) {
         imagesChanged = true;
         break;
       }
@@ -117,7 +117,7 @@ public class CattleImageManager {
       for (int i = 0; i < Math.min(numImages, 5); i++) {
           double scale = scaleMap.getOrDefault(i, 0.9);
           int index = (currentIndex + i) % numImages;  // Safe because numImages > 0
-          String imagePath = "/images/" + cattleImages.get(index).getImagePath();
+          String imagePath = "/images/" + cattleImages.get(index).imagePath();
           Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
           ImageView imageView = new ImageView(image);
           imageView.setFitWidth(200 * scale);
@@ -148,7 +148,7 @@ public class CattleImageManager {
     }
 
     int size = cattleImages.size();
-      String imagePath = "/images/" + cattleImages.get((currentIndex + 2) % size).getImagePath();
+      String imagePath = "/images/" + cattleImages.get((currentIndex + 2) % size).imagePath();
       Image image = new Image(Objects.requireNonNull(getClass().getResourceAsStream(imagePath)));
       Stage stage = getStage(image);
       stage.show();
@@ -224,7 +224,7 @@ public class CattleImageManager {
 
     try (ZipOutputStream zipOutputStream = new ZipOutputStream(new FileOutputStream(zipFile))) {
       for (CattleImage cattleImage : cattleImages) {
-        String imageName = cattleImage.getImagePath();
+        String imageName = cattleImage.imagePath();
         try (InputStream inputStream = getClass().getResourceAsStream("/images/" + imageName)) {
           if (inputStream != null) {
             zipOutputStream.putNextEntry(new ZipEntry(imageName));

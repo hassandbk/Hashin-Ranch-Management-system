@@ -3,7 +3,7 @@ package com.example.hashinfarm.data.DAOs;
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.DTOs.FilteredCattle;
+import com.example.hashinfarm.data.DTOs.records.FilteredCattle;
 
 import java.sql.*;
 import java.time.LocalDate;

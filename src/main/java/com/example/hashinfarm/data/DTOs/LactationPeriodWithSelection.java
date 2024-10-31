@@ -1,5 +1,6 @@
 package com.example.hashinfarm.data.DTOs;
 
+import com.example.hashinfarm.data.DTOs.records.LactationPeriod;
 import javafx.beans.property.BooleanProperty;
 import javafx.beans.property.SimpleBooleanProperty;
 

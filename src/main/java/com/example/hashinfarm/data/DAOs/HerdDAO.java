@@ -1,6 +1,6 @@
 package com.example.hashinfarm.data.DAOs;
 
-import com.example.hashinfarm.data.DTOs.Herd;
+import com.example.hashinfarm.data.DTOs.records.Herd;
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger; // Assuming you have an AppLogger utility for logging
 import java.sql.Connection;
@@ -99,17 +99,19 @@ public class HerdDAO {
 
     // Method to prepare statement with herd data
     private static void prepareStatementForHerd(PreparedStatement preparedStatement, Herd herd) throws SQLException {
-        preparedStatement.setString(1, herd.getName());
-        preparedStatement.setInt(2, herd.getTotalAnimals());
-        preparedStatement.setString(3, herd.getAnimalClass());
-        preparedStatement.setString(4, herd.getBreedType());
-        preparedStatement.setString(5, herd.getAgeClass());
-        preparedStatement.setString(6, herd.getBreedSystem());
-        preparedStatement.setString(7, herd.getSolutionType());
-        preparedStatement.setString(8, herd.getFeedBasis());
-        preparedStatement.setString(9, herd.getLocation());
+        preparedStatement.setString(1, herd.name());
+        preparedStatement.setInt(2, herd.totalAnimals());
+        preparedStatement.setString(3, herd.animalClass());
+        preparedStatement.setString(4, herd.breedType());
+        preparedStatement.setString(5, herd.ageClass());
+        preparedStatement.setString(6, herd.breedSystem());
+        preparedStatement.setString(7, herd.solutionType());
+        preparedStatement.setString(8, herd.feedBasis());
+        preparedStatement.setString(9, herd.location());
+
+        // Check if the ID should be set, as in an update statement
         if (preparedStatement.getParameterMetaData().getParameterCount() == 10) {
-            preparedStatement.setInt(10, herd.getId());
+            preparedStatement.setInt(10, herd.id());
         }
     }
 

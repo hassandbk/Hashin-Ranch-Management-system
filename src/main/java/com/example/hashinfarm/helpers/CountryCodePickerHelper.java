@@ -3,7 +3,7 @@ package com.example.hashinfarm.helpers;
 import com.example.hashinfarm.utils.DataLoader;
 import com.example.hashinfarm.utils.FlagImageLoader;
 import com.example.hashinfarm.utils.exceptions.ValidationException;
-import com.example.hashinfarm.data.DTOs.Country;
+import com.example.hashinfarm.data.DTOs.records.Country;
 import com.google.i18n.phonenumbers.NumberParseException;
 import com.google.i18n.phonenumbers.PhoneNumberUtil;
 import com.google.i18n.phonenumbers.Phonenumber;
@@ -70,8 +70,8 @@ public class CountryCodePickerHelper {
             Platform.runLater(() -> {
                 countries.addAll(countryList);
                 for (Country country : countryList) {
-                    countryMap.put(country.getName().toLowerCase(), country);
-                    countryMap.put(country.getCallingCode().toLowerCase(), country);
+                    countryMap.put(country.name().toLowerCase(), country);
+                    countryMap.put(country.callingCode().toLowerCase(), country);
                 }
                 filteredCountries.setAll(countries);
                 countryComboBox.setItems(filteredCountries);
@@ -90,13 +90,14 @@ public class CountryCodePickerHelper {
         new Thread(loadCountriesTask).start();
     }
 
+
     // Preload flag images for all countries
     private void preloadFlagImages(Runnable onSuccess) {
         Task<Void> preloadFlagsTask = new Task<>() {
             @Override
             protected Void call() throws IOException {
                 for (Country country : countries) {
-                    String flagName = Optional.ofNullable(country.getFlagName()).orElse("placeholder.png");
+                    String flagName = Optional.ofNullable(country.flagName()).orElse("placeholder.png");
                     if (!flagImageCache.containsKey(flagName)) {
                         flagImageCache.put(flagName, flagImageLoader.loadFlagImage(flagName));
                     }
@@ -155,7 +156,6 @@ public class CountryCodePickerHelper {
             }
         });
     }
-
     // Filter the countries based on input
     private void filterCountries(String input) {
         if (input == null || input.trim().isEmpty()) {
@@ -168,9 +168,9 @@ public class CountryCodePickerHelper {
             for (String key : countryMap.keySet()) {
                 if (key.contains(lowerInput)) {
                     Country matchedCountry = countryMap.get(key);
-                    if (matchedCountry != null && !addedCountries.contains(matchedCountry.getName())) {
+                    if (matchedCountry != null && !addedCountries.contains(matchedCountry.name())) {
                         matchingCountries.add(matchedCountry);
-                        addedCountries.add(matchedCountry.getName());
+                        addedCountries.add(matchedCountry.name());
                     }
                 }
             }
@@ -181,22 +181,24 @@ public class CountryCodePickerHelper {
     // Update country details when a country is selected
     public void updateCountryDetails(Country country) {
         if (country != null) {
-            String flagName = Optional.ofNullable(country.getFlagName()).orElse("placeholder.png");
+            String flagName = Optional.ofNullable(country.flagName()).orElse("placeholder.png");
             Image flagImage = flagImageCache.get(flagName);
-            imageView.setImage(Objects.requireNonNullElseGet(flagImage, () -> new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/flags/placeholder.png")))));
+            imageView.setImage(Objects.requireNonNullElseGet(flagImage,
+                    () -> new Image(Objects.requireNonNull(getClass().getResourceAsStream("/icons/flags/placeholder.png")))));
 
-            Country mappedCountry = countryMap.get(country.getCallingCode().toLowerCase());
+            Country mappedCountry = countryMap.get(country.callingCode().toLowerCase());
             if (mappedCountry != null) {
-                countryTextField.setText(mappedCountry.getCallingCode());
+                countryTextField.setText(mappedCountry.callingCode());
             }
         }
     }
+
     // Method to select a country based on the calling code programmatically
     public void selectCountryByCallingCode(String callingCode) {
         isProgrammaticUpdate = true;  // Disable listener reaction
 
         for (Country country : countries) {
-            if (country.getCallingCode().equals(callingCode)) {
+            if (country.callingCode().equals(callingCode)) {
                 countryComboBox.getSelectionModel().select(country);  // Select the country in the ComboBox
                 updateCountryDetails(country);  // Update flag and other details
                 break;
@@ -205,11 +207,12 @@ public class CountryCodePickerHelper {
 
         isProgrammaticUpdate = false;  // Re-enable listener reaction
     }
+
     public static String validateAndFormatContact(String restOfNumber) throws ValidationException {
         Country selectedCountry = getSelectedCountry();
-        String selectedCallingCode = Objects.requireNonNull(selectedCountry).getCallingCode(); // Example: +256
-        String countryAlpha2Code = selectedCountry.getAlpha2(); // Example: "UG" for Uganda
-        String phoneNumberString = buildPhoneNumberString(selectedCallingCode,restOfNumber);
+        String selectedCallingCode = Objects.requireNonNull(selectedCountry).callingCode(); // Example: +256
+        String countryAlpha2Code = selectedCountry.alpha2(); // Example: "UG" for Uganda
+        String phoneNumberString = buildPhoneNumberString(selectedCallingCode, restOfNumber);
 
         PhoneNumberUtil phoneNumberUtil = PhoneNumberUtil.getInstance();
         try {

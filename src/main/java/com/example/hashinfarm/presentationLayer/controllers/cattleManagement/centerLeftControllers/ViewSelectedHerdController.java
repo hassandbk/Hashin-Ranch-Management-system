@@ -1,7 +1,7 @@
 package com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers;
 
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.DTOs.Herd;
+import com.example.hashinfarm.data.DTOs.records.Herd;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -17,33 +17,33 @@ import java.time.LocalDate;
 import java.util.List;
 
 public class ViewSelectedHerdController {
-    @FXML  private Label damHerdName, damName, sireName, sireHerdName, damID, sireID, herdIdLabel, nameLabel,
+    @FXML private Label damHerdName, damName, sireName, sireHerdName, damID, sireID, herdIdLabel, nameLabel,
             totalAnimalsLabel, animalsClassLabel, breedTypeLabel, ageClassLabel,
             breedSystemLabel, solutionTypeLabel, feedBasisLabel, locationLabel;
 
-    @FXML   private TableView<Cattle> cattleTableView;
-    @FXML   private TableColumn<Cattle, Integer> cattleIdColumn, cattleAgeColumn, cattleWeightIdColumn, cattleBreedIdColumn;
-    @FXML   private TableColumn<Cattle, String> cattleTagIdColumn, cattleColorMarkingsColumn, cattleNameColumn, cattleGenderColumn, cattleBcsColumn;
-    @FXML   private TableColumn<Cattle, Date> cattleDateOfBirthColumn;
+    @FXML private TableView<Cattle> cattleTableView;
+    @FXML private TableColumn<Cattle, Integer> cattleIdColumn, cattleAgeColumn, cattleWeightIdColumn, cattleBreedIdColumn;
+    @FXML private TableColumn<Cattle, String> cattleTagIdColumn, cattleColorMarkingsColumn, cattleNameColumn, cattleGenderColumn, cattleBcsColumn;
+    @FXML private TableColumn<Cattle, Date> cattleDateOfBirthColumn;
 
     public void initData(Herd herd) {
         setHerdLabels(herd);
-        populateCattleTable(herd.getAnimals());
+        populateCattleTable(herd.animals());
         setupCattleTableColumns();
         setupCattleSelectionListener();
     }
 
     private void setHerdLabels(Herd herd) {
-        herdIdLabel.setText(String.valueOf(herd.getId()));
-        nameLabel.setText(herd.getName());
-        totalAnimalsLabel.setText(String.valueOf(herd.getTotalAnimals()));
-        animalsClassLabel.setText(herd.getAnimalClass());
-        breedTypeLabel.setText(herd.getBreedType());
-        ageClassLabel.setText(herd.getAgeClass());
-        breedSystemLabel.setText(herd.getBreedSystem());
-        solutionTypeLabel.setText(herd.getSolutionType());
-        feedBasisLabel.setText(herd.getFeedBasis());
-        locationLabel.setText(herd.getLocation());
+        herdIdLabel.setText(String.valueOf(herd.id()));
+        nameLabel.setText(herd.name());
+        totalAnimalsLabel.setText(String.valueOf(herd.totalAnimals()));
+        animalsClassLabel.setText(herd.animalClass());
+        breedTypeLabel.setText(herd.breedType());
+        ageClassLabel.setText(herd.ageClass());
+        breedSystemLabel.setText(herd.breedSystem());
+        solutionTypeLabel.setText(herd.solutionType());
+        feedBasisLabel.setText(herd.feedBasis());
+        locationLabel.setText(herd.location());
     }
 
     private void populateCattleTable(List<Cattle> cattle) {
@@ -86,5 +86,4 @@ public class ViewSelectedHerdController {
         damID.setText(String.valueOf(cattle.getDamId()));
         sireID.setText(String.valueOf(cattle.getSireId()));
     }
-
 }

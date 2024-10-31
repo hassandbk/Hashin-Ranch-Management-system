@@ -4,12 +4,9 @@ import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
 import com.example.hashinfarm.data.DAOs.*;
 
-import com.example.hashinfarm.data.DTOs.records.BreedingAttempt;
-import com.example.hashinfarm.data.DTOs.records.StageDetails;
-import com.example.hashinfarm.data.DTOs.records.SubStageDetails;
+import com.example.hashinfarm.data.DTOs.records.*;
 import com.example.hashinfarm.data.DTOs.*;
 
-import com.example.hashinfarm.data.DTOs.records.UnifiedOffspring;
 import com.example.hashinfarm.helpers.CustomTreeCell;
 import com.example.hashinfarm.presentationLayer.controllers.CattleController;
 import com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers.AddNewCattleController;
@@ -1146,7 +1143,7 @@ public class ProductivityAndCalving {
 
                             addNewCattleController = loader.getController();
                             addNewCattleController.setStage(pair.getKey()); // Set the stage reference
-                            addNewCattleController.initData(selectedHerd.getId(), selectedCattleId, dateOfBirth);
+                            addNewCattleController.initData(selectedHerd.id(), selectedCattleId, dateOfBirth);
 
                             addNewCattleController.setCattleAdditionCallback((successFlag, failureReason, newCattleId) -> {
                                 if (successFlag) {
@@ -1434,7 +1431,7 @@ public class ProductivityAndCalving {
 
                             addNewCattleController = loader.getController();
                             addNewCattleController.setStage(pair.getKey()); // Set the stage reference
-                            addNewCattleController.initData(selectedHerd.getId(), selectedCattleId, dateOfBirth);
+                            addNewCattleController.initData(selectedHerd.id(), selectedCattleId, dateOfBirth);
 
                             addNewCattleController.setCattleAdditionCallback((successFlag, failureReason, newCattleId) -> {
                                 if (successFlag) {
@@ -3145,7 +3142,7 @@ public class ProductivityAndCalving {
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
         startDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().getStartDate()));
+                cellData.getValue().getLactationPeriod().startDate()));
         startDateColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(LocalDate item, boolean empty) {
@@ -3161,7 +3158,7 @@ public class ProductivityAndCalving {
         });
 
         endDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().getEndDate()));
+                cellData.getValue().getLactationPeriod().endDate()));
         endDateColumn.setCellFactory(new MissingEndDateCellFactory(dateFormatter));
 
     }
@@ -3181,7 +3178,7 @@ public class ProductivityAndCalving {
             List<LactationPeriod> lactationPeriods = LactationPeriodDAO.getLactationPeriodsByCattleId(selectedCattleId);
 
             // Sort lactation periods by start date (most recent first)
-            lactationPeriods.sort(Comparator.comparing(LactationPeriod::getStartDate).reversed());
+            lactationPeriods.sort(Comparator.comparing(LactationPeriod::startDate).reversed());
 
             LocalDate currentDate = LocalDate.now();
 
@@ -3209,11 +3206,11 @@ public class ProductivityAndCalving {
                 LactationPeriodWithSelection selectedPeriod = lactationTableView.getSelectionModel().getSelectedItem();
                 populateLactationFields(selectedPeriod);
 
-                if (mostRecentPeriod.getEndDate() == null) {
-                    long daysSinceStart = ChronoUnit.DAYS.between(mostRecentPeriod.getStartDate(), currentDate);
+                if (mostRecentPeriod.endDate() == null) {
+                    long daysSinceStart = ChronoUnit.DAYS.between(mostRecentPeriod.startDate(), currentDate);
                     if (daysSinceStart <= 365) {
                         // Set the label text to "start date - now"
-                        currentPeriodLabel.setText(mostRecentPeriod.getStartDate() + " - now");
+                        currentPeriodLabel.setText(mostRecentPeriod.startDate() + " - now");
                     }
                 }
             } else {
@@ -3232,9 +3229,9 @@ public class ProductivityAndCalving {
     private void populateLactationFields(LactationPeriodWithSelection selectedPeriod) {
         if (selectedPeriod != null) {
             LactationPeriod period = selectedPeriod.getLactationPeriod();
-            lactationStartDateField.setText(String.valueOf(period.getStartDate()));
-            lactationEndDatePicker.setValue(period.getEndDate() != null ? period.getEndDate() : null);
-            originalEndDate = period.getEndDate(); // Set the original end date
+            lactationStartDateField.setText(String.valueOf(period.startDate()));
+            lactationEndDatePicker.setValue(period.endDate() != null ? period.endDate() : null);
+            originalEndDate = period.endDate(); // Set the original end date
             selectedEndDate = originalEndDate; // Initially, selected end date is the same as original
 
             if(lactationEndDatePicker.getValue() == null){
@@ -3268,26 +3265,26 @@ public class ProductivityAndCalving {
                 ongoingLactationPeriod = null;
 
                 // Sort lactation periods by start date in descending order
-                lactationPeriods.sort(Comparator.comparing(LactationPeriod::getStartDate).reversed());
+                lactationPeriods.sort(Comparator.comparing(LactationPeriod::startDate).reversed());
 
                 // Find the most recent lactation period
                 Optional<LactationPeriod> mostRecentPeriod = lactationPeriods.stream().findFirst();
 
                 mostRecentPeriod.ifPresent(period -> {
                     // Check if the most recent lactation period is within 365 days of the current date
-                    if (ChronoUnit.DAYS.between(period.getStartDate(), currentDate) <= 365) {
+                    if (ChronoUnit.DAYS.between(period.startDate(), currentDate) <= 365) {
                         ongoingLactationPeriod = period;
-                        populateFieldsBasedOnDateAndLactationPeriod(LocalDate.now(), ongoingLactationPeriod.getLactationPeriodID());
-                        checkExistingSessionsAndUpdateButton(LocalDate.now(), ongoingLactationPeriod.getLactationPeriodID());
+                        populateFieldsBasedOnDateAndLactationPeriod(LocalDate.now(), ongoingLactationPeriod.lactationPeriodID());
+                        checkExistingSessionsAndUpdateButton(LocalDate.now(), ongoingLactationPeriod.lactationPeriodID());
                         // Display the start date of the ongoing lactation period if it exists
-                        ongoingLactationPeriodLabel.setText(ongoingLactationPeriod.getStartDate().toString());
+                        ongoingLactationPeriodLabel.setText(ongoingLactationPeriod.startDate().toString());
 
                         if (selectedPeriodWithSelection != null && selectedPeriodWithSelection.getLactationPeriod() != null) {
-                            LocalDate selectedStartDate = selectedPeriodWithSelection.getLactationPeriod().getStartDate();
+                            LocalDate selectedStartDate = selectedPeriodWithSelection.getLactationPeriod().startDate();
 
                             // Check if the selected period matches the ongoing period
-                            if (selectedStartDate.equals(ongoingLactationPeriod.getStartDate())) {
-                                LocalDate startDate = ongoingLactationPeriod.getStartDate();
+                            if (selectedStartDate.equals(ongoingLactationPeriod.startDate())) {
+                                LocalDate startDate = ongoingLactationPeriod.startDate();
                                 long totalDays = Duration.between(startDate.atStartOfDay(), currentDate.atStartOfDay()).toDays();
                                 productionSessionDatePicker.setValue(currentDate);
                                 lactationPeriodLabel.setText(totalDays + " days");
@@ -3306,14 +3303,14 @@ public class ProductivityAndCalving {
 
                                 List<ProductionSession> productionSessionsBySelectedStage;
                                 try {
-                                    productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), startDate, LocalDate.now());
+                                    productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.lactationPeriodID(), startDate, LocalDate.now());
                                 } catch (SQLException e) {
                                     throw new RuntimeException(e);
                                 }
 
                                 List<ProductionSession> productionSessionsByDate;
                                 try {
-                                    productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.getLactationPeriodID(), LocalDate.now());
+                                    productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.lactationPeriodID(), LocalDate.now());
                                 } catch (SQLException e) {
                                     throw new RuntimeException(e);
                                 }
@@ -3353,7 +3350,7 @@ public class ProductivityAndCalving {
 
                                 // Check if ongoingLactationPeriod is not null
                                 if (ongoingLactationPeriod != null) {
-                                    long totalDays = Duration.between(ongoingLactationPeriod.getStartDate().atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
+                                    long totalDays = Duration.between(ongoingLactationPeriod.startDate().atStartOfDay(), selectedDateProductionSessionDate.atStartOfDay()).toDays();
                                     String stage = calculateProductionStage((int) totalDays);
                                     productionStageLabel.setText(stage);
                                     updateVolumeLabels(stage);
@@ -3410,7 +3407,7 @@ public class ProductivityAndCalving {
 
                 if (ongoingLactationPeriod != null) {
                     // Ongoing period exists
-                    setDisable(item.isBefore(ongoingLactationPeriod.getStartDate()) || item.isAfter(LocalDate.now()));
+                    setDisable(item.isBefore(ongoingLactationPeriod.startDate()) || item.isAfter(LocalDate.now()));
                 } else {
                     // No ongoing period - disable all dates
                     setDisable(true);
@@ -3436,7 +3433,7 @@ public class ProductivityAndCalving {
                     return;
                 }
                 LactationPeriodWithSelection selectedPeriod = lactationTableView.getSelectionModel().getSelectedItem();
-                LocalDate minDate = selectedPeriod.getLactationPeriod().getStartDate();
+                LocalDate minDate = selectedPeriod.getLactationPeriod().startDate();
                 LocalDate maxDate = calculateMaxEndDate(selectedPeriod);
                 LocalDate today = LocalDate.now();
 
@@ -3463,10 +3460,10 @@ public class ProductivityAndCalving {
         // Sort lactation periods by start date (most recent first)
         List<LactationPeriod> lactationPeriods = lactationPeriodsWithSelection.stream()
                 .map(LactationPeriodWithSelection::getLactationPeriod)
-                .sorted(Comparator.comparing(LactationPeriod::getStartDate).reversed())
+                .sorted(Comparator.comparing(LactationPeriod::startDate).reversed())
                 .toList();
 
-        LocalDate selectedStartDate = selectedPeriod.getLactationPeriod().getStartDate();
+        LocalDate selectedStartDate = selectedPeriod.getLactationPeriod().startDate();
         LocalDate maxEndDate;
 
         int selectedIndex = lactationPeriods.indexOf(selectedPeriod.getLactationPeriod());
@@ -3477,7 +3474,7 @@ public class ProductivityAndCalving {
         } else {
             // If there are multiple periods and the selected one is not the most recent
             LactationPeriod nextPeriod = lactationPeriods.get(selectedIndex - 1);
-            LocalDate nextStartDate = nextPeriod.getStartDate();
+            LocalDate nextStartDate = nextPeriod.startDate();
 
             // Calculate one year after selected start date
             LocalDate oneYearAfterStartDate = selectedStartDate.plusYears(1);
@@ -3500,7 +3497,6 @@ public class ProductivityAndCalving {
         selectedEndDate = newValue;
     }
 
-
     public void modifyLactation() {
         LactationPeriodWithSelection selectedPeriodWithSelection = lactationTableView.getSelectionModel().getSelectedItem();
 
@@ -3513,7 +3509,7 @@ public class ProductivityAndCalving {
         LocalDate newEndDate = lactationEndDatePicker.getValue();
 
         // Validate the end date
-        if (newEndDate != null && newEndDate.isBefore(selectedPeriod.getStartDate())) {
+        if (newEndDate != null && newEndDate.isBefore(selectedPeriod.startDate())) {
             showAlert(Alert.AlertType.ERROR, "Invalid Date", "End Date Before Start Date", "The end date cannot be before the start date.");
             return;
         }
@@ -3526,11 +3522,16 @@ public class ProductivityAndCalving {
         Optional<ButtonType> result = confirmationAlert.showAndWait();
         if (result.isPresent() && result.get() == ButtonType.OK) {
             try {
-                // Update the lactation period object with the new end date
-                selectedPeriod.setEndDate(newEndDate);
+                // Create a new LactationPeriod instance with the updated end date
+                LactationPeriod updatedPeriod = new LactationPeriod(
+                        selectedPeriod.lactationPeriodID(),
+                        selectedPeriod.cattleID(),
+                        selectedPeriod.startDate(),
+                        newEndDate
+                );
 
                 // Call DAO to update the record in the database
-                LactationPeriodDAO.updateLactationPeriodEndDate(selectedPeriod.getLactationPeriodID(), newEndDate);
+                LactationPeriodDAO.updateLactationPeriodEndDate(updatedPeriod.lactationPeriodID(), newEndDate);
                 loadLactationPeriodsForSelectedCattle();
 
             } catch (SQLException e) {
@@ -3542,6 +3543,7 @@ public class ProductivityAndCalving {
             confirmationAlert.close();
         }
     }
+
 
     private void showAlert(Alert.AlertType alertType, String title, String headerText, String contentText) {
         Alert alert = new Alert(alertType);
@@ -3581,7 +3583,7 @@ public class ProductivityAndCalving {
                     // Clear the end date and update the database
                     lactationEndDatePicker.setValue(null);
                     try {
-                        LactationPeriodDAO.updateLactationPeriodEndDate(selectedPeriodWithSelection.getLactationPeriod().getLactationPeriodID(), null);
+                        LactationPeriodDAO.updateLactationPeriodEndDate(selectedPeriodWithSelection.getLactationPeriod().lactationPeriodID(), null);
                         showAlert(Alert.AlertType.INFORMATION, "Cleared end date", "The end date has been cleared and updated in the database.");
 
                         loadLactationPeriodsForSelectedCattle();
@@ -4033,8 +4035,8 @@ public class ProductivityAndCalving {
     }
 
     private void refreshUI() {
-        populateFieldsBasedOnDateAndLactationPeriod(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
-        checkExistingSessionsAndUpdateButton(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
+        populateFieldsBasedOnDateAndLactationPeriod(selectedDateProductionSessionDate, ongoingLactationPeriod.lactationPeriodID());
+        checkExistingSessionsAndUpdateButton(selectedDateProductionSessionDate, ongoingLactationPeriod.lactationPeriodID());
     }
 
     private String getSessionTypeFromButton(Button button) {
@@ -4169,7 +4171,7 @@ public class ProductivityAndCalving {
 
     private ProductionSession createProductionSessionFromInput(String sessionType) {
         int sessionID = 0;
-        int lactationPeriodID = ongoingLactationPeriod.getLactationPeriodID();
+        int lactationPeriodID = ongoingLactationPeriod.lactationPeriodID();
         int cattleID = selectedCattleId;
         Timestamp startTime;
         Timestamp endTime;
@@ -4204,7 +4206,7 @@ public class ProductivityAndCalving {
 
     private ProductionSession findExistingSessionByTime(LocalDateTime startTime, LocalDateTime endTime) {
         try {
-            List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
+            List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDateProductionSessionDate, ongoingLactationPeriod.lactationPeriodID());
             for (ProductionSession session : sessions) {
                 if (session.getStartTime().toLocalDateTime().equals(startTime) && session.getEndTime().toLocalDateTime().equals(endTime)) {
                     return session;
@@ -4308,7 +4310,7 @@ public class ProductivityAndCalving {
     }
 
     private void updateDeleteButtonStateAndText(String sessionType, Button button) throws SQLException {
-        List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDateProductionSessionDate, ongoingLactationPeriod.getLactationPeriodID());
+        List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDateProductionSessionDate, ongoingLactationPeriod.lactationPeriodID());
 
         boolean hasExistingSession = sessions.stream()
                 .anyMatch(session -> isSessionOfType(session, sessionType));
@@ -4761,21 +4763,21 @@ public class ProductivityAndCalving {
     }
 
     private void initializeColumnCellValueFactoriesForProductionData() {
-        cowIdColumn.setCellValueFactory(new PropertyValueFactory<>("cattleID"));
-        currentStageColumn.setCellValueFactory(new PropertyValueFactory<>("currentStage"));
-        selectedStageByDateColumn.setCellValueFactory(new PropertyValueFactory<>("selectedStageByDate"));
-        equivalentSelectedDateColumn.setCellValueFactory(new PropertyValueFactory<>("equivalentSelectedDate"));
-        todayMYColumn.setCellValueFactory(new PropertyValueFactory<>("todayMY"));
-        equivalentDayMYColumn.setCellValueFactory(new PropertyValueFactory<>("equivalentDayMY"));
-        currentStageMilkMYColumn.setCellValueFactory(new PropertyValueFactory<>("currentStageMilkMY"));
-        selectedStageMilkMYColumn.setCellValueFactory(new PropertyValueFactory<>("selectedStageMilkMY"));
-        totalDailyMYColumn.setCellValueFactory(new PropertyValueFactory<>("totalDailyMY"));
-        averageDailyMYColumn.setCellValueFactory(new PropertyValueFactory<>("averageDailyMY"));
-        relativeMYColumn.setCellValueFactory(new PropertyValueFactory<>("relativeMY"));
-        selectedCattlePRColumn.setCellValueFactory(new PropertyValueFactory<>("performanceRating"));
-        comparisonPerformanceColumn.setCellValueFactory(new PropertyValueFactory<>("comparisonPerformance"));
+        cowIdColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().cattleID()));
+        currentStageColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().currentStage()));
+        selectedStageByDateColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().selectedStageByDate()));
+        equivalentSelectedDateColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().equivalentSelectedDate()));
+        todayMYColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().todayMY()));
+        equivalentDayMYColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().equivalentDayMY()));
+        currentStageMilkMYColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().currentStageMilkMY()));
+        selectedStageMilkMYColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().selectedStageMilkMY()));
+        totalDailyMYColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().totalDailyMY()));
+        averageDailyMYColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().averageDailyMY()));
+        relativeMYColumn.setCellValueFactory(cellData -> new ReadOnlyObjectWrapper<>(cellData.getValue().relativeMY()));
+        selectedCattlePRColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().performanceRating()));
+        comparisonPerformanceColumn.setCellValueFactory(cellData -> new ReadOnlyStringWrapper(cellData.getValue().comparisonPerformance()));
 
-        // Center align the cells
+        // Center-align the cells if TableColumnUtils is available
         TableColumnUtils.centerAlignColumn(cowIdColumn);
         TableColumnUtils.centerAlignColumn(currentStageColumn);
         TableColumnUtils.centerAlignColumn(selectedStageByDateColumn);
@@ -4790,6 +4792,7 @@ public class ProductivityAndCalving {
         TableColumnUtils.centerAlignColumn(selectedCattlePRColumn);
         TableColumnUtils.centerAlignColumn(comparisonPerformanceColumn);
     }
+
 
 
     private String getSelectedCriteria() {
@@ -4822,7 +4825,8 @@ public class ProductivityAndCalving {
 
             List<FilteredCattle> filteredCattleList = new ArrayList<>();
             for (FilteredCattle cow : cattleList) {
-                int cattleID = cow.getCattleID();
+                int cattleID = cow.cattleID(); // Access the cattleID field directly
+
                 List<LactationPeriod> lactationPeriods = LactationPeriodDAO.getLactationPeriodsByCattleId(cattleID);
 
                 boolean ongoingLactationFound = false;
@@ -4847,8 +4851,8 @@ public class ProductivityAndCalving {
 
     // Helper method to determine if a lactation period is ongoing
     private boolean isOngoingLactationPeriod(LactationPeriod period) {
-        if (period.getStartDate() != null && period.getEndDate() == null) {
-            long daysBetween = ChronoUnit.DAYS.between(period.getStartDate(), LocalDate.now());
+        if (period.startDate() != null && period.endDate() == null) {
+            long daysBetween = ChronoUnit.DAYS.between(period.startDate(), LocalDate.now());
             return daysBetween < 365;
         }
         return false;
@@ -4860,10 +4864,10 @@ public class ProductivityAndCalving {
         List<CowTableItem> cowTableItems = new ArrayList<>();
         List<CattleYieldData> cattleYieldDataList = new ArrayList<>();
 
-        String selectedStage = determineSelectedLactationStage(ongoingLactationPeriod.getStartDate(), selectedDateProductionSessionDate);
+        String selectedStage = determineSelectedLactationStage(ongoingLactationPeriod.startDate(), selectedDateProductionSessionDate);
 
         LocalDate startDate, endDate;
-        String selectedCattleCurrentStage = determineCurrentLactationStage(ongoingLactationPeriod.getStartDate());
+        String selectedCattleCurrentStage = determineCurrentLactationStage(ongoingLactationPeriod.startDate());
 
         startDate = determineStageStartDate(ongoingLactationPeriod, selectedStage);
         if (selectedStage.equals(selectedCattleCurrentStage)) {
@@ -4872,9 +4876,9 @@ public class ProductivityAndCalving {
             endDate = determineStageEndDate(ongoingLactationPeriod, selectedStage);
         }
 
-        List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), startDate, endDate);
-        List<ProductionSession> productionSessionsByFromStartToDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.getLactationPeriodID(), ongoingLactationPeriod.getStartDate(), LocalDate.now());
-        List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.getLactationPeriodID(), selectedDateProductionSessionDate);
+        List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.lactationPeriodID(), startDate, endDate);
+        List<ProductionSession> productionSessionsByFromStartToDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingLactationPeriod.lactationPeriodID(), ongoingLactationPeriod.startDate(), LocalDate.now());
+        List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingLactationPeriod.lactationPeriodID(), selectedDateProductionSessionDate);
 
         double stageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
         double todayYield = calculateTotalYield(productionSessionsByDate);
@@ -4909,7 +4913,7 @@ public class ProductivityAndCalving {
 
     private void updateComparisonTableViewForSelectedCattle(List<FilteredCattle> filteredCattleList, List<CowTableItem> cowTableItems, List<CattleYieldData> cattleYieldDataList, int daysElapsed, String selectedStage,double selectedCattleRelativeDailyYield) throws SQLException {
         for (FilteredCattle cow : filteredCattleList) {
-            int cattleID = cow.getCattleID();
+            int cattleID = cow.cattleID();
 
             if (cattleID == selectedCattleId) {
                 continue;
@@ -4920,7 +4924,7 @@ public class ProductivityAndCalving {
                 continue;
             }
 
-            String currentStage = determineCurrentLactationStage(ongoingPeriod.getStartDate());
+            String currentStage = determineCurrentLactationStage(ongoingPeriod.startDate());
             LocalDate startDate,endDate;
             startDate = determineStageStartDate(ongoingPeriod, selectedStage);
             if (selectedStage.equals(currentStage)) {
@@ -4939,11 +4943,11 @@ public class ProductivityAndCalving {
 
             LocalDate estimatedDate = estimateProductionDate(startDate, daysElapsed);
 
-            List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate, endDate);
-            List<ProductionSession> productionSessionsByNow = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), ongoingPeriod.getStartDate(), LocalDate.now());
-            List<ProductionSession> productionSessionsByCurrentStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.getLactationPeriodID(), startDate2, endDate2);
-            List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), estimatedDate);
-            List<ProductionSession> todayMilkYield = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.getLactationPeriodID(), LocalDate.now());
+            List<ProductionSession> productionSessionsBySelectedStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.lactationPeriodID(), startDate, endDate);
+            List<ProductionSession> productionSessionsByNow = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.lactationPeriodID(), ongoingPeriod.startDate(), LocalDate.now());
+            List<ProductionSession> productionSessionsByCurrentStage = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(ongoingPeriod.lactationPeriodID(), startDate2, endDate2);
+            List<ProductionSession> productionSessionsByDate = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.lactationPeriodID(), estimatedDate);
+            List<ProductionSession> todayMilkYield = ProductionSessionDAO.getProductionSessionsByLactationIdAndDate(ongoingPeriod.lactationPeriodID(), LocalDate.now());
             double todayMY = calculateTotalYield(todayMilkYield);
 
             double stageMilkYield = calculateTotalYield(productionSessionsBySelectedStage);
@@ -4979,18 +4983,17 @@ public class ProductivityAndCalving {
         createLineChart(cattleYieldData);
     }
 
-
     private void populateDailyYields(List<CattleYieldData> cattleYieldDataList) throws SQLException {
         for (CattleYieldData cattleYieldData : cattleYieldDataList) {
-            LocalDate startDate = cattleYieldData.getStartDate();
-            LocalDate endDate = cattleYieldData.getEndDate();
-            int lactationPeriodId = Objects.requireNonNull(getOngoingLactationPeriod(cattleYieldData.getCattleID())).getLactationPeriodID();
+            LocalDate startDate = cattleYieldData.startDate();
+            LocalDate endDate = cattleYieldData.endDate();
+            int lactationPeriodId = Objects.requireNonNull(getOngoingLactationPeriod(cattleYieldData.cattleID())).lactationPeriodID();
 
             // Fetch all production sessions for the date range
             List<ProductionSession> productionSessions = ProductionSessionDAO.getProductionSessionsByLactationIdAndDateRange(lactationPeriodId, startDate, endDate);
 
             // Process each date in the range
-            List<Double> dailyYields = cattleYieldData.getDailyYields(); // Assuming this returns ArrayList or similar
+            ObservableList<Double> dailyYields = cattleYieldData.dailyYields();
             for (LocalDate date = startDate; !date.isAfter(endDate); date = date.plusDays(1)) {
                 final LocalDate currentDate = date; // effectively final variable for lambda
 
@@ -5014,6 +5017,7 @@ public class ProductivityAndCalving {
 
 
 
+
     private void createLineChart(List<CattleYieldData> cattleYieldDataList) {
         CategoryAxis xAxis = new CategoryAxis();
         NumberAxis yAxis = new NumberAxis();
@@ -5024,11 +5028,11 @@ public class ProductivityAndCalving {
 
         for (CattleYieldData cattleYieldData : cattleYieldDataList) {
             XYChart.Series<String, Number> series = new XYChart.Series<>();
-            series.setName("Cow " + cattleYieldData.getCattleID() + " (" +
-                    cattleYieldData.getStartDate() + " to " + cattleYieldData.getEndDate() + ")");
+            series.setName("Cow " + cattleYieldData.cattleID() + " (" +
+                    cattleYieldData.startDate() + " to " + cattleYieldData.endDate() + ")");
 
             int index = 0;
-            for (Double yield : cattleYieldData.getDailyYields()) {
+            for (Double yield : cattleYieldData.dailyYields()) {
                 series.getData().add(new XYChart.Data<>(String.valueOf(index), yield));
                 index++;
             }
@@ -5039,6 +5043,7 @@ public class ProductivityAndCalving {
         comparisonChartVBox.getChildren().clear();
         comparisonChartVBox.getChildren().add(lineChart);
     }
+
 
 
 
@@ -5119,7 +5124,7 @@ public class ProductivityAndCalving {
     public LocalDate determineStageStartDate(LactationPeriod lactationPeriod, String selectedStage) {
         Integer[] stageRange = stageDaysRangeMap.get(selectedStage);
         int stageStartDay = stageRange[0];
-        return lactationPeriod.getStartDate().plusDays(stageStartDay);
+        return lactationPeriod.startDate().plusDays(stageStartDay);
     }
 
 
@@ -5129,7 +5134,7 @@ public class ProductivityAndCalving {
         if (stageEndDay == -1) {
             stageEndDay=365;
         }
-        return lactationPeriod.getStartDate().plusDays(stageEndDay);
+        return lactationPeriod.startDate().plusDays(stageEndDay);
     }
     public String determineCurrentLactationStage(LocalDate LactationStartDate) {
         long totalDays = Duration.between(LactationStartDate.atStartOfDay(), LocalDate.now().atStartOfDay()).toDays();

@@ -4,7 +4,7 @@ import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
 import com.example.hashinfarm.data.DAOs.CattleImageDAO;
 import com.example.hashinfarm.businessLogic.services.handlers.ActionHandlerFactory;
 
-import com.example.hashinfarm.data.DTOs.CattleImage;
+import com.example.hashinfarm.data.DTOs.records.CattleImage;
 import com.example.hashinfarm.data.DTOs.Cattle;
 import com.example.hashinfarm.data.DTOs.SelectedHerdManager;
 import com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController;
@@ -370,12 +370,14 @@ public class CharacteristicsController {
       showAlert(Alert.AlertType.ERROR, "Error", "Failed to copy the image file. Please try again later.");
     }
   }
-
   private void insertCattleImageRecord(String filename) {
-    CattleImage cattleImage = new CattleImage();
-    cattleImage.setCattleId(selectedCattleId);
-    cattleImage.setImagePath(filename);
-    cattleImage.setCreatedAt(new Timestamp(System.currentTimeMillis()));
+    // Directly create the CattleImage record with its constructor
+    CattleImage cattleImage = new CattleImage(
+            0, // Assuming 0 or another default value for imageId if it's auto-generated in the database
+            selectedCattleId,
+            filename,
+            new Timestamp(System.currentTimeMillis())
+    );
 
     boolean imageInserted = new CattleImageDAO().insertCattleImage(cattleImage);
     if (imageInserted) {
