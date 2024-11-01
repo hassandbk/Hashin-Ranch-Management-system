@@ -6,7 +6,7 @@ import com.example.hashinfarm.businessLogic.services.handlers.ActionHandlerFacto
 
 import com.example.hashinfarm.data.DTOs.records.CattleImage;
 import com.example.hashinfarm.data.DTOs.Cattle;
-import com.example.hashinfarm.data.DTOs.SelectedHerdManager;
+import com.example.hashinfarm.businessLogic.services.SelectedHerdManager;
 import com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.utils.validation.FileValidationController;

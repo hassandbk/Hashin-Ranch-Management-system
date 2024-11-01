@@ -8,6 +8,7 @@ import com.example.hashinfarm.data.DTOs.records.*;
 import com.example.hashinfarm.data.DTOs.*;
 
 import com.example.hashinfarm.helpers.CustomTreeCell;
+import com.example.hashinfarm.helpers.RadioButtonTableCell;
 import com.example.hashinfarm.presentationLayer.controllers.CattleController;
 import com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers.AddNewCattleController;
 import com.example.hashinfarm.utils.CattleDialogUtils;
@@ -29,7 +30,7 @@ import javafx.geometry.*;
 import javafx.scene.*;
 import javafx.scene.chart.*;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.*;
+
 import javafx.scene.image.*;
 import javafx.scene.layout.*;
 import javafx.scene.shape.Circle;
@@ -182,6 +183,8 @@ public class ProductivityAndCalving {
         initializePregnancyStatusListener();
 
         initializeCalvingHistoryTableViewListener();
+        initializeLactationTableViewListener();
+
         setDatesAndDateFormats();
         initializeCalvingDateDayCellFactory();
         initializeLactationPeriods();
@@ -262,27 +265,40 @@ public class ProductivityAndCalving {
 
     }
 
+    private void initializeLactationTableViewListener() {
+        lactationTableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+            if (newSelection != null) {
+                newSelection.setSelected(true); // Set the selected property of the newly selected item
+                // Deselect all other items
+                lactationTableView.getItems().forEach(item -> {
+                    if (item != newSelection) {
+                        item.setSelected(false);
+                    }
+                });
+            }
+        });
 
+    }
 
     private void updateFieldsWithSelectedRecord(ReproductiveVariables record) {
+        // Update fields using record methods
+        selectedBreedingDateTextField.setText(record.breedingDate().toString());
+        calvingDate.setValue(record.calvingDate());
 
-        selectedBreedingDateTextField.setText(record.getBreedingDate().toString());
-
-        calvingDate.setValue(record.getCalvingDate());
-
-        Integer calvingIntervalValue = record.getCalvingInterval();
+        Integer calvingIntervalValue = record.calvingInterval();
         calvingIntervalTextField.setText(calvingIntervalValue > 0 ? String.valueOf(calvingIntervalValue) : "");
-        estimatedGestationSpinner.getValueFactory().setValue(record.getGestationPeriod());
+        estimatedGestationSpinner.getValueFactory().setValue(record.gestationPeriod());
 
-        if (record.equals(calvingHistoryTableView.getItems().getLast()) && record.getCalvingDate() == null) {
+        if (record.equals(calvingHistoryTableView.getItems().getLast()) && record.calvingDate() == null) {
             populateTreeView();
             // Calculate days since breeding
-            long daysSinceBreeding = ChronoUnit.DAYS.between(record.getBreedingDate(), LocalDate.now());
+            long daysSinceBreeding = ChronoUnit.DAYS.between(record.breedingDate(), LocalDate.now());
             // Update the TreeView to highlight the current stage of pregnancy
             highlightSubStages((int) daysSinceBreeding);
         }
         selectedReproductiveVariable = record;
     }
+
 
     private void initializeCattleDAO() {
         cattleDAO = new CattleDAO();
@@ -496,7 +512,7 @@ public class ProductivityAndCalving {
         // Find the record matching the selected breeding date
         ReproductiveVariables selectedRecord = calvingHistoryTableView.getItems()
                 .stream()
-                .filter(record -> breedingDate.equals(record.getBreedingDate()))
+                .filter(record -> breedingDate.equals(record.breedingDate()))
                 .findFirst()
                 .orElse(null);
 
@@ -504,21 +520,35 @@ public class ProductivityAndCalving {
             updateFieldsWithSelectedRecord(selectedRecord);
             calvingHistoryTableView.getSelectionModel().select(selectedRecord);
         } else {
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "The breeding date does not exist in the calving history. Would you like to add it?", ButtonType.OK, ButtonType.CANCEL);
+            Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
+                    "The breeding date does not exist in the calving history. Would you like to add it?",
+                    ButtonType.OK, ButtonType.CANCEL);
             alert.setHeaderText(null);
             alert.setTitle("Breeding Date Not Found");
 
             alert.showAndWait().ifPresent(response -> {
                 if (response == ButtonType.OK) {
-                    // Add the new breeding date with default values
-                    ReproductiveVariables newRecord = new ReproductiveVariables();
-                    newRecord.setBreedingDate(breedingDate);
-                    newRecord.setGestationPeriod(283); // default gestation period
-                    newRecord.setCalvingDate(null); // default calving date
-                    newRecord.setCalvingInterval(0); // default calving interval
+                    // Create a new record with default values
+                    ReproductiveVariables newRecord = new ReproductiveVariables(
+                            0, // Assuming 0 or another value for ID until it's generated
+                            selectedCattleId, // Use the original cattle ID
+                            breedingDate,
+                            283, // Default gestation period
+                            null, // Default calving date
+                            0 // Default calving interval
+                    );
 
-                    // Save the new record to the database
-                    reproductiveVariablesDAO.addReproductiveVariableAndGetId(newRecord);
+                    // Save the new record to the database and retrieve the generated ID
+                    int newId = reproductiveVariablesDAO.addReproductiveVariableAndGetId(newRecord);
+                    // Create a new instance with the generated ID
+                    newRecord = new ReproductiveVariables(
+                            newId,
+                            selectedCattleId,
+                            breedingDate,
+                            283,
+                            null,
+                            0
+                    );
 
                     // Update the table view
                     calvingHistoryTableView.getItems().add(newRecord);
@@ -528,6 +558,7 @@ public class ProductivityAndCalving {
             });
         }
     }
+
 
 
     private void initializeSelectedCattleManagerListeners() {
@@ -651,7 +682,7 @@ public class ProductivityAndCalving {
     public List<LocalDate> getAllBreedingDatesForCattle(int cattleId) {
         List<ReproductiveVariables> reproductiveVariablesList = reproductiveVariablesDAO.getAllReproductiveVariablesForCattle(cattleId);
         return reproductiveVariablesList.stream()
-                .map(ReproductiveVariables::getBreedingDate)
+                .map(ReproductiveVariables::breedingDate)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -659,7 +690,7 @@ public class ProductivityAndCalving {
     public List<LocalDate> getAllCalvingDatesForCattle(int cattleId) {
         List<ReproductiveVariables> reproductiveVariablesList = reproductiveVariablesDAO.getAllReproductiveVariablesForCattle(cattleId);
         return reproductiveVariablesList.stream()
-                .map(ReproductiveVariables::getCalvingDate)
+                .map(ReproductiveVariables::calvingDate)
                 .filter(Objects::nonNull)
                 .collect(Collectors.toList());
     }
@@ -867,29 +898,29 @@ public class ProductivityAndCalving {
 
         if (lastRecord != null) {
             selectedReproductiveVariable = lastRecord;
-            selectedBreedingDateTextField.setText(lastRecord.getBreedingDate().toString());
-            calvingDate.setValue(lastRecord.getCalvingDate());
+            selectedBreedingDateTextField.setText(lastRecord.breedingDate().toString());
+            calvingDate.setValue(lastRecord.calvingDate());
             calvingIntervalTextField.setText(
-                    lastRecord.getCalvingInterval() > 0
-                            ? String.valueOf(lastRecord.getCalvingInterval())
+                    lastRecord.calvingInterval() > 0
+                            ? String.valueOf(lastRecord.calvingInterval())
                             : "");
             estimatedGestationSpinner
                     .getValueFactory()
-                    .setValue(lastRecord.getGestationPeriod() != 0 ? lastRecord.getGestationPeriod() : 283);
+                    .setValue(lastRecord.gestationPeriod() != 0 ? lastRecord.gestationPeriod() : 283);
 
-            if (lastRecord.getCalvingDate() == null) {
+            if (lastRecord.calvingDate() == null) {
                 populateTreeView();
-                long daysSinceBreeding = ChronoUnit.DAYS.between(lastRecord.getBreedingDate(), LocalDate.now());
+                long daysSinceBreeding = ChronoUnit.DAYS.between(lastRecord.breedingDate(), LocalDate.now());
                 highlightSubStages((int) daysSinceBreeding);
             }
 
             // Select the last record in the table
-            int lastIndex = records.size() - 1;
-            calvingHistoryTableView.getSelectionModel().select(lastIndex);
+            calvingHistoryTableView.getSelectionModel().select(lastRecord);
         }
 
         updateProjectedCalvingDate();
     }
+
 
 
     private void setAgeAtFirstCalving() {
@@ -911,23 +942,24 @@ public class ProductivityAndCalving {
 
     // Function to fetch the first calving date for a specific cattle
     private LocalDate fetchFirstCalvingDateForCattle(int cattleId) {
-        List<ReproductiveVariables> reproductiveVariablesList;
-        reproductiveVariablesList =
+        List<ReproductiveVariables> reproductiveVariablesList =
                 reproductiveVariablesDAO.getAllReproductiveVariablesForCattle(cattleId);
 
         if (reproductiveVariablesList != null && !reproductiveVariablesList.isEmpty()) {
             reproductiveVariablesList.sort(
                     Comparator.comparing(
-                            ReproductiveVariables::getCalvingDate,
+                            ReproductiveVariables::calvingDate,  // Use record accessor
                             Comparator.nullsFirst(Comparator.naturalOrder())));
+
             for (ReproductiveVariables rv : reproductiveVariablesList) {
-                if (rv.getCalvingDate() != null) {
-                    return rv.getCalvingDate(); // Return the first non-null calving date
+                if (rv.calvingDate() != null) {  // Use record accessor
+                    return rv.calvingDate(); // Return the first non-null calving date
                 }
             }
         }
         return null; // Return null if there's no calving date available
     }
+
 
     private void updateDaysSinceCalving() {
         LocalDate calving = calvingDate.getValue();
@@ -988,6 +1020,7 @@ public class ProductivityAndCalving {
         }
 
         List<ReproductiveVariables> reproductiveVariablesList = reproductiveVariablesDAO.getAllReproductiveVariablesForCattle(selectedCattleId);
+
         // 1. No Existing Record (Empty reproductiveVariablesList)
         if (reproductiveVariablesList == null || reproductiveVariablesList.isEmpty()) {
             if (calvingDate.getValue() != null) {
@@ -996,50 +1029,53 @@ public class ProductivityAndCalving {
                 calvingIntervalTextField.setText(String.valueOf(days));
             }
             // No further processing needed
-        } else {
-            // 2. Existing Records (reproductiveVariablesList is not empty)
-            List<ReproductiveVariables> sortedList = Objects.requireNonNull(reproductiveVariablesList).stream()
-                    .filter(rv -> rv.getCalvingDate() != null)
-                    .sorted(Comparator.comparing(ReproductiveVariables::getCalvingDate))
-                    .toList();
-
-            // A. Updating an Existing Record
-            if (oldValue != null) {
-                int currentIndex = sortedList.indexOf(sortedList.stream()
-                        .filter(rv -> rv.getCalvingDate() != null && rv.getCalvingDate().equals(oldValue))
-                        .findFirst().orElse(null));
-
-                if (currentIndex > 0) {
-                    LocalDate previousCalvingDate = sortedList.get(currentIndex - 1).getCalvingDate();
-                    long days = newValue.toEpochDay() - (previousCalvingDate != null ? previousCalvingDate.toEpochDay() : cattleDAO.fetchDateOfBirth(selectedCattleId).toEpochDay());
-                    calvingIntervalTextField.setText(String.valueOf(days));
-
-                }
-                // No further processing for update
-
-                // B. Adding a New Record (Existing Records)
-            } else {
-                // Find the closest calving date before newValue (or breeding date if calving is null)
-                Optional<ReproductiveVariables> previousRecord = sortedList.stream()
-                        .filter(rv -> rv.getCalvingDate() != null && rv.getCalvingDate().isBefore(newValue))
-                        .max(Comparator.comparing(ReproductiveVariables::getCalvingDate));
-
-                // Use the closest calving date for calculation (if found)
-                if (previousRecord.isPresent()) {
-                    LocalDate previousCalvingDate = previousRecord.get().getCalvingDate();
-                    long days = Objects.requireNonNull(newValue).toEpochDay() - previousCalvingDate.toEpochDay();
-                    calvingIntervalTextField.setText(String.valueOf(days));
-
-                } else {
-                    // No previous calving date found, use date of birth
-                    long days = Objects.requireNonNull(newValue).toEpochDay() - cattleDAO.fetchDateOfBirth(selectedCattleId).toEpochDay();
-                    calvingIntervalTextField.setText(String.valueOf(days));
-                }
-            }
+            return;
         }
 
+        // 2. Existing Records (reproductiveVariablesList is not empty)
+        List<ReproductiveVariables> sortedList = reproductiveVariablesList.stream()
+                .filter(rv -> rv.calvingDate() != null)
+                .sorted(Comparator.comparing(ReproductiveVariables::calvingDate))
+                .toList();
 
+        // A. Updating an Existing Record
+        if (oldValue != null) {
+            int currentIndex = sortedList.indexOf(
+                    sortedList.stream()
+                            .filter(rv -> rv.calvingDate() != null && rv.calvingDate().equals(oldValue))
+                            .findFirst()
+                            .orElse(null)
+            );
+
+            if (currentIndex > 0) {
+                LocalDate previousCalvingDate = sortedList.get(currentIndex - 1).calvingDate();
+                long days = newValue.toEpochDay() - (previousCalvingDate != null
+                        ? previousCalvingDate.toEpochDay()
+                        : cattleDAO.fetchDateOfBirth(selectedCattleId).toEpochDay());
+                calvingIntervalTextField.setText(String.valueOf(days));
+            }
+            // No further processing for update
+
+            // B. Adding a New Record (Existing Records)
+        } else {
+            // Find the closest calving date before newValue
+            Optional<ReproductiveVariables> previousRecord = sortedList.stream()
+                    .filter(rv -> rv.calvingDate() != null && rv.calvingDate().isBefore(newValue))
+                    .max(Comparator.comparing(ReproductiveVariables::calvingDate));
+
+            // Use the closest calving date for calculation (if found)
+            if (previousRecord.isPresent()) {
+                LocalDate previousCalvingDate = previousRecord.get().calvingDate();
+                long days = newValue.toEpochDay() - previousCalvingDate.toEpochDay();
+                calvingIntervalTextField.setText(String.valueOf(days));
+            } else {
+                // No previous calving date found, use date of birth
+                long days = newValue.toEpochDay() - cattleDAO.fetchDateOfBirth(selectedCattleId).toEpochDay();
+                calvingIntervalTextField.setText(String.valueOf(days));
+            }
+        }
     }
+
 
 
     public void handleAddCalfToHerd() {
@@ -1211,18 +1247,27 @@ public class ProductivityAndCalving {
 
 
     public void updateReproductiveData() throws SQLException {
-        LocalDate breedingDate = LocalDate.parse(selectedBreedingDateTextField.getText()) ;
+        LocalDate breedingDate = LocalDate.parse(selectedBreedingDateTextField.getText());
         LocalDate calvedDate = calvingDate.getValue();
         int gestationPeriod = estimatedGestationSpinner.getValue();
         saveButtonPressed = false;
 
+        ReproductiveVariables reproductiveVariable = selectedReproductiveVariable;
+
         // Scenario 1: Updating Breeding Date Only
-        if (calvedDate == null) {
-            ReproductiveVariables reproductiveVariable = selectedReproductiveVariable;
-            if (!reproductiveVariable.getBreedingDate().equals(breedingDate)) {
-                reproductiveVariable.setBreedingDate(breedingDate);
-                reproductiveVariable.setGestationPeriod(gestationPeriod);
-                boolean success = reproductiveVariablesDAO.updateReproductiveVariable(reproductiveVariable);
+        if (calvedDate == null && reproductiveVariable != null) {
+            if (!reproductiveVariable.breedingDate().equals(breedingDate)) {
+                // Create a new instance with the updated breedingDate and gestationPeriod
+                ReproductiveVariables updatedVariable = new ReproductiveVariables(
+                        reproductiveVariable.reproductiveVariableID(),
+                        reproductiveVariable.cattleID(),
+                        breedingDate,
+                        gestationPeriod,
+                        reproductiveVariable.calvingDate(),
+                        reproductiveVariable.calvingInterval()
+                );
+
+                boolean success = reproductiveVariablesDAO.updateReproductiveVariable(updatedVariable);
                 if (success) {
                     clearReproductiveData();
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding date updated successfully.");
@@ -1236,16 +1281,14 @@ public class ProductivityAndCalving {
         }
 
         // Scenario 2: Updating Record with Existing Breeding Date and Adding Calving Date
-        if (selectedReproductiveVariable != null && selectedReproductiveVariable.getCalvingDate() == null && calvedDate != null) {
+        if (reproductiveVariable != null && reproductiveVariable.calvingDate() == null && calvedDate != null) {
             handleAddCalfToHerd();
-
         }
 
-
         // Scenario 3: Updating Record with Existing Breeding and Calving Dates
-        if (selectedReproductiveVariable != null && selectedReproductiveVariable.getCalvingDate() != null && calvedDate != null) {
-            boolean breedingChanged = !selectedReproductiveVariable.getBreedingDate().equals(breedingDate);
-            boolean calvingChanged = !selectedReproductiveVariable.getCalvingDate().equals(calvedDate);
+        if (reproductiveVariable != null && reproductiveVariable.calvingDate() != null && calvedDate != null) {
+            boolean breedingChanged = !reproductiveVariable.breedingDate().equals(breedingDate);
+            boolean calvingChanged = !reproductiveVariable.calvingDate().equals(calvedDate);
 
             if (breedingChanged || calvingChanged) {
                 boolean needToAddCattleRecord = calvingChanged && !cattleRecordExistsForCalvingDate();
@@ -1253,13 +1296,30 @@ public class ProductivityAndCalving {
                 if (needToAddCattleRecord) {
                     handleAddCalfToHerd();
                 } else {
-                    selectedReproductiveVariable.setGestationPeriod(gestationPeriod);
+                    // Create a new instance with updated breedingDate or calvingDate if changes are detected
+                    ReproductiveVariables updatedVariable = new ReproductiveVariables(
+                            reproductiveVariable.reproductiveVariableID(),
+                            reproductiveVariable.cattleID(),
+                            breedingChanged ? breedingDate : reproductiveVariable.breedingDate(),
+                            gestationPeriod,
+                            calvingChanged ? calvedDate : reproductiveVariable.calvingDate(),
+                            reproductiveVariable.calvingInterval()
+                    );
+
                     if (breedingChanged) {
                         handleBreedingDateChange();
                     }
                     if (calvingChanged) {
                         handleCalvingDateChange();
+                    }
 
+                    boolean success = reproductiveVariablesDAO.updateReproductiveVariable(updatedVariable);
+                    if (success) {
+                        clearReproductiveData();
+                        showAlert(Alert.AlertType.INFORMATION, "Success", "Reproductive data updated successfully.");
+                        loadCalvingHistoryForCattle(selectedCattleId);
+                    } else {
+                        handleUpdateFailure();
                     }
                 }
             } else {
@@ -1268,14 +1328,26 @@ public class ProductivityAndCalving {
         }
     }
 
+
     private void handleUpdateFailure() {
         showAlert(Alert.AlertType.ERROR, "Error", "Failed to update reproductive data.");
         AppLogger.error("Failed to update reproductive data.");
     }
 
     private void handleBreedingDateChange() {
-        selectedReproductiveVariable.setBreedingDate(LocalDate.parse(selectedBreedingDateTextField.getText()));
-        boolean success = reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
+        LocalDate newBreedingDate = LocalDate.parse(selectedBreedingDateTextField.getText());
+
+        // Create a new instance of ReproductiveVariables with the updated breeding date
+        ReproductiveVariables updatedVariable = new ReproductiveVariables(
+                selectedReproductiveVariable.reproductiveVariableID(),
+                selectedReproductiveVariable.cattleID(),
+                newBreedingDate, // updated breeding date
+                selectedReproductiveVariable.gestationPeriod(),
+                selectedReproductiveVariable.calvingDate(),
+                selectedReproductiveVariable.calvingInterval()
+        );
+
+        boolean success = reproductiveVariablesDAO.updateReproductiveVariable(updatedVariable);
         if (success) {
             clearReproductiveData();
             showAlert(Alert.AlertType.INFORMATION, "Success", "Breeding date updated successfully.");
@@ -1286,13 +1358,23 @@ public class ProductivityAndCalving {
     }
 
 
+
     private void handleCalvingDateChange() throws SQLException {
         LocalDate originalDateOfBirth = null;
 
         try {
-            originalDateOfBirth = selectedReproductiveVariable.getCalvingDate();
+            originalDateOfBirth = selectedReproductiveVariable.calvingDate();
             LocalDate newCalvingDate = calvingDate.getValue();
-            selectedReproductiveVariable.setCalvingDate(newCalvingDate);
+
+            // Create a new instance of ReproductiveVariables with the updated calving date
+            ReproductiveVariables updatedVariable = new ReproductiveVariables(
+                    selectedReproductiveVariable.reproductiveVariableID(),
+                    selectedReproductiveVariable.cattleID(),
+                    selectedReproductiveVariable.breedingDate(),
+                    selectedReproductiveVariable.gestationPeriod(),
+                    newCalvingDate, // updated calving date
+                    selectedReproductiveVariable.calvingInterval()
+            );
 
             // Check if a new calving date is being set for the first time
             if (originalDateOfBirth == null) {
@@ -1309,7 +1391,7 @@ public class ProductivityAndCalving {
                     boolean dateOfBirthUpdated = CattleDAO.updateCattleDateOfBirth(cattleToUpdate.getCattleId(), newCalvingDate);
 
                     if (dateOfBirthUpdated) {
-                        boolean reproductiveVariableUpdated = reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
+                        boolean reproductiveVariableUpdated = reproductiveVariablesDAO.updateReproductiveVariable(updatedVariable);
                         if (!reproductiveVariableUpdated) {
                             showAlert(Alert.AlertType.ERROR, "Update Failed", "Failed to update Reproductive data." + "\n Reverting changes.");
                             handleDateOfBirthUpdateFailure(originalDateOfBirth);
@@ -1356,7 +1438,7 @@ public class ProductivityAndCalving {
 
             List<ProductionSession> productionSessions = ProductionSessionDAO.getAllProductionSessions();
             boolean hasSessionsToUpdate = productionSessions.stream()
-                    .anyMatch(session -> session.getCattleID() == selectedCattleId && session.getLactationPeriodID() == lactationPeriodID);
+                    .anyMatch(session -> session.cattleID() == selectedCattleId && session.lactationPeriodID() == lactationPeriodID);
 
             if (!hasSessionsToUpdate) {
                 showAlert(Alert.AlertType.WARNING, "No Production Sessions Found", "No production sessions found for the specified cattle and lactation period. Skipping session date updates.");
@@ -1372,12 +1454,23 @@ public class ProductivityAndCalving {
         }
     }
 
-    private void handleUpdateFailure(String message,LocalDate originalDateOfBirth) throws SQLException {
+    private void handleUpdateFailure(String message, LocalDate originalDateOfBirth) throws SQLException {
         showAlert(Alert.AlertType.ERROR, "Update Failed", message + " Reverting changes.");
         handleDateOfBirthUpdateFailure(originalDateOfBirth);
-        selectedReproductiveVariable.setCalvingDate(originalDateOfBirth);
-        reproductiveVariablesDAO.updateReproductiveVariable(selectedReproductiveVariable);
+
+        // Create a new instance of ReproductiveVariables with the original calving date to revert changes
+        ReproductiveVariables revertedVariable = new ReproductiveVariables(
+                selectedReproductiveVariable.reproductiveVariableID(),
+                selectedReproductiveVariable.cattleID(),
+                selectedReproductiveVariable.breedingDate(),
+                selectedReproductiveVariable.gestationPeriod(),
+                originalDateOfBirth, // revert to originally calving date
+                selectedReproductiveVariable.calvingInterval()
+        );
+
+        reproductiveVariablesDAO.updateReproductiveVariable(revertedVariable);
     }
+
 
     private void handleDateOfBirthUpdateFailure(LocalDate originalDateOfBirth) throws SQLException {
         Cattle cattleToUpdate = CattleDAO.findCattleByBirthdateAndDamId(originalDateOfBirth, selectedCattleId);
@@ -1400,7 +1493,7 @@ public class ProductivityAndCalving {
         try {
             int lactationPeriodID = LactationPeriodDAO.getLactationIdByCattleIdAndStartDate(selectedCattleId, originalDateOfBirth);
             LactationPeriodDAO.updateLactationPeriodStartDate(lactationPeriodID, originalDateOfBirth);
-            ProductionSessionDAO.updateSessionDates(selectedReproductiveVariable.getCattleID(), lactationPeriodID, originalDateOfBirth);
+            ProductionSessionDAO.updateSessionDates(selectedReproductiveVariable.cattleID(), lactationPeriodID, originalDateOfBirth);
         } catch (SQLException ex) {
             throw new RuntimeException("Failed to handle SQL exception while reverting changes.", ex);
         }
@@ -1412,7 +1505,7 @@ public class ProductivityAndCalving {
     private boolean cattleRecordExistsForCalvingDate() {
         Cattle cattleToUpdate;
         try {
-            cattleToUpdate = CattleDAO.findCattleByBirthdateAndDamId(selectedReproductiveVariable.getCalvingDate(), selectedCattleId);
+            cattleToUpdate = CattleDAO.findCattleByBirthdateAndDamId(selectedReproductiveVariable.calvingDate(), selectedCattleId);
             return cattleToUpdate != null;
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -1458,7 +1551,7 @@ public class ProductivityAndCalving {
                                             reproductiveVariablesDAO.updateReproductiveVariable(originalReproductiveVariables);
 
                                             // Update added cattle date of birth to use the reproductive variable original calving date
-                                            LocalDate originalCalvingDate = originalReproductiveVariables.getCalvingDate();
+                                            LocalDate originalCalvingDate = originalReproductiveVariables.calvingDate();
 
                                             CattleDAO.updateCattleDateOfBirth(newCattleId, originalCalvingDate);
 
@@ -1498,37 +1591,8 @@ public class ProductivityAndCalving {
 
 
     private void createReproductiveTableColumns() {
-        // Construct table columns with descriptive names and data bindings
-        TableColumn<ReproductiveVariables, Integer> identifierColumn = new TableColumn<>("No.");
-        identifierColumn.setCellValueFactory(new PropertyValueFactory<>("ReproductiveVariableID"));
-        identifierColumn.setPrefWidth(50);
-
-        TableColumn<ReproductiveVariables, LocalDate> breedingDateColumn =
-                new TableColumn<>("Breeding Date");
-        breedingDateColumn.setCellValueFactory(new PropertyValueFactory<>("BreedingDate"));
-        breedingDateColumn.setPrefWidth(120);
-
-        TableColumn<ReproductiveVariables, LocalDate> calvingDateColumn =
-                new TableColumn<>("Calving Date");
-        calvingDateColumn.setCellValueFactory(new PropertyValueFactory<>("CalvingDate"));
-        calvingDateColumn.setPrefWidth(120);
-
-        TableColumn<ReproductiveVariables, Integer> calvingIntervalColumn =
-                new TableColumn<>("Calving Interval");
-        calvingIntervalColumn.setCellValueFactory(new PropertyValueFactory<>("CalvingInterval"));
-        calvingIntervalColumn.setPrefWidth(92);
-
-        TableColumn<ReproductiveVariables, Void> actionColumn =
-                getReproductiveVariablesVoidTableColumn();
-
-        // Assemble and apply columns to the table
-        List<TableColumn<ReproductiveVariables, ?>> columns =
-                Arrays.asList(
-                        identifierColumn,
-                        breedingDateColumn,
-                        calvingDateColumn,
-                        calvingIntervalColumn,
-                        actionColumn);
+        // Get the columns and add them to the table
+        List<TableColumn<ReproductiveVariables, ?>> columns = createReproductiveColumns();
         calvingHistoryTableView.getColumns().addAll(columns);
 
         // Set font size for consistent text display
@@ -1536,6 +1600,46 @@ public class ProductivityAndCalving {
             column.setStyle("-fx-font-size: 10px;");
         }
     }
+
+    private List<TableColumn<ReproductiveVariables, ?>> createReproductiveColumns() {
+        // Identifier column
+        TableColumn<ReproductiveVariables, Integer> identifierColumn = new TableColumn<>("No.");
+        identifierColumn.setCellValueFactory(cellData ->
+                new SimpleIntegerProperty(cellData.getValue().reproductiveVariableID()).asObject());
+        identifierColumn.setPrefWidth(50);
+
+        // Breeding Date column
+        TableColumn<ReproductiveVariables, LocalDate> breedingDateColumn = new TableColumn<>("Breeding Date");
+        breedingDateColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().breedingDate()));
+        breedingDateColumn.setPrefWidth(120);
+
+        // Calving Date column
+        TableColumn<ReproductiveVariables, LocalDate> calvingDateColumn = new TableColumn<>("Calving Date");
+        calvingDateColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().calvingDate()));
+        calvingDateColumn.setPrefWidth(120);
+
+        // Calving Interval column
+        TableColumn<ReproductiveVariables, Integer> calvingIntervalColumn = new TableColumn<>("Calving Interval");
+        calvingIntervalColumn.setCellValueFactory(cellData ->
+                new SimpleIntegerProperty(cellData.getValue().calvingInterval()).asObject());
+        calvingIntervalColumn.setPrefWidth(92);
+
+        // Action column for delete button
+        TableColumn<ReproductiveVariables, Void> actionColumn = getReproductiveVariablesVoidTableColumn();
+
+        // Return the list of columns
+        return Arrays.asList(
+                identifierColumn,
+                breedingDateColumn,
+                calvingDateColumn,
+                calvingIntervalColumn,
+                actionColumn
+        );
+    }
+
+
 
     @NotNull
     private TableColumn<ReproductiveVariables, Void> getReproductiveVariablesVoidTableColumn() {
@@ -1553,13 +1657,13 @@ public class ProductivityAndCalving {
                                                     getTableView().getItems().get(getIndex());
 
                                             // Check if end date is present
-                                            LocalDate CalvingDate = reproductiveVariables.getCalvingDate();
+                                            LocalDate CalvingDate = reproductiveVariables.calvingDate();
                                             if (CalvingDate != null) {
 
                                                 handleDeletion(reproductiveVariables);
                                             } else {
 
-                                                if(ReproductiveVariablesDAO.deleteReproductiveVariable(reproductiveVariables.getReproductiveVariableID())){
+                                                if(ReproductiveVariablesDAO.deleteReproductiveVariable(reproductiveVariables.reproductiveVariableID())){
                                                     loadCalvingHistoryForCattle(selectedCattleId);
                                                     showAlert(Alert.AlertType.INFORMATION, "Success", "reproductive Record deleted successfully.");
                                                 }else{
@@ -1620,8 +1724,8 @@ public class ProductivityAndCalving {
 
     public void handleDeletion(ReproductiveVariables reproductiveVariables) {
         ReproductiveVariablesDAO reproductiveVariablesDAO = new ReproductiveVariablesDAO();
-        LocalDate calvingDate = reproductiveVariables.getCalvingDate();
-        int reproductiveVariableID = reproductiveVariables.getReproductiveVariableID();
+        LocalDate calvingDate = reproductiveVariables.calvingDate();
+        int reproductiveVariableID = reproductiveVariables.reproductiveVariableID();
         Connection conn = null;
 
         try {
@@ -1646,7 +1750,7 @@ public class ProductivityAndCalving {
                         return;
                     }
 
-                    if (reproductiveVariablesDAO.deleteReproductiveVariable(conn, reproductiveVariableID)) {
+                    if (reproductiveVariablesDAO.deleteReproductiveVariableAtomically(conn, reproductiveVariableID)) {
                         conn.commit();
                         showSuccessAlert();
                         loadCalvingHistoryForCattle(selectedCattleId);
@@ -1723,7 +1827,7 @@ public class ProductivityAndCalving {
             List<ProductionSession> productionSessions = ProductionSessionDAO.getProductionSessionsByLactationPeriodId(conn, lactationPeriodId);
             if (!productionSessions.isEmpty()) {
                 for (ProductionSession session : productionSessions) {
-                    if (!ProductionSessionDAO.deleteProductionSession(conn, session.getSessionID())) {
+                    if (!ProductionSessionDAO.deleteProductionSession(conn, session.sessionID())) {
                         showFailureAlert("Failed to delete production session.");
                         return false;
                     }
@@ -1774,30 +1878,29 @@ public class ProductivityAndCalving {
     private ReproductiveVariables getReproductiveVariables(LocalDate breedingDate, int gestationPeriod) {
         LocalDate calvingDateValue = calvingDate.getValue();
         Integer calvingInterval = null;
+
+        // Parse calving interval if calving date is provided
         String calvingIntervalText = calvingIntervalTextField.getText();
         if (calvingDateValue != null) {
             calvingInterval = Integer.parseInt(calvingIntervalText);
-
         }
 
-        // Create a new ReproductiveVariables object
-        ReproductiveVariables reproductiveVariables = new ReproductiveVariables();
-        reproductiveVariables.setCattleID(selectedCattleId);
-        reproductiveVariables.setBreedingDate(breedingDate);
-        reproductiveVariables.setGestationPeriod(gestationPeriod);
+        // Determine reproductiveVariableID based on saveButtonPressed status
+        int reproductiveVariableID = saveButtonPressed
+                ? 0  // Assuming 0 or a placeholder for new entries if save button was not pressed
+                : selectedReproductiveVariable.reproductiveVariableID();
 
-        // Set calving date and interval only if provided
-        if (calvingDateValue != null) {
-            reproductiveVariables.setCalvingDate(calvingDateValue);
-        }
-        if (calvingInterval != null) {
-            reproductiveVariables.setCalvingInterval(calvingInterval);
-        }
-        if (!saveButtonPressed) {
-            reproductiveVariables.setReproductiveVariableID(selectedReproductiveVariable.getReproductiveVariableID());
-        }
-        return reproductiveVariables;
+        // Create and return a new ReproductiveVariables record instance
+        return new ReproductiveVariables(
+                reproductiveVariableID,
+                selectedCattleId,
+                breedingDate,
+                gestationPeriod,
+                calvingDateValue,
+                calvingInterval != null ? calvingInterval : 0  // Assuming 0 as a default if null
+        );
     }
+
 
 
 
@@ -2784,8 +2887,8 @@ public class ProductivityAndCalving {
                     handleMissingReproductiveVariables(cattleId, breedingDate);
                 }
 
-                if (Objects.requireNonNull(reproductiveVariables).getCalvingDate() != null) {
-                    LocalDate endDate = reproductiveVariables.getCalvingDate().plusDays(POST_CALVING_INTERVAL);
+                if (Objects.requireNonNull(reproductiveVariables).calvingDate() != null) {
+                    LocalDate endDate = reproductiveVariables.calvingDate().plusDays(POST_CALVING_INTERVAL);
                     disabledRanges.add(estrusDate);
                     disabledRanges.add(endDate);
                 } else {
@@ -2868,8 +2971,8 @@ public class ProductivityAndCalving {
             return breedingDate.plusDays(24); // Use a default minimum based on previous estrus date successful attempt
         }
 
-        if (reproductiveVariables.getCalvingDate() != null) {
-            return reproductiveVariables.getCalvingDate().plusDays(POST_CALVING_INTERVAL);
+        if (reproductiveVariables.calvingDate() != null) {
+            return reproductiveVariables.calvingDate().plusDays(POST_CALVING_INTERVAL);
         } else {
             return calculateMinDateBasedOnNextAttemptOrEstimatedCalving(cattleId, breedingDate, reproductiveVariables);
         }
@@ -2879,33 +2982,45 @@ public class ProductivityAndCalving {
         ReproductiveVariables nextAttempt = reproductiveVariablesDAO.getNextBreedingAttempt(cattleId, breedingDate);
         if (nextAttempt != null) {
             //The time between heat cycles (called the estrous cycle) is usually around 21 days, but can range from 18 to 24 days.
-            return nextAttempt.getBreedingDate().minusDays(24);
+            return nextAttempt.breedingDate().minusDays(24);
         } else {
-            LocalDate estimatedCalvingDate = breedingDate.plusDays(reproductiveVariables.getGestationPeriod());
+            LocalDate estimatedCalvingDate = breedingDate.plusDays(reproductiveVariables.gestationPeriod());
             return estimatedCalvingDate.plusDays(POST_CALVING_INTERVAL);
         }
     }
 
 
     private void handleMissingReproductiveVariables(int cattleId, LocalDate breedingDate) {
-        // Add missing reproductive variables with default values
-        ReproductiveVariables missingReproductiveVariables = new ReproductiveVariables();
-        missingReproductiveVariables.setCattleID(cattleId);
+        // Retrieve gestation period from spinner and set default values
         int gestationPeriod = estimatedGestationPeriodSpinner.getValue();
 
+        // Set flag to indicate reproductive variable addition is in progress
         addingReproductiveVariables.set(true);
 
-        missingReproductiveVariables.setBreedingDate(breedingDate);
-        missingReproductiveVariables.setGestationPeriod(gestationPeriod);
+        // Create a new ReproductiveVariables instance with default values for missing data
+        ReproductiveVariables missingReproductiveVariables = new ReproductiveVariables(
+                0,                      // Assuming 0 or a placeholder for new ID
+                cattleId,               // Cattle ID
+                breedingDate,           // Breeding Date
+                gestationPeriod,        // Gestation Period
+                null,                   // Calving Date (null if not provided)
+                0                       // Calving Interval (default to 0 if not provided)
+        );
+
+        // Add the new reproductive variable to the database and get the generated ID
         int reproductiveVariableId = reproductiveVariablesDAO.addReproductiveVariableAndGetId(missingReproductiveVariables);
 
+        // Provide feedback based on whether the insertion was successful
         if (reproductiveVariableId != -1) {
-            showAlert(Alert.AlertType.INFORMATION, "Success", "This missing Reproductive Data added successfully.");
+            showAlert(Alert.AlertType.INFORMATION, "Success", "The missing Reproductive Data was added successfully.");
         } else {
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to add reproductive data.");
         }
+
+        // Reset flag after addition process completes
         addingReproductiveVariables.set(false);
     }
+
 
 
     public LocalDate calculateMaximumDate(int cattleId, BreedingAttempt selectedAttempt, LocalDate minDate) throws SQLException {
@@ -3136,18 +3251,23 @@ public class ProductivityAndCalving {
 
 
     private void initializeLactationTableColumns() {
-        selectionColumn.setCellValueFactory(cellData -> cellData.getValue().selectedProperty());
-        selectionColumn.setCellFactory(CheckBoxTableCell.forTableColumn(selectionColumn));
+        // Set up the selection column to bind to the selected property
+        selectionColumn.setCellValueFactory(cellData -> cellData.getValue().selected());
+
+        // Use the custom RadioButtonTableCell for the selection column
+        selectionColumn.setCellFactory(column -> new RadioButtonTableCell());
 
         DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-        startDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().startDate()));
+        // Set up the start date column
+        startDateColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().lactationPeriod().startDate())
+        );
         startDateColumn.setCellFactory(column -> new TableCell<>() {
             @Override
             protected void updateItem(LocalDate item, boolean empty) {
                 super.updateItem(item, empty);
-                if (empty) {
+                if (empty || item == null) {
                     setText(null);
                     setGraphic(null);
                 } else {
@@ -3157,11 +3277,14 @@ public class ProductivityAndCalving {
             }
         });
 
-        endDateColumn.setCellValueFactory(cellData -> new SimpleObjectProperty<>(
-                cellData.getValue().getLactationPeriod().endDate()));
+        // Set up the end date column
+        endDateColumn.setCellValueFactory(cellData ->
+                new SimpleObjectProperty<>(cellData.getValue().lactationPeriod().endDate())
+        );
         endDateColumn.setCellFactory(new MissingEndDateCellFactory(dateFormatter));
-
     }
+
+
 
 
     private void loadLactationPeriodsForSelectedCattle() {
@@ -3201,16 +3324,21 @@ public class ProductivityAndCalving {
 
             // If lactation periods exist, select the first (most recent) one
             if (!lactationPeriods.isEmpty()) {
-                LactationPeriod mostRecentPeriod = lactationPeriods.getFirst();
                 lactationTableView.getSelectionModel().select(0);
                 LactationPeriodWithSelection selectedPeriod = lactationTableView.getSelectionModel().getSelectedItem();
+                selectedPeriod.setSelected(true); // Set the selected property of the initially selected item
                 populateLactationFields(selectedPeriod);
 
-                if (mostRecentPeriod.endDate() == null) {
-                    long daysSinceStart = ChronoUnit.DAYS.between(mostRecentPeriod.startDate(), currentDate);
+                // Ensure the radio button reflects the selection
+                for (LactationPeriodWithSelection period : lactationTableView.getItems()) {
+                    period.setSelected(period == selectedPeriod); // Update selected state based on selection
+                }
+
+                if (selectedPeriod.lactationPeriod().endDate() == null) {
+                    long daysSinceStart = ChronoUnit.DAYS.between(selectedPeriod.lactationPeriod().startDate(), currentDate);
                     if (daysSinceStart <= 365) {
                         // Set the label text to "start date - now"
-                        currentPeriodLabel.setText(mostRecentPeriod.startDate() + " - now");
+                        currentPeriodLabel.setText(selectedPeriod.lactationPeriod().startDate() + " - now");
                     }
                 }
             } else {
@@ -3226,9 +3354,10 @@ public class ProductivityAndCalving {
 
 
 
+
     private void populateLactationFields(LactationPeriodWithSelection selectedPeriod) {
         if (selectedPeriod != null) {
-            LactationPeriod period = selectedPeriod.getLactationPeriod();
+            LactationPeriod period = selectedPeriod.lactationPeriod();
             lactationStartDateField.setText(String.valueOf(period.startDate()));
             lactationEndDatePicker.setValue(period.endDate() != null ? period.endDate() : null);
             originalEndDate = period.endDate(); // Set the original end date
@@ -3279,8 +3408,8 @@ public class ProductivityAndCalving {
                         // Display the start date of the ongoing lactation period if it exists
                         ongoingLactationPeriodLabel.setText(ongoingLactationPeriod.startDate().toString());
 
-                        if (selectedPeriodWithSelection != null && selectedPeriodWithSelection.getLactationPeriod() != null) {
-                            LocalDate selectedStartDate = selectedPeriodWithSelection.getLactationPeriod().startDate();
+                        if (selectedPeriodWithSelection != null && selectedPeriodWithSelection.lactationPeriod() != null) {
+                            LocalDate selectedStartDate = selectedPeriodWithSelection.lactationPeriod().startDate();
 
                             // Check if the selected period matches the ongoing period
                             if (selectedStartDate.equals(ongoingLactationPeriod.startDate())) {
@@ -3433,7 +3562,7 @@ public class ProductivityAndCalving {
                     return;
                 }
                 LactationPeriodWithSelection selectedPeriod = lactationTableView.getSelectionModel().getSelectedItem();
-                LocalDate minDate = selectedPeriod.getLactationPeriod().startDate();
+                LocalDate minDate = selectedPeriod.lactationPeriod().startDate();
                 LocalDate maxDate = calculateMaxEndDate(selectedPeriod);
                 LocalDate today = LocalDate.now();
 
@@ -3459,14 +3588,14 @@ public class ProductivityAndCalving {
 
         // Sort lactation periods by start date (most recent first)
         List<LactationPeriod> lactationPeriods = lactationPeriodsWithSelection.stream()
-                .map(LactationPeriodWithSelection::getLactationPeriod)
+                .map(LactationPeriodWithSelection::lactationPeriod)
                 .sorted(Comparator.comparing(LactationPeriod::startDate).reversed())
                 .toList();
 
-        LocalDate selectedStartDate = selectedPeriod.getLactationPeriod().startDate();
+        LocalDate selectedStartDate = selectedPeriod.lactationPeriod().startDate();
         LocalDate maxEndDate;
 
-        int selectedIndex = lactationPeriods.indexOf(selectedPeriod.getLactationPeriod());
+        int selectedIndex = lactationPeriods.indexOf(selectedPeriod.lactationPeriod());
 
         if (selectedIndex == 0 || lactationPeriods.size() == 1) {
             // If the selected period is the most recent or there's only one period, maximum end date is one year after start date
@@ -3505,7 +3634,7 @@ public class ProductivityAndCalving {
             return;
         }
 
-        LactationPeriod selectedPeriod = selectedPeriodWithSelection.getLactationPeriod();
+        LactationPeriod selectedPeriod = selectedPeriodWithSelection.lactationPeriod();
         LocalDate newEndDate = lactationEndDatePicker.getValue();
 
         // Validate the end date
@@ -3583,7 +3712,7 @@ public class ProductivityAndCalving {
                     // Clear the end date and update the database
                     lactationEndDatePicker.setValue(null);
                     try {
-                        LactationPeriodDAO.updateLactationPeriodEndDate(selectedPeriodWithSelection.getLactationPeriod().lactationPeriodID(), null);
+                        LactationPeriodDAO.updateLactationPeriodEndDate(selectedPeriodWithSelection.lactationPeriod().lactationPeriodID(), null);
                         showAlert(Alert.AlertType.INFORMATION, "Cleared end date", "The end date has been cleared and updated in the database.");
 
                         loadLactationPeriodsForSelectedCattle();
@@ -3765,22 +3894,22 @@ public class ProductivityAndCalving {
 
         switch (sessionType) {
             case "Morning":
-                morningStartTimeTextField.setText(session.getStartTime().toLocalDateTime().toLocalTime().format(timeFormatter));
-                morningEndTimeTextField.setText(session.getEndTime().toLocalDateTime().toLocalTime().format(timeFormatter));
-                morningQualityScore.setValue(session.getQualityScore());
-                spinnerMorning.getValueFactory().setValue(session.getProductionVolume());
+                morningStartTimeTextField.setText(session.startTime().toLocalDateTime().toLocalTime().format(timeFormatter));
+                morningEndTimeTextField.setText(session.endTime().toLocalDateTime().toLocalTime().format(timeFormatter));
+                morningQualityScore.setValue(session.qualityScore());
+                spinnerMorning.getValueFactory().setValue(session.productionVolume());
                 break;
             case "Afternoon":
-                afternoonStartTimeTextField.setText(session.getStartTime().toLocalDateTime().toLocalTime().format(timeFormatter));
-                afternoonEndTimeTextField.setText(session.getEndTime().toLocalDateTime().toLocalTime().format(timeFormatter));
-                afternoonQualityScore.setValue(session.getQualityScore());
-                spinnerAfternoon.getValueFactory().setValue(session.getProductionVolume());
+                afternoonStartTimeTextField.setText(session.startTime().toLocalDateTime().toLocalTime().format(timeFormatter));
+                afternoonEndTimeTextField.setText(session.endTime().toLocalDateTime().toLocalTime().format(timeFormatter));
+                afternoonQualityScore.setValue(session.qualityScore());
+                spinnerAfternoon.getValueFactory().setValue(session.productionVolume());
                 break;
             case "Evening":
-                eveningStartTimeTextField.setText(session.getStartTime().toLocalDateTime().toLocalTime().format(timeFormatter));
-                eveningEndTimeTextField.setText(session.getEndTime().toLocalDateTime().toLocalTime().format(timeFormatter));
-                eveningQualityScore.setValue(session.getQualityScore());
-                spinnerEvening.getValueFactory().setValue(session.getProductionVolume());
+                eveningStartTimeTextField.setText(session.startTime().toLocalDateTime().toLocalTime().format(timeFormatter));
+                eveningEndTimeTextField.setText(session.endTime().toLocalDateTime().toLocalTime().format(timeFormatter));
+                eveningQualityScore.setValue(session.qualityScore());
+                spinnerEvening.getValueFactory().setValue(session.productionVolume());
                 break;
             default:
                 throw new IllegalArgumentException("Invalid session type: " + sessionType);
@@ -3792,6 +3921,7 @@ public class ProductivityAndCalving {
 
         storeInitialValues();
     }
+
 
     private void storeInitialValues() {
         initialValues.put("morningStartTime", morningStartTimeTextField.getText());
@@ -3998,8 +4128,9 @@ public class ProductivityAndCalving {
             ProductionSession existingSession = findExistingSessionByTime(initialStartTime, initialEndTime);
 
             if (existingSession != null) {
-                updateSession(existingSession, currentValues);
-                ProductionSessionDAO.updateProductionSession(existingSession);
+                // Use the returned updated ProductionSession from updateSession
+                ProductionSession updatedSession = updateSession(existingSession, currentValues);
+                ProductionSessionDAO.updateProductionSession(updatedSession); // Use updatedSession here
                 showAlert(Alert.AlertType.INFORMATION, "Success", "Production session updated successfully.");
                 refreshUI();
 
@@ -4021,6 +4152,7 @@ public class ProductivityAndCalving {
             e.printStackTrace();
         }
     }
+
 
     private boolean isSessionInputComplete(String sessionType) {
         return !switch (sessionType) {
@@ -4208,7 +4340,7 @@ public class ProductivityAndCalving {
         try {
             List<ProductionSession> sessions = ProductionSessionDAO.getProductionSessionsByDateAndLactationPeriodId(selectedDateProductionSessionDate, ongoingLactationPeriod.lactationPeriodID());
             for (ProductionSession session : sessions) {
-                if (session.getStartTime().toLocalDateTime().equals(startTime) && session.getEndTime().toLocalDateTime().equals(endTime)) {
+                if (session.startTime().toLocalDateTime().equals(startTime) && session.endTime().toLocalDateTime().equals(endTime)) {
                     return session;
                 }
             }
@@ -4281,14 +4413,27 @@ public class ProductivityAndCalving {
         return LocalDateTime.of(selectedDateProductionSessionDate, LocalTime.parse(timeString, ProductivityAndCalving.timeFormatter));
     }
 
-    private void updateSession(ProductionSession session, Map<String, String> values) {
+    // Change updateSession to return a new ProductionSession with updated values
+    private ProductionSession updateSession(ProductionSession session, Map<String, String> values) {
         LocalDateTime currentStartTime = parseDateTime(values.get("startTime"));
         LocalDateTime currentEndTime = parseDateTime(values.get("endTime"));
-        session.setStartTime(Timestamp.valueOf(currentStartTime));
-        session.setEndTime(Timestamp.valueOf(currentEndTime));
-        session.setQualityScore(values.get("qualityScore"));
-        session.setProductionVolume(Double.parseDouble(values.get("productionVolume")));
+        Timestamp newStartTime = Timestamp.valueOf(currentStartTime);
+        Timestamp newEndTime = Timestamp.valueOf(currentEndTime);
+        String newQualityScore = values.get("qualityScore");
+        double newProductionVolume = Double.parseDouble(values.get("productionVolume"));
+
+        // Return a new ProductionSession record with the updated fields
+        return new ProductionSession(
+                session.sessionID(),
+                session.lactationPeriodID(),
+                session.cattleID(),
+                newStartTime,
+                newEndTime,
+                newQualityScore,
+                newProductionVolume
+        );
     }
+
     private void updateButtonText(Map<String, List<ProductionSession>> categorizedSessions, String sessionType, Button button, boolean forDeleteButton) {
         if (categorizedSessions.containsKey(sessionType) && !categorizedSessions.get(sessionType).isEmpty()) {
             if (forDeleteButton) {
@@ -4325,7 +4470,7 @@ public class ProductivityAndCalving {
     }
 
     private boolean isSessionOfType(ProductionSession session, String sessionType) {
-        LocalDateTime startTime = session.getStartTime().toLocalDateTime();
+        LocalDateTime startTime = session.startTime().toLocalDateTime();
         LocalTime timeOfDay = startTime.toLocalTime();
 
         return switch (sessionType) {
@@ -4453,7 +4598,7 @@ public class ProductivityAndCalving {
 
     private void showTimePickerStage(Stage stage, Button button, TextField associatedTextField) {
         try {
-            LactationPeriod selectedLactationPeriod = lactationTableView.getSelectionModel().getSelectedItem().getLactationPeriod();
+            LactationPeriod selectedLactationPeriod = lactationTableView.getSelectionModel().getSelectedItem().lactationPeriod();
             // Load the FXML file
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/example/hashinfarm/homePanels/homeCenterPanelViews/cattleManagement/centerRightViews/cattleDetailMoreButtons/timePicker.fxml"));
             Parent root = loader.load();
@@ -4673,7 +4818,7 @@ public class ProductivityAndCalving {
 
             ProductionSession session = findExistingSessionByTime(startTime, endTime);
             if (session != null) {
-                boolean deleted = ProductionSessionDAO.deleteProductionSession(session.getSessionID());
+                boolean deleted = ProductionSessionDAO.deleteProductionSession(session.sessionID());
                 if (deleted) {
                     showAlert(Alert.AlertType.INFORMATION, "Success", "Production session deleted successfully.");
                     refreshUI();
@@ -5000,7 +5145,7 @@ public class ProductivityAndCalving {
                 // Filter production sessions for the current date
                 List<ProductionSession> filteredSessions = productionSessions.stream()
                         .filter(session -> {
-                            LocalDate sessionDate = session.getStartTime().toLocalDateTime().toLocalDate();
+                            LocalDate sessionDate = session.startTime().toLocalDateTime().toLocalDate();
                             return sessionDate.equals(currentDate);
                         })
                         .collect(Collectors.toList());
@@ -5075,7 +5220,7 @@ public class ProductivityAndCalving {
     private double calculateTotalYield(List<ProductionSession> productionSessions) {
         double totalYield = 0;
         for (ProductionSession session : productionSessions) {
-            totalYield += session.getProductionVolume();
+            totalYield += session.productionVolume();
         }
         return Double.parseDouble(decimalFormat.format(totalYield));
     }

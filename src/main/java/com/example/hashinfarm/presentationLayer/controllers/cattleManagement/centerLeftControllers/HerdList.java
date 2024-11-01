@@ -4,7 +4,7 @@ import com.example.hashinfarm.data.DAOs.CattleDAO;
 import com.example.hashinfarm.data.DAOs.HerdDAO;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
-import com.example.hashinfarm.data.DTOs.SelectedHerdManager;
+import com.example.hashinfarm.businessLogic.services.SelectedHerdManager;
 import com.example.hashinfarm.data.DTOs.Cattle;
 import com.example.hashinfarm.data.DTOs.records.Herd;
 

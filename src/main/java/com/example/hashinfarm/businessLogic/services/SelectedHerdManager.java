@@ -1,4 +1,4 @@
-package com.example.hashinfarm.data.DTOs;
+package com.example.hashinfarm.businessLogic.services;
 
 import com.example.hashinfarm.data.DTOs.records.Herd;
 import javafx.beans.property.*;

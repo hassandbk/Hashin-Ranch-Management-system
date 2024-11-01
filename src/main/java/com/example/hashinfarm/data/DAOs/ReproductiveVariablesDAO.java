@@ -2,7 +2,7 @@ package com.example.hashinfarm.data.DAOs;
 
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger;
-import com.example.hashinfarm.data.DTOs.ReproductiveVariables;
+import com.example.hashinfarm.data.DTOs.records.ReproductiveVariables;
 
 import java.sql.*;
 import java.time.LocalDate;
@@ -12,17 +12,16 @@ import java.util.List;
 public class ReproductiveVariablesDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
 
-
     // Insert a new reproductive variable record
     public int addReproductiveVariableAndGetId(ReproductiveVariables reproductiveVariables) {
         String query = "INSERT INTO reproductivevariables (CattleID, BreedingDate, GestationPeriod, CalvingDate, CalvingInterval) VALUES (?, ?, ?, ?, ?)";
         try (Connection connection = DatabaseConnection.getInstance().getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query, Statement.RETURN_GENERATED_KEYS)) {
-            preparedStatement.setInt(1, reproductiveVariables.getCattleID());
-            preparedStatement.setObject(2, reproductiveVariables.getBreedingDate() != null ? Date.valueOf(reproductiveVariables.getBreedingDate()) : null);
-            preparedStatement.setInt(3, reproductiveVariables.getGestationPeriod());
-            preparedStatement.setObject(4, reproductiveVariables.getCalvingDate() != null ? Date.valueOf(reproductiveVariables.getCalvingDate()) : null);
-            preparedStatement.setObject(5, reproductiveVariables.getCalvingInterval());
+            preparedStatement.setInt(1, reproductiveVariables.cattleID());
+            preparedStatement.setObject(2, reproductiveVariables.breedingDate() != null ? Date.valueOf(reproductiveVariables.breedingDate()) : null);
+            preparedStatement.setInt(3, reproductiveVariables.gestationPeriod());
+            preparedStatement.setObject(4, reproductiveVariables.calvingDate() != null ? Date.valueOf(reproductiveVariables.calvingDate()) : null);
+            preparedStatement.setInt(5, reproductiveVariables.calvingInterval());
 
             int rowsAffected = preparedStatement.executeUpdate();
             if (rowsAffected > 0) {
@@ -32,11 +31,10 @@ public class ReproductiveVariablesDAO {
                 }
             }
         } catch (SQLException e) {
-            AppLogger.error("Error adding reproductive variable for cattle: " + reproductiveVariables.getCattleID(), e);
+            AppLogger.error("Error adding reproductive variable for cattle: " + reproductiveVariables.cattleID(), e);
         }
         return -1; // Return -1 if insertion fails
     }
-
 
     // Retrieve all reproductive variables for a given cattle ID
     public List<ReproductiveVariables> getAllReproductiveVariablesForCattle(int cattleID) {
@@ -47,13 +45,11 @@ public class ReproductiveVariablesDAO {
             preparedStatement.setInt(1, cattleID);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
-                    ReproductiveVariables reproductiveVariables =
-                            mapResultSetToReproductiveVariables(resultSet);
+                    ReproductiveVariables reproductiveVariables = mapResultSetToReproductiveVariables(resultSet);
                     reproductiveVariablesList.add(reproductiveVariables);
                 }
             }
         } catch (SQLException e) {
-            // Use AppLogger for error handling with a more specific message
             AppLogger.error("Error fetching reproductive variables for cattle: " + cattleID, e);
         }
         return reproductiveVariablesList;
@@ -61,36 +57,23 @@ public class ReproductiveVariablesDAO {
 
     // Update reproductive variable record
     public boolean updateReproductiveVariable(ReproductiveVariables reproductiveVariables) {
-        String query =
-                "UPDATE reproductivevariables SET BreedingDate=?, GestationPeriod=?, CalvingDate=?, CalvingInterval=? WHERE ReproductiveVariableID=?";
+        String query = "UPDATE reproductivevariables SET BreedingDate=?, GestationPeriod=?, CalvingDate=?, CalvingInterval=? WHERE ReproductiveVariableID=?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            // Check if reproductiveVariables.getBreedingDate() and reproductiveVariables.getCalvingDate() are not null before converting
-            Date breedingDate = reproductiveVariables.getBreedingDate() != null ? Date.valueOf(reproductiveVariables.getBreedingDate()) : null;
-            Date calvingDate = reproductiveVariables.getCalvingDate() != null ? Date.valueOf(reproductiveVariables.getCalvingDate()) : null;
-
-            preparedStatement.setDate(1, breedingDate);
-            preparedStatement.setInt(2, reproductiveVariables.getGestationPeriod());
-            preparedStatement.setDate(3, calvingDate);
-            preparedStatement.setInt(4, reproductiveVariables.getCalvingInterval());
-            preparedStatement.setInt(5, reproductiveVariables.getReproductiveVariableID());
+            preparedStatement.setDate(1, reproductiveVariables.breedingDate() != null ? Date.valueOf(reproductiveVariables.breedingDate()) : null);
+            preparedStatement.setInt(2, reproductiveVariables.gestationPeriod());
+            preparedStatement.setDate(3, reproductiveVariables.calvingDate() != null ? Date.valueOf(reproductiveVariables.calvingDate()) : null);
+            preparedStatement.setInt(4, reproductiveVariables.calvingInterval());
+            preparedStatement.setInt(5, reproductiveVariables.reproductiveVariableID());
             int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("Failed to update reproductive variable with ID: " + reproductiveVariables.getReproductiveVariableID());
-            } else {
-                return true;
-            }
+            return rowsAffected > 0;
+
         } catch (SQLException e) {
-            // Use AppLogger for error handling
-            AppLogger.error(
-                    "Error updating reproductive variable: "
-                            + reproductiveVariables.getReproductiveVariableID(),
-                    e);
+            AppLogger.error("Error updating reproductive variable: " + reproductiveVariables.reproductiveVariableID(), e);
             return false;
         }
     }
-
 
     // Delete reproductive variable record by ID
     public static boolean deleteReproductiveVariable(int reproductiveVariableID) {
@@ -101,36 +84,12 @@ public class ReproductiveVariablesDAO {
             int rowsAffected = preparedStatement.executeUpdate();
             return rowsAffected > 0;
         } catch (SQLException e) {
-            // Use AppLogger for error handling
             AppLogger.error("Error deleting reproductive variable: " + reproductiveVariableID, e);
             return false;
         }
     }
 
-    // Helper method to map ResultSet to ReproductiveVariables object
-    private ReproductiveVariables mapResultSetToReproductiveVariables(ResultSet resultSet)
-            throws SQLException {
-        ReproductiveVariables reproductiveVariables = new ReproductiveVariables();
-        reproductiveVariables.setReproductiveVariableID(resultSet.getInt("ReproductiveVariableID"));
-        reproductiveVariables.setCattleID(resultSet.getInt("CattleID"));
-
-        Date breedingDate = resultSet.getDate("BreedingDate");
-        if (breedingDate != null) {
-            reproductiveVariables.setBreedingDate(breedingDate.toLocalDate());
-        }
-
-        reproductiveVariables.setGestationPeriod(resultSet.getInt("GestationPeriod"));
-
-        Date calvingDate = resultSet.getDate("CalvingDate");
-        if (calvingDate != null) {
-            reproductiveVariables.setCalvingDate(calvingDate.toLocalDate());
-        }
-
-        reproductiveVariables.setCalvingInterval(resultSet.getInt("CalvingInterval"));
-
-        return reproductiveVariables;
-    }
-    public boolean deleteReproductiveVariable(Connection connection, int reproductiveVariableID) throws SQLException {
+    public boolean deleteReproductiveVariableAtomically(Connection connection, int reproductiveVariableID) throws SQLException {
         String query = "DELETE FROM reproductivevariables WHERE ReproductiveVariableID=?";
         try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, reproductiveVariableID);
@@ -138,23 +97,35 @@ public class ReproductiveVariablesDAO {
             return rowsAffected > 0;
         }
     }
-    public  ReproductiveVariables getReproductiveVariableByCattleIdAndBreedingDate(int cattleId, LocalDate breedingDate) throws SQLException {
+
+    // Helper method to map ResultSet to ReproductiveVariables record
+    private ReproductiveVariables mapResultSetToReproductiveVariables(ResultSet resultSet) throws SQLException {
+        int reproductiveVariableID = resultSet.getInt("ReproductiveVariableID");
+        int cattleID = resultSet.getInt("CattleID");
+        LocalDate breedingDate = resultSet.getDate("BreedingDate") != null ? resultSet.getDate("BreedingDate").toLocalDate() : null;
+        int gestationPeriod = resultSet.getInt("GestationPeriod");
+        LocalDate calvingDate = resultSet.getDate("CalvingDate") != null ? resultSet.getDate("CalvingDate").toLocalDate() : null;
+        int calvingInterval = resultSet.getInt("CalvingInterval");
+
+        return new ReproductiveVariables(reproductiveVariableID, cattleID, breedingDate, gestationPeriod, calvingDate, calvingInterval);
+    }
+
+    public ReproductiveVariables getReproductiveVariableByCattleIdAndBreedingDate(int cattleId, LocalDate breedingDate) throws SQLException {
         String query = "SELECT * FROM reproductivevariables WHERE CattleID = ? AND BreedingDate = ?";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, cattleId);
-            preparedStatement.setDate(2, Date.valueOf(breedingDate)); // Convert LocalDate to SQL Date
+            preparedStatement.setDate(2, Date.valueOf(breedingDate));
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapResultSetToReproductiveVariables(resultSet);
-                } else {
-                    return null; // No record found
                 }
             }
         } catch (SQLException e) {
             AppLogger.error("Error fetching reproductive variable for cattle: " + cattleId + " and breeding date: " + breedingDate, e);
-            throw e; // Re-throw the exception for proper handling
+            throw e;
         }
+        return null;
     }
 
     public ReproductiveVariables getNextBreedingAttempt(int cattleId, LocalDate afterDate) throws SQLException {
@@ -162,19 +133,19 @@ public class ReproductiveVariablesDAO {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
             preparedStatement.setInt(1, cattleId);
-            preparedStatement.setDate(2, Date.valueOf(afterDate)); // Convert LocalDate to SQL Date
+            preparedStatement.setDate(2, Date.valueOf(afterDate));
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapResultSetToReproductiveVariables(resultSet);
-                } else {
-                    return null; // No next breeding attempt found
                 }
             }
         } catch (SQLException e) {
             AppLogger.error("Error fetching next breeding attempt for cattle: " + cattleId + " after date: " + afterDate, e);
-            throw e; // Re-throw the exception for proper handling
+            throw e;
         }
+        return null;
     }
+
     public static boolean updateGestationPeriod(int cattleId, int newGestationLength) throws SQLException {
         String query = "UPDATE reproductivevariables SET GestationPeriod = ? WHERE CattleID = ?";
         try (Connection connection = dbConnection.getConnection();
@@ -182,8 +153,7 @@ public class ReproductiveVariablesDAO {
             preparedStatement.setInt(1, newGestationLength);
             preparedStatement.setInt(2, cattleId);
             int rowsAffected = preparedStatement.executeUpdate();
-            return rowsAffected > 0; // return true if at least one row was updated
+            return rowsAffected > 0;
         }
     }
-
 }

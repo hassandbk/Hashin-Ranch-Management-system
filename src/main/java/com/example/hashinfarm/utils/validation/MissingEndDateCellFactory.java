@@ -1,6 +1,6 @@
 package com.example.hashinfarm.utils.validation;
 
-import com.example.hashinfarm.data.DTOs.LactationPeriodWithSelection;
+import com.example.hashinfarm.data.DTOs.records.LactationPeriodWithSelection;
 import javafx.animation.Animation;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -64,8 +64,8 @@ public class MissingEndDateCellFactory implements Callback<TableColumn<Lactation
                     setStyle(null); // Clear any style applied
                 } else {
                     LactationPeriodWithSelection lactationPeriodWithSelection = getTableView().getItems().get(getIndex());
-                    LocalDate startDate = lactationPeriodWithSelection.getLactationPeriod().startDate();
-                    LocalDate endDate = lactationPeriodWithSelection.getLactationPeriod().endDate();
+                    LocalDate startDate = lactationPeriodWithSelection.lactationPeriod().startDate();
+                    LocalDate endDate = lactationPeriodWithSelection.lactationPeriod().endDate();
                     LocalDate currentDate = LocalDate.now();
 
                     long daysSinceStart = ChronoUnit.DAYS.between(startDate, currentDate);

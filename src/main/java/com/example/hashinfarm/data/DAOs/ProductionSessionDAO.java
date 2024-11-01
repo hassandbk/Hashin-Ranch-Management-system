@@ -1,6 +1,6 @@
 package com.example.hashinfarm.data.DAOs;
 
-import com.example.hashinfarm.data.DTOs.ProductionSession;
+import com.example.hashinfarm.data.DTOs.records.ProductionSession;
 import com.example.hashinfarm.app.DatabaseConnection;
 
 import java.sql.*;
@@ -55,20 +55,21 @@ public class ProductionSessionDAO {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
-            preparedStatement.setInt(1, productionSession.getLactationPeriodID());
-            preparedStatement.setInt(2, productionSession.getCattleID());
-            preparedStatement.setTimestamp(3, productionSession.getStartTime());
-            preparedStatement.setTimestamp(4, productionSession.getEndTime());
-            preparedStatement.setString(5, productionSession.getQualityScore());
-            preparedStatement.setDouble(6, productionSession.getProductionVolume());
+            preparedStatement.setInt(1, productionSession.lactationPeriodID());
+            preparedStatement.setInt(2, productionSession.cattleID());
+            preparedStatement.setTimestamp(3, productionSession.startTime());
+            preparedStatement.setTimestamp(4, productionSession.endTime());
+            preparedStatement.setString(5, productionSession.qualityScore());
+            preparedStatement.setDouble(6, productionSession.productionVolume());
 
             if (includeSessionID) {
-                preparedStatement.setInt(7, productionSession.getSessionID());
+                preparedStatement.setInt(7, productionSession.sessionID());
             }
 
             preparedStatement.executeUpdate();
         }
     }
+
     public static List<ProductionSession> getProductionSessionsByLactationIdAndDateRange(int lactationPeriodId, LocalDate startDate, LocalDate endDate) throws SQLException {
         List<ProductionSession> productionSessions = new ArrayList<>();
         String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ? AND DATE(StartTime) >= ? AND DATE(StartTime) <= ?";
@@ -88,7 +89,8 @@ public class ProductionSessionDAO {
         }
         return productionSessions;
     }
-    public static List<ProductionSession> getProductionSessionsByLactationIdAndDate(int lactationPeriodId, LocalDate SpecifiedDate) throws SQLException {
+
+    public static List<ProductionSession> getProductionSessionsByLactationIdAndDate(int lactationPeriodId, LocalDate specifiedDate) throws SQLException {
         List<ProductionSession> productionSessions = new ArrayList<>();
         String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ? AND DATE(StartTime) = ?";
 
@@ -96,7 +98,7 @@ public class ProductionSessionDAO {
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
 
             preparedStatement.setInt(1, lactationPeriodId);
-            preparedStatement.setDate(2, Date.valueOf(SpecifiedDate));
+            preparedStatement.setDate(2, Date.valueOf(specifiedDate));
 
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 while (resultSet.next()) {
@@ -106,6 +108,7 @@ public class ProductionSessionDAO {
         }
         return productionSessions;
     }
+
     private static ProductionSession extractProductionSessionFromResultSet(ResultSet resultSet) throws SQLException {
         int sessionID = resultSet.getInt("SessionID");
         int lactationPeriodID = resultSet.getInt("LactationPeriodID");
@@ -135,7 +138,6 @@ public class ProductionSessionDAO {
                     Timestamp startTime = resultSet.getTimestamp("StartTime");
                     Timestamp endTime = resultSet.getTimestamp("EndTime");
 
-                    // Retain the time part and update the date part
                     LocalDateTime newStartDateTime = LocalDateTime.of(newDate, startTime.toLocalDateTime().toLocalTime());
                     LocalDateTime newEndDateTime = LocalDateTime.of(newDate, endTime.toLocalDateTime().toLocalTime());
 
@@ -169,6 +171,7 @@ public class ProductionSessionDAO {
         }
         return productionSessions;
     }
+
     public static List<ProductionSession> getProductionSessionsByLactationPeriodId(int lactationPeriodId) throws SQLException {
         List<ProductionSession> productionSessions = new ArrayList<>();
         String query = "SELECT * FROM productionsession WHERE LactationPeriodID = ?";
@@ -217,33 +220,27 @@ public class ProductionSessionDAO {
     public static Map<String, List<ProductionSession>> categorizeSessionsByTimeOfDay(List<ProductionSession> sessions) {
         Map<String, List<ProductionSession>> categorizedSessions = new HashMap<>();
 
-        // Initialize lists for morning, afternoon, and evening sessions
         List<ProductionSession> morningSessions = new ArrayList<>();
         List<ProductionSession> afternoonSessions = new ArrayList<>();
         List<ProductionSession> eveningSessions = new ArrayList<>();
 
-        // Categorize sessions based on start time
         for (ProductionSession session : sessions) {
-            LocalDateTime startTime = session.getStartTime().toLocalDateTime(); // Convert Timestamp to LocalDateTime
-            LocalTime timeOfDay = startTime.toLocalTime(); // Extract time from LocalDateTime
+            LocalDateTime startTime = session.startTime().toLocalDateTime();
+            LocalTime timeOfDay = startTime.toLocalTime();
 
-            // Categorize sessions based on time range
-            if (timeOfDay.isBefore(LocalTime.NOON)) { // Before 12:00 PM
+            if (timeOfDay.isBefore(LocalTime.NOON)) {
                 morningSessions.add(session);
-            } else if (timeOfDay.isBefore(LocalTime.of(16, 0))) { // Before 4:00 PM
+            } else if (timeOfDay.isBefore(LocalTime.of(16, 0))) {
                 afternoonSessions.add(session);
-            } else { // From 4:00 PM onwards
+            } else {
                 eveningSessions.add(session);
             }
         }
 
-        // Add categorized sessions to the map
         categorizedSessions.put("Morning", morningSessions);
         categorizedSessions.put("Afternoon", afternoonSessions);
         categorizedSessions.put("Evening", eveningSessions);
 
         return categorizedSessions;
     }
-
-
 }

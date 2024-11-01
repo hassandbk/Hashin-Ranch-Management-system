@@ -54,7 +54,6 @@ module com.example.hashinfarm {
     // Package opens for reflection access (alphabetized)
     opens com.example.hashinfarm to javafx.fxml;
     opens com.example.hashinfarm.app to javafx.fxml;
-    opens com.example.hashinfarm.businessLogic.services to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.data.DTOs to com.fasterxml.jackson.databind, javafx.base, javafx.fxml;
     opens com.example.hashinfarm.helpers to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.presentationLayer.controllers to javafx.fxml;
@@ -69,4 +68,5 @@ module com.example.hashinfarm {
     opens com.example.hashinfarm.utils.logging to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.utils.validation to javafx.base, javafx.fxml;
     opens com.example.hashinfarm.data.DTOs.records to com.fasterxml.jackson.databind, javafx.base, javafx.fxml;
+    opens com.example.hashinfarm.businessLogic.services to com.fasterxml.jackson.databind, javafx.base, javafx.fxml;
 }
