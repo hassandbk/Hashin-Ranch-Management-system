@@ -23,4 +23,9 @@ public record Herd(
         this(id, name, totalAnimals, animalClass, breedType, breedSystem, ageClass, solutionType, feedBasis, location,
                 action, FXCollections.observableArrayList());
     }
+
+    // Add this method to return an unmodifiable view of animals
+    public ObservableList<Cattle> getAnimals() {
+        return FXCollections.unmodifiableObservableList(animals);
+    }
 }

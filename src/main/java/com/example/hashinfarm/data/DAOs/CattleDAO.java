@@ -1,7 +1,6 @@
 package com.example.hashinfarm.data.DAOs;
 
 import com.example.hashinfarm.app.DatabaseConnection;
-import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.data.DTOs.Cattle;
 import com.example.hashinfarm.data.DTOs.records.FilteredCattle;
 
@@ -12,110 +11,90 @@ import java.util.List;
 
 public class CattleDAO {
     private static final DatabaseConnection dbConnection = DatabaseConnection.getInstance();
+    private static final String BASE_QUERY = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, " +
+            "dam.Name AS DamName, sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, " +
+            "sire_breed.BreedName AS SireBreedName, dam_breed.BreedName AS DamBreedName " +
+            "FROM cattle c LEFT JOIN breed ON c.BreedID = breed.BreedID " +
+            "LEFT JOIN cattle sire ON c.SireID = sire.CattleID LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
+            "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
+            "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
+            "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID ";
 
-    public static List<Cattle> getCattleForHerd(int herdId) throws SQLException {
-        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
-                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
-                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
-                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
-                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
-                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
-                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
-                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
-                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
-                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
-                "WHERE c.HerdID = ?";
-        return getCattleByQuery(query, herdId);
+    public static List<Cattle> getCattleByHerdId(int herdId) throws SQLException {
+        return getCattleList(BASE_QUERY + "WHERE c.HerdID = ?", herdId);
     }
 
     public static List<Cattle> getCattleForGender(String gender) throws SQLException {
-        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
-                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
-                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
-                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
-                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
-                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
-                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
-                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
-                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
-                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
-                "WHERE c.Gender = ?";
-        return getCattleByQuery(query, gender);
+        return getCattleList(BASE_QUERY + "WHERE c.Gender = ?", gender);
     }
+
     public static Cattle getCattleByTagAndName(String tagId, String name) throws SQLException {
-        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
-                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
-                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
-                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
-                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
-                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
-                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
-                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
-                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
-                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
-                "WHERE c.TagID = ? AND c.Name = ?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, tagId);
-            preparedStatement.setString(2, name);
+        return getCattle(BASE_QUERY + "WHERE c.TagID = ? AND c.Name = ?", tagId, name);
+    }
+
+    public static Cattle getCattleByID(int cattleID) throws SQLException {
+        return getCattle(BASE_QUERY + "WHERE c.CattleID = ?", cattleID);
+    }
+
+
+
+    public static List<Cattle> getProgenyByCattleId(int cattleId) throws SQLException {
+        return getCattleList(BASE_QUERY + "WHERE (c.SireID = ? OR c.DamID = ?) AND c.CattleID != ?", cattleId, cattleId, cattleId);
+    }
+    public static Cattle findCattleByBirthdateAndDamId(LocalDate calvingDate, int damId) throws SQLException {
+        return getCattle(BASE_QUERY + "WHERE c.DamID = ? AND c.DateOfBirth = ?", damId, Date.valueOf(calvingDate));
+    }
+    public static Cattle findCattleByBirthdateAndDamIdAtomically(Connection connection, LocalDate calvingDate, int damId) throws SQLException {
+        String query = BASE_QUERY + "WHERE c.DamID = ? AND c.DateOfBirth = ?";
+        try (PreparedStatement preparedStatement = (connection != null)
+                ? connection.prepareStatement(query)
+                : dbConnection.getConnection().prepareStatement(query)) {
+            preparedStatement.setInt(1, damId);
+            preparedStatement.setDate(2, Date.valueOf(calvingDate));
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapResultSetToCattle(resultSet);
                 }
             }
         }
-        return null; // Return null if no cattle found
+        return null; // No matching cattle record found
     }
-
-
-    private static List<Cattle> getCattleByQuery(String query, Object parameter) throws SQLException {
-        List<Cattle> cattleList = new ArrayList<>();
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setObject(1, parameter);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    cattleList.add(mapResultSetToCattle(resultSet));
-                }
-            }
-        }
-        return cattleList;
-    }
-
-    public static String getTagIdByCattleId(int cattleId) throws SQLException {
-        String tagId = null;
-        String query = "SELECT TagID FROM cattle WHERE CattleID=?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, cattleId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    tagId = resultSet.getString("TagID");
-                }
-            }
-        }
-        return tagId;
-    }
-
-    public static int addCattle(Cattle cattle) throws SQLException {
+    public static int addCattle(Cattle cattle) {
         String query = "INSERT INTO cattle (TagID, HerdID, ColorMarkings, Name, Gender, DateOfBirth, WeightID, BCS, BreedID, SireID, DamID, DamsHerd, SiresHerd) " +
                 "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query, PreparedStatement.RETURN_GENERATED_KEYS)) {
             setCattlePreparedStatementValues(preparedStatement, cattle);
             int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected == 1) {
-                ResultSet generatedKeys = preparedStatement.getGeneratedKeys();
-                if (generatedKeys.next()) {
-                    return generatedKeys.getInt(1); // Return the generated cattle ID
-                }
+            if (rowsAffected == 1 && preparedStatement.getGeneratedKeys().next()) {
+                return preparedStatement.getGeneratedKeys().getInt(1);
             }
         } catch (SQLException e) {
-            handleSQLException(e);
             e.printStackTrace();
-            throw e; // Re-throw the exception for higher-level handling
         }
-        return -1; // Return -1 if insertion failed
+        return -1;
+    }
+
+    public static boolean updateCattleDateOfBirth(int cattleID, LocalDate calvingDate) {
+        return executeUpdate("UPDATE Cattle SET dateOfBirth = ? WHERE CattleID = ?", Date.valueOf(calvingDate), cattleID);
+    }
+
+    public static boolean updateCattleGender(int cattleId, String newGender) {
+        return executeUpdate("UPDATE cattle SET Gender = ? WHERE CattleID = ?", newGender, cattleId);
+    }
+
+    public static void updateCattle(Cattle cattle) {
+        String query = "UPDATE cattle SET TagID=?, ColorMarkings=?, Name=?, Gender=?, DateOfBirth=?, WeightID=?, BCS=?, BreedID=?, SireID=?, DamID=?, DamsHerd=?, SiresHerd=? WHERE CattleID=?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            setCattlePreparedStatementValues(preparedStatement, cattle);
+            preparedStatement.setInt(13, cattle.getCattleId());
+            if (preparedStatement.executeUpdate() == 0) {
+                throw new SQLException("Failed to update cattle with ID: " + cattle.getCattleId());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void setCattlePreparedStatementValues(PreparedStatement preparedStatement, Cattle cattle) throws SQLException {
@@ -134,98 +113,24 @@ public class CattleDAO {
         preparedStatement.setInt(13, cattle.getSiresHerd());
     }
 
-    public static void deleteCattleByHerdId(int herdId) throws SQLException {
-        String query = "DELETE FROM cattle WHERE HerdID=?";
+    private static List<Cattle> getCattleList(String query, Object... params) throws SQLException {
+        List<Cattle> cattleList = new ArrayList<>();
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, herdId);
-            preparedStatement.executeUpdate();
-        }
-    }
-
-    public static void deleteCattleById(int cattleId) throws SQLException {
-        String query = "DELETE FROM cattle WHERE CattleID=?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, cattleId);
-            preparedStatement.executeUpdate();
-        }
-    }
-
-    public static void updateCattle(Cattle cattle) {
-        String query = "UPDATE cattle SET TagID=?, ColorMarkings=?, Name=?, Gender=?, DateOfBirth=?, WeightID=?, BCS=?, BreedID=?, SireID=?, DamID=?, DamsHerd=?, SiresHerd=? WHERE CattleID=?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, cattle.getTagId());
-            preparedStatement.setString(2, cattle.getColorMarkings());
-            preparedStatement.setString(3, cattle.getName());
-            preparedStatement.setString(4, cattle.getGender());
-            preparedStatement.setDate(5, Date.valueOf(cattle.getDateOfBirth()));
-            preparedStatement.setInt(6, cattle.getWeightId());
-            preparedStatement.setString(7, cattle.getBcs());
-            preparedStatement.setInt(8, cattle.getBreedId());
-            preparedStatement.setInt(9, cattle.getSireId());
-            preparedStatement.setInt(10, cattle.getDamId());
-            preparedStatement.setInt(11, cattle.getDamsHerd());
-            preparedStatement.setInt(12, cattle.getSiresHerd());
-            preparedStatement.setInt(13, cattle.getCattleId());
-
-            int rowsAffected = preparedStatement.executeUpdate();
-            if (rowsAffected == 0) {
-                throw new SQLException("Failed to update cattle with ID: " + cattle.getCattleId());
+            setParameters(preparedStatement, params);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                while (resultSet.next()) {
+                    cattleList.add(mapResultSetToCattle(resultSet));
+                }
             }
-        } catch (SQLException e) {
-            // Use AppLogger for error handling with a specific message
-            AppLogger.error("Error updating cattle: " + cattle.getCattleId(), e);
-            e.printStackTrace();
         }
+        return cattleList;
     }
 
-    private static Cattle mapResultSetToCattle(ResultSet resultSet) throws SQLException {
-        int cattleID = resultSet.getInt("CattleID");
-        String tagID = resultSet.getString("TagID");
-        int herdID = resultSet.getInt("HerdID");
-        String colorMarkings = resultSet.getString("ColorMarkings");
-        String name = resultSet.getString("Name");
-        String gender = resultSet.getString("Gender");
-        LocalDate dateOfBirth = resultSet.getDate("DateOfBirth") != null ? resultSet.getDate("DateOfBirth").toLocalDate() : null;
-        int weightID = resultSet.getInt("WeightID");
-        String bcs = resultSet.getString("BCS");
-        int breedID = resultSet.getInt("BreedID");
-        String breedName = resultSet.getString("BreedName");
-        int sireID = resultSet.getInt("SireID");
-        String sireName = resultSet.getString("SireName");
-        int damID = resultSet.getInt("DamID");
-        String damName = resultSet.getString("DamName");
-        int damsHerd = resultSet.getInt("DamsHerd");
-        int siresHerd = resultSet.getInt("SiresHerd");
-        String damHerdName = resultSet.getString("DamHerdName");
-        String sireHerdName = resultSet.getString("SireHerdName");
-        String sireBreedName = resultSet.getString("SireBreedName");
-        String damBreedName = resultSet.getString("DamBreedName");
-
-        // Return a new Cattle object with the retrieved data
-        return new Cattle(cattleID, tagID, herdID, colorMarkings, name, gender, dateOfBirth, weightID,
-                bcs, breedID, breedName, sireID, sireName, damID, damName, damsHerd, siresHerd,
-                damHerdName, sireHerdName, sireBreedName, damBreedName);
-    }
-
-
-    public static Cattle getCattleByID(int cattleID) throws SQLException {
-        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
-                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
-                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
-                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
-                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
-                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
-                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
-                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
-                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
-                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
-                "WHERE c.CattleID = ?";
+    private static Cattle getCattle(String query, Object... params) throws SQLException {
         try (Connection connection = dbConnection.getConnection();
              PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, cattleID);
+            setParameters(preparedStatement, params);
             try (ResultSet resultSet = preparedStatement.executeQuery()) {
                 if (resultSet.next()) {
                     return mapResultSetToCattle(resultSet);
@@ -235,53 +140,95 @@ public class CattleDAO {
         return null;
     }
 
-    private static void handleSQLException(SQLException e) {
-        System.err.println("SQLException occurred: " + e.getMessage());
-        // Additional error handling logic can be added as per requirements
-        e.printStackTrace();
-    }
-
-    public static Cattle findCattleByBirthdateAndDamId(LocalDate calvingDate, int damId) throws SQLException {
-        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
-                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
-                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
-                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
-                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
-                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
-                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
-                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
-                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
-                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
-                "WHERE c.DamID = ? AND c.DateOfBirth = ?";
+    private static boolean executeUpdate(String query, Object... params) {
         try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, damId);
-            preparedStatement.setDate(2, Date.valueOf(calvingDate));
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapResultSetToCattle(resultSet);
-                } else {
-                    // No matching cattle record found, return null
-                    return null;
-                }
-            }
-        }
-    }
-
-    public static boolean updateCattleDateOfBirth(int cattleID, LocalDate calvingDate) {
-        try {
-            Connection connection = dbConnection.getConnection();
-            PreparedStatement statement = connection.prepareStatement("UPDATE Cattle SET dateOfBirth = ? WHERE CattleID = ?");
-            statement.setDate(1, Date.valueOf(calvingDate));
-            statement.setInt(2, cattleID);
-            int rowsAffected = statement.executeUpdate();
-            return rowsAffected > 0;
+             PreparedStatement statement = connection.prepareStatement(query)) {
+            setParameters(statement, params);
+            return statement.executeUpdate() > 0;
         } catch (SQLException e) {
-            // Handle any potential SQL exceptions here
-            AppLogger.error("Failed to update cattle's date of birth: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
+    }
+
+    public static void deleteCattleByHerdId(int herdId) throws SQLException {
+        executeDelete("DELETE FROM cattle WHERE HerdID = ?", herdId);
+    }
+
+    public static void deleteCattleById(int cattleId) throws SQLException {
+        executeDelete("DELETE FROM cattle WHERE CattleID = ?", cattleId);
+    }
+
+    public static void deleteCattleByIdAtomically(Connection connection, int cattleId) throws SQLException {
+        executeDelete(connection, cattleId);
+    }
+
+    private static void executeDelete(String query, Object... params) throws SQLException {
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            setParameters(preparedStatement, params);
+            preparedStatement.executeUpdate();
+        }
+    }
+
+    private static void executeDelete(Connection connection, Object... params) throws SQLException {
+        try (PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM cattle WHERE CattleID = ?")) {
+            setParameters(preparedStatement, params);
+            preparedStatement.executeUpdate();
+        }
+    }
+    private static void setParameters(PreparedStatement statement, Object... params) throws SQLException {
+        for (int i = 0; i < params.length; i++) {
+            statement.setObject(i + 1, params[i]);
+        }
+    }
+
+    private static Cattle mapResultSetToCattle(ResultSet resultSet) throws SQLException {
+        return new Cattle(
+                resultSet.getInt("CattleID"),
+                resultSet.getString("TagID"),
+                resultSet.getInt("HerdID"),
+                resultSet.getString("ColorMarkings"),
+                resultSet.getString("Name"),
+                resultSet.getString("Gender"),
+                resultSet.getDate("DateOfBirth").toLocalDate(),
+                resultSet.getInt("WeightID"),
+                resultSet.getString("BCS"),
+                resultSet.getInt("BreedID"),
+                resultSet.getString("BreedName"),
+                resultSet.getInt("SireID"),
+                resultSet.getString("SireName"),
+                resultSet.getInt("DamID"),
+                resultSet.getString("DamName"),
+                resultSet.getInt("DamsHerd"),
+                resultSet.getInt("SiresHerd"),
+                resultSet.getString("DamHerdName"),
+                resultSet.getString("SireHerdName"),
+                resultSet.getString("SireBreedName"),
+                resultSet.getString("DamBreedName")
+        );
+    }
+
+
+
+
+
+
+
+
+    public static String getTagIdByCattleId(int cattleId) throws SQLException {
+        String tagId = null;
+        String query = "SELECT TagID FROM cattle WHERE CattleID=?";
+        try (Connection connection = dbConnection.getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            preparedStatement.setInt(1, cattleId);
+            try (ResultSet resultSet = preparedStatement.executeQuery()) {
+                if (resultSet.next()) {
+                    tagId = resultSet.getString("TagID");
+                }
+            }
+        }
+        return tagId;
     }
 
     // Fetch DateOfBirth from cattle table based on CattleID
@@ -294,42 +241,9 @@ public class CattleDAO {
                 return cattle.getDateOfBirth();
             }
         } catch (SQLException e) {
-            // Use AppLogger for error handling with a specific message
-            AppLogger.error("Error fetching date of birth for cattle: " + cattleID, e);
             e.printStackTrace();
         }
         return null;
-    }
-    public static Cattle findCattleByBirthdateAndDamId(Connection connection, LocalDate calvingDate, int damId) throws SQLException {
-        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
-                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
-                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
-                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
-                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
-                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
-                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
-                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
-                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
-                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
-                "WHERE c.DamID = ? AND c.DateOfBirth = ?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, damId);
-            preparedStatement.setDate(2, Date.valueOf(calvingDate));
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                if (resultSet.next()) {
-                    return mapResultSetToCattle(resultSet);
-                } else {
-                    return null;
-                }
-            }
-        }
-    }
-    public static void deleteCattleById(Connection connection, int cattleId) throws SQLException {
-        String query = "DELETE FROM cattle WHERE CattleID=?";
-        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, cattleId);
-            int rowsAffected = preparedStatement.executeUpdate();
-        }
     }
     public List<FilteredCattle> getAllCattleBySelectedCriteria(String selectedCriteria, String selectedValue) throws SQLException {
         List<FilteredCattle> filteredCattleList = new ArrayList<>();
@@ -384,10 +298,6 @@ public class CattleDAO {
     }
 
 
-
-
-
-
     private static FilteredCattle extractFilteredCattleFromResultSet(ResultSet resultSet) throws SQLException {
         int cattleID = resultSet.getInt("CattleID");
         String tagID = resultSet.getString("TagID");
@@ -397,48 +307,7 @@ public class CattleDAO {
         return new FilteredCattle(cattleID, tagID, name, herdID);
     }
 
-    public static List<Cattle> getProgenyByCattleId(int cattleId) throws SQLException {
-        List<Cattle> progenyList = new ArrayList<>();
-        String query = "SELECT c.*, breed.BreedName AS BreedName, sire.Name AS SireName, dam.Name AS DamName, " +
-                "sireHerd.Name AS SireHerdName, damHerd.Name AS DamHerdName, sire_breed.BreedName AS SireBreedName, " +
-                "dam_breed.BreedName AS DamBreedName FROM cattle c " +
-                "LEFT JOIN breed ON c.BreedID = breed.BreedID " +
-                "LEFT JOIN cattle sire ON c.SireID = sire.CattleID " +
-                "LEFT JOIN cattle dam ON c.DamID = dam.CattleID " +
-                "LEFT JOIN herd sireHerd ON c.SiresHerd = sireHerd.HerdID " +
-                "LEFT JOIN herd damHerd ON c.DamsHerd = damHerd.HerdID " +
-                "LEFT JOIN breed AS sire_breed ON sire.BreedID = sire_breed.BreedID " +
-                "LEFT JOIN breed AS dam_breed ON dam.BreedID = dam_breed.BreedID " +
-                "WHERE (c.SireID = ? OR c.DamID = ?) AND c.CattleID != ?";  // Exclude the cattle itself from the results
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setInt(1, cattleId);
-            preparedStatement.setInt(2, cattleId);
-            preparedStatement.setInt(3, cattleId);
-            try (ResultSet resultSet = preparedStatement.executeQuery()) {
-                while (resultSet.next()) {
-                    Cattle progeny = mapResultSetToCattle(resultSet);
-                    // Identify dam or sire based on cattleId match
-                    if (cattleId == progeny.getSireId()) {
-                        progeny.setDamList(true);  // Flag this record as dam's progeny
-                    } else {
-                        progeny.setSireList(true);  // Flag this record as sire's progeny
-                    }
-                    progenyList.add(progeny);
-                }
-            }
-        }
-        return progenyList;
-    }
-    public static boolean updateCattleGender(int cattleId, String newGender) throws SQLException {
-        String query = "UPDATE cattle SET Gender = ? WHERE CattleID = ?";
-        try (Connection connection = dbConnection.getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query)) {
-            preparedStatement.setString(1, newGender);
-            preparedStatement.setInt(2, cattleId);
-            int rowsAffected = preparedStatement.executeUpdate();
-            return rowsAffected > 0; // return true if at least one row was updated
-        }
-    }
+
+
 
 }

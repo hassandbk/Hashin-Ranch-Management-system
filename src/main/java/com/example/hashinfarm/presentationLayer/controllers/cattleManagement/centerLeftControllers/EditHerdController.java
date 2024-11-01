@@ -204,18 +204,21 @@ public class EditHerdController {
 
   public void handleRefreshCattleFromHerd() {
     try {
-      List<Cattle> updatedCattleList = CattleDAO.getCattleForHerd(selectedHerd.id());
-      ObservableList<Cattle> cattleList = FXCollections.observableArrayList(updatedCattleList);
+      // Get the list of cattle directly from the selected herd's existing data
+      ObservableList<Cattle> cattleList = FXCollections.observableArrayList(selectedHerd.getAnimals());
+
+      // Update the cattle table view with the refreshed list
       cattleTableView.setItems(cattleList);
+
+      // Show success message
       showAlert(Alert.AlertType.INFORMATION, "Success", "Cattle list refreshed successfully.");
-    } catch (SQLException e) {
-      // Use AppLogger for error handling
+    } catch (Exception e) {
+      // Log error and show user-friendly alert
       AppLogger.error("Error refreshing cattle list", e);
-      // Update error message in showAlert
-      showAlert(
-              Alert.AlertType.ERROR, "Error", "Failed to refresh cattle list. See logs for details.");
+      showAlert(Alert.AlertType.ERROR, "Error", "Failed to refresh cattle list. See logs for details.");
     }
   }
+
 
   private void showAlert(Alert.AlertType type, String title, String content) {
     Alert alert = new Alert(type);

@@ -1,6 +1,5 @@
 package com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerLeftControllers;
 
-import com.example.hashinfarm.data.DAOs.CattleDAO;
 import com.example.hashinfarm.data.DAOs.HerdDAO;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.businessLogic.services.SelectedCattleManager;
@@ -33,7 +32,7 @@ import java.util.stream.Collectors;
 
 public class HerdList {
 
-    private final ObservableList<Herd> herds = FXCollections.observableArrayList();
+  private final ObservableList<Herd> herds = FXCollections.observableArrayList();
   private final ObservableList<Herd> filteredHerds = FXCollections.observableArrayList();
   private final List<String> columnNames = Arrays.asList("Herd ID", "Herd Name", "Total Animals", "Animals Class", "Breed Type", "Age Class", "Breed System", "Solution Type", "Feed Basis", "Location");
     private Timer timer;
@@ -233,32 +232,29 @@ public class HerdList {
   }
 
   private void loadDataFromDatabase() throws SQLException {
-    List<Herd> herdsFromDB = HerdDAO.getAllHerds();
+    List<Herd> herdsFromDB = HerdDAO.getAllHerds(); // This now includes cattle lists within each Herd
 
     // Create a list to hold updated Herd records
     List<Herd> updatedHerds = new ArrayList<>();
 
     for (Herd herd : herdsFromDB) {
-      List<Cattle> cattleForHerd = CattleDAO.getCattleForHerd(herd.id());
-      ObservableList<Cattle> cattleObservableList = FXCollections.observableArrayList(cattleForHerd);
+      // Calculate total animals based on the embedded cattle list
+      int totalAnimals = herd.getAnimals().size();
 
-      // Calculate total animals
-      int totalAnimals = cattleObservableList.size();
-
-      // Create a new Herd record with updated animals and total animals
+      // Create a new Herd record with updated total animals count
       Herd updatedHerd = new Herd(
-              herd.id(),            // Keep the existing ID
-              herd.name(),          // Retain the existing name
-              totalAnimals,         // Set the new total animals count
-              herd.animalClass(),   // Retain the existing animal class
-              herd.breedType(),     // Retain the existing breed type
-              herd.ageClass(),      // Retain the existing age class
-              herd.breedSystem(),   // Retain the existing breed system
+              herd.id(),             // Keep the existing ID
+              herd.name(),           // Retain the existing name
+              totalAnimals,          // Set the new total animals count
+              herd.animalClass(),    // Retain the existing animal class
+              herd.breedType(),      // Retain the existing breed type
+              herd.ageClass(),       // Retain the existing age class
+              herd.breedSystem(),    // Retain the existing breed system
               herd.solutionType(),   // Retain the existing solution type
-              herd.feedBasis(),     // Retain the existing feed basis
-              herd.location(),      // Retain the existing location
-              herd.action(),        // Retain the existing action
-              cattleObservableList   // Set the updated list of cattle
+              herd.feedBasis(),      // Retain the existing feed basis
+              herd.location(),       // Retain the existing location
+              herd.action(),         // Retain the existing action
+              herd.getAnimals()      // Use the cattle list from the Herd object
       );
 
       // Add the updated Herd to the list

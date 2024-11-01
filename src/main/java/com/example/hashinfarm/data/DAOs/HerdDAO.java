@@ -1,5 +1,6 @@
 package com.example.hashinfarm.data.DAOs;
 
+import com.example.hashinfarm.data.DTOs.Cattle;
 import com.example.hashinfarm.data.DTOs.records.Herd;
 import com.example.hashinfarm.app.DatabaseConnection;
 import com.example.hashinfarm.utils.logging.AppLogger; // Assuming you have an AppLogger utility for logging
@@ -21,8 +22,33 @@ public class HerdDAO {
     // Method to retrieve all herds from the database
     public static List<Herd> getAllHerds() throws SQLException {
         String query = "SELECT * FROM herd";
-        return executeQuery(query);
+        List<Herd> herds = new ArrayList<>();
+
+        // First, load all herds into the list without animals
+        try (Connection connection = DatabaseConnection.getInstance().getConnection();
+             PreparedStatement preparedStatement = connection.prepareStatement(query);
+             ResultSet resultSet = preparedStatement.executeQuery()) {
+
+            while (resultSet.next()) {
+                Herd herd = extractHerdFromResultSet(resultSet);
+                herds.add(herd); // Add the herd to the list without animals
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            AppLogger.error("Error retrieving herds", e);
+            throw e;
+        }
+
+        // Now, iterate over the herds list and populate the animals for each herd
+        for (Herd herd : herds) {
+            int herdId = herd.id();
+            List<Cattle> animals = CattleDAO.getCattleByHerdId(herdId);
+            herd.animals().addAll(animals); // Adds animals to the Herd's animals list
+        }
+
+        return herds;
     }
+
 
     // Method to retrieve unique names from herds in the database
     public static List<String> getUniqueNamesFromHerd() throws SQLException {
@@ -50,24 +76,7 @@ public class HerdDAO {
         executeUpdate(query, herd);
     }
 
-    // Common method to execute SQL query and return result
-    private static List<Herd> executeQuery(String query) throws SQLException {
-        List<Herd> herds = new ArrayList<>();
-        try (Connection connection = DatabaseConnection.getInstance().getConnection();
-             PreparedStatement preparedStatement = connection.prepareStatement(query);
-             ResultSet resultSet = preparedStatement.executeQuery()) {
 
-            while (resultSet.next()) {
-                Herd herd = extractHerdFromResultSet(resultSet);
-                herds.add(herd);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            AppLogger.error("Error executing query: " + query, e);
-            throw e;
-        }
-        return herds;
-    }
 
     // Common method to execute SQL update
     private static void executeUpdate(String query, Herd herd) throws SQLException {

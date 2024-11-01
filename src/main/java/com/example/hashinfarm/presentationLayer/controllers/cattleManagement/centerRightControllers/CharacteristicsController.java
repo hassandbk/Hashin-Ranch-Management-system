@@ -7,11 +7,11 @@ import com.example.hashinfarm.businessLogic.services.handlers.ActionHandlerFacto
 import com.example.hashinfarm.data.DTOs.records.CattleImage;
 import com.example.hashinfarm.data.DTOs.Cattle;
 import com.example.hashinfarm.businessLogic.services.SelectedHerdManager;
+import com.example.hashinfarm.data.DTOs.records.Herd;
 import com.example.hashinfarm.presentationLayer.controllers.cattleManagement.centerRightControllers.cattleDetailsMoreButtonsControllers.ImageViewTableController;
 import com.example.hashinfarm.utils.logging.AppLogger;
 import com.example.hashinfarm.utils.validation.FileValidationController;
 import javafx.application.Platform;
-import javafx.beans.property.Property;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -54,9 +54,9 @@ public class CharacteristicsController {
 
   @FXML private Slider BCSSlider;
   @FXML private TextField BCSTextField;
-  @FXML private Label ageClassLabel,dateOfBirthLabel, herdSolutionTypeLabel, breedTypeLabel, breedSystemLabel,
-          animalClassLabel, sireIDLabel, sireHerdNameLabel, sireBreedNameLabel, damIDLabel,
-          damHerdNameLabel, damBreedNameLabel, cattleHerdLabel, cattleNameLabel, cattleIdLabel,
+  @FXML private Label ageClassLabel, herdSolutionTypeLabel, breedTypeLabel, breedSystemLabel, cattleHerdLabel, animalClassLabel,
+          dateOfBirthLabel, sireIDLabel, sireHerdNameLabel, sireBreedNameLabel, damIDLabel,
+          damHerdNameLabel, damBreedNameLabel, cattleNameLabel, cattleIdLabel,
           ageLabel, breedIDLabel, cattleBreedLabel, damNameLabel, sireNameLabel;
   @FXML private HBox imageContainer;
   @FXML private Button modifyCattle, uploadImage, addBreed;
@@ -153,24 +153,7 @@ public class CharacteristicsController {
             .orElse("");
   }
 
-  private void initializeCattleAndHerdListeners() {
-    addCattleListeners(SelectedCattleManager.getInstance()
-    );
 
-    addHerdListeners(SelectedHerdManager.getInstance(),
-            new Label[]{cattleHerdLabel, animalClassLabel, breedTypeLabel, ageClassLabel, breedSystemLabel, herdSolutionTypeLabel});
-  }
-
-  // New method to handle Cattle updates
-  private void addCattleListeners(SelectedCattleManager manager) {
-    manager.selectedCattleProperty().addListener((observable, oldCattle, newCattle) -> {
-      if (newCattle != null) {
-        updateCattleLabels(newCattle);
-      } else {
-        clearCattleLabels();
-      }
-    });
-  }
 
   // Update labels based on selected Cattle object
   private void updateCattleLabels(Cattle cattle) {
@@ -205,35 +188,52 @@ public class CharacteristicsController {
     sireBreedNameLabel.setText("");
     damBreedNameLabel.setText("");
   }
+  private void initializeCattleAndHerdListeners() {
+    addCattleListeners(SelectedCattleManager.getInstance());
+    addHerdListeners(SelectedHerdManager.getInstance());
+  }
 
-  // Add listeners for Herd updates
-  private void addHerdListeners(SelectedHerdManager manager, Label[] labels) {
-    // Define the properties for the herd listeners
-    String[] properties = new String[]{
-            "selectedHerdNameProperty", "selectedHerdAnimalClassProperty", "selectedHerdBreedTypeProperty",
-            "selectedHerdAgeClassProperty", "selectedHerdBreedSystemProperty", "selectedHerdSolutionTypeProperty"
-    };
-
-    for (int i = 0; i < labels.length; i++) {
-      final Label label = labels[i];
-      try {
-        // Get the property
-        Object property = manager.getClass().getMethod(properties[i]).invoke(manager);
-        // Ensure the property is observable and add a listener
-        if (property instanceof Property<?>) {
-          ((Property<?>) property).addListener(
-                  (observable, oldValue, newValue) -> updateLabel(label, newValue != null ? newValue.toString() : ""));
-        }
-      } catch (Exception e) {
-        e.printStackTrace();
+  // New method to handle Cattle updates
+  private void addCattleListeners(SelectedCattleManager manager) {
+    manager.selectedCattleProperty().addListener((observable, oldCattle, newCattle) -> {
+      if (newCattle != null) {
+        updateCattleLabels(newCattle);
+      } else {
+        clearCattleLabels();
       }
-    }
+    });
+  }
+  // Add listeners for Herd updates
+  private void addHerdListeners(SelectedHerdManager herdManager) {
+    herdManager.selectedHerdProperty().addListener((observable, oldHerd, newHerd) -> {
+      if (newHerd != null) {
+        updateHerdLabels(newHerd);
+      } else {
+        clearHerdLabels();
+      }
+    });
   }
 
-
-  private void updateLabel(Label label, String text) {
-    label.setText(text);
+  // Method to update herd-related labels
+  private void updateHerdLabels(Herd herd) {
+    ageClassLabel.setText(herd.ageClass());
+    herdSolutionTypeLabel.setText(herd.solutionType());
+    breedTypeLabel.setText(herd.breedType());
+    breedSystemLabel.setText(herd.breedSystem());
+    cattleHerdLabel.setText(herd.name());
+    animalClassLabel.setText(herd.animalClass());
   }
+
+  // Method to clear herd-related labels when no herd is selected
+  private void clearHerdLabels() {
+    ageClassLabel.setText("");
+    herdSolutionTypeLabel.setText("");
+    breedTypeLabel.setText("");
+    breedSystemLabel.setText("");
+    cattleHerdLabel.setText("");
+    animalClassLabel.setText("");
+  }
+
 
 
   private void updateAgeLabel(LocalDate birthdate) {

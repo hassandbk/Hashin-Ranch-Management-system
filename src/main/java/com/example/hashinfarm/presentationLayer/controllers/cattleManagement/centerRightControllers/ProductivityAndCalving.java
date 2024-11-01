@@ -1789,9 +1789,9 @@ public class ProductivityAndCalving {
     private boolean checkAndDeleteAssociatedCattle(Connection conn, int selectedCattleId, LocalDate calvingDate) {
         try {
 
-            Cattle cattle = CattleDAO.findCattleByBirthdateAndDamId(conn, calvingDate, selectedCattleId);
+            Cattle cattle = CattleDAO.findCattleByBirthdateAndDamIdAtomically(conn, calvingDate, selectedCattleId);
             if (cattle != null) {
-                CattleDAO.deleteCattleById(conn, cattle.getCattleId());
+                CattleDAO.deleteCattleByIdAtomically(conn, cattle.getCattleId());
 
             }
         } catch (SQLException e) {
@@ -2261,17 +2261,11 @@ public class ProductivityAndCalving {
 
 
     private boolean updateCattleTableGender(int cattleId, String newGender) {
-        try {
-            boolean success = CattleDAO.updateCattleGender(cattleId, newGender);
-            if (!success) {
-                showAlert(Alert.AlertType.WARNING, "Warning", "Failed to update cattle gender. Please check if the cattle ID is correct.");
-            }
-            return success;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            showAlert(Alert.AlertType.ERROR, "Error", "An error occurred while updating the cattle gender.");
-            return false;
+        boolean success = CattleDAO.updateCattleGender(cattleId, newGender);
+        if (!success) {
+            showAlert(Alert.AlertType.WARNING, "Warning", "Failed to update cattle gender. Please check if the cattle ID is correct.");
         }
+        return success;
     }
 
     private boolean updateReproductiveVariablesTable(int cattleId, int newGestationLength) {
